@@ -1,4 +1,4 @@
-﻿package fr.heldonica.mobile
+package fr.heldonica.mobile
 
 import android.content.ClipData
 import android.content.ClipboardManager
@@ -7,41 +7,21 @@ import android.content.Intent
 import android.net.Uri
 import android.widget.Toast
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 enum class MarqueCreation(val titre: String, val sousTitre: String) {
-    HELDONICA("Heldonica", "Instagram, site, carrousels"),
-    MEMORIA("Memoria Imperium", "YouTube Shorts, histoire")
+    HELDONICA("Heldonica", "Slow travel, carnets & Instagram"),
+    MEMORIA("Memoria Imperium", "YouTube Shorts & Histoire")
 }
 
 private enum class AssistantFlux { VIDEO, MUSIQUE }
@@ -52,75 +32,59 @@ private data class DemandeFlux(
 )
 
 /**
- * Espace de création unifié.
+ * Espace de création unifié et direct pour Google Pixel 8 Pro.
  *
- * Heldonica : photo + légende, carrousel, Google Photos, articles et CMS.
- * Memoria Imperium : le studio de shorts historiques existant est embarqué tel quel.
- *
- * Flow et Flow Music n'ont pas d'API publique : on prépare le prompt, on copie,
- * on ouvre l'outil Google, puis on importe le fichier produit. Aucun jeton.
+ * Utilise l'authentification native du Pixel (Photo Picker Android)
+ * pour accéder directement à Google Photos sans login ni mot de passe.
  */
 @Composable
 fun CreerScreen(
-    onPhoto: (carrousel: Boolean) -> Unit,
+    onPhoto: (carrousel: Boolean, ouvrirDirect: Boolean) -> Unit,
     onMontage: () -> Unit,
     onCarnet: () -> Unit,
-    onPhotosGoogle: () -> Unit,
     onCarrouselSite: () -> Unit,
     onCms: () -> Unit,
     onCerveau: () -> Unit
 ) {
     val contexte = LocalContext.current
-    val modeleLocal = CerveauLocal.estInstalle(contexte)
     var marque by remember { mutableStateOf(MarqueCreation.HELDONICA) }
     var demandeFlux by remember { mutableStateOf<DemandeFlux?>(null) }
-    var cmsConfigure by remember {
-        mutableStateOf(BrainClient.obtenirMotDePasse(contexte).isNotBlank())
-    }
-    var demandeMotDePasse by remember { mutableStateOf(false) }
 
     Column(Modifier.fillMaxSize()) {
+        // En-tête avec bascule de marque
         Column(Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
-            Text("Créer", style = MaterialTheme.typography.headlineSmall)
-            Text(
-                "Une seule app, deux univers. Choisis la marque, puis l'action.",
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 2.dp, bottom = 10.dp)
-            )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                MarqueCreation.values().forEach { candidate ->
-                    if (candidate == marque) {
-                        Button(onClick = { marque = candidate }) {
-                            Text(candidate.titre, fontSize = 12.sp)
-                        }
-                    } else {
-                        OutlinedButton(onClick = { marque = candidate }) {
-                            Text(candidate.titre, fontSize = 12.sp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text("Créer", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
+                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    MarqueCreation.values().forEach { candidate ->
+                        if (candidate == marque) {
+                            Button(
+                                onClick = { marque = candidate },
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                            ) {
+                                Text(candidate.titre, fontSize = 12.sp)
+                            }
+                        } else {
+                            OutlinedButton(
+                                onClick = { marque = candidate },
+                                contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                            ) {
+                                Text(candidate.titre, fontSize = 12.sp)
+                            }
                         }
                     }
                 }
             }
             Text(
                 marque.sousTitre,
-                fontSize = 11.sp,
+                fontSize = 12.sp,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 6.dp, bottom = 8.dp)
+                modifier = Modifier.padding(top = 2.dp, bottom = 4.dp)
             )
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedButton(
-                    onClick = { demandeFlux = DemandeFlux(AssistantFlux.VIDEO, marque) },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Flow vidéo", fontSize = 12.sp)
-                }
-                OutlinedButton(
-                    onClick = { demandeFlux = DemandeFlux(AssistantFlux.MUSIQUE, marque) },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text("Flow Music", fontSize = 12.sp)
-                }
-            }
         }
 
         if (marque == MarqueCreation.MEMORIA) {
@@ -134,106 +98,120 @@ fun CreerScreen(
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 16.dp)
             ) {
-                if (!cmsConfigure) {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 4.dp, bottom = 8.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.secondaryContainer
+                // 1. CARTE HERO GOOGLE PHOTOS (Action N°1)
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 14.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.primaryContainer
+                    )
+                ) {
+                    Column(Modifier.padding(18.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("📸", fontSize = 32.sp)
+                            Spacer(Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    "Google Photos • Création IA",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 17.sp,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer
+                                )
+                                Text(
+                                    "Authentifié directement par ton Pixel 8 Pro",
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f)
+                                )
+                            }
+                        }
+                        Spacer(Modifier.height(10.dp))
+                        Text(
+                            "Choisis tes photos dans ta photothèque Google Photos. L'IA Heldonica (GTX 1660 Ti ou cloud) analyse l'image, le lieu et rédige ta légende sans ressaisie.",
+                            fontSize = 13.sp,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer
                         )
-                    ) {
-                        Column(Modifier.padding(14.dp)) {
-                            Text(
-                                "Site et Instagram : accès à configurer",
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = 14.sp
-                            )
-                            Text(
-                                "Le mot de passe CMS est nécessaire pour créer les brouillons " +
-                                    "sur heldonica.fr. Il reste sur ce téléphone.",
-                                fontSize = 12.sp,
-                                modifier = Modifier.padding(top = 3.dp)
-                            )
-                            TextButton(onClick = { demandeMotDePasse = true }) {
-                                Text("Configurer maintenant")
+                        Spacer(Modifier.height(16.dp))
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Button(
+                                onClick = { onPhoto(false, true) },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text("🖼️ Photo unique", fontSize = 13.sp)
+                            }
+                            FilledTonalButton(
+                                onClick = { onPhoto(true, true) },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text("📑 Carrousel (1-10)", fontSize = 13.sp)
                             }
                         }
                     }
                 }
 
-                if (!modeleLocal) {
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.tertiaryContainer
-                        )
-                    ) {
-                        Column(Modifier.padding(14.dp)) {
-                            Text(
-                                "IA locale : modèle non installé",
-                                fontWeight = FontWeight.SemiBold,
-                                fontSize = 14.sp
-                            )
-                            Text(
-                                "Télécharge le modèle Qwen (1,6 Go, une seule fois) pour " +
-                                    "générer les légendes sans connexion. Sinon, le site prend le relais.",
-                                fontSize = 12.sp,
-                                modifier = Modifier.padding(top = 3.dp)
-                            )
-                            TextButton(onClick = onCerveau) {
-                                Text("Ouvrir Cerveau")
-                            }
-                        }
-                    }
-                }
-
-                SectionTitre("Publier")
-                CarteCreer(
-                    titre = "Photo + légende",
-                    detail = "Photos locales, EXIF, lieu, légende IA et brouillon site/Instagram.",
-                    principale = true
-                ) { onPhoto(false) }
-                CarteCreer(
-                    titre = "Carrousel Instagram",
-                    detail = "Plusieurs photos, légende IA et brouillon carrousel dans la même flow."
-                ) { onPhoto(true) }
-                CarteCreer(
-                    titre = "Carrousel avancé (site)",
-                    detail = "Ouvrir l'éditeur de diapositives du site pour composer et illustrer."
-                ) { onCarrouselSite() }
-
-                SectionTitre("Importer")
-                CarteCreer(
-                    titre = "Photos Google",
-                    detail = "Importer depuis Google Photos vers la médiathèque du site."
-                ) { onPhotosGoogle() }
-                CarteCreer(
-                    titre = "CMS & brouillons",
-                    detail = "Retrouver les articles, brouillons et médias sur le site."
-                ) { onCms() }
-
-                SectionTitre("Écrire et monter")
-                CarteCreer(
-                    titre = "Article / carnet",
-                    detail = "Écrire un carnet avec l'IA locale ou cloud, puis l'enregistrer."
+                // 2. Section "Autres formats de voyage"
+                SectionTitre("Autres formats")
+                CarteAction(
+                    icone = "✍️",
+                    titre = "Écrire un carnet de route",
+                    detail = "Rédiger un article ou récit slow travel assisté par l'IA."
                 ) { onCarnet() }
-                CarteCreer(
-                    titre = "Monter une vidéo",
-                    detail = "Assembler des plans, ajouter musique et sous-titres sur le téléphone."
+
+                CarteAction(
+                    icone = "🎬",
+                    titre = "Monter une vidéo verticale",
+                    detail = "Assembler des plans 9:16 avec musique et sous-titres."
                 ) { onMontage() }
 
-                Spacer(Modifier.height(20.dp))
-                Text(
-                    "Flow et Flow Music : le prompt est copié, l'outil Google s'ouvre, " +
-                        "puis tu importes le fichier téléchargé dans Photos ou Montage. " +
-                        "Aucune API, aucun jeton.",
-                    fontSize = 11.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 20.dp)
-                )
+                CarteAction(
+                    icone = "🖼️",
+                    titre = "Éditeur de carrousel (site web)",
+                    detail = "Composer des diapositives avancées pour heldonica.fr."
+                ) { onCarrouselSite() }
+
+                // 3. Section "Génération Google Flow (Prompts rapides)"
+                SectionTitre("Assistants Flow (Google Labs)")
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = { demandeFlux = DemandeFlux(AssistantFlux.VIDEO, marque) },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("🎬 Flow Vidéo", fontSize = 12.sp)
+                    }
+                    OutlinedButton(
+                        onClick = { demandeFlux = DemandeFlux(AssistantFlux.MUSIQUE, marque) },
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("🎵 Flow Music", fontSize = 12.sp)
+                    }
+                }
+
+                // 4. Liens directs plateforme
+                SectionTitre("Plateforme")
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 24.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = onCms,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("🌐 CMS Heldonica", fontSize = 12.sp)
+                    }
+                    OutlinedButton(
+                        onClick = onCerveau,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("🧠 Cerveau (8440)", fontSize = 12.sp)
+                    }
+                }
             }
         }
     }
@@ -244,66 +222,6 @@ fun CreerScreen(
             onFermer = { demandeFlux = null }
         )
     }
-
-    if (demandeMotDePasse) {
-        MotDePasseCmsDialog(
-            onFermer = { demandeMotDePasse = false },
-            onEnregistre = {
-                cmsConfigure = true
-                demandeMotDePasse = false
-            }
-        )
-    }
-}
-
-@Composable
-private fun MotDePasseCmsDialog(
-    onFermer: () -> Unit,
-    onEnregistre: () -> Unit
-) {
-    val contexte = LocalContext.current
-    var mdp by remember { mutableStateOf("") }
-
-    AlertDialog(
-        onDismissRequest = onFermer,
-        title = { Text("Accès au site") },
-        text = {
-            Column {
-                Text(
-                    "Mot de passe CMS défini dans Vercel (CMS_PASSWORD). " +
-                        "Il est stocké dans le stockage privé de l'app.",
-                    fontSize = 12.sp
-                )
-                OutlinedTextField(
-                    value = mdp,
-                    onValueChange = { mdp = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 10.dp),
-                    singleLine = true,
-                    label = { Text("Mot de passe CMS") },
-                    visualTransformation = PasswordVisualTransformation(),
-                    keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
-                        keyboardType = androidx.compose.ui.text.input.KeyboardType.Password
-                    )
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(
-                enabled = mdp.isNotBlank(),
-                onClick = {
-                    BrainClient.sauvegarderMotDePasse(contexte, mdp)
-                    onEnregistre()
-                }
-            ) {
-                Text("Enregistrer")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onFermer) { Text("Annuler") }
-        }
-    )
 }
 
 @Composable
@@ -313,15 +231,15 @@ private fun SectionTitre(texte: String) {
         fontSize = 12.sp,
         fontWeight = FontWeight.SemiBold,
         color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(top = 14.dp, bottom = 6.dp)
+        modifier = Modifier.padding(top = 10.dp, bottom = 6.dp)
     )
 }
 
 @Composable
-private fun CarteCreer(
+private fun CarteAction(
+    icone: String,
     titre: String,
     detail: String,
-    principale: Boolean = false,
     onClick: () -> Unit
 ) {
     Card(
@@ -330,21 +248,23 @@ private fun CarteCreer(
             .padding(bottom = 8.dp)
             .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(
-            containerColor = if (principale) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.surfaceVariant
-            }
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
-        Column(Modifier.padding(14.dp)) {
-            Text(titre, fontWeight = FontWeight.SemiBold, fontSize = 15.sp)
-            Text(
-                detail,
-                fontSize = 12.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 3.dp)
-            )
+        Row(
+            modifier = Modifier.padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(icone, fontSize = 24.sp, modifier = Modifier.padding(end = 12.dp))
+            Column(Modifier.weight(1f)) {
+                Text(titre, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                Text(
+                    detail,
+                    fontSize = 12.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(top = 2.dp)
+                )
+            }
         }
     }
 }
@@ -365,8 +285,7 @@ private fun AssistantFluxDialog(
         text = {
             Column {
                 Text(
-                    "Le prompt est copié dans le presse-papier. Colle-le dans $outil, " +
-                        "génère, télécharge, puis importe le fichier dans l'app.",
+                    "Le prompt est copié dans le presse-papier. Colle-le dans $outil, génère, télécharge, puis importe le fichier dans l'app.",
                     fontSize = 12.sp
                 )
                 OutlinedTextField(
@@ -400,18 +319,14 @@ private fun promptFlux(demande: DemandeFlux): String {
     val heldonica = demande.marque == MarqueCreation.HELDONICA
     return when (demande.type) {
         AssistantFlux.VIDEO -> if (heldonica) {
-            "Vidéo verticale 9:16, 8 secondes, slow travel à [LIEU], lumière naturelle douce, " +
-                "caméra lente, palette crème et olive, aucun texte à l'écran."
+            "Vidéo verticale 9:16, 8 secondes, slow travel à [LIEU], lumière naturelle douce, caméra lente, palette crème et olive, aucun texte à l'écran."
         } else {
-            "Vidéo verticale 9:16, 8 secondes, [SUJET HISTORIQUE], peinture à l'huile " +
-                "cinématographique, lumière dramatique, texture fine, aucun texte à l'écran."
+            "Vidéo verticale 9:16, 8 secondes, [SUJET HISTORIQUE], peinture à l'huile cinématographique, lumière dramatique, texture fine, aucun texte à l'écran."
         }
         AssistantFlux.MUSIQUE -> if (heldonica) {
-            "Musique instrumentale de 30 secondes, guitare acoustique, nappe ambient, " +
-                "85 BPM, sans voix, pour un reel slow travel."
+            "Musique instrumentale de 30 secondes, guitare acoustique, nappe ambient, 85 BPM, sans voix, pour un reel slow travel."
         } else {
-            "Musique orchestrale épique de 30 secondes, cuivres, percussions, chœur " +
-                "lointain, ton sombre et majestueux, sans voix, pour un short historique."
+            "Musique orchestrale épique de 30 secondes, cuivres, percussions, chœur lointain, ton sombre et majestueux, sans voix, pour un short historique."
         }
     }
 }

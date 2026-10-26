@@ -67,6 +67,7 @@ class MainActivity : ComponentActivity() {
 
         const val EXTRA_ECRAN = "ecran"
         const val EXTRA_CARROUSEL = "carrousel"
+        const val EXTRA_OUVRIR_PICKER = "ouvrir_picker"
     }
 
     private var pickedUris by mutableStateOf<List<Uri>>(emptyList())
@@ -208,6 +209,9 @@ class MainActivity : ComponentActivity() {
             if (demande in setOf("accueil", "publier", "montage", "carnet")) ecran = demande
         }
         if (intent.getBooleanExtra(EXTRA_CARROUSEL, false)) isCarousel = true
+        if (intent.getBooleanExtra(EXTRA_OUVRIR_PICKER, false)) {
+            picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
+        }
         setContent { HeldonicaScreen() }
     }
 

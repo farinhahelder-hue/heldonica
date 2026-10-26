@@ -60,11 +60,12 @@ class StudioActivity : ComponentActivity() {
             }
             when (onglet) {
                 OngletStudio.CREER -> CreerScreen(
-                    onPhoto = { carrousel ->
+                    onPhoto = { carrousel, ouvrirDirect ->
                         contexte.startActivity(
                             Intent(contexte, MainActivity::class.java).apply {
                                 putExtra(MainActivity.EXTRA_ECRAN, "publier")
                                 putExtra(MainActivity.EXTRA_CARROUSEL, carrousel)
+                                putExtra(MainActivity.EXTRA_OUVRIR_PICKER, ouvrirDirect)
                             }
                         )
                     },
@@ -78,12 +79,6 @@ class StudioActivity : ComponentActivity() {
                         contexte.startActivity(
                             Intent(contexte, MainActivity::class.java)
                                 .putExtra(MainActivity.EXTRA_ECRAN, "carnet")
-                        )
-                    },
-                    onPhotosGoogle = {
-                        contexte.startActivity(
-                            Intent(contexte, EditeurActivity::class.java)
-                                .putExtra(EditeurActivity.EXTRA_CHEMIN, "/panel-manager/photos")
                         )
                     },
                     onCarrouselSite = {
