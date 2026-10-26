@@ -2,8 +2,14 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useToast } from '@/components/admin/Toast';
-import { Search, Save, Edit2, Check, X, RefreshCw, History, Clock, Plus } from 'lucide-react';
+import { Search, Save, Edit2, Check, X, RefreshCw, History, Clock, Plus, Image as ImageIcon } from 'lucide-react';
 import type { CmsZone, CmsZonesData } from '@/lib/content-loader';
+import {
+  buildFramingWrites,
+  readFraming,
+  EMPTY_FRAMING,
+  type ImageFraming,
+} from '@/lib/image-framing';
 
 /** Types de zone acceptés par `cms_editable_zones` (cf. colonne `zone_type`). */
 const ZONE_TYPES = ['text', 'textarea', 'html', 'image', 'icon', 'cta'] as const;
@@ -29,6 +35,13 @@ export default function EditableZonesManager() {
   const [historyModal, setHistoryModal] = useState<{page: string, key: string} | null>(null);
   const [historyData, setHistoryData] = useState<any[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+
+  // Cadrage d'une photo. Une zone `image` ne porte pas son cadrage : il vit dans
+  // trois zones compagnes, invisibles dans la liste. Ce panneau est le seul
+  // endroit d'où on peut les régler sans écrire de SQL.
+  const [framingFor, setFramingFor] = useState<CmsZone | null>(null);
+  const [framing, setFraming] = useState<ImageFraming>(EMPTY_FRAMING);
+  const [savingFraming, setSavingFraming] = useState(false);
 
   const fetchZones = useCallback(async () => {
     setLoading(true);
@@ -158,6 +171,41 @@ export default function EditableZonesManager() {
     z.value.toLowerCase().includes(search.toLowerCase()) ||
     z.page.toLowerCase().includes(search.toLowerCase())
   );
+
+  /** Ouvre le panneau de cadrage en préremplissant les zones compagnes existantes. */
+  const openFraming = (zone: CmsZone) => {
+    const byKey: Record<string, { value?: string }> = {};
+    for (const z of zones) byKey[`${z.page}__${z.zone_key}`] = { value: z.value };
+    setFraming(readFraming(byKey, zone.page, zone.zone_key));
+    setFramingFor(zone);
+  };
+
+  const saveFraming = async () => {
+    if (!framingFor) return;
+    const { writes, errors } = buildFramingWrites(framingFor.page, framingFor.zone_key, framing);
+    if (errors.length > 0) {
+      toast({ title: 'Réglage refusé', description: errors.join(' '), variant: 'danger' });
+      return;
+    }
+    setSavingFraming(true);
+    try {
+      for (const w of writes) {
+        const res = await fetch('/api/cms/zones', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(w),
+        });
+        if (!res.ok) throw new Error('Erreur API');
+      }
+      toast({ title: 'Cadrage enregistré', description: `${framingFor.page} / ${framingFor.zone_key}` });
+      setFramingFor(null);
+      fetchZones();
+    } catch {
+      toast({ title: 'Erreur', description: 'Échec de l\'enregistrement du cadrage', variant: 'danger' });
+    } finally {
+      setSavingFraming(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -326,6 +374,15 @@ export default function EditableZonesManager() {
                           >
                             <History className="w-4 h-4" />
                           </button>
+                          {zone.zone_type === 'image' && (
+                            <button
+                              onClick={() => openFraming(zone)}
+                              className="p-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-100 transition-colors"
+                              title="Cadrage de la photo (remplissage, proportions, position)"
+                            >
+                              <ImageIcon className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
                       )}
                     </td>
@@ -336,6 +393,73 @@ export default function EditableZonesManager() {
           </div>
         )}
       </div>
+
+      {framingFor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+          <div className="bg-white rounded-xl w-full max-w-lg shadow-xl overflow-hidden">
+            <div className="px-6 py-4 border-b border-stone-200 flex justify-between items-center bg-stone-50">
+              <h3 className="font-semibold text-stone-800 flex items-center gap-2">
+                <ImageIcon className="w-4 h-4" />
+                Cadrage de la photo
+              </h3>
+              <button onClick={() => setFramingFor(null)} className="p-1 hover:bg-stone-200 rounded">
+                <X className="w-5 h-5 text-stone-500" />
+              </button>
+            </div>
+            <div className="p-6 space-y-4">
+              <p className="text-xs text-stone-500">
+                Zone <code className="font-mono">{framingFor.page} / {framingFor.zone_key}</code>.
+                Un champ laissé vide retire le réglage.
+              </p>
+              <div>
+                <label className="block text-xs font-semibold text-stone-600 mb-1">Remplissage (object-fit)</label>
+                <input
+                  type="text"
+                  value={framing.fit}
+                  onChange={(e) => setFraming({ ...framing, fit: e.target.value })}
+                  placeholder="cover"
+                  className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-eucalyptus/20 focus:border-eucalyptus outline-none font-mono text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-stone-600 mb-1">Proportions (aspect-ratio)</label>
+                <input
+                  type="text"
+                  value={framing.ratio}
+                  onChange={(e) => setFraming({ ...framing, ratio: e.target.value })}
+                  placeholder="16 / 9"
+                  className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-eucalyptus/20 focus:border-eucalyptus outline-none font-mono text-sm"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-semibold text-stone-600 mb-1">Position (object-position)</label>
+                <input
+                  type="text"
+                  value={framing.position}
+                  onChange={(e) => setFraming({ ...framing, position: e.target.value })}
+                  placeholder="center"
+                  className="w-full px-3 py-2 border border-stone-300 rounded-lg focus:ring-2 focus:ring-eucalyptus/20 focus:border-eucalyptus outline-none font-mono text-sm"
+                />
+              </div>
+              <div className="flex gap-2 pt-2">
+                <button
+                  onClick={saveFraming}
+                  disabled={savingFraming}
+                  className="px-4 py-2 bg-eucalyptus text-white rounded-lg hover:bg-eucalyptus/90 transition-colors text-sm font-semibold disabled:opacity-50"
+                >
+                  {savingFraming ? 'Enregistrement…' : 'Enregistrer'}
+                </button>
+                <button
+                  onClick={() => setFramingFor(null)}
+                  className="px-4 py-2 border border-stone-200 text-stone-600 rounded-lg hover:bg-stone-50 transition-colors text-sm"
+                >
+                  Annuler
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {historyModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
