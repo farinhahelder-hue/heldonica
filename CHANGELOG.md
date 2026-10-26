@@ -22,6 +22,54 @@
 
 - **Écart de migrations (lecture seule)** : **206 locales / 204 distantes / 204 communes → 2 en local seulement** (`20261025190000_reglages_logo_entete.sql` du lot précédent, + `20261025200000` ci-dessus). **0 distante sans fichier**, aucune dérive. **Rien poussé.**
 
+## [2026-10-25 terdecies] — Les libellés des zones enfin visibles dans l'admin
+
+- **Le constat** : `cms_editable_zones.label` et `description` existaient depuis toujours mais n'étaient **lus par personne**. L'admin n'affichait que la clé technique (`header_logo_display`), et les 2 122 zones qui ont un libellé (`Newsletter — Titre`, `Pictogramme 1 — texte`…) le cachaient. Le propriétaire devait donc deviner à quoi servait une clé — le contraire de « tout modifier depuis le CMS ».
+- **`lib/content-loader.ts`** + **`app/api/cms/zones/route.ts`** : `CmsZone` porte désormais `label` / `description`, et le `select` les ramène (ils étaient absents de la requête, donc perdus même quand la base les avait).
+- **`components/admin/EditableZonesManager.tsx`** : le libellé s'affiche au-dessus de la clé (masqué quand il ne fait que répéter la clé — 2 122 libellés, dont beaucoup valent la clé brute). Une valeur **vide** montre désormais « Vide — repli du code » et la description, au lieu d'une case grise muette : c'est le cas des réglages logo, volontairement vides.
+- **Vérifié** : `garde-fous` **19/19** ; `tsc` 0 ; `next build` OK. **API mesurée** : `GET /api/cms/zones?page=maintenance` → HTTP 200, 9 zones, **9 avec `label`** (`cta_label` → « Bouton Instagram »).
+- **Effet immédiat** : les réglages logo déclarés par `20261025190000_reglages_logo_entete.sql` s'afficheront avec leur libellé et leur aide de saisie une fois la migration appliquée — sans quoi la déclaration seule restait muette.
+
+## [2026-10-25 duodecies] — Emplacement du logo éditable, et les trois réglages déclarés dans l'admin
+
+- **Le trou** : `header_logo_display` manquait. Le sceau et le nom du site étaient **toujours** affichés côte à côte (balises en dur dans `components/Header.tsx`) : le propriétaire ne pouvait pas choisir « sceau seul », « nom seul » ou « les deux ». C'est exactement l'« emplacement du logo » demandé.
+- **`lib/cms-size.ts`** : `parseLogoDisplay` — liste fermée `both` / `icon` / `text`, **défaut `both`** (l'état actuel). Une valeur absente ou fautive ne fait jamais disparaître le logo.
+- **`Header.tsx`** : le sceau est conditionné à `logoDisplay !== 'text'`, le nom à `logoDisplay !== 'icon'`.
+- **Migration `20261025190000_reglages_logo_entete.sql`** : déclare `header_logo_height`, `header_logo_width` et `header_logo_display` (page `global`, type `text`, **valeur vide**, avec `label` et `description`). Motif : l'admin ne liste que les zones `is_active = true` — sans ligne, il fallait taper la clé exacte à la main. **Valeur vide = aucun changement visible** (`getCmsOrSetting` traite la chaîne vide comme absente), les tailles du code restent la référence. Idempotente (`ON CONFLICT DO NOTHING`).
+- **Vérifié** : `npm run garde-fous` **19/19** ; `vitest` **1026/1026** (123 fichiers) ; `tsc` 0 erreur ; `next build` OK. **Rendu par défaut inchangé, mesuré dans le HTML servi** (serveur de dev, contournement maintenance par en-tête) : `<svg viewBox="-69.5 0 341 341">` **et** `<span>Heldonica</span>` sont tous deux présents.
+- **Test qui mord** : `__tests__/components/Header-logo-display.test.tsx` (4 cas). Conditions retirées → **2 échecs** ; restaurées → 4/4.
+- **Non appliquée** : la migration n'est **pas** poussée — le lot demandait la lecture seule avant tout `db push`. `db push --dry-run` confirme **une seule** migration en attente (la mienne), et son SQL est validé par `EXPLAIN` (arbitre d'unicité correct, 3 lignes), **sans écriture** : `header_logo*` ne contient toujours que l'ancienne ligne `header_logo_url` (inactive).
+
+## [2026-10-25 undecies] — Cadrage des photos éditable depuis l'admin (chaînon manquant du lot 2)
+
+- **Le constat** : le lot 2 pilotait le cadrage **au rendu** (`EditableZone` lit `<zone>_fit` / `_ratio` / `_position`), mais `components/admin/EditableZonesManager.tsx` ne proposait qu'un menu déroulant de types. Le propriétaire ne pouvait donc **rien régler sans écrire de SQL** — la fonctionnalité existait sans porte d'entrée.
+- **`lib/image-framing.ts`** : traduit les trois réglages saisis dans le formulaire en écritures de zones, **validées avec les mêmes règles que le rendu** (`lib/image-adjustment.ts`). Un champ vidé **désactive** la zone compagne (`is_active = false`), convention du projet pour retirer un réglage sans supprimer la ligne. Une valeur refusée ne produit **aucune** écriture : on préfère ne rien enregistrer plutôt qu'un cadrage qui ne s'appliquera pas, et l'erreur est remontée à l'utilisateur.
+- **`EditableZonesManager.tsx`** : bouton « Cadrage » sur les zones de type `image`, panneau prérempli depuis les zones compagnes existantes (remplissage, proportions, position).
+- **Tests** : **7** (`__tests__/lib/image-framing.test.ts`) — normalisation (`16:9` → `16 / 9`), désactivation par champ vide, refus sans écriture, tentative d'injection CSS.
+- **Vérifié** : `npm run garde-fous` **19/19** ; `next build` OK (170 pages) ; `tsc` 0 erreur ; `check-cms-zones` connaît déjà les zones compagnes (pas d'orpheline).
+- **Non vérifié** : le pilotage **dans l'admin** n'a pas pu être exercé — l'authentification CMS échoue **fermée** sans `CMS_PASSWORD` (absente de l'environnement local), et je n'écris pas en base de production. La preuve est l'aller-retour statique : les clés écrites (`<zone>_fit/_ratio/_position`, page = celle de l'image) sont exactement celles lues par `EditableZone` (ligne 65).
+- **Reste (lots 4-5)** : blocs et templates hors blog (`cms_content_blocks` vide, jamais lue ni écrite ; le blog persiste ses blocs en HTML), 10 pages sans CMS, `PAGE_DEFAULTS`.
+
+## [2026-10-25 decies] — Câblage CMS, lot 2 : taille du logo et cadrage des photos
+
+- **Taille du logo pilotée par le CMS** (`components/Header.tsx`) : `header_logo_height` / `header_logo_width`, appliquées aux **deux** branches du logo — l'image (`header_logo_url`) et le **SVG de repli**, qui est ce que le site sert réellement aujourd'hui (`header_logo_url` est vide en base). Sans ces zones, `h-8 w-auto` et `h-7 w-7` restent la référence : rien ne change tant que le CMS n'est pas renseigné.
+- **Cadrage des photos** (`components/inline-edit/EditableZone.tsx`) : une zone `image` lit trois zones compagnes optionnelles — `<zone>_fit` (`cover`/`contain`), `<zone>_ratio` (`16/9`, `4/3`, `1/1`…), `<zone>_position` (`top`, `center`, `50% 20%`…). Elles produisent `object-fit`, `aspect-ratio` et `object-position`. **Aucun des 8 sites d'appel n'a été modifié** : le réglage passe par des clés, pas par des props.
+- **Validation extraite et testée** : `lib/image-adjustment.ts` et `lib/cms-size.ts` portent la validation (listes fermées, entier simple borné). Ces valeurs finissent dans un attribut `style` ; une chaîne libre venue du CMS serait injectée dans la page. **20 tests unitaires** couvrent l'acceptation, le rejet et les tentatives d'injection.
+- **Preuve de bout en bout** (serveur de dev, cache vidé) : image activée + trois réglages → le HTML porte `style="aspect-ratio:16 / 9;object-position:top;object-fit:contain"` (`16:9` normalisé en `16 / 9`). Logo réglé à 40×48 → `style="height:40px;width:48px"`. Une valeur piégée (`top; background:url(evil)`) est **rejetée** : absente de tout attribut `style`, seul le `object-fit` valide subsiste. Base **restaurée à l'identique** (2 703 lignes).
+- **Garde-fou réparé** (`scripts/check-cms-zones.mjs`) : le lot 1 avait supprimé `CONSUMED_ZONE_KEYS`, ce qui faisait afficher « filtre introuvable — vérification ignorée » et **désactivait en silence** le contrôle des clés non servies. Il distingue désormais « filtre absent » (sans objet) de « filtre illisible » (anomalie, exit 1), et reconnaît les zones compagnes d'image pour ne pas les compter comme orphelines. **Vérifié par échec provoqué** : un filtre restreint réintroduit fait tomber le contrôle (155 clés signalées, exit 1).
+- **Vérifié** : `npm run garde-fous` **19/19** ; `next build` OK ; `tsc` 0 erreur.
+- **Reste (lots 3-5)** : blocs et templates hors blog, 10 pages sans CMS, `PAGE_DEFAULTS` (3e source fossile).
+
+## [2026-10-25 nonies] — Câblage CMS, lot 1 : le menu et les zones ne sont plus figés dans le code
+
+- **Verrou levé dans `lib/site-content.ts`** : la liste blanche `CONSUMED_ZONE_KEYS` filtrait la requête des zones `global`. Toute clé absente de cette liste était **invisible du site**, même créée depuis le CMS — c'est ce qui obligeait à passer par un développeur pour ajouter une entrée de menu. La requête charge désormais **toutes** les zones actives de la page `global`. Fichier : 245 → 78 lignes.
+- **Mesuré avant de retirer** : les **156** zones actives de `global` figuraient **toutes** dans la liste — elle ne retirait donc rien, elle ne bloquait que les suivantes. Le « +80 Ko de HTML » redouté visait les 2 703 zones de toutes les pages, pas le global (3 932 octets de valeurs).
+- **Plafond du menu 5 → 8** (`components/Header.tsx`, `NAV_MAX_ITEMS`). Au-delà, l'entrée n'est pas affichée ; il borne la largeur sur mobile.
+- **Bouton « Nouvelle zone »** dans `components/admin/EditableZonesManager.tsx` (page, clé, type contraint à `text|textarea|html|image|icon|cta`, valeur). L'API `POST /api/cms/zones` savait déjà créer — il manquait l'interface.
+- **Test de non-régression** (`__tests__/lib/site-content.test.ts`) : une zone neuve, absente de toute liste écrite dans le code, doit remonter. **Vérifié par échec provoqué** — en réintroduisant le filtre, le test tombe.
+- **Preuve de bout en bout** : une entrée `nav_item_8` créée **uniquement** en base (clé jamais présente dans le code) s'affiche dans le menu, sur page dynamique puis après revalidation ISR de l'accueil. **Coût mesuré : +1,7 Ko** pour deux entrées. État de la base **restauré à l'identique** après le test (2 703 lignes, 156 actives inchangées).
+- **Vérifié** : `npm run garde-fous` **19/19** ; `next build` OK (170 pages) ; `tsc` 0 erreur.
+- **Reste (lots 2-5)** : logo (taille/place en dur), cadrage des photos, blocs et templates hors blog, 10 pages sans CMS, `PAGE_DEFAULTS` (3e source fossile). Plan local : `.audit/audit-editorial-2026-10-20/PLAN-cablage-cms.md`.
 ## [2026-10-25 octies] — Site public en mode maintenance (demande du propriétaire)
 
 - **`supabase/migrations/20261025180000_activation_mode_maintenance.sql`** : passe `site_settings.maintenance_mode` à `'true'`. **Appliquée** via CLI `supabase db push --linked`.
