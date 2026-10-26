@@ -31,6 +31,19 @@
 - **Non vérifié** : rendu visuel, comportement en production, valeur réelle de `site_settings.maintenance_mode` (aucun identifiant Supabase dans cette session). Aucune écriture en base, aucune migration. Mode maintenance **non touché**.
 - **Branche** : `agent/opencode/hors-cms`, basée sur `origin/main` `301e7553`.
 
+  ## [2026-10-26 ter] — Audit hors-CMS : pages fantômes et promesses non prouvées
+
+- **`lib/constants.ts` supprimé** : ce fichier n'était importé nulle part et portait des chiffres périmés/inventés (« 4 ans de slow travel depuis 2021 », « 25+ carnets », « 7 pays habités », « 100 adresses testées »). Les compteurs réellement affichés viennent désormais des articles publiés (`/a-propos`) ou de la base (`stat_*` de l'accueil) ; garder cette « source de vérité » morte ne pouvait que recontaminer une future page.
+- **`/destinations` ne revendique plus les pages en quarantaine** : la description, l'OG/Twitter et le JSON-LD `CollectionPage` citaient Sicile et Paris comme « testées sur le terrain », alors que leurs pages sont servies en « Bientôt » et en `noindex` (`lib/unpublished-pages.ts`). Remplacés par Portugal (page publiée) ; les entrées Sicile et Paris retirées de `hasPart`.
+- **`/destinations/roumanie/bucarest`** : la description SEO (`« Guide Bucarest: Macro, culture… »`) était un brouillon généré ; réécrite en français lisible, sans la formule boilerplate « testé en couple ». La page reste publiée (photo de terrain du 27/08/2026).
+- **`/expert-hotelier`** : le libellé « Résultats observés » devient « Ce que ça change » (aucun résultat client mesuré n'est affiché), et la FAQ ne promet plus une « hausse mesurable » sans dossier source : elle énonce l'objectif et rappelle que les résultats dépendent du point de départ.
+- **Reste à traiter, hors de cette session** :
+  - `lib/cms-page-defaults.ts:78` (`a-propos__bio_text`) dit encore « depuis plus de 10 ans », en contradiction avec l'histoire publique ; fichier `lib/cms-*`, réservé à OpenHands.
+  - Replis d'accueil `stat_1_nb = « 4+ »` et `stat_2_nb = « 100+ »` (`components/HomeClient.tsx`) : invérifiables sans base, et toujours affichés si `site_settings` ne les surcharge pas.
+  - Les 37 sous-pages en quarantaine gardent leurs métadonnées de brouillon dans le code source ; `buildPageMetadata` les remplace bien par `DESCRIPTION_BIENTOT`, mais le nettoyage de fond appartient au lot CMS/éditorial.
+  - `og-default.jpg` reste l'image de partage ou le hero de plusieurs pages publiées (Sardaigne, Zurich, guides…), faute de photo vérifiée.
+- **Vérifié** : `tsc` 0 erreur ; `preflight` **13/13** ; `check:content-pages` vert (« aucune dérive éditoriale dans les pages publiées ») ; `check:image-paths` vert avec 4 chemins en dette connue (Suisse) ; `unpublished-pages` + `SubDestinationTemplate` **12/12**. Aucune écriture en base, mode maintenance non touché.
+
   ## [2026-10-25 quindecies] — Le filtre CMS n'est pas supprimé, il est déclaré
 
 - **Le constat** : la levée du verrou de câblage (lot 1) a retiré `CONSUMED_ZONE_KEYS` de `getGlobalZones()`, avec pour seule contrepartie un commentaire renvoyant à `check-cms-zones.mjs`. Or ce garde-fou ne vérifie qu'une chose : qu'une zone active est **lue par un composant**. Il ne dit rien de ce qui part dans le HTML public. La précaution d'origine — ne pas sérialiser une valeur qu'aucun composant n'affiche (résidus « Monica Schneider / Executive Coach », lus par Googlebot) — n'était donc plus portée par personne.

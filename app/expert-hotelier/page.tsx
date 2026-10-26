@@ -85,7 +85,7 @@ const caseStudies = [
 const faqItems = [
   { q: 'Comment se passe notre premier échange ?', a: 'Un appel de 30 minutes. Vous nous présentez votre projet et vos problématiques (taux de remplissage, dépendance aux plateformes, saisonnalité), et nous regardons ensemble si notre approche slow travel est adaptée à votre établissement.' },
   { q: 'À quel type d’hébergements s’adresse cet accompagnement ?', a: 'Aux maisons d’hôtes de charme, aux gîtes éco-conçus, aux hébergements insolites haut de gamme, et aux petits hôtels indépendants qui mettent l’humain et l’authenticité au centre de leur projet.' },
-  { q: 'Quels résultats peut-on attendre ?', a: 'Une hausse mesurable de vos réservations directes — donc une baisse mécanique des commissions versées aux plateformes —, une meilleure visibilité locale sur Google auprès d’une clientèle qualifiée, et des voyageurs qui viennent pour votre positionnement plutôt que pour un prix.' },
+  { q: 'Quels résultats peut-on attendre ?', a: 'L’objectif est d’augmenter vos réservations directes — et de réduire mécaniquement les commissions versées aux plateformes —, d’améliorer votre visibilité locale sur Google et d’attirer des voyageurs qui viennent pour votre positionnement plutôt que pour un prix. Les résultats dépendent de votre point de départ et du périmètre retenu.' },
   { q: 'Combien coûte un accompagnement ?', a: 'Le diagnostic initial est gratuit et sans engagement. Si nous décidons de travailler ensemble, nous vous proposons un forfait sur mesure, calibré sur la taille de votre établissement et sur le périmètre retenu.' },
 ];
 
@@ -272,7 +272,7 @@ export default async function ExpertHotelierPage() {
                       />
                     </div>
                     <div className="bg-[#F7F3EC] rounded-sm p-4 border border-[#DED5C6]">
-                      <p className="text-xs font-semibold text-stone-600 mb-1">Résultats observés</p>
+                      <p className="text-xs font-semibold text-stone-600 mb-1">Ce que ça change</p>
                       <EditableZone page="expert-hotelier" zone={`service_${i + 1}_results`} fallback={s.results}
                         className="text-sm font-semibold text-eucalyptus block"
                       />
