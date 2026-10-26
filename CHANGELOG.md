@@ -2,6 +2,16 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+  ## [2026-10-27] — Studio Musique & Vidéo : Storyboards Gemini sans Flow & Presets 1-clic Veo / MusicFX
+
+  - **Flux Vidéo Dual-Track (`CatalogueVideo.kt`, `CreerScreen.kt`)** :
+    - **Piste 1 : Storyboard Gemini Direct (sans Google Flow / 0€)** : découpage vertical 9:16 complet en 4 plans par Gemini 2.5 Flash via `/api/cms/ai-video-storyboard` (mouvement de caméra, description visuelle, voix off/narration, musique Heldonica recommandée). Bouton 1-clic « Monter (Media3) » ouvrant directement le studio de montage local avec la piste audio préchargée, sans aucun copier-coller ni dépendance web Google Labs.
+    - **Piste 2 : Presets cinématographiques Google Flow (Veo 3.1)** : 6 styles pré-calibrés 1-toucher (`Sentier Brumeux`, `Boutique Hôtel & Lin`, `Falaises & Océan`, `Train Panoramique`, `César au Rubicon`, `Sénat Romain`) avec copie presse-papier automatique et ouverture directe.
+  - **Studio Musique (`CatalogueMusique.kt`, `app/api/cms/music-tracks`)** :
+    - 3 pistes originales slow travel embarquées en assets locaux (`atrium_lin_brut.mp3`, `golden_hour_marbre.mp3`, `echappee_slow_luxury.mp3`) écoutables en pré-écoute et injectables en 1 clic dans le montage. Presets pour Google MusicFX.
+  - **Correction d'intégrité** : dédoublonnage du traitement `EXTRA_PISTE_MUSIQUE` dans `MainActivity.kt`.
+  - **Déploiement & Vérifications** : compilation `assembleDebug` réussie (13 exécutées, 26 up-to-date) ; installation validée par ADB sur Pixel 8 Pro (`39151FDJG000Z0`) ; tunnels ADB reverse actifs (3000, 8440, 8470) ; `npm run preflight` 13/13 réussi.
+
   ## [2026-10-26 bis] — Câblage Heldonica Mobile & Heldonica Brain II pour Google Pixel 8 Pro
 
   - **Espace unifié « Créer » (`CreerScreen.kt`)** : nouvel écran d'accueil par défaut de `heldonica-mobile` (7 onglets). Permet la sélection photo/carrousel depuis Google Photos (Photo Picker Android natif), l'analyse d'images par vision IA (`/api/cms/ai-vision`), la génération de légendes avec Heldonica Brain II ou le modèle local, l'accès direct aux carnets et à la médiathèque `/panel-manager/photos`.
