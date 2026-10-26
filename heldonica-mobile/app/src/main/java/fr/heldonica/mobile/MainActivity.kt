@@ -241,23 +241,6 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
-        targetIntent.getStringExtra(EXTRA_PISTE_MUSIQUE)?.let { pisteId ->
-            val piste = CatalogueMusique.PISTES.find { it.id == pisteId }
-            if (piste != null) {
-                ecran = "montage"
-                portee.launch(Dispatchers.IO) {
-                    val uri = CatalogueMusique.preparerPistePourMontage(this@MainActivity, piste)
-                    withContext(Dispatchers.Main) {
-                        if (uri != null) {
-                            musique = uri
-                            nomMusique = "${piste.titre} (${piste.bpm} BPM)"
-                            messageMontage = "Musique sélectionnée : ${piste.titre}"
-                        }
-                    }
-                }
-            }
-        }
-
         when (targetIntent.action) {
             Intent.ACTION_SEND -> {
                 val uri = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

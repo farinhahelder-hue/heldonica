@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
 
 enum class MarqueCreation(val titre: String, val sousTitre: String) {
     HELDONICA("Heldonica", "Slow travel, carnets & Instagram"),
@@ -170,8 +171,8 @@ fun CreerScreen(
                     detail = "Composer des diapositives avancées pour heldonica.fr."
                 ) { onCarrouselSite() }
 
-                // 3. Section "Génération Google Flow (Prompts rapides)"
-                SectionTitre("Assistants Flow (Google Labs)")
+                // 3. Section "Assistants Studio (Gemini & Flow)"
+                SectionTitre("Assistants Studio (Gemini & Flow)")
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -182,13 +183,13 @@ fun CreerScreen(
                         onClick = { demandeFlux = DemandeFlux(AssistantFlux.VIDEO, marque) },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("🎬 Flow Vidéo", fontSize = 12.sp)
+                        Text("🎬 Vidéo (Gemini & Flow)", fontSize = 12.sp)
                     }
                     OutlinedButton(
                         onClick = { demandeFlux = DemandeFlux(AssistantFlux.MUSIQUE, marque) },
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("🎵 Flow Music", fontSize = 12.sp)
+                        Text("🎵 Musique (Heldonica & FX)", fontSize = 12.sp)
                     }
                 }
 
@@ -281,11 +282,15 @@ private fun AssistantFluxDialog(
     onFermer: () -> Unit
 ) {
     val contexte = LocalContext.current
+    val portee = rememberCoroutineScope()
     var ongletMusique by remember { mutableStateOf(0) }
+    var ongletVideo by remember { mutableStateOf(0) }
     var idPisteEnLecture by remember { mutableStateOf(CatalogueMusique.idPisteEnLecture) }
     var texte by remember(demande) { mutableStateOf(promptFlux(demande)) }
-    val outil = if (demande.type == AssistantFlux.VIDEO) "Google Flow" else "Google MusicFX"
-    val url = if (demande.type == AssistantFlux.VIDEO) URL_FLOW else URL_FLOW_MUSIC
+    var sujetVideo by remember { mutableStateOf("") }
+    var lieuVideo by remember { mutableStateOf("") }
+    var enChargementStoryboard by remember { mutableStateOf(false) }
+    var storyboardGenere by remember { mutableStateOf<StoryboardVideo?>(null) }
 
     AlertDialog(
         onDismissRequest = {
@@ -294,7 +299,7 @@ private fun AssistantFluxDialog(
         },
         title = {
             Text(
-                if (demande.type == AssistantFlux.MUSIQUE) "🎵 Studio Musique Heldonica" else "🎬 Google Flow (Veo)",
+                if (demande.type == AssistantFlux.MUSIQUE) "🎵 Studio Musique Heldonica" else "🎬 Studio Vidéo (Gemini & Flow)",
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp
             )
@@ -430,32 +435,216 @@ private fun AssistantFluxDialog(
                         }
                     }
                 } else {
-                    // Flow Vidéo (Veo)
-                    Text(
-                        "Le prompt vidéo 9:16 est prêt. Touche le bouton pour le copier et ouvrir Google Flow.",
-                        fontSize = 12.sp
-                    )
-                    OutlinedTextField(
-                        value = texte,
-                        onValueChange = { texte = it },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 10.dp),
-                        minLines = 4,
-                        maxLines = 8,
-                        label = { Text("Prompt Google Flow (Veo)") }
-                    )
-                    Button(
-                        onClick = {
-                            copier(contexte, texte, "Google Flow")
-                            ouvrirLien(contexte, URL_FLOW)
-                            onFermer()
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 10.dp)
+                    // Flow Vidéo (Veo & Gemini)
+                    TabRow(
+                        selectedTabIndex = ongletVideo,
+                        modifier = Modifier.padding(bottom = 12.dp)
                     ) {
-                        Text("🎬 Copier et ouvrir Google Flow")
+                        Tab(
+                            selected = (ongletVideo == 0),
+                            onClick = { ongletVideo = 0 },
+                            text = { Text("Storyboard Gemini", fontSize = 12.sp) }
+                        )
+                        Tab(
+                            selected = (ongletVideo == 1),
+                            onClick = { ongletVideo = 1 },
+                            text = { Text("Google Flow (Veo)", fontSize = 12.sp) }
+                        )
+                    }
+
+                    if (ongletVideo == 0) {
+                        Text(
+                            "Génère un découpage vertical 9:16 complet en 4 plans (mouvements caméra, voix off, musique) directement avec Gemini, sans passer par Google Flow.",
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+
+                        OutlinedTextField(
+                            value = sujetVideo,
+                            onValueChange = { sujetVideo = it },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 6.dp),
+                            label = { Text("Sujet ou ambiance (ex: Matin brumeux)", fontSize = 12.sp) },
+                            singleLine = true
+                        )
+
+                        OutlinedTextField(
+                            value = lieuVideo,
+                            onValueChange = { lieuVideo = it },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 8.dp),
+                            label = { Text("Lieu (optionnel, ex: Honfleur)", fontSize = 12.sp) },
+                            singleLine = true
+                        )
+
+                        Button(
+                            onClick = {
+                                enChargementStoryboard = true
+                                portee.launch {
+                                    val sb = CatalogueVideo.genererStoryboardGemini(
+                                        context = contexte,
+                                        sujet = sujetVideo,
+                                        lieu = lieuVideo,
+                                        style = if (demande.marque == MarqueCreation.HELDONICA) "slow_travel" else "memoria_histoire"
+                                    )
+                                    storyboardGenere = sb
+                                    enChargementStoryboard = false
+                                }
+                            },
+                            enabled = !enChargementStoryboard,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(bottom = 10.dp)
+                        ) {
+                            if (enChargementStoryboard) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(16.dp),
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    strokeWidth = 2.dp
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text("🧠 Découpage par Gemini…", fontSize = 12.sp)
+                            } else {
+                                Text("🧠 Découper le storyboard (Gemini)", fontSize = 12.sp)
+                            }
+                        }
+
+                        storyboardGenere?.let { sb ->
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 8.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                                )
+                            ) {
+                                Column(Modifier.padding(10.dp)) {
+                                    Text(sb.titre, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                    if (sb.accroche.isNotBlank()) {
+                                        Text(
+                                            "\"${sb.accroche}\"",
+                                            fontSize = 12.sp,
+                                            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+                                            modifier = Modifier.padding(top = 2.dp)
+                                        )
+                                    }
+                                    Text(
+                                        "⏱️ ${sb.dureeTotaleS}s • 🎵 Musique : ${sb.musiqueRecommandee}",
+                                        fontSize = 11.sp,
+                                        color = MaterialTheme.colorScheme.outline,
+                                        modifier = Modifier.padding(top = 4.dp)
+                                    )
+                                }
+                            }
+
+                            sb.scenes.forEach { sc ->
+                                Card(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(bottom = 6.dp),
+                                    colors = CardDefaults.cardColors(
+                                        containerColor = MaterialTheme.colorScheme.surfaceVariant
+                                    )
+                                ) {
+                                    Column(Modifier.padding(8.dp)) {
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.SpaceBetween
+                                        ) {
+                                            Text("Plan ${sc.numero} (${sc.dureeS}s)", fontWeight = FontWeight.SemiBold, fontSize = 12.sp)
+                                            Text(sc.mouvement, fontSize = 11.sp, color = MaterialTheme.colorScheme.primary)
+                                        }
+                                        Text("🎥 ${sc.visuel}", fontSize = 11.sp, modifier = Modifier.padding(top = 2.dp))
+                                        Text("🗣️ ${sc.texteEcran}", fontSize = 11.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 2.dp))
+                                    }
+                                }
+                            }
+
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 6.dp),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                OutlinedButton(
+                                    onClick = {
+                                        val recap = buildString {
+                                            appendLine("🎬 Storyboard : ${sb.titre}")
+                                            appendLine("Accroche : ${sb.accroche}")
+                                            sb.scenes.forEach { s ->
+                                                appendLine("Plan ${s.numero} (${s.dureeS}s) [${s.mouvement}] : ${s.visuel}")
+                                                appendLine("Narration : ${s.texteEcran}")
+                                            }
+                                        }
+                                        copier(contexte, recap, "Storyboard")
+                                    },
+                                    modifier = Modifier.weight(1f)
+                                ) {
+                                    Text("📋 Copier", fontSize = 11.sp)
+                                }
+
+                                Button(
+                                    onClick = {
+                                        onMontageAvecPiste(sb.musiqueRecommandee)
+                                        onFermer()
+                                    },
+                                    modifier = Modifier.weight(1.3f)
+                                ) {
+                                    Text("🎬 Monter (Media3)", fontSize = 11.sp)
+                                }
+                            }
+                        }
+                    } else {
+                        Text(
+                            "Presets cinématographiques pré-calibrés pour Google Flow (Veo). Un toucher copie le prompt sans saisie clavier.",
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text("Styles pré-calibrés :", fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                            CatalogueVideo.PRESETS.forEach { p ->
+                                SuggestionChip(
+                                    onClick = {
+                                        texte = p.promptFlow
+                                        copier(contexte, texte, "Google Flow")
+                                    },
+                                    label = { Text("${p.titre} • ${p.mouvement}", fontSize = 11.sp) }
+                                )
+                            }
+                        }
+
+                        OutlinedTextField(
+                            value = texte,
+                            onValueChange = { texte = it },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 6.dp),
+                            minLines = 4,
+                            maxLines = 8,
+                            label = { Text("Prompt pour Google Flow (Veo)", fontSize = 12.sp) }
+                        )
+
+                        Button(
+                            onClick = {
+                                copier(contexte, texte, "Google Flow")
+                                ouvrirLien(contexte, URL_FLOW)
+                                onFermer()
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 10.dp)
+                        ) {
+                            Text("🎬 Copier et ouvrir Google Flow")
+                        }
                     }
                 }
             }
