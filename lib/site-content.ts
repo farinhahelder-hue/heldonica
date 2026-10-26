@@ -14,192 +14,30 @@
 
 import { createServiceClient } from '@/lib/supabase'
 import type { CmsZone } from '@/lib/content-loader'
+import { isPublicGlobalZone } from '@/lib/public-global-zones'
 
 /** Zones indexées par `zone_key` nu — la forme attendue par `getCmsOrSetting`. */
 export type GlobalZones = Record<string, CmsZone>
 
 /**
- * Génère les clés d'un menu indexé : `nav_item_1_label`, `nav_item_1_url`, …
- * Le nombre d'entrées est borné volontairement ; pour allonger un menu depuis
- * le CMS, il faut augmenter ce compte, sinon les entrées supplémentaires ne
- * remonteraient pas jusqu'au front.
+ * Zones « global » — header, pied de page et blocs transverses.
+ *
+ * Chargées par requête (`page = 'global'`), sans liste blanche écrite ici.
+ *
+ * Historique : une liste blanche (`CONSUMED_ZONE_KEYS`) filtrait les clés servies.
+ * Il fallait l'étendre à la main pour chaque zone nouvelle — une zone créée depuis
+ * le CMS restait donc invisible tant que le code n'avait pas été modifié. C'est ce
+ * qui interdisait d'ajouter une entrée de menu sans développeur. Mesuré le
+ * 25/10/2026 : les 156 zones actives de `global` étaient toutes déjà dans la liste,
+ * qui ne retirait donc rien — elle ne bloquait que les suivantes.
+ *
+ * Le filtre n'est pas supprimé mais **déclaré** (`lib/public-global-zones.json`) :
+ * une zone n'est servie que si son préfixe est reconnu, ou si sa clé exacte est
+ * listée. Une zone hors déclaration n'est **pas** publiée, et fait échouer
+ * `check-cms-zones.mjs` — la précaution de confidentialité reste tenue (ne pas
+ * exposer dans le HTML public une valeur qu'aucun composant n'affiche), sans
+ * exiger de développeur pour chaque zone nouvelle.
  */
-function buildLinkKeys(prefix: string, count: number): string[] {
-  return Array.from({ length: count }, (_, i) => [
-    `${prefix}_${i + 1}_label`,
-    `${prefix}_${i + 1}_url`,
-  ]).flat()
-}
-
-/**
- * Les seules clés que le front lit, via `getCmsOrSetting` ou `getZoneLinks`.
- *
- * On ne sérialise que celles-là. Charger toutes les zones actives ferait passer
- * ~367 lignes dans le payload de CHAQUE page (mesuré : +80 Ko de HTML), pour
- * une poignée de valeurs réellement affichées.
- *
- * C'est aussi une précaution de confidentialité. `lib/home-data.ts` renvoie
- * toutes les zones actives de l'accueil et les passe en props : c'est
- * précisément ce qui a fait fuiter dans le HTML public les résidus « Monica
- * Schneider / Executive Coach » d'un ancien projet, invisibles à l'écran mais
- * lus par Googlebot. On n'expose que ce qui est affiché.
- *
- * Toute nouvelle clé lue par le front doit être ajoutée ici, sinon elle
- * retombera silencieusement sur son fallback codé en dur.
- */
-const CONSUMED_ZONE_KEYS: string[] = [
-  // Header
-  'header_site_name',
-  'header_cta_label',
-  'header_cta_url',
-  'header_logo_url',
-  // Footer
-  'footer_tagline',
-  'footer_newsletter_cta',
-  'footer_email_placeholder',
-  'footer_cta_label',
-  'footer_cta_url',
-  // Accueil — hero et compteurs
-  'hero_video_url',
-  'hero_poster_image',
-  'stat_1_nb',
-  'stat_1_label',
-  'stat_2_nb',
-  'stat_2_label',
-  'stat_3_label',
-  'stat_4_label',
-
-  // Pied de page — titres de colonnes, mentions, contact
-  'nav_footer_title',
-  'destinations_footer_title',
-  'guides_footer_title',
-  'legal_footer_title',
-  'footer_copyright',
-  'footer_email',
-
-  // Réseaux sociaux
-  'social_instagram_url',
-  'social_pinterest_url',
-  'social_youtube_url',
-
-  // Newsletter — NewsletterForm lit ces clés via son accesseur local `cz()`.
-  // Les six premières étaient déjà servies ; les suivantes manquaient, et le
-  // composant affichait donc son fallback alors que le CMS avait une valeur.
-  'newsletter_title',
-  'newsletter_desc',
-  'newsletter_placeholder',
-  'newsletter_cta',
-  'newsletter_success_title',
-  'newsletter_success_subtext',
-  'newsletter_badge',
-  'newsletter_cta_loading',
-  'newsletter_disclaimer',
-  'newsletter_error_invalid',
-  'newsletter_error_generic',
-  'newsletter_error_network',
-
-  // Ces quatre clés et l'étiquette email étaient lues par NewsletterForm sans
-  // être servies : le composant affichait toujours son repli.
-  'newsletter_heading_default',
-  'newsletter_heading_blog',
-  'newsletter_rgpd_label',
-  'newsletter_rgpd_link',
-  'newsletter_email_label',
-
-  // Header : compte, titre et liens du menu mobile
-  'header_account_space_label',
-  'header_account_login_label',
-  'header_menu_title',
-
-  // Footer : bloc newsletter, baseline et logo
-  'footer_newsletter_badge',
-  'footer_newsletter_desc',
-  'footer_newsletter_success_title',
-  'footer_newsletter_success_text',
-  'footer_brand_baseline',
-  'footer_logo_alt',
-
-  // Bandeau cookies (CookieConsentBanner)
-  'cookie_title',
-  'cookie_text',
-  'cookie_details_prefix',
-  'cookie_privacy_label',
-  'cookie_details_joiner',
-  'cookie_legal_label',
-  'cookie_reject_label',
-  'cookie_accept_label',
-
-  // Fenêtre « guide gratuit » (NewsletterPopup)
-  'popup_badge',
-  'popup_title',
-  'popup_desc',
-  'popup_email_label',
-  'popup_email_placeholder',
-  'popup_consent_text',
-  'popup_consent_link',
-  'popup_cta',
-  'popup_cta_loading',
-  'popup_footnote',
-  'popup_success_title',
-  'popup_success_text',
-  'popup_error_invalid',
-  'popup_error_generic',
-  'popup_error_network',
-
-  // Formulaire de contact (ContactForm). Lues depuis toujours par le
-  // composant, jamais servies : ses 28 libellés restaient figés sur le repli.
-  'contact_form_name_label',
-  'contact_form_email_label',
-  'contact_form_phone_label',
-  'contact_form_subject_label',
-  'contact_form_message_label',
-  'contact_form_name_placeholder',
-  'contact_form_email_placeholder',
-  'contact_form_phone_placeholder',
-  'contact_form_subject_placeholder',
-  'contact_form_message_placeholder',
-  'contact_form_error_name',
-  'contact_form_error_email_required',
-  'contact_form_error_email_invalid',
-  'contact_form_error_subject',
-  'contact_form_error_message',
-  'contact_form_error_rgpd',
-  'contact_form_error_generic',
-  'contact_form_submit',
-  'contact_form_submit_loading',
-  'contact_form_success',
-  'contact_form_subject_option_placeholder',
-  'contact_form_subject_option_travel',
-  'contact_form_subject_option_hebergeur',
-  'contact_form_subject_option_carnet',
-  'contact_form_subject_option_partnership',
-  'contact_form_subject_option_other',
-  'contact_form_rgpd_label',
-  'contact_form_rgpd_link',
-  'contact_form_reassurance',
-
-  // Encart Instagram (InstagramFeed) et CTA Travel Planning transverse
-  // (CtaTravelPlanning) — même mécanisme d'accesseur local `val()`.
-  'instagram_section_title',
-  'instagram_cta_text',
-  'cta_travel_planning_title',
-  'cta_travel_planning_text',
-  'cta_travel_planning_cta',
-
-  // Menus : paires `<prefix>_<n>_label` / `<prefix>_<n>_url`, cf. getZoneLinks()
-  // Menu principal : sept clés chargées, mais Header.tsx n'en affiche que
-  // NAV_MAX_ITEMS (5). Les garder chargées évite que check-cms-zones signale
-  // des zones actives absentes du filtre tant que la migration
-  // 20261022120000_menu_cinq_entrees n'a pas désactivé les entrées 6 et 7.
-  ...buildLinkKeys('nav_item', 7),
-  // Colonne « Navigation » du pied de page, distincte du menu du haut.
-  ...buildLinkKeys('footer_nav_item', 6),
-  // Liens discrets en bas du menu mobile.
-  ...buildLinkKeys('header_mobile_link', 3),
-  ...buildLinkKeys('footer_dest_item', 5),
-  ...buildLinkKeys('footer_guide_item', 3),
-  ...buildLinkKeys('footer_legal_item', 3),
-]
 
 /**
  * Charge les zones actives destinées au header, au pied de page et aux blocs
@@ -222,7 +60,6 @@ export async function getGlobalZones(): Promise<GlobalZones> {
       .select('id, page, zone_key, zone_type, value, is_active')
       .eq('is_active', true)
       .eq('page', 'global')
-      .in('zone_key', CONSUMED_ZONE_KEYS)
 
     if (error) {
       console.error('[SiteContent] Erreur de lecture des zones globales:', error.message)
@@ -232,6 +69,10 @@ export async function getGlobalZones(): Promise<GlobalZones> {
     const zones: GlobalZones = {}
     for (const row of (data ?? []) as CmsZone[]) {
       if (row.value == null) continue
+      // Zone hors déclaration publique (ou préfixée `_prive_`) : écartée du rendu.
+      // Elle reste éditable au CMS ; `check-cms-zones.mjs` exige qu'elle soit
+      // déclarée ou renommée, plutôt que de la publier en silence.
+      if (!isPublicGlobalZone(row.zone_key)) continue
       zones[row.zone_key] = row
     }
     return zones

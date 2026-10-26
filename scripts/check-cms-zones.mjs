@@ -360,32 +360,53 @@ function collectReaders() {
 }
 
 /**
- * Clés que le serveur accepte de transmettre au front (CONSUMED_ZONE_KEYS dans
- * lib/site-content.ts).
+ * Déclaration publique des zones `global` (lib/public-global-zones.json).
  *
- * Depuis que le layout précharge les zones, cette liste est un filtre : une clé
- * lue par un composant mais absente d'ici n'est jamais servie, et le composant
- * retombe sur son fallback — sans aucun signal. C'est la contrepartie du filtre
- * mis en place pour ne pas sérialiser 367 zones dans chaque page.
+ * Le 25/10/2026, la liste blanche `CONSUMED_ZONE_KEYS` a été retirée de
+ * `getGlobalZones()` : elle obligeait à modifier le code pour chaque zone créée
+ * depuis le CMS, ce qui interdisait au propriétaire d'ajouter une entrée de menu
+ * sans développeur. Mais elle portait une précaution réelle — ne pas sérialiser
+ * dans le HTML public une valeur qu'aucun composant n'affiche (les résidus
+ * « Monica Schneider » d'un ancien projet, restés lisibles par Googlebot).
  *
- * Le fichier est du TypeScript : on l'analyse au lieu de l'importer.
+ * Le remplacement n'est donc pas « plus de filtre » mais « un filtre déclaré » :
+ * `getGlobalZones()` n'écarte désormais que ce qui n'est ni déclaré public, ni
+ * préfixé `_prive_`. La déclaration vit dans un JSON, seule forme lisible à la
+ * fois par le module TypeScript et par ce script.
+ *
+ * Ce contrôle-ci est le garde-fou : il exige qu'une zone `global` active soit
+ * **explicitement** publique, et fait échouer la vérification sinon. Sans lui, une
+ * zone ajoutée depuis l'admin resterait silencieusement absente du HTML — le
+ * symptôme exact que ce script existe pour rendre bruyant.
  */
-function readServedKeys() {
-  const src = readFileSync('lib/site-content.ts', 'utf8');
-  const block = src.match(/const CONSUMED_ZONE_KEYS[^=]*=\s*\[([\s\S]*?)\n\]/);
-  if (!block) return null;
-
-  const keys = new Set();
-  for (const m of block[1].matchAll(/['"]([a-zA-Z0-9_]+)['"]/g)) keys.add(m[1]);
-  // ...buildLinkKeys('nav_item', 7) -> nav_item_1_label, nav_item_1_url, …
-  for (const m of block[1].matchAll(/buildLinkKeys\(\s*['"]([^'"]+)['"]\s*,\s*(\d+)\s*\)/g)) {
-    keys.delete(m[1]);
-    for (let i = 1; i <= Number(m[2]); i++) {
-      keys.add(`${m[1]}_${i}_label`);
-      keys.add(`${m[1]}_${i}_url`);
-    }
+function readDeclaration() {
+  let raw;
+  try {
+    raw = readFileSync('lib/public-global-zones.json', 'utf8');
+  } catch {
+    return null;
   }
-  return keys;
+  try {
+    const d = JSON.parse(raw);
+    if (!d.privatePrefix || !Array.isArray(d.publicPrefixes) || !Array.isArray(d.publicKeys)) return null;
+    return d;
+  } catch {
+    return null;
+  }
+}
+
+const PREFIXE_RESERVE = '_prive_';
+
+/** Zone au préfixe réservé : hors du rendu par convention, donc jamais orpheline. */
+function estDeclareePrivee(zoneKey) {
+  return zoneKey.startsWith(PREFIXE_RESERVE);
+}
+
+/** Une zone est-elle déclarée publiable ? (mêmes règles que lib/public-global-zones.ts) */
+function estDeclareePublique(decl, zoneKey) {
+  if (zoneKey.startsWith(decl.privatePrefix)) return true; // réservée : jamais rendue, mais assumée
+  if (decl.publicKeys.includes(zoneKey)) return true;
+  return decl.publicPrefixes.some((p) => zoneKey.startsWith(p));
 }
 
 const { url, key } = readEnv();
@@ -450,11 +471,32 @@ for (let from = 0; ; from += PAGE_SIZE) {
 }
 if (!ok) rows.length = 0;
 
+/**
+ * Zones compagnes d'une image : `<zone>_fit`, `<zone>_ratio`, `<zone>_position`.
+ *
+ * `EditableZone` (type `image`) lit ces trois clés en plus de la sienne, pour
+ * régler le cadrage depuis le CMS. Le motif `<zone>_<n>_label` des menus ne les
+ * couvre pas : sans cette reconnaissance, toute zone de cadrage renseignée
+ * passerait pour orpheline et ferait échouer le contrôle.
+ */
+const IMAGE_COMPANION = /^(.+)_(?:fit|ratio|position)$/;
+
 function isRead(page, zoneKey) {
+  // Zone au prefixe reserve : volontairement hors du rendu (brouillon, residu,
+  // archive). Ce n'est pas une orpheline — l'exclusion est assumee — mais elle
+  // reste soumise au controle des zones publiables plus bas.
+  if (page === 'global' && estDeclareePrivee(zoneKey)) return true;
   if (readers.exact.has(`${page}__${zoneKey}`)) return true;
   if (readers.globalKeys.has(zoneKey)) return true;
-  return (readers.patterns.get(page) || []).some((rx) => rx.test(zoneKey));
+  if ((readers.patterns.get(page) || []).some((rx) => rx.test(zoneKey))) return true;
+
+  const companion = zoneKey.match(IMAGE_COMPANION);
+  if (companion && isRead(page, companion[1])) return true;
+
+  return false;
 }
+
+const decl = readDeclaration();
 
 const orphans = [];
 const indeterminate = [];
@@ -471,28 +513,36 @@ console.log(
 );
 console.log(`Clés lues par le code : ${readers.exact.size} exactes, ${readers.globalKeys.size} globales, ${[...readers.patterns.values()].flat().length} motifs\n`);
 
-// ─── Clés lues mais jamais servies ──────────────────────────────────────────
-// Une clé absente de CONSUMED_ZONE_KEYS ne remonte pas jusqu'au composant :
-// celui-ci affiche son fallback en silence. Le symptôme est indiscernable d'un
-// contenu volontairement laissé au défaut, d'où la vérification automatique.
-const served = readServedKeys();
-if (served === null) {
-  console.log('⚠ CONSUMED_ZONE_KEYS introuvable dans lib/site-content.ts — vérification du filtre serveur ignorée.\n');
-} else {
-  const existing = new Set(rows.map((r) => r.zone_key));
-  const notServed = [...readers.globalKeys]
-    .filter((k) => !served.has(k))
-    // Une clé qui n'existe pas en base n'a pas encore de contenu à servir :
-    // l'ajouter au filtre ne changerait rien tant que la ligne n'existe pas.
-    .filter((k) => existing.has(k))
+// ─── Zones `global` actives non déclarées publiques ─────────────────────────
+// `getGlobalZones()` ne sert que les zones déclarées dans
+// lib/public-global-zones.json (préfixe de famille, clé exacte) — les autres sont
+// écartées du HTML sans bruit. Une zone ajoutée depuis l'admin et non déclarée
+// serait donc éditable, renseignée, et invisible : le symptôme est indiscernable
+// d'un contenu volontairement laissé au fallback. On exige une déclaration
+// explicite plutôt que de la publier en silence.
+//
+// Le préfixe réservé `_prive_` est le moyen d'assumer l'exclusion : une zone qui
+// le porte est volontairement hors du rendu (brouillon, résidu, archive).
+if (ok && decl === null) {
+  console.log('✗ lib/public-global-zones.json absent ou illisible — contrôle des zones publiables impossible.\n');
+  process.exitCode = 1;
+} else if (ok) {
+  const globalActives = rows.filter((r) => r.page === 'global');
+  const nonDeclarees = globalActives
+    .filter((r) => !estDeclareePublique(decl, r.zone_key))
+    .map((r) => r.zone_key)
     .sort();
 
-  if (notServed.length) {
-    console.log(`✗ ${notServed.length} clé(s) lue(s) par le code, présente(s) en base, mais ABSENTE(S) du filtre serveur :`);
-    for (const k of notServed) console.log(`    ${k}`);
-    console.log('\nCes zones sont éditables et renseignées, mais le composant affiche son fallback.');
-    console.log('Corriger en les ajoutant à CONSUMED_ZONE_KEYS dans lib/site-content.ts.\n');
+  if (nonDeclarees.length) {
+    console.log(`✗ ${nonDeclarees.length} zone(s) global active(s) NON déclarée(s) publique(s) :`);
+    for (const k of nonDeclarees) console.log(`    ${k}`);
+    console.log('\nCes zones ne sont PAS rendues (getGlobalZones les écarte) et personne ne le signale.');
+    console.log('Corriger, au choix :');
+    console.log('  - les déclarer dans lib/public-global-zones.json (préfixe de famille ou clé exacte) ;');
+    console.log(`  - les renommer avec le préfixe réservé \`${decl.privatePrefix}\` si elles doivent rester hors du rendu.`);
     process.exitCode = 1;
+  } else {
+    console.log(`✓ Zones global : ${globalActives.length} active(s), toutes déclarées publiques ou réservées.`);
   }
 }
 

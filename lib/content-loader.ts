@@ -17,6 +17,10 @@ export interface CmsZone {
   zone_type: string;
   value: string;
   is_active: boolean;
+  /** Libellé lisible, affiché dans l'admin à la place de la clé technique. */
+  label?: string | null;
+  /** Aide de saisie, affichée quand la zone est vide (le repli du code s'applique). */
+  description?: string | null;
 }
 
 export interface CmsZonesData {

@@ -8,6 +8,7 @@ import dynamic from 'next/dynamic'
 import TiptapEditor from './TiptapEditor'
 import { normalizeZoneText } from '@/lib/zone-text'
 import { sanitizeHtml } from '@/lib/sanitize-html'
+import { buildImageAdjustment } from '@/lib/image-adjustment'
 import CmsIcon from '@/components/CmsIcon'
 
 const MediaLibrary = dynamic(() => import('@/components/MediaLibrary'), { ssr: false })
@@ -26,6 +27,11 @@ interface EditableZoneProps {
   wrapper?: 'none' | 'link' | 'button'
   /** Texte nu, sans enveloppe ni édition : pour un <option>, qui n'accepte pas de <span>. */
   plain?: boolean
+  /**
+   * Ajustement de l'image dans son cadre. Laissé indéfini, `className` décide
+   * seul — c'est le comportement historique des zones `image`.
+   */
+  imageFit?: 'cover' | 'contain'
 }
 
 export default function EditableZone({
@@ -38,6 +44,7 @@ export default function EditableZone({
   href,
   wrapper = 'none',
   plain = false,
+  imageFit,
 }: EditableZoneProps) {
   const { zones, isEditing, updateZone, saving, registerZone, unregisterZone, triggerUndo } = useEditableContext()
   const [editValue, setEditValue] = useState('')
@@ -48,6 +55,14 @@ export default function EditableZone({
   const zoneKey = `${page}__${zone}`
   const hasCmsValue = zones[zoneKey] !== undefined
   const value = zones[zoneKey] ?? fallback
+
+  /**
+   * Cadrage de l'image, piloté par les zones compagnes `<zone>_fit`,
+   * `<zone>_ratio` et `<zone>_position` (voir `lib/image-adjustment.ts`, qui
+   * valide les valeurs et porte les tests). Sans zone renseignée, l'image se
+   * rend exactement comme avant.
+   */
+  const imageStyle = buildImageAdjustment(zones, page, zone, imageFit)
 
   // Dynamic registration for sidebar listing
   useEffect(() => {
@@ -98,7 +113,7 @@ export default function EditableZone({
 
   const renderContent = (content: string) => {
     if (type === 'image') {
-      return <ZoneImage src={content} className={className} />
+      return <ZoneImage src={content} className={className} style={imageStyle} />
     }
     if (isIconZone) {
       return <CmsIcon name={content} fallback={fallback} className={className || 'w-5 h-5 text-eucalyptus'} />
@@ -131,7 +146,7 @@ export default function EditableZone({
           </span>
 
           {type === 'image' ? (
-            <img src={value} alt="" className={className} loading="lazy" />
+            <img src={value} alt="" className={className} style={imageStyle} loading="lazy" />
           ) : isIconZone ? (
             <CmsIcon name={value} fallback={fallback} className={className || 'w-5 h-5 text-eucalyptus'} />
           ) : (
@@ -163,7 +178,7 @@ export default function EditableZone({
     if (type === 'image') {
       return (
         <div data-zone-editing id={`zone-${zoneKey}`} className="relative group p-1 border border-eucalyptus rounded bg-stone-50">
-          <img src={editValue || value} alt="" className={className} loading="lazy" />
+          <img src={editValue || value} alt="" className={className} style={imageStyle} loading="lazy" />
           <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition duration-200">
             <input
               type="text"
@@ -310,10 +325,10 @@ export default function EditableZone({
 }
 
 /** Image zone that hides itself on load failure instead of showing a broken-image icon. */
-function ZoneImage({ src, className }: { src: string; className?: string }) {
+function ZoneImage({ src, className, style }: { src: string; className?: string; style?: React.CSSProperties }) {
   const [failed, setFailed] = useState(false)
   // og-default.jpg est l'image de partage (logo + titre incrustés) : en fond de
   // hero, elle chevauche le vrai titre. On n'affiche rien plutôt que ce doublon.
   if (!src || failed || src === '/og-default.jpg') return null
-  return <img src={src} alt="" className={className} loading="lazy" onError={() => setFailed(true)} />
+  return <img src={src} alt="" className={className} style={style} loading="lazy" onError={() => setFailed(true)} />
 }

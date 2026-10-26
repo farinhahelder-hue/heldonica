@@ -1,0 +1,22 @@
+{
+  "privatePrefix": "_prive_",
+  "publicPrefixes": [
+    "nav_item_",
+    "header_",
+    "footer_",
+    "newsletter_",
+    "stat_",
+    "cta_",
+    "social_",
+    "instagram_",
+    "cookie_",
+    "popup_",
+    "contact_"
+  ],
+  "publicKeys": [
+    "destinations_footer_title",
+    "guides_footer_title",
+    "legal_footer_title",
+    "nav_footer_title"
+  ]
+}
