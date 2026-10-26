@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { parseCssPx } from '@/lib/cms-size'
+import { parseCssPx, parseLogoDisplay } from '@/lib/cms-size'
 
 describe('parseCssPx', () => {
   it('accepte un entier positif simple', () => {
@@ -35,5 +35,28 @@ describe('parseCssPx', () => {
     expect(parseCssPx('40; background:url(evil)')).toBeUndefined()
     expect(parseCssPx('40px}body{display:none')).toBeUndefined()
     expect(parseCssPx('calc(100% - 10px)')).toBeUndefined()
+  })
+})
+
+describe('parseLogoDisplay', () => {
+  it('accepte les trois emplacements prévus', () => {
+    expect(parseLogoDisplay('both')).toBe('both')
+    expect(parseLogoDisplay('icon')).toBe('icon')
+    expect(parseLogoDisplay('text')).toBe('text')
+  })
+
+  it('tolère les espaces et la casse', () => {
+    expect(parseLogoDisplay(' Icon ')).toBe('icon')
+    expect(parseLogoDisplay('TEXT')).toBe('text')
+  })
+
+  it('retombe sur « both » — l’état actuel — pour tout le reste', () => {
+    // Une valeur absente ou fautive ne doit pas faire disparaître le logo.
+    expect(parseLogoDisplay('')).toBe('both')
+    expect(parseLogoDisplay('   ')).toBe('both')
+    expect(parseLogoDisplay(undefined)).toBe('both')
+    expect(parseLogoDisplay('logo')).toBe('both')
+    expect(parseLogoDisplay('none')).toBe('both')
+    expect(parseLogoDisplay('both; display:none')).toBe('both')
   })
 })

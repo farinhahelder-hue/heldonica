@@ -24,3 +24,22 @@ export function parseCssPx(value: string | undefined): string | undefined {
 
   return `${n}px`
 }
+
+/** Ce que l'en-tête montre du logo : le sceau, le nom, ou les deux. */
+export type LogoDisplay = 'both' | 'icon' | 'text'
+
+export const LOGO_DISPLAYS: readonly LogoDisplay[] = ['both', 'icon', 'text']
+
+/**
+ * Réglage `header_logo_display` : « emplacement » du logo dans l'en-tête.
+ *
+ * Le sceau et le nom sont écrits dans le composant ; ce réglage dit lesquels
+ * montrer. Liste fermée — toute autre valeur retombe sur `both`, l'état actuel
+ * du site : une faute de saisie ne doit pas faire disparaître le logo.
+ */
+export function parseLogoDisplay(value: string | undefined): LogoDisplay {
+  const trimmed = value?.trim().toLowerCase()
+  return (LOGO_DISPLAYS as readonly string[]).includes(trimmed ?? '')
+    ? (trimmed as LogoDisplay)
+    : 'both'
+}
