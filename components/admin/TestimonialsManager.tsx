@@ -132,7 +132,7 @@ export default function TestimonialsManager() {
             <h3 className="font-semibold text-gray-800">
               {isNew ? 'Nouveau témoignage' : 'Modifier'}
             </h3>
-            <button onClick={() => { setEditing(null); setIsNew(false); }} className="text-gray-400 hover:text-gray-600">
+            <button onClick={() => { setEditing(null); setIsNew(false); }} className="text-gray-400 hover:text-gray-600" aria-label="Fermer le formulaire">
               <X size={20} />
             </button>
           </div>
@@ -189,6 +189,7 @@ export default function TestimonialsManager() {
                     type="button"
                     onClick={() => setEditing(p => p ? { ...p, rating: n } : null)}
                     className="p-1 hover:scale-110 transition"
+                    aria-label={`Attribuer une note de ${n} sur 5`}
                   >
                     <Star
                       size={20}
@@ -269,6 +270,7 @@ export default function TestimonialsManager() {
                   onClick={() => startEdit(t)}
                   className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition"
                   title="Modifier"
+                  aria-label="Modifier le témoignage"
                 >
                   <Edit2 size={16} />
                 </button>
@@ -276,6 +278,7 @@ export default function TestimonialsManager() {
                   onClick={() => handleDelete(t.id!)}
                   className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition"
                   title="Supprimer"
+                  aria-label="Supprimer le témoignage"
                 >
                   <Trash2 size={16} />
                 </button>
