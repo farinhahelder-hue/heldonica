@@ -41,6 +41,7 @@ private data class DemandeFlux(
 fun CreerScreen(
     onPhoto: (carrousel: Boolean, ouvrirDirect: Boolean) -> Unit,
     onMontage: () -> Unit,
+    onMontageAvecPiste: (String) -> Unit = {},
     onCarnet: () -> Unit,
     onCarrouselSite: () -> Unit,
     onCms: () -> Unit,
@@ -219,6 +220,10 @@ fun CreerScreen(
     demandeFlux?.let { demande ->
         AssistantFluxDialog(
             demande = demande,
+            onMontageAvecPiste = { pisteId ->
+                demandeFlux = null
+                onMontageAvecPiste(pisteId)
+            },
             onFermer = { demandeFlux = null }
         )
     }
@@ -272,45 +277,195 @@ private fun CarteAction(
 @Composable
 private fun AssistantFluxDialog(
     demande: DemandeFlux,
+    onMontageAvecPiste: (String) -> Unit,
     onFermer: () -> Unit
 ) {
     val contexte = LocalContext.current
+    var ongletMusique by remember { mutableStateOf(0) }
+    var idPisteEnLecture by remember { mutableStateOf(CatalogueMusique.idPisteEnLecture) }
     var texte by remember(demande) { mutableStateOf(promptFlux(demande)) }
-    val outil = if (demande.type == AssistantFlux.VIDEO) "Google Flow" else "Flow Music"
+    val outil = if (demande.type == AssistantFlux.VIDEO) "Google Flow" else "Google MusicFX"
     val url = if (demande.type == AssistantFlux.VIDEO) URL_FLOW else URL_FLOW_MUSIC
 
     AlertDialog(
-        onDismissRequest = onFermer,
-        title = { Text(outil) },
+        onDismissRequest = {
+            CatalogueMusique.arreterPreview()
+            onFermer()
+        },
+        title = {
+            Text(
+                if (demande.type == AssistantFlux.MUSIQUE) "🎵 Studio Musique Heldonica" else "🎬 Google Flow (Veo)",
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            )
+        },
         text = {
-            Column {
-                Text(
-                    "Le prompt est copié dans le presse-papier. Colle-le dans $outil, génère, télécharge, puis importe le fichier dans l'app.",
-                    fontSize = 12.sp
-                )
-                OutlinedTextField(
-                    value = texte,
-                    onValueChange = { texte = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 10.dp),
-                    minLines = 4,
-                    maxLines = 8,
-                    label = { Text("Prompt") }
-                )
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+            ) {
+                if (demande.type == AssistantFlux.MUSIQUE) {
+                    TabRow(
+                        selectedTabIndex = ongletMusique,
+                        modifier = Modifier.padding(bottom = 12.dp)
+                    ) {
+                        Tab(
+                            selected = (ongletMusique == 0),
+                            onClick = { ongletMusique = 0 },
+                            text = { Text("Pistes prêtes (1 clic)", fontSize = 12.sp) }
+                        )
+                        Tab(
+                            selected = (ongletMusique == 1),
+                            onClick = { ongletMusique = 1 },
+                            text = { Text("Google MusicFX", fontSize = 12.sp) }
+                        )
+                    }
+
+                    if (ongletMusique == 0) {
+                        Text(
+                            "Musiques originales slow travel prêtes à l'emploi. Aucun copier-coller requis : écoute et applique directement à ton montage.",
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(bottom = 10.dp)
+                        )
+                        CatalogueMusique.PISTES.forEach { piste ->
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(bottom = 8.dp),
+                                colors = CardDefaults.cardColors(
+                                    containerColor = if (idPisteEnLecture == piste.id) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant
+                                )
+                            ) {
+                                Column(Modifier.padding(10.dp)) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(piste.titre, fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                                        Text("${piste.bpm} BPM • ${piste.duree}", fontSize = 11.sp, color = MaterialTheme.colorScheme.outline)
+                                    }
+                                    Text(piste.ambiance, fontSize = 11.sp, color = MaterialTheme.colorScheme.primary, modifier = Modifier.padding(top = 2.dp))
+                                    Text(piste.description, fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(top = 2.dp))
+
+                                    Row(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(top = 6.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                                    ) {
+                                        OutlinedButton(
+                                            onClick = {
+                                                CatalogueMusique.basculerPreview(contexte, piste) {
+                                                    idPisteEnLecture = CatalogueMusique.idPisteEnLecture
+                                                }
+                                            },
+                                            modifier = Modifier.weight(1f)
+                                        ) {
+                                            Text(if (idPisteEnLecture == piste.id) "⏹️ Stop" else "🎧 Écouter", fontSize = 11.sp)
+                                        }
+                                        Button(
+                                            onClick = {
+                                                CatalogueMusique.arreterPreview()
+                                                onMontageAvecPiste(piste.id)
+                                                onFermer()
+                                            },
+                                            modifier = Modifier.weight(1.3f)
+                                        ) {
+                                            Text("🎬 Utiliser", fontSize = 11.sp)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    } else {
+                        Text(
+                            "Choisis un preset pour calibrer le prompt sans le taper à la main, puis ouvre Google MusicFX.",
+                            fontSize = 12.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text("Styles pré-calibrés :", fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+                            CatalogueMusique.PISTES.forEach { p ->
+                                SuggestionChip(
+                                    onClick = {
+                                        texte = p.promptGoogleFlow
+                                        copier(contexte, texte, "Google MusicFX")
+                                    },
+                                    label = { Text("${p.titre} (${p.bpm} BPM)", fontSize = 11.sp) }
+                                )
+                            }
+                        }
+
+                        OutlinedTextField(
+                            value = texte,
+                            onValueChange = { texte = it },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 6.dp),
+                            minLines = 3,
+                            maxLines = 6,
+                            label = { Text("Prompt pour Google MusicFX", fontSize = 12.sp) }
+                        )
+
+                        Button(
+                            onClick = {
+                                copier(contexte, texte, "Google MusicFX")
+                                ouvrirLien(contexte, URL_FLOW_MUSIC)
+                                onFermer()
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 10.dp)
+                        ) {
+                            Text("🚀 Copier et ouvrir Google MusicFX")
+                        }
+                    }
+                } else {
+                    // Flow Vidéo (Veo)
+                    Text(
+                        "Le prompt vidéo 9:16 est prêt. Touche le bouton pour le copier et ouvrir Google Flow.",
+                        fontSize = 12.sp
+                    )
+                    OutlinedTextField(
+                        value = texte,
+                        onValueChange = { texte = it },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp),
+                        minLines = 4,
+                        maxLines = 8,
+                        label = { Text("Prompt Google Flow (Veo)") }
+                    )
+                    Button(
+                        onClick = {
+                            copier(contexte, texte, "Google Flow")
+                            ouvrirLien(contexte, URL_FLOW)
+                            onFermer()
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 10.dp)
+                    ) {
+                        Text("🎬 Copier et ouvrir Google Flow")
+                    }
+                }
             }
         },
-        confirmButton = {
-            TextButton(onClick = {
-                copier(contexte, texte, outil)
-                ouvrirLien(contexte, url)
-                onFermer()
-            }) {
-                Text("Copier et ouvrir")
-            }
-        },
+        confirmButton = {},
         dismissButton = {
-            TextButton(onClick = onFermer) { Text("Annuler") }
+            TextButton(onClick = {
+                CatalogueMusique.arreterPreview()
+                onFermer()
+            }) { Text("Fermer") }
         }
     )
 }
@@ -346,4 +501,4 @@ private fun ouvrirLien(contexte: Context, url: String) {
 }
 
 private const val URL_FLOW = "https://labs.google/fx/tools/flow"
-private const val URL_FLOW_MUSIC = "https://flowmusic.google"
+private const val URL_FLOW_MUSIC = "https://aitestkitchen.withgoogle.com/tools/music-fx"

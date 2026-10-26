@@ -68,6 +68,7 @@ class MainActivity : ComponentActivity() {
         const val EXTRA_ECRAN = "ecran"
         const val EXTRA_CARROUSEL = "carrousel"
         const val EXTRA_OUVRIR_PICKER = "ouvrir_picker"
+        const val EXTRA_PISTE_MUSIQUE = "piste_musique"
     }
 
     private var pickedUris by mutableStateOf<List<Uri>>(emptyList())
@@ -223,6 +224,38 @@ class MainActivity : ComponentActivity() {
         if (targetIntent.getBooleanExtra(EXTRA_CARROUSEL, false)) isCarousel = true
         if (targetIntent.getBooleanExtra(EXTRA_OUVRIR_PICKER, false)) {
             picker.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
+        }
+        targetIntent.getStringExtra(EXTRA_PISTE_MUSIQUE)?.let { pisteId ->
+            val piste = CatalogueMusique.PISTES.find { it.id == pisteId }
+            if (piste != null) {
+                ecran = "montage"
+                portee.launch(Dispatchers.IO) {
+                    val uri = CatalogueMusique.preparerPistePourMontage(this@MainActivity, piste)
+                    withContext(Dispatchers.Main) {
+                        if (uri != null) {
+                            musique = uri
+                            nomMusique = "${piste.titre} (${piste.bpm} BPM)"
+                            messageMontage = "Musique sélectionnée : ${piste.titre}"
+                        }
+                    }
+                }
+            }
+        }
+        targetIntent.getStringExtra(EXTRA_PISTE_MUSIQUE)?.let { pisteId ->
+            val piste = CatalogueMusique.PISTES.find { it.id == pisteId }
+            if (piste != null) {
+                ecran = "montage"
+                portee.launch(Dispatchers.IO) {
+                    val uri = CatalogueMusique.preparerPistePourMontage(this@MainActivity, piste)
+                    withContext(Dispatchers.Main) {
+                        if (uri != null) {
+                            musique = uri
+                            nomMusique = "${piste.titre} (${piste.bpm} BPM)"
+                            messageMontage = "Musique sélectionnée : ${piste.titre}"
+                        }
+                    }
+                }
+            }
         }
 
         when (targetIntent.action) {
@@ -389,18 +422,53 @@ class MainActivity : ComponentActivity() {
                     Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         Text("Musique", style = MaterialTheme.typography.titleMedium)
 
+                        var dialogueMusiquesOuvert by remember { mutableStateOf(false) }
+
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Button(
+                                onClick = { dialogueMusiquesOuvert = true },
+                                enabled = !montageEnCours
+                            ) { Text(if (musique == null) "🎵 Catalogue Heldonica" else "🎵 Changer piste") }
+
                             OutlinedButton(
                                 onClick = { selecteurMusique.launch(arrayOf("audio/*")) },
                                 enabled = !montageEnCours
-                            ) { Text(if (musique == null) "Choisir" else "Changer") }
+                            ) { Text("Fichier local") }
 
                             if (musique != null) {
                                 TextButton(
-                                    onClick = { musique = null; nomMusique = "" },
+                                    onClick = {
+                                        musique = null
+                                        nomMusique = ""
+                                        CatalogueMusique.arreterPreview()
+                                    },
                                     enabled = !montageEnCours
                                 ) { Text("Retirer") }
                             }
+                        }
+
+                        if (dialogueMusiquesOuvert) {
+                            DialogueCatalogueMusique(
+                                onChoisir = { piste: PisteMusique ->
+                                    portee.launch(Dispatchers.IO) {
+                                        val uri = CatalogueMusique.preparerPistePourMontage(this@MainActivity, piste)
+                                        withContext(Dispatchers.Main) {
+                                            if (uri != null) {
+                                                musique = uri
+                                                nomMusique = "${piste.titre} (${piste.bpm} BPM)"
+                                                messageMontage = "Musique sélectionnée : ${piste.titre}"
+                                            } else {
+                                                Toast.makeText(this@MainActivity, "Impossible de charger la piste", Toast.LENGTH_SHORT).show()
+                                            }
+                                            dialogueMusiquesOuvert = false
+                                        }
+                                    }
+                                },
+                                onFermer = {
+                                    CatalogueMusique.arreterPreview()
+                                    dialogueMusiquesOuvert = false
+                                }
+                            )
                         }
 
                         if (musique == null) {
@@ -1974,4 +2042,5 @@ class UploadWorker(ctx: android.content.Context, params: WorkerParameters) : Cor
             tmp
         } catch (_: Exception) { null }
     }
-}
+
+    }

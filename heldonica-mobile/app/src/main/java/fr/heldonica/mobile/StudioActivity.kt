@@ -75,6 +75,13 @@ class StudioActivity : ComponentActivity() {
                                 .putExtra(MainActivity.EXTRA_ECRAN, "montage")
                         )
                     },
+                    onMontageAvecPiste = { pisteId ->
+                        contexte.startActivity(
+                            Intent(contexte, MainActivity::class.java)
+                                .putExtra(MainActivity.EXTRA_ECRAN, "montage")
+                                .putExtra(MainActivity.EXTRA_PISTE_MUSIQUE, pisteId)
+                        )
+                    },
                     onCarnet = {
                         contexte.startActivity(
                             Intent(contexte, MainActivity::class.java)
