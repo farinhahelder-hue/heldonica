@@ -2,7 +2,17 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
-## [2026-10-25 quindecies] — Le filtre CMS n'est pas supprimé, il est déclaré
+  ## [2026-10-26] — Lot 2 (A/B/C/I/F) : entrées sous maintenance, og:image:alt, JSON-LD, compte de carnets
+
+  - **A — matcher du middleware** : il n'excluait pas les fichiers de `public/`. Pendant la maintenance, `og:image` et les favicons renvoyaient **307 -> /maintenance**. Le matcher exclut désormais tout chemin à extension ; `llms.txt` (seule route dont un segment contient un point) reste exclu aussi. Mesuré : `/og-default.jpg` **200**, `/favicon.ico` **200**, `/site.webmanifest` **200**, page `/` toujours **307** (protection intacte).
+  - **B — `robots.txt` à source unique** : `public/robots.txt` supprimé (il provoquait un **500** en dev par conflit fichier/route, et divergeait de ce que la prod sert). `app/robots.ts` reste la source. Mesuré : `/robots.txt` **200**, contenu identique à la production.
+  - **C — `og:image:alt`** : la zone CMS `seo_og_image` (active partout) reconstruisait `openGraph.images` en perdant l'`alt` du fallback, si bien que la balise n'était **jamais** émise. `lib/page-metadata.ts` reporte l'`alt`. Mesuré sur les 6 pages d'entrée : balise présente partout.
+  - **I — `Organization` JSON-LD dédoublonné** : blocs nus supprimés dans `app/page.tsx` et `app/a-propos/page.tsx` ; l'Organization complet de `app/layout.tsx` reste seul. Mesuré : **1 seul** `"@type":"Organization"` par page.
+  - **F — compte de carnets réel** : `publishedArticles = totalPosts` (accueil) et `carnetCount = posts.length` (`/a-propos`) ; repli silencieux `|| 25` et suffixe `+` trompeur retirés. Les deux pages affichent **8**.
+  - **Découpage** (revue du propriétaire, « une PR = un sujet ») : les constats A/B/C/I/F restent ici ; la recherche D/E/G, la migration des compteurs morts et le correctif des zones `header_logo_*` partent en PR séparées.
+  - **Vérifié** : `tsc` 0 ; `vitest` **1054/1054**.
+
+  ## [2026-10-25 quindecies] — Le filtre CMS n'est pas supprimé, il est déclaré
 
 - **Le constat** : la levée du verrou de câblage (lot 1) a retiré `CONSUMED_ZONE_KEYS` de `getGlobalZones()`, avec pour seule contrepartie un commentaire renvoyant à `check-cms-zones.mjs`. Or ce garde-fou ne vérifie qu'une chose : qu'une zone active est **lue par un composant**. Il ne dit rien de ce qui part dans le HTML public. La précaution d'origine — ne pas sérialiser une valeur qu'aucun composant n'affiche (résidus « Monica Schneider / Executive Coach », lus par Googlebot) — n'était donc plus portée par personne.
 - **`lib/public-global-zones.json`** (source unique, lisible par le TS et par le `.mjs`) : la liste des familles publiables (`nav_item_`, `header_`, `footer_`, `newsletter_`, `stat_`, `cta_`, `social_`, `instagram_`, `cookie_`, `popup_`, `contact_`), quatre clés hors famille (`nav_footer_title`, `destinations_footer_title`, `guides_footer_title`, `legal_footer_title`), et un **préfixe réservé `_prive_`** qui marque une exclusion assumée (brouillon, résidu, archive).
