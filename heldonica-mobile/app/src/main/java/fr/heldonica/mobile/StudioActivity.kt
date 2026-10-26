@@ -27,11 +27,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 
 /**
- * Coque Studio Heldonica (slice 1) : un seul point d'entrée, quatre onglets.
+ * Coque Studio Heldonica (slice 1) : un seul point d'entrée, sept onglets.
  *
- * - Cerveau : console Brain en vue web (connexion manuelle, aucun secret stocké).
+ * - Créer : écran unifié de création (Google Photos, carnets, vidéo, musique, CMS).
+ * - Cerveau : console Brain en vue web.
+ * - Tâches : registre des tâches multi-agents.
+ * - Rédaction : éditeur de carnets et articles existants assisté par IA.
  * - CMS : ouvre EditeurActivity (session cookie déjà gérée là-bas).
- * - Studio / Insta : écrans d'attente câblés aux slices 2 et 3.
+ * - Studio / Insta : écrans terrain et génération.
  */
 class StudioActivity : ComponentActivity() {
 
@@ -100,7 +103,14 @@ class StudioActivity : ComponentActivity() {
                                 .putExtra(EditeurActivity.EXTRA_CHEMIN, "/panel-manager")
                         )
                     },
-                    onCerveau = { onglet = OngletStudio.CERVEAU }
+                    onCerveau = { onglet = OngletStudio.CERVEAU },
+                    onRedaction = { onglet = OngletStudio.REDACTION },
+                    onPagesSite = {
+                        contexte.startActivity(
+                            Intent(contexte, EditeurActivity::class.java)
+                                .putExtra(EditeurActivity.EXTRA_CHEMIN, "/panel-manager/pages")
+                        )
+                    }
                 )
                 OngletStudio.CERVEAU -> CerveauScreen()
                 OngletStudio.TACHES -> TachesScreen()

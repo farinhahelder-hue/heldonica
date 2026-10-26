@@ -46,7 +46,9 @@ fun CreerScreen(
     onCarnet: () -> Unit,
     onCarrouselSite: () -> Unit,
     onCms: () -> Unit,
-    onCerveau: () -> Unit
+    onCerveau: () -> Unit,
+    onRedaction: () -> Unit = {},
+    onPagesSite: () -> Unit = {}
 ) {
     val contexte = LocalContext.current
     var marque by remember { mutableStateOf(MarqueCreation.HELDONICA) }
@@ -151,13 +153,19 @@ fun CreerScreen(
                     }
                 }
 
-                // 2. Section "Autres formats de voyage"
-                SectionTitre("Autres formats")
+                // 2. Section "Édition & Autres formats de voyage"
+                SectionTitre("Édition & Récits de voyage")
                 CarteAction(
                     icone = "✍️",
-                    titre = "Écrire un carnet de route",
-                    detail = "Rédiger un article ou récit slow travel assisté par l'IA."
-                ) { onCarnet() }
+                    titre = "Rédiger ou enrichir un carnet (Photos & IA)",
+                    detail = "Ouvrir un article existant, injecter des photos et dicter son vécu."
+                ) { onRedaction() }
+
+                CarteAction(
+                    icone = "📄",
+                    titre = "Éditer les pages du site (Destinations & Zones)",
+                    detail = "Modifier directement les textes et photos des pages Madère, Roumanie, Suisse…"
+                ) { onPagesSite() }
 
                 CarteAction(
                     icone = "🎬",
