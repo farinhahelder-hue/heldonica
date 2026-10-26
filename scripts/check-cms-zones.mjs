@@ -369,9 +369,20 @@ function collectReaders() {
  * mis en place pour ne pas sérialiser 367 zones dans chaque page.
  *
  * Le fichier est du TypeScript : on l'analyse au lieu de l'importer.
+ *
+ * Depuis le 25/10/2026, `lib/site-content.ts` ne filtre plus les zones par une
+ * liste blanche de clés : `getGlobalZones()` lit toute la page `global`. La
+ * fonction renvoie donc `ALL_SERVED` — sentinelle distincte de `null`, qui
+ * signifie « filtre illisible ». Le contrôle des clés non servies est sans
+ * objet, pas cassé : un `null` ferait passer une régression pour une absence.
  */
+const ALL_SERVED = Symbol('all-zones-served')
+
 function readServedKeys() {
   const src = readFileSync('lib/site-content.ts', 'utf8');
+  // Plus de liste blanche : toutes les zones actives de la page sont servies.
+  if (!/const CONSUMED_ZONE_KEYS[^=]*=/.test(src)) return ALL_SERVED;
+
   const block = src.match(/const CONSUMED_ZONE_KEYS[^=]*=\s*\[([\s\S]*?)\n\]/);
   if (!block) return null;
 
@@ -450,10 +461,25 @@ for (let from = 0; ; from += PAGE_SIZE) {
 }
 if (!ok) rows.length = 0;
 
+/**
+ * Zones compagnes d'une image : `<zone>_fit`, `<zone>_ratio`, `<zone>_position`.
+ *
+ * `EditableZone` (type `image`) lit ces trois clés en plus de la sienne, pour
+ * régler le cadrage depuis le CMS. Le motif `<zone>_<n>_label` des menus ne les
+ * couvre pas : sans cette reconnaissance, toute zone de cadrage renseignée
+ * passerait pour orpheline et ferait échouer le contrôle.
+ */
+const IMAGE_COMPANION = /^(.+)_(?:fit|ratio|position)$/;
+
 function isRead(page, zoneKey) {
   if (readers.exact.has(`${page}__${zoneKey}`)) return true;
   if (readers.globalKeys.has(zoneKey)) return true;
-  return (readers.patterns.get(page) || []).some((rx) => rx.test(zoneKey));
+  if ((readers.patterns.get(page) || []).some((rx) => rx.test(zoneKey))) return true;
+
+  const companion = zoneKey.match(IMAGE_COMPANION);
+  if (companion && isRead(page, companion[1])) return true;
+
+  return false;
 }
 
 const orphans = [];
@@ -472,12 +498,19 @@ console.log(
 console.log(`Clés lues par le code : ${readers.exact.size} exactes, ${readers.globalKeys.size} globales, ${[...readers.patterns.values()].flat().length} motifs\n`);
 
 // ─── Clés lues mais jamais servies ──────────────────────────────────────────
-// Une clé absente de CONSUMED_ZONE_KEYS ne remonte pas jusqu'au composant :
-// celui-ci affiche son fallback en silence. Le symptôme est indiscernable d'un
-// contenu volontairement laissé au défaut, d'où la vérification automatique.
+// Une clé absente du filtre serveur ne remonte pas jusqu'au composant : celui-ci
+// affiche son fallback en silence. Le symptôme est indiscernable d'un contenu
+// volontairement laissé au défaut, d'où la vérification automatique.
+//
+// Depuis le 25/10/2026 le filtre n'existe plus (toute la page `global` est
+// servie) : le contrôle est sans objet, et `readServedKeys()` le signale par
+// `ALL_SERVED`. Seul un filtre présent mais illisible (`null`) reste une anomalie.
 const served = readServedKeys();
-if (served === null) {
-  console.log('⚠ CONSUMED_ZONE_KEYS introuvable dans lib/site-content.ts — vérification du filtre serveur ignorée.\n');
+if (served === ALL_SERVED) {
+  // Sans objet : rien à vérifier, et surtout rien à signaler comme cassé.
+} else if (served === null) {
+  console.log('✗ CONSUMED_ZONE_KEYS présent mais illisible dans lib/site-content.ts — contrôle impossible.\n');
+  process.exitCode = 1;
 } else {
   const existing = new Set(rows.map((r) => r.zone_key));
   const notServed = [...readers.globalKeys]

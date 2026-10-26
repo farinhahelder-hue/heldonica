@@ -6,6 +6,7 @@ import Image from 'next/image'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/components/AuthProvider'
 import { useContentLoader, getCmsOrSetting, getZoneLinks } from '@/hooks/useContentLoader'
+import { parseCssPx } from '@/lib/cms-size'
 import type { CmsZone } from '@/lib/content-loader'
 
 // Nombre maximal d'entrées du menu principal. Le CMS peut en renseigner moins ;
@@ -50,6 +51,16 @@ export default function Header() {
   const logoUrl = getCmsOrSetting(
     'header_logo_url', 'logo_url', '',
     zones as Record<string, CmsZone>, settings
+  )
+  // Réglages du logo, appliqués aux deux branches : l'image CMS
+  // (`header_logo_url`) et le SVG de repli, qui est ce que le site sert tant
+  // qu'aucune image n'est renseignée. Vides par défaut : les tailles écrites
+  // dans le code (`h-8 w-auto`, `h-7 w-7`) restent la référence.
+  const logoHeight = parseCssPx(
+    getCmsOrSetting('header_logo_height', '', '', zones as Record<string, CmsZone>, settings)
+  )
+  const logoWidth = parseCssPx(
+    getCmsOrSetting('header_logo_width', '', '', zones as Record<string, CmsZone>, settings)
   )
 
   // Fermer le menu mobile au changement de route + détection scroll
@@ -134,12 +145,22 @@ export default function Header() {
                 alt={siteName}
                 width={140}
                 height={32}
-                className="h-8 w-auto"
+                className={logoHeight || logoWidth ? 'w-auto' : 'h-8 w-auto'}
+                style={{
+                  ...(logoHeight ? { height: logoHeight } : {}),
+                  ...(logoWidth ? { width: logoWidth } : {}),
+                }}
                 priority={logoUrl.endsWith('.svg')}
                 unoptimized={!logoUrl.endsWith('.svg')}
               />
             ) : (
-              <svg width="32" height="32" viewBox="-69.5 0 341 341" fill="none" aria-hidden="true" className="h-7 w-7 flex-shrink-0 text-eucalyptus transition-colors duration-200">
+              <svg width="32" height="32" viewBox="-69.5 0 341 341" fill="none" aria-hidden="true"
+                className={`flex-shrink-0 text-eucalyptus transition-colors duration-200 ${logoHeight || logoWidth ? '' : 'h-7 w-7'}`}
+                style={{
+                  ...(logoHeight ? { height: logoHeight } : {}),
+                  ...(logoWidth ? { width: logoWidth } : {}),
+                }}
+              >
                 <path
                   fillRule="evenodd"
                   clipRule="evenodd"
