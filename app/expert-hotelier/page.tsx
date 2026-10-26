@@ -39,9 +39,9 @@ const services = [
     title: 'Indépendance & Réservations Directes',
     subtitle: 'Se libérer de la dépendance aux plateformes',
     icon: 'Wheat',
-    problem: 'Forte dépendance à Booking.com ou Airbnb, commissions élevées (jusqu\'à 25%), relation client inexistante avant le séjour.',
+    problem: 'Forte dépendance à Booking.com ou Airbnb, commissions prélevées sur chaque réservation, relation client inexistante avant le séjour.',
     solution: 'Optimisation de votre propre parcours de réservation, stratégie tarifaire intelligente en direct, et maillage de contacts avant l\'arrivée pour instaurer la confiance.',
-    results: 'Marge préservée et jusqu\'à 45% de réservations en direct en quelques mois.',
+    results: 'Une part de réservations directes que vous pilotez, sans dépendre d’une plateforme.',
   },
   {
     title: 'Visibilité Naturelle & Authentique',
@@ -68,16 +68,16 @@ const SHOW_CASE_STUDIES = false
 const caseStudies = [
   {
     title: 'La Grange d\'Émilie — Maison d\'hôtes en Bretagne',
-    problem: 'Près de 80% des séjours réservés sur les plateformes, RevPAR stagnant hors saison, manque d\'identité claire.',
+    problem: 'Des séjours majoritairement réservés sur les plateformes, un RevPAR stagnant hors saison, un manque d’identité claire.',
     solution: 'Mise en avant d\'itinéraires slow-travel locaux et d\'un panier d\'accueil terroir en direct.',
-    resultat: 'Les réservations en direct passent de 12% à 45%, et le taux de retour client double.',
+    resultat: 'Une relation directe installée avec vos clients, et un retour qui ne dépend plus uniquement des plateformes.',
     tags: ['Bretagne', 'Réservations Directes', 'Expérience'],
   },
   {
     title: 'Le Domaine de la Combe — Gîtes éco-conçus en Dordogne',
     problem: 'Faible taux de remplissage en automne-hiver, site internet peu visible et manque de clarté sur la démarche éco.',
     solution: 'Storytelling axé sur la déconnexion automnale et campagnes email ciblées vers les couples.',
-    resultat: '+34% de taux d\'occupation hors saison et création d\'une vraie communauté de fidèles.',
+    resultat: 'Une présence hors saison plus lisible et une communauté de fidèles qui se construit dans la durée.',
     tags: ['Dordogne', 'Slow Travel', 'Fidélisation'],
   },
 ];
@@ -162,7 +162,7 @@ export default async function ExpertHotelierPage() {
               className="inline-block px-4 py-1.5 bg-eucalyptus/15 text-eucalyptus text-xs font-semibold rounded-full uppercase tracking-widest mb-6 border border-eucalyptus/20"
             />
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-light leading-tight mb-8">
-              <EditableZone page="expert-hotelier" zone="hero_title" fallback="Jusqu'à 25 % de votre chiffre part en commissions. Reprenez la main." className="inline" />
+              <EditableZone page="expert-hotelier" zone="hero_title" fallback="Les plateformes prélèvent leur part sur chaque réservation. Reprenez la main sur la relation directe." className="inline" />
             </h1>
             {/*
               Clé `hero_subtitle` et non `hero_text` : c'est sous ce nom que la
@@ -209,26 +209,26 @@ export default async function ExpertHotelierPage() {
             />
             <div className="grid grid-cols-3 gap-8 max-w-3xl mx-auto text-center">
               <div>
-                <EditableZone page="expert-hotelier" zone="stat_1_value" fallback="78%"
+                <EditableZone page="expert-hotelier" zone="stat_1_value" fallback="Mix canaux"
                   className="text-4xl font-bold text-eucalyptus block"
                 />
-                <EditableZone page="expert-hotelier" zone="stat_1_label" fallback="de dépendance moyenne aux plateformes"
+                <EditableZone page="expert-hotelier" zone="stat_1_label" fallback="Ce qu’on mesure avant de recommander"
                   className="text-sm text-stone-500 mt-2 block"
                 />
               </div>
               <div>
-                <EditableZone page="expert-hotelier" zone="stat_2_value" fallback="15-25%"
+                <EditableZone page="expert-hotelier" zone="stat_2_value" fallback="Marge nette"
                   className="text-4xl font-bold text-amber-500 block"
                 />
-                <EditableZone page="expert-hotelier" zone="stat_2_label" fallback="de commission laissée aux intermédiaires"
+                <EditableZone page="expert-hotelier" zone="stat_2_label" fallback="Ce que les commissions laissent dans l’établissement"
                   className="text-sm text-stone-500 mt-2 block"
                 />
               </div>
               <div>
-                <EditableZone page="expert-hotelier" zone="stat_3_value" fallback="+30%"
+                <EditableZone page="expert-hotelier" zone="stat_3_value" fallback="Fidélisation"
                   className="text-4xl font-bold text-eucalyptus block"
                 />
-                <EditableZone page="expert-hotelier" zone="stat_3_label" fallback="de panier moyen sur un séjour personnalisé"
+                <EditableZone page="expert-hotelier" zone="stat_3_label" fallback="Ce qui fait revenir un couple"
                   className="text-sm text-stone-500 mt-2 block"
                 />
               </div>

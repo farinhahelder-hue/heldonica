@@ -117,7 +117,7 @@ export default async function Home() {
   })
   
   // Get covered_countries as number with fallback
-  const coveredCountries = rawCountries ? parseInt(rawCountries, 10) : 7
+  const coveredCountries = rawCountries ? parseInt(rawCountries, 10) : 0
 
   // Hero media
   const heroVideoUrl = heroSettings['hero_video_url'] || null

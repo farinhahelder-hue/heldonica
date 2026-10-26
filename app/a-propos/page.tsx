@@ -84,14 +84,15 @@ export default async function AProposPage() {
   const zones = await getPageZones('a-propos')
 
   const posts = await getAllPosts().catch(() => [])
-  // Compte reel des articles publies. Pas de repli a 25 : une lecture vide doit
-  // se voir (0), pas etre masquee par une valeur inventee.
+  // Comptes reels, sans repli inventé : une lecture vide doit se voir (0).
   const carnetCount = posts.length
+  const destinationsCount = new Set(posts.map((post) => post.destination).filter(Boolean)).size
+  const categoriesCount = new Set(posts.map((post) => post.category).filter(Boolean)).size
 
   const STATS = [
-    { valeur: '7+', label: 'Pays habités' },
-    { valeur: `${carnetCount}`, label: 'Carnets publiés' },
-    { valeur: '4', label: 'Langues parlées dans ce duo' },
+    { valeur: String(carnetCount), label: 'Carnets publiés' },
+    { valeur: String(destinationsCount), label: 'Destinations couvertes' },
+    { valeur: String(categoriesCount), label: 'Rubriques éditoriales' },
   ]
 
   return (
