@@ -200,6 +200,57 @@ ou la production : les remplir quand c'est le cas.
   npm à la fois, jamais de bump majeur sans fiche, migration du code
   et suite verte sur install propre.
 
+## Zones globales — le préfixe `_prive_` et la déclaration obligatoire
+
+Toute zone de la page `global` (header, pied de page, popups, newsletter…) rendue dans le
+HTML public doit être **déclarée**. `getGlobalZones()` (`lib/site-content.ts`) ne sert que ce
+qui figure dans **`lib/public-global-zones.json`** — la source unique, lue à la fois par le
+TypeScript (`lib/public-global-zones.ts`) et par `scripts/check-cms-zones.mjs`.
+
+Ce n'est pas une liste blanche à maintenir clé par clé : elle déclare des **familles**, si
+bien qu'une nouvelle entrée de menu passe sans toucher au code.
+
+```jsonc
+{
+  "privatePrefix": "_prive_",
+  "publicPrefixes": ["nav_item_", "header_", "footer_", "newsletter_", "stat_",
+                     "cta_", "social_", "instagram_", "cookie_", "popup_", "contact_"],
+  "publicKeys": ["nav_footer_title", "destinations_footer_title",
+                 "guides_footer_title", "legal_footer_title"]
+}
+```
+
+### Créer une zone `global` : deux cas, pas de troisième
+
+- **Elle doit s'afficher** → vérifier que sa clé commence par un `publicPrefixes` ; sinon
+  l'ajouter à `publicKeys`. Rien d'autre à faire : la famille couvre les clés suivantes.
+- **Elle ne doit pas s'afficher** (brouillon, résidu d'un ancien projet, archive) → la
+  nommer avec le préfixe réservé **`_prive_`** (ex. `_prive_monica_schneider`). Le préfixe
+  vaut déclaration : la zone reste éditable au CMS, mais n'est **jamais** rendue et n'est
+  pas comptée comme orpheline.
+
+La raison d'être : ne pas sérialiser dans le HTML public une valeur qu'aucun composant
+n'affiche. Les résidus « Monica Schneider / Executive Coach » d'un ancien projet sont restés
+lisibles par Googlebot pendant des semaines faute de cette précaution.
+
+### Ce que la CI affiche si on l'oublie
+
+Une zone `global` **active** hors déclaration fait échouer `check:cms-zones` (exit 1) :
+
+```
+✗ 1 zone(s) global active(s) NON déclarée(s) publique(s) :
+    ma_nouvelle_zone
+Ces zones ne sont PAS rendues (getGlobalZones les écarte) et personne ne le signale.
+Corriger, au choix :
+  - les déclarer dans lib/public-global-zones.json (préfixe de famille ou clé exacte) ;
+  - les renommer avec le préfixe réservé `_prive_` si elles doivent rester hors du rendu.
+```
+
+Le contrôle tourne sur l'état réel de la base (`npm run check:cms-zones`). Il est couvert par
+`__tests__/scripts/check-cms-zones-declaration.test.ts` (5 cas) : un test retire une clé de la
+déclaration et vérifie que le script échoue — le garde-fou est prouvé mordant, pas seulement
+présent.
+
 ## Garde-fous CI (doivent rester au vert)
 
 La suite de garde-fous s'exécute de façon identique et portable sous Windows PowerShell,
@@ -220,7 +271,7 @@ Ce script exécute et récapitule dans un tableau clair l'ensemble des 16 contr�
 | `check:erreurs-avalees` | Écriture Supabase dont l'erreur n'est pas lue — `const { data } = await`, `await` nu, `.catch(() => {})`. |
 | `check:cms-migrations` | Table référencée par le code sans migration versionnée. Sans base : ne peut pas être sauté. |
 | `check:cms-cache` | Page prérendue qui lit le CMS sans fenêtre de revalidation — une correction en base resterait invisible jusqu'au prochain déploiement. |
-| `check:cms-zones` | Zones CMS actives qu'aucun composant n'affiche, et l'inverse. |
+| `check:cms-zones` | Zones CMS actives qu'aucun composant n'affiche, et l'inverse ; **zone `global` active non déclarée publique** (voir « Zones globales »). |
 | `check:cms-drift` | Tables en base absentes des migrations, ou l'inverse. |
 | `check:content-coherence` | Voix éditoriale et mots bannis en production. |
 | `check:content-pages` | Prose des pages statiques : mots bannis et fragments de brouillon. |
