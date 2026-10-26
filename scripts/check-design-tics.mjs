@@ -174,6 +174,22 @@ export const DECORATIVE_EMOJI_RE =
 export const API_EMOJI_TARGETS = ['app/api'];
 
 /**
+ * Seule tolérance à la décision #682 : l'**objet** d'un email, et uniquement des
+ * caractères validés un par un.
+ *
+ * Le brief `docs/BREVO_SEQUENCE.md` prévoit « Ton guide est là 🌿 » comme objet du
+ * premier email. `app/api` est scanné, donc sans exception le premier email à
+ * emoji ferait rougir la CI. La tolérance est **étroite** : elle ne s'applique
+ * qu'à une ligne qui définit un `subject`, et seulement pour les caractères
+ * ci-dessous. Le **corps** des emails et le **contenu du site** restent refusés.
+ * Ajouter un caractère ici est une décision explicite, pas un effet de bord.
+ */
+export const EMAIL_SUBJECT_EMOJI_ALLOWLIST = new Set(['\u{1F33F}']); // 🌿
+
+/** Ligne qui définit l'objet d'un email (`subject: '…'` ou `subject = '…'`). */
+const LIGNE_OBJET_EMAIL_RE = /\bsubject\s*[:=]/;
+
+/**
  * Modules `lib/` qui **émettent du contenu public** : légende Instagram publiée,
  * HTML d'article, texte de zone CMS rendu, brouillon d'article. Le 23/10, la
  * légende Instagram (`lib/instagram.ts`) et le HTML d'article
@@ -252,7 +268,14 @@ export function scanSourceForDesignTics(source, filePath = 'inline.tsx', options
     if (trimmed.startsWith('//') || trimmed.startsWith('import ')) continue;
 
     // 1. Emojis décoratifs
-    const emojiMatches = [...rawLine.matchAll(DECORATIVE_EMOJI_RE)].map((m) => m[0]);
+    //    Seule tolérance (décision #682) : l'**objet** d'un email, pour les
+    //    caractères de EMAIL_SUBJECT_EMOJI_ALLOWLIST, et seulement dans les routes
+    //    d'API. Le corps des emails et le contenu du site restent refusés.
+    let emojiMatches = [...rawLine.matchAll(DECORATIVE_EMOJI_RE)].map((m) => m[0]);
+    const estRouteApi = /(^|\/)app\/api\//.test(filePath.replace(/\\/g, '/'));
+    if (emojiMatches.length > 0 && estRouteApi && LIGNE_OBJET_EMAIL_RE.test(rawLine)) {
+      emojiMatches = emojiMatches.filter((e) => !EMAIL_SUBJECT_EMOJI_ALLOWLIST.has(e));
+    }
     if (emojiMatches.length > 0 && !(skipConsumedEmojis && emojiEstConsomme(rawLine))) {
       const unique = [...new Set(emojiMatches)].join(' ');
       violations.push({

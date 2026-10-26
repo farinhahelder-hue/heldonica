@@ -143,6 +143,45 @@ describe('check-design-tics', () => {
     });
   });
 
+  describe('tolérance étroite : objet d\'email (décision #682)', () => {
+    // Le brief docs/BREVO_SEQUENCE.md prévoit « Ton guide est là 🌿 » comme objet.
+    // La tolérance ne vaut QUE pour la ligne d'objet, dans app/api, et pour les
+    // caractères de l'allowlist. Tout le reste est refusé.
+    it('accepte 🌿 dans la ligne d\'objet d\'une route API', () => {
+      const src = "subject: 'Ton guide est là 🌿',";
+      expect(scanSourceForDesignTics(src, 'app/api/newsletter/route.ts', { emojiOnly: true })).toEqual([]);
+    });
+
+    it('accepte 🌿 via un gabarit de chaîne dans la ligne d\'objet', () => {
+      const src = 'const subject = `Ton guide est là 🌿`';
+      expect(scanSourceForDesignTics(src, 'app/api/send-email-sequences/route.ts', { emojiOnly: true })).toEqual([]);
+    });
+
+    it('refuse 🌿 dans le CORPS d\'un email (hors ligne d\'objet)', () => {
+      const src = '<p>Ton guide est là 🌿</p>';
+      const v = scanSourceForDesignTics(src, 'app/api/newsletter/route.ts', { emojiOnly: true });
+      expect(v.map((x) => x.kind)).toEqual(['emoji']);
+    });
+
+    it('refuse un emoji HORS allowlist même dans la ligne d\'objet', () => {
+      const src = "subject: 'Ton guide est là ✨',";
+      const v = scanSourceForDesignTics(src, 'app/api/newsletter/route.ts', { emojiOnly: true });
+      expect(v.map((x) => x.kind)).toEqual(['emoji']);
+    });
+
+    it('refuse 🌿 dans une ligne d\'objet hors app/api (le contenu du site reste soumis)', () => {
+      const src = "subject: 'Ton guide est là 🌿',";
+      const v = scanSourceForDesignTics(src, 'components/NewsletterForm.tsx');
+      expect(v.some((x) => x.kind === 'emoji')).toBe(true);
+    });
+
+    it('refuse 🌿 dans une ligne d\'objet d\'un module lib/ de publication', () => {
+      const src = "subject: 'Ton guide est là 🌿',";
+      const v = scanSourceForDesignTics(src, 'lib/instagram.ts', { emojiOnly: true, skipConsumedEmojis: true });
+      expect(v.map((x) => x.kind)).toEqual(['emoji']);
+    });
+  });
+
   describe('modules lib/ de publication (mode emoji seul)', () => {
     it('refuse un emoji dans une légende publiée', () => {
       const src = "`📍 ${article.title}`";

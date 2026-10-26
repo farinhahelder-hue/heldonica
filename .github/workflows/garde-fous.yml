@@ -180,6 +180,20 @@ jobs:
       - name: Tics visuels et emojis hors charte
         run: npm run check:design-tics
 
+      # Le contrôle précédent lit les FICHIERS. Celui-ci lit la BASE : une zone
+      # CMS peut porter un emoji absent de tout le code, et le rendu le prend tel
+      # quel. Le 22/10, la purge #687 visait la plage 2600-27BF + 10000-1FAFF
+      # alors que le détecteur couvre aussi 231A-231B, 23E9-23FF, 2B1B-2B1C,
+      # 2B50 et 2B55 : le sablier « ⌛ » de highlight_2_emoji est tombé dans ce
+      # trou, refusé par la CI sur les fichiers, jamais vu en base. La plage
+      # vient du détecteur (source unique) pour que les deux ne divergent plus.
+      - name: Emojis décoratifs en base
+        if: steps.secrets.outputs.presents == 'true'
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npm run check:cms-emojis
+
       # Guillemets échappés par un antislash dans une balise HTML au sein d'un
       # fichier SQL de contenu (`class=\"…\"`). Statique : le seed
       # sql/seed_cms_zones_complete.sql a produit ce défaut en base le 24/10,
