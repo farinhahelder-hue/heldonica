@@ -74,8 +74,8 @@ describe('outillage garde-fous — scripts du pré-vol', () => {
   });
 
   describe('garde-fous — agrégateur', () => {
-    it('expose les 19 contrôles attendus', () => {
-      expect(CHECKS).toHaveLength(19);
+    it('expose les 20 contrôles attendus', () => {
+      expect(CHECKS).toHaveLength(20);
       expect(CHECKS.map((c) => c.key)).toContain('cms-migrations');
       expect(CHECKS.map((c) => c.key)).toContain('cms-cache');
       expect(CHECKS.map((c) => c.key)).toContain('brand-sync');
@@ -83,6 +83,7 @@ describe('outillage garde-fous — scripts du pré-vol', () => {
       expect(CHECKS.map((c) => c.key)).toContain('content-known-errors');
       expect(CHECKS.map((c) => c.key)).toContain('image-paths');
       expect(CHECKS.map((c) => c.key)).toContain('design-tics');
+      expect(CHECKS.map((c) => c.key)).toContain('cms-emojis');
       expect(CHECKS.map((c) => c.key)).toContain('cms-hardcode');
       expect(CHECKS.map((c) => c.key)).toContain('content-html-escapes');
     });
