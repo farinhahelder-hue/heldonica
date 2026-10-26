@@ -14,6 +14,7 @@
 
 import { createServiceClient } from '@/lib/supabase'
 import type { CmsZone } from '@/lib/content-loader'
+import { isPublicGlobalZone } from '@/lib/public-global-zones'
 
 /** Zones indexées par `zone_key` nu — la forme attendue par `getCmsOrSetting`. */
 export type GlobalZones = Record<string, CmsZone>
@@ -21,7 +22,7 @@ export type GlobalZones = Record<string, CmsZone>
 /**
  * Zones « global » — header, pied de page et blocs transverses.
  *
- * Chargées par requête (`page = 'global'`), sans liste blanche de clés.
+ * Chargées par requête (`page = 'global'`), sans liste blanche écrite ici.
  *
  * Historique : une liste blanche (`CONSUMED_ZONE_KEYS`) filtrait les clés servies.
  * Il fallait l'étendre à la main pour chaque zone nouvelle — une zone créée depuis
@@ -30,9 +31,12 @@ export type GlobalZones = Record<string, CmsZone>
  * 25/10/2026 : les 156 zones actives de `global` étaient toutes déjà dans la liste,
  * qui ne retirait donc rien — elle ne bloquait que les suivantes.
  *
- * La précaution de confidentialité — ne pas exposer dans le HTML public des valeurs
- * qu'aucun composant n'affiche — est désormais portée par `check-cms-zones.mjs`,
- * qui échoue dès qu'une zone active n'est lue nulle part.
+ * Le filtre n'est pas supprimé mais **déclaré** (`lib/public-global-zones.json`) :
+ * une zone n'est servie que si son préfixe est reconnu, ou si sa clé exacte est
+ * listée. Une zone hors déclaration n'est **pas** publiée, et fait échouer
+ * `check-cms-zones.mjs` — la précaution de confidentialité reste tenue (ne pas
+ * exposer dans le HTML public une valeur qu'aucun composant n'affiche), sans
+ * exiger de développeur pour chaque zone nouvelle.
  */
 
 /**
@@ -65,6 +69,10 @@ export async function getGlobalZones(): Promise<GlobalZones> {
     const zones: GlobalZones = {}
     for (const row of (data ?? []) as CmsZone[]) {
       if (row.value == null) continue
+      // Zone hors déclaration publique (ou préfixée `_prive_`) : écartée du rendu.
+      // Elle reste éditable au CMS ; `check-cms-zones.mjs` exige qu'elle soit
+      // déclarée ou renommée, plutôt que de la publier en silence.
+      if (!isPublicGlobalZone(row.zone_key)) continue
       zones[row.zone_key] = row
     }
     return zones

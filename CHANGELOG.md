@@ -2,6 +2,16 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-25 quindecies] — Le filtre CMS n'est pas supprimé, il est déclaré
+
+- **Le constat** : la levée du verrou de câblage (lot 1) a retiré `CONSUMED_ZONE_KEYS` de `getGlobalZones()`, avec pour seule contrepartie un commentaire renvoyant à `check-cms-zones.mjs`. Or ce garde-fou ne vérifie qu'une chose : qu'une zone active est **lue par un composant**. Il ne dit rien de ce qui part dans le HTML public. La précaution d'origine — ne pas sérialiser une valeur qu'aucun composant n'affiche (résidus « Monica Schneider / Executive Coach », lus par Googlebot) — n'était donc plus portée par personne.
+- **`lib/public-global-zones.json`** (source unique, lisible par le TS et par le `.mjs`) : la liste des familles publiables (`nav_item_`, `header_`, `footer_`, `newsletter_`, `stat_`, `cta_`, `social_`, `instagram_`, `cookie_`, `popup_`, `contact_`), quatre clés hors famille (`nav_footer_title`, `destinations_footer_title`, `guides_footer_title`, `legal_footer_title`), et un **préfixe réservé `_prive_`** qui marque une exclusion assumée (brouillon, résidu, archive).
+- **`lib/public-global-zones.ts`** : `isPublicGlobalZone` / `isPrivateZone`. `getGlobalZones()` n'écarte plus que ce qui n'est ni déclaré, ni réservé — une entrée de menu neuve passe toujours sans toucher au code, mais une clé inconnue ne fuit plus en silence.
+- **Le garde-fou mord** : `check-cms-zones.mjs` échoue dès qu'une zone `global` **active** n'est ni déclarée publique ni préfixée `_prive_`. **Preuve par échec, deux fois** : (1) contre la vraie base, retirer `header_` de la déclaration → **12 zones signalées**, `header_site_name` en tête, exit 1 ; (2) `__tests__/scripts/check-cms-zones-declaration.test.ts` (5 cas, serveur HTTP local jouant la base) : retirer `nav_footer_title` → le cas « clé exacte » tombe, restauré → 5/5.
+- **Mesuré** : `npm run check:cms-zones` → **2248 zones actives**, `✓ Zones global : 156 active(s), toutes déclarées publiques ou réservées` ; la déclaration couvre **156/156**. Aucune zone réelle n'a dû être renommée : la déclaration décrit l'existant.
+- **Vérifié** : `garde-fous` **20/20** ; `tsc` 0 ; `vitest` **1054/1054** (126 fichiers).
+- **Reste à faire (humain)** : rien. La migration `20261025190000` et `20261025200000` attendent toujours le feu vert `db push`.
+
 ## [2026-10-25 quaterdecies] — L'emoji survivant, et le trou de plage qu'il révélait
 
 - **Le constat** : la fiche 91b54bbb (« des emojis interdits sont RENDUS en ligne ») n'était pas close. Le re-scan de la base donne **un seul** emoji décoratif restant : `destinations-sicile-syracuse / highlight_2_emoji` = `⌛` (sablier), `is_active = false` (donc non rendu). Tout le reste est propre : `cms_blog_posts` porte 18 articles à emoji mais **tous `published = false`** (filtrés par `getPostBySlug` → `.eq('published', true)`) ; `cms_pillar_pages.flag` porte des drapeaux (`🇵🇹`), qui sont des **indicateurs de pays sémantiques**, pas des tics — et le champ n'est lu que par l'admin.
