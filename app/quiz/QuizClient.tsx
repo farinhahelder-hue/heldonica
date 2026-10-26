@@ -8,6 +8,7 @@ import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import EditableIcon from '@/components/inline-edit/EditableIcon'
 import CmsIcon from '@/components/ui/CmsIcon'
+import { CONSENT_PRIVACY_LINK, PROFILE_CONSENT_LABEL } from '@/lib/consent-copy'
 
 const PAGE = "quiz";
 
@@ -127,6 +128,7 @@ export default function QuizClient({
 
   // Capture email du profil
   const [email, setEmail] = useState('')
+  const [consent, setConsent] = useState(false)
   const [honeypot, setHoneypot] = useState('')
   const [captureStatus, setCaptureStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
 
@@ -163,7 +165,7 @@ export default function QuizClient({
   const handleCaptureSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (honeypot) return
-    if (!email || !email.includes('@')) {
+    if (!email || !email.includes('@') || !consent) {
       setCaptureStatus('error')
       return
     }
@@ -178,6 +180,7 @@ export default function QuizClient({
           email,
           source: result ? `quiz-${result}` : 'quiz',
           profil: profile?.title || result,
+          consent,
           website_url: honeypot,
         }),
       })
@@ -365,9 +368,21 @@ export default function QuizClient({
                               {Z('capture_email_error', 'text', "Une erreur est survenue. Merci de réessayer.", undefined, 'span')}
                             </p>
                           )}
-                          <p className="text-xs text-stone-500">
-                            {Z('capture_email_note', 'text', "Gratuit · Sans engagement · Zéro spam", undefined, 'span')}
-                          </p>
+                          <label className="flex items-start gap-2 text-left text-xs text-stone-500">
+                            <input
+                              type="checkbox"
+                              required
+                              checked={consent}
+                              onChange={(e) => setConsent(e.target.checked)}
+                              className="mt-0.5 h-4 w-4 rounded border-[#DED5C6] bg-[#FAF7F2] text-eucalyptus focus:ring-eucalyptus cursor-pointer"
+                            />
+                            <span>
+                              {Z('capture_email_consent', 'text', PROFILE_CONSENT_LABEL, undefined, 'span')}{' '}
+                              <Link href="/politique-confidentialite" className="underline hover:text-stone-700">
+                                {CONSENT_PRIVACY_LINK}
+                              </Link>.
+                            </span>
+                          </label>
                         </form>
                       )}
                     </div>
@@ -406,7 +421,7 @@ export default function QuizClient({
         <section className="pb-16 px-6">
           <div className="max-w-xl mx-auto text-center">
             <p className="text-stone-500 text-sm">
-              {Z('trust_text', 'textarea', "+500 voyageurs accompagnés par an · Réponse sous 48h · 100% sur mesure", undefined, 'span')}
+              {Z('trust_text', 'textarea', "Réponse sous 48h · 100% sur mesure", undefined, 'span')}
             </p>
           </div>
         </section>

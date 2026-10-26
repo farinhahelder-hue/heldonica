@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const { email, website_url, source, profil } = await request.json()
+    const { email, consent, website_url, source, profil } = await request.json()
     const supabase = createServiceClient()
 
     // Server-side honeypot: silently reject if bot filled the hidden field
@@ -27,6 +27,13 @@ export async function POST(request: NextRequest) {
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json(
         { error: 'Adresse email invalide' },
+        { status: 400 }
+      )
+    }
+
+    if (consent !== true) {
+      return NextResponse.json(
+        { error: 'Consentement requis' },
         { status: 400 }
       )
     }
