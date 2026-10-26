@@ -6,9 +6,9 @@ import org.junit.Test
 class StudioTabsTest {
 
     @Test
-    fun `six onglets, cerveau par defaut`() {
-        assertEquals(6, OngletStudio.values().size)
-        assertEquals(OngletStudio.CERVEAU, OngletStudio.parDefaut())
+    fun `sept onglets, creer par defaut`() {
+        assertEquals(7, OngletStudio.values().size)
+        assertEquals(OngletStudio.CREER, OngletStudio.parDefaut())
     }
 
     @Test

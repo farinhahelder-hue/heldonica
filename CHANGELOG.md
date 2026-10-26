@@ -2,6 +2,14 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+  ## [2026-10-26 bis] — Câblage Heldonica Mobile & Heldonica Brain II pour Google Pixel 8 Pro
+
+  - **Espace unifié « Créer » (`CreerScreen.kt`)** : nouvel écran d'accueil par défaut de `heldonica-mobile` (7 onglets). Permet la sélection photo/carrousel depuis Google Photos (Photo Picker Android natif), l'analyse d'images par vision IA (`/api/cms/ai-vision`), la génération de légendes avec Heldonica Brain II ou le modèle local, l'accès direct aux carnets et à la médiathèque `/panel-manager/photos`.
+  - **Câblage Heldonica Brain II (`BrainClient.kt`, `MainActivity.kt`)** : priorité donnée au tunnel USB direct `http://127.0.0.1:8440` (`adb reverse tcp:8440 tcp:8440`) pour des inférences instantanées sur la GTX 1660 Ti, avec repli automatique sur le réseau Wi-Fi LAN et le Cloud Relay `/api/ai/mobile-brain`.
+  - **Dynamisme matériel** : adaptation automatique de l'interface au modèle de smartphone détecté (`Pixel 8 Pro` au lieu de mentions en dur « Poco »).
+  - **Scripts d'installation & de reverse proxy** : mise à jour de `INSTALLER_SUR_TELEPHONE.bat` sur le Bureau (APK 40.5 Mo) avec reverse tunnel automatique (ports 8440, 8470, 3000) et script dédié `CONNECTER_PIXEL8PRO_AU_BRAIN.bat`. Déploiement dans `ci-artifacts/app-debug.apk` pour téléchargement direct sans fil depuis la console locale (port 8480).
+  - **Vérifications** : tests unitaires JVM Kotlin (`StudioTabsTest`) verts ; compilation Gradle `assembleDebug` réussie (APK 40.5 Mo) ; `npm run preflight` 13/13 vert ; `tsc` 0 erreur.
+
   ## [2026-10-26] — Lot 2 (A/B/C/I/F) : entrées sous maintenance, og:image:alt, JSON-LD, compte de carnets
 
   - **A — matcher du middleware** : il n'excluait pas les fichiers de `public/`. Pendant la maintenance, `og:image` et les favicons renvoyaient **307 -> /maintenance**. Le matcher exclut désormais tout chemin à extension ; `llms.txt` (seule route dont un segment contient un point) reste exclu aussi. Mesuré : `/og-default.jpg` **200**, `/favicon.ico` **200**, `/site.webmanifest` **200**, page `/` toujours **307** (protection intacte).

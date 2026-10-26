@@ -4,6 +4,7 @@ package fr.heldonica.mobile
  * Onglets de la coque Studio : logique pure, testable en JVM sans émulateur.
  */
 enum class OngletStudio(val titre: String, val emoji: String) {
+    CREER("Créer", "✨"),
     CERVEAU("Cerveau", "\uD83E\uDDE0"),
     TACHES("Tâches", "⚡"),
     REDACTION("Rédaction", "✍️"),
@@ -12,7 +13,7 @@ enum class OngletStudio(val titre: String, val emoji: String) {
     INSTA("Terrain", "\uD83D\uDCF8");
 
     companion object {
-        fun parDefaut(): OngletStudio = CERVEAU
+        fun parDefaut(): OngletStudio = CREER
     }
 }
 

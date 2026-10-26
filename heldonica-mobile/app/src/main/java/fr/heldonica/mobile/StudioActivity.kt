@@ -59,6 +59,47 @@ class StudioActivity : ComponentActivity() {
                 }
             }
             when (onglet) {
+                OngletStudio.CREER -> CreerScreen(
+                    onPhoto = { carrousel ->
+                        contexte.startActivity(
+                            Intent(contexte, MainActivity::class.java).apply {
+                                putExtra(MainActivity.EXTRA_ECRAN, "publier")
+                                putExtra(MainActivity.EXTRA_CARROUSEL, carrousel)
+                            }
+                        )
+                    },
+                    onMontage = {
+                        contexte.startActivity(
+                            Intent(contexte, MainActivity::class.java)
+                                .putExtra(MainActivity.EXTRA_ECRAN, "montage")
+                        )
+                    },
+                    onCarnet = {
+                        contexte.startActivity(
+                            Intent(contexte, MainActivity::class.java)
+                                .putExtra(MainActivity.EXTRA_ECRAN, "carnet")
+                        )
+                    },
+                    onPhotosGoogle = {
+                        contexte.startActivity(
+                            Intent(contexte, EditeurActivity::class.java)
+                                .putExtra(EditeurActivity.EXTRA_CHEMIN, "/panel-manager/photos")
+                        )
+                    },
+                    onCarrouselSite = {
+                        contexte.startActivity(
+                            Intent(contexte, EditeurActivity::class.java)
+                                .putExtra(EditeurActivity.EXTRA_CHEMIN, "/panel-manager/carousel")
+                        )
+                    },
+                    onCms = {
+                        contexte.startActivity(
+                            Intent(contexte, EditeurActivity::class.java)
+                                .putExtra(EditeurActivity.EXTRA_CHEMIN, "/panel-manager")
+                        )
+                    },
+                    onCerveau = { onglet = OngletStudio.CERVEAU }
+                )
                 OngletStudio.CERVEAU -> CerveauScreen()
                 OngletStudio.TACHES -> TachesScreen()
                 OngletStudio.REDACTION -> RedactionScreen()

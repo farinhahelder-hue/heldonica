@@ -64,6 +64,9 @@ class MainActivity : ComponentActivity() {
         // Meme etiquette que UploadWorker, dont le TAG appartient a sa propre
         // classe et n'est pas visible ici.
         private const val TAG = "Heldonica"
+
+        const val EXTRA_ECRAN = "ecran"
+        const val EXTRA_CARROUSEL = "carrousel"
     }
 
     private var pickedUris by mutableStateOf<List<Uri>>(emptyList())
@@ -201,6 +204,10 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        intent.getStringExtra(EXTRA_ECRAN)?.let { demande ->
+            if (demande in setOf("accueil", "publier", "montage", "carnet")) ecran = demande
+        }
+        if (intent.getBooleanExtra(EXTRA_CARROUSEL, false)) isCarousel = true
         setContent { HeldonicaScreen() }
     }
 
@@ -661,15 +668,16 @@ class MainActivity : ComponentActivity() {
                 minLines = 6
             )
 
+            val etiquetteIaBouton = if (android.os.Build.MODEL.contains("Pixel", ignoreCase = true)) "Pixel" else if (android.os.Build.MODEL.contains("Poco", ignoreCase = true)) "Poco" else "téléphone"
             OutlinedButton(
                 enabled = !analyseEnCours && (placeTitle.isNotBlank() || caption.isNotBlank()),
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { genererLegendeLocalePoco() }
             ) {
                 Text(
-                    if (analyseEnCours) "📱 IA du Poco en cours…"
-                    else if (caption.isNotBlank()) "📱 Ciseler avec l'IA du Poco (hors-ligne)"
-                    else "📱 Amorce IA Poco (puis [À TOI])"
+                    if (analyseEnCours) "📱 IA $etiquetteIaBouton en cours…"
+                    else if (caption.isNotBlank()) "📱 Ciseler avec l'IA $etiquetteIaBouton (hors-ligne)"
+                    else "📱 Amorce IA $etiquetteIaBouton (puis [À TOI])"
                 )
             }
             if (texteAvantIa != null) {
@@ -881,15 +889,16 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
+                    val etiquetteIaBouton = if (android.os.Build.MODEL.contains("Pixel", ignoreCase = true)) "Pixel" else if (android.os.Build.MODEL.contains("Poco", ignoreCase = true)) "Poco" else "téléphone"
                     OutlinedButton(
                         enabled = !analyseEnCours && (placeTitle.isNotBlank() || caption.isNotBlank()),
                         modifier = Modifier.fillMaxWidth(),
                         onClick = { genererLegendeLocalePoco() }
                     ) {
                         Text(
-                            if (analyseEnCours) "📱 IA du Poco en cours…"
-                            else if (caption.isNotBlank()) "📱 Légende IA Poco (hors-ligne)"
-                            else "📱 Amorce IA Poco depuis le lieu"
+                            if (analyseEnCours) "📱 IA $etiquetteIaBouton en cours…"
+                            else if (caption.isNotBlank()) "📱 Légende IA $etiquetteIaBouton (hors-ligne)"
+                            else "📱 Amorce IA $etiquetteIaBouton depuis le lieu"
                         )
                     }
 
@@ -1209,42 +1218,51 @@ class MainActivity : ComponentActivity() {
                     Log.w(TAG, "Repli CMS exception: ${e.message}")
                 }
 
-                // 3. Repli vers Heldonica Brain local (GPU / Ollama / RAG)
-                if (textResult.isBlank() && BuildConfig.BRAIN_BASE_URL.isNotBlank()) {
-                    withContext(Dispatchers.Main) {
-                        status = "Repli sur Heldonica Brain…"
+                // 3. Repli vers Heldonica Brain (GPU / Ollama / RAG) via tunnel local USB ou LAN Wi-Fi
+                if (textResult.isBlank()) {
+                    val brainCandidates = mutableListOf("http://127.0.0.1:8440")
+                    val confUrl = BuildConfig.BRAIN_BASE_URL.trimEnd('/')
+                    if (confUrl.isNotBlank() && !confUrl.contains("127.0.0.1")) {
+                        brainCandidates.add(confUrl)
                     }
-                    try {
-                        val brainPrompt = if (notesAutrice.isNotBlank()) {
-                            "Notes de l'autrice : $notesAutrice. Lieu : $placeTitle. Rédige une légende Instagram slow-travel sobre et intime (format voix Heldonica, tutoiement, 4 hashtags)."
-                        } else {
-                            "Lieu : $placeTitle. Rédige une amorce de carnet slow-travel (format voix Heldonica, tutoiement, terminer par [À TOI : ce que tu as ressenti là], 4 hashtags)."
-                        }
-                        val brainJson = org.json.JSONObject().apply {
-                            put("model", "heldonica-brain")
-                            put("messages", org.json.JSONArray().apply {
-                                put(org.json.JSONObject().apply {
-                                    put("role", "user")
-                                    put("content", brainPrompt)
-                                })
-                            })
-                        }
-                        val brainReq = Request.Builder()
-                            .url("${BuildConfig.BRAIN_BASE_URL.trimEnd('/')}/v1/chat/completions")
-                            .post(brainJson.toString().toRequestBody("application/json".toMediaType()))
-                            .build()
-                        val brainClient = OkHttpClient.Builder().callTimeout(10, TimeUnit.SECONDS).build()
-                        val brainResp = brainClient.newCall(brainReq).execute()
-                        if (brainResp.isSuccessful) {
-                            val bBody = brainResp.body?.string().orEmpty()
-                            val bJson = org.json.JSONObject(bBody)
-                            val choice = bJson.optJSONArray("choices")?.optJSONObject(0)?.optJSONObject("message")?.optString("content")
-                            if (!choice.isNullOrBlank()) {
-                                textResult = choice.trim()
+
+                    for (bUrl in brainCandidates) {
+                        try {
+                            withContext(Dispatchers.Main) {
+                                status = "Repli sur Heldonica Brain…"
                             }
+                            val brainPrompt = if (notesAutrice.isNotBlank()) {
+                                "Notes de l'autrice : $notesAutrice. Lieu : $placeTitle. Rédige une légende Instagram slow-travel sobre et intime (format voix Heldonica, tutoiement, 4 hashtags)."
+                            } else {
+                                "Lieu : $placeTitle. Rédige une amorce de carnet slow-travel (format voix Heldonica, tutoiement, terminer par [À TOI : ce que tu as ressenti là], 4 hashtags)."
+                            }
+                            val brainJson = org.json.JSONObject().apply {
+                                put("model", "heldonica-brain")
+                                put("messages", org.json.JSONArray().apply {
+                                    put(org.json.JSONObject().apply {
+                                        put("role", "user")
+                                        put("content", brainPrompt)
+                                    })
+                                })
+                            }
+                            val brainReq = Request.Builder()
+                                .url("$bUrl/v1/chat/completions")
+                                .post(brainJson.toString().toRequestBody("application/json".toMediaType()))
+                                .build()
+                            val brainClient = OkHttpClient.Builder().callTimeout(10, TimeUnit.SECONDS).build()
+                            val brainResp = brainClient.newCall(brainReq).execute()
+                            if (brainResp.isSuccessful) {
+                                val bBody = brainResp.body?.string().orEmpty()
+                                val bJson = org.json.JSONObject(bBody)
+                                val choice = bJson.optJSONArray("choices")?.optJSONObject(0)?.optJSONObject("message")?.optString("content")
+                                if (!choice.isNullOrBlank()) {
+                                    textResult = choice.trim()
+                                    break
+                                }
+                            }
+                        } catch (e: Exception) {
+                            Log.w(TAG, "Repli Brain ($bUrl) exception: ${e.message}")
                         }
-                    } catch (e: Exception) {
-                        Log.w(TAG, "Repli Brain exception: ${e.message}")
                     }
                 }
 
