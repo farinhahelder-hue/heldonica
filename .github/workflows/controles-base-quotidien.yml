@@ -1,0 +1,90 @@
+# Contrôles qui lisent la base — passage quotidien sur `main`.
+#
+# Pourquoi ce workflow existe : `garde-fous.yml` ne lit la base que sur une pull
+# request ou un push sur `main`. Une écriture faite directement en base (un
+# `db push`, un réglage modifié depuis l'admin) ne déclenche AUCUN de ces
+# événements. C'est exactement ce qui s'est produit le 2026-10-26 : la migration
+# `20261025190000` a créé trois zones `header_logo_*` à valeur vide à 14:20:38,
+# huit minutes APRÈS le dernier run vert de `main` (14:12:46). `main` est resté
+# vert alors que la base, elle, était déjà rouge — et aucune PR ouverte ensuite
+# ne pouvait le montrer sans échouer elle-même.
+#
+# Ce passage quotidien rétablit la vérité : il relit la base telle qu'elle est,
+# sans qu'aucun commit ne soit nécessaire.
+#
+# Les quatre contrôles ci-dessous sont ceux marqués `needsDb: true` dans
+# `scripts/garde-fous.mjs`. Si cette liste évolue, elle doit évoluer ici aussi —
+# c'est le prix de la duplication, assumé pour ne pas dépendre de `garde-fous.mjs`
+# (qui n'est pas appelé par les workflows, voir `garde-fous.yml`).
+
+name: Contrôles base (quotidien)
+
+on:
+  schedule:
+    # 06:17 UTC, heure creuse. Minute décalée pour ne pas rejoindre le pic des
+    # crons qui se déclenchent tous à :00.
+    - cron: "17 6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: controles-base-quotidien
+  cancel-in-progress: false
+
+jobs:
+  base:
+    name: Zones, dérive, cohérence, emojis (base réelle)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+
+      # Sans identifiants, les quatre contrôles sortent en 2 (erreur explicite).
+      # On refuse le succès silencieux : un job vert qui n'a rien lu est un
+      # mensonge, c'est la leçon du commit a48552a (2026-10-10).
+      - name: Vérifier la présence des identifiants
+        id: secrets
+        env:
+          URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+            echo "::error title=Contrôles base impossibles::Les secrets NEXT_PUBLIC_SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY sont absents. Ce passage ne peut pas lire la base ; il échoue au lieu de passer pour vert."
+            exit 1
+          fi
+
+      # Zones actives qu'aucun composant n'affiche. C'est ce contrôle qui a
+      # révélé les trois `header_logo_*` à valeur vide.
+      - name: Zones CMS orphelines
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npm run check:cms-zones
+
+      # Tables présentes en base et absentes des migrations, ou l'inverse.
+      - name: Dérive des tables (base réelle)
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npm run check:cms-drift
+
+      # Voix éditoriale et mots bannis en production (contenu réellement servi).
+      - name: Cohérence éditoriale
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npm run check:content-coherence
+
+      # Emojis décoratifs dans les quatre tables rendues (règle #682).
+      - name: Emojis décoratifs en base
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npm run check:cms-emojis
