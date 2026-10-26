@@ -2,6 +2,19 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+  ## [2026-10-27 bis] — Édition des Pages & Articles Existants : Photos, IA Vision et Rédaction Assistée
+
+  - **Édition de tous les articles (`RedactionScreen.kt`, `RedactionClient.kt`)** :
+    - Filtre rapide par statut (`Tous`, `Brouillons`, `En ligne`) permettant d'ouvrir et d'enrichir **n'importe quel carnet existant** (les 8 articles publiés en production ou les brouillons).
+    - Détection automatique des lacunes `[À TOI : …]` et dictée vocale des sensations réelles.
+    - Assistance IA (`/api/cms/ai-assist`) respectant la voix de marque Heldonica (zéro mot banni, réalité vécue) avec avertissement sur les ajouts non sourcés.
+    - Enregistrement immédiat via `PUT /api/cms/articles/:id` avec recalcul automatique du temps de lecture et revalidation de cache.
+  - **Reconnaissance IA Vision des Photos (`RedactionClient.identifierParVision`)** :
+    - Ajout du bouton « 🔍 Identifier (IA Vision) » sur chaque photo choisie dans Google Photos : envoie l'image au serveur (`/api/cms/ai-vision`) pour déduire automatiquement le lieu et générer la description de la photo si l'EXIF ou la Timeline manquent.
+    - Respect absolu de la règle #5 (case à cocher obligatoire garantissant l'absence d'enfants avant tout téléversement).
+  - **Navigation directe depuis l'écran Créer (`CreerScreen.kt`, `StudioActivity.kt`)** :
+    - Ajout des cartes « ✍️ Rédiger ou enrichir un carnet (Photos & IA) » (bascule vers l'onglet Rédaction) et « 📄 Éditer les pages du site (Destinations & Zones) » (ouvre directement `/panel-manager/pages` avec session sans mot de passe).
+
   ## [2026-10-27] — Studio Musique & Vidéo : Storyboards Gemini sans Flow & Presets 1-clic Veo / MusicFX
 
   - **Flux Vidéo Dual-Track (`CatalogueVideo.kt`, `CreerScreen.kt`)** :
