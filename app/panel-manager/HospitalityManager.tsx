@@ -162,7 +162,7 @@ export function HospitalityManager() {
         <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-sm">
           <div className="text-xs text-stone-500 font-medium">Hébergements référencés</div>
           <div className="text-2xl font-bold text-stone-900 mt-1">{accommodations.length}</div>
-          <div className="text-[11px] text-teal mt-1">🌿 Décrits sans données fictives</div>
+          <div className="text-[11px] text-teal mt-1">Décrits sans données fictives</div>
         </div>
         <div className="bg-white p-4 rounded-xl border border-stone-200 shadow-sm">
           <div className="text-xs text-stone-500 font-medium">Économie commission estimée</div>

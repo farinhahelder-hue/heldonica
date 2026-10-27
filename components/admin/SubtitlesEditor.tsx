@@ -4,8 +4,7 @@ import { useState, useCallback, useRef } from 'react';
 import { 
   Subtitles, Sparkles, Download, Play, Pause, Edit3, 
   Trash2, Plus, Clock, FileAudio, Wand2, RefreshCw, Check,
-  X, AlertCircle, Type
-} from 'lucide-react';
+  X, AlertCircle, Type, FolderOpen } from 'lucide-react';
 
 // ===== Types =====
 export interface Subtitle {
@@ -317,7 +316,7 @@ export default function SubtitlesEditor() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <h1 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#6b2a1a', margin: 0 }}>
-            💬 Sous-titres IA
+            <Subtitles size={18} aria-hidden="true" /> Sous-titres IA
           </h1>
           <span style={{
             fontSize: '0.8rem',
@@ -490,7 +489,7 @@ export default function SubtitlesEditor() {
                 onChange={handleVideoUpload}
                 style={{ display: 'none' }}
               />
-              📁 Changer vidéo
+              <FolderOpen size={16} aria-hidden="true" /> Changer vidéo
             </label>
             
             <button
@@ -667,7 +666,7 @@ export default function SubtitlesEditor() {
                               color: '#166534',
                               borderRadius: '9999px',
                             }}>
-                              ✨ corrigé
+                              corrigé
                             </span>
                           )}
                           {sub.isEdited && (

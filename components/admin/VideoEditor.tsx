@@ -5,8 +5,7 @@ import {
   Film, Music, Type, Scissors, Download, Play, Pause, Volume2,
   Plus, Trash2, Move, Crop, Sun, Contrast, Droplet, ZoomIn, ZoomOut,
   RotateCcw, Save, ChevronLeft, ChevronRight, Square, RectangleVertical,
-  RectangleHorizontal, Undo2, Redo2, Layers, Eye, EyeOff, Image as ImageIcon
-} from 'lucide-react';
+  RectangleHorizontal, Undo2, Redo2, Layers, Eye, EyeOff, Image as ImageIcon, FolderOpen, Upload, Loader2 } from 'lucide-react';
 
 // ===== Types =====
 export interface MediaClip {
@@ -369,7 +368,7 @@ export default function VideoEditor() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <h1 style={{ fontSize: '1.25rem', fontWeight: 700, color: COLORS.primary, margin: 0 }}>
-            🎬 Éditeur Vidéo
+            <Film size={20} aria-hidden="true" /> Éditeur Vidéo
           </h1>
           <div style={{ display: 'flex', gap: '0.5rem' }}>
             <button style={buttonStyle('#6b2a1a')} title="Annuler">
@@ -420,7 +419,7 @@ export default function VideoEditor() {
         }}>
           <div style={{ padding: '1rem', borderBottom: `1px solid ${COLORS.border}` }}>
             <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: COLORS.text, margin: '0 0 0.75rem 0' }}>
-              📁 Médiathèque
+              <FolderOpen size={16} aria-hidden="true" /> Médiathèque
             </h3>
             <label style={uploadButtonStyle}>
               <Plus size={18} />
@@ -448,7 +447,7 @@ export default function VideoEditor() {
                 opacity: chargementBibliotheque ? 0.6 : 1,
               }}
             >
-              {chargementBibliotheque ? 'Chargement…' : '🌿 Depuis Google Photos'}
+              {chargementBibliotheque ? 'Chargement…' : 'Depuis Google Photos'}
             </button>
 
             {erreurBibliotheque && (
@@ -961,7 +960,7 @@ export default function VideoEditor() {
             maxWidth: '90vw',
           }}>
             <h3 style={{ fontSize: '1.25rem', fontWeight: 700, color: COLORS.primary, margin: '0 0 1.5rem 0' }}>
-              📤 Exporter la vidéo
+              <Upload size={20} aria-hidden="true" /> Exporter la vidéo
             </h3>
             
             <div style={{ marginBottom: '1.5rem' }}>
@@ -1035,7 +1034,7 @@ export default function VideoEditor() {
                 }}
               >
                 {isExporting ? (
-                  <>⏳ Export en cours...</>
+                  <><Loader2 size={14} className="inline animate-spin" aria-hidden="true" /> Export en cours…</>
                 ) : (
                   <>
                     <Download size={18} />

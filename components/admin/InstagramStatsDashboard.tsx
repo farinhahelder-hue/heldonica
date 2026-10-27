@@ -86,8 +86,8 @@ export default function InstagramStatsDashboard() {
                 )}
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-1.5">
                   <div className="flex items-center gap-2 text-[10px] text-white">
-                    <span>♥ {post.like_count || 0}</span>
-                    <span>💬 {post.comments_count || 0}</span>
+                    <span>J&apos;aime {post.like_count || 0}</span>
+                    <span>Commentaires {post.comments_count || 0}</span>
                   </div>
                 </div>
               </a>

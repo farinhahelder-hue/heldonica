@@ -188,7 +188,7 @@ export default function ImportPhotosPage() {
           disabled={occupe || generationEnCours || !destination}
           className="rounded-full bg-mahogany px-6 py-3 text-sm font-semibold text-white hover:bg-mahogany/90 disabled:opacity-50 transition-all flex items-center gap-2"
         >
-          {generationEnCours ? '✨ Génération IA…' : '✨ Reconstituer Carnet & Carte avec l\'IA'}
+          {generationEnCours ? 'Génération IA…' : 'Reconstituer Carnet & Carte avec l\'IA'}
         </button>
       </div>
 
@@ -211,7 +211,7 @@ export default function ImportPhotosPage() {
       {carnetGenerer && (
         <div className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 text-sm">
           <p className="font-semibold text-emerald-900">
-            📖 Carnet généré : {carnetGenerer.title}
+            Carnet généré : {carnetGenerer.title}
           </p>
           <p className="mt-1 text-xs text-emerald-800">
             Slug : <code>{carnetGenerer.slug}</code>

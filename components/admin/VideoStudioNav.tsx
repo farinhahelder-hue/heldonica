@@ -5,8 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   Film, Type, Zap, Scissors, Home, 
-  ChevronRight, FolderOpen, Image as ImageIcon, Music
-} from 'lucide-react';
+  ChevronRight, FolderOpen, Image as ImageIcon, Music, Lightbulb } from 'lucide-react';
 
 // ===== Studio Navigation Configuration =====
 const STUDIO_MODULES = [
@@ -105,7 +104,7 @@ export default function VideoStudioNav({ children }: { children?: React.ReactNod
                 alignItems: 'center',
                 gap: '0.5rem',
               }}>
-                🎬 Studio Vidéo
+                Studio Vidéo
               </h2>
             </>
           )}
@@ -277,7 +276,7 @@ export default function VideoStudioNav({ children }: { children?: React.ReactNod
                 alignItems: 'center',
                 gap: '0.75rem',
               }}>
-                🎬 Studio Vidéo Heldonica
+                Studio Vidéo Heldonica
               </h1>
               <p style={{ 
                 color: '#555', 
@@ -391,7 +390,7 @@ export default function VideoStudioNav({ children }: { children?: React.ReactNod
                 fontWeight: 700, 
                 marginBottom: '0.75rem' 
               }}>
-                💡 Astuce rapide
+                <Lightbulb size={16} aria-hidden="true" /> Astuce rapide
               </h3>
               <p style={{ 
                 fontSize: '0.9rem', 
@@ -458,7 +457,7 @@ export default function VideoStudioNav({ children }: { children?: React.ReactNod
             }}
           >
             <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#6b2a1a', marginBottom: '1rem' }}>
-              🎬 Studio Vidéo
+              Studio Vidéo
             </h3>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
               {STUDIO_MODULES.map(module => {

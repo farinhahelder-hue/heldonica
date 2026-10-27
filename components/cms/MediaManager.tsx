@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/input';
+import { Loader2 } from 'lucide-react';
 
 interface MediaItem {
   id: string
@@ -158,7 +159,7 @@ export default function MediaManager({ data, onSave }: any) {
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
-      <h2 className="text-2xl font-serif font-bold text-mahogany mb-6">🖼️ Gestion des Médias</h2>
+      <h2 className="text-2xl font-serif font-bold text-mahogany mb-6">Gestion des Médias</h2>
 
       {/* Upload */}
       <div className="mb-8 p-6 border-2 border-dashed border-eucalyptus rounded-lg bg-blue-50">
@@ -179,7 +180,7 @@ export default function MediaManager({ data, onSave }: any) {
               disabled={uploading}
               className="inline-flex items-center justify-center gap-2 font-semibold transition-all duration-200 px-8 py-3.5 text-sm rounded-full bg-eucalyptus text-white hover:bg-eucalyptus/90 focus-visible:ring-2 focus-visible:ring-eucalyptus focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {uploading ? '⏳ Téléchargement...' : '📤 Sélectionner des fichiers'}
+              {uploading ? 'Téléchargement…' : 'Sélectionner des fichiers'}
             </button>
           </label>
           <p className="text-sm text-gray-600 mt-2">
@@ -201,7 +202,7 @@ export default function MediaManager({ data, onSave }: any) {
                   {item.uploading ? (
                     // État d’upload
                     <div className="text-center w-full p-4">
-                      <div className="animate-pulse text-2xl mb-2">⏳</div>
+                      <div className="animate-pulse mb-2"><Loader2 size={24} className="animate-spin" aria-hidden="true" /></div>
                       <p className="text-xs text-gray-600 truncate">{item.name}</p>
                       <div className="mt-2 bg-gray-200 rounded-full h-2 overflow-hidden">
                         <div 
@@ -236,7 +237,7 @@ export default function MediaManager({ data, onSave }: any) {
                 </div>
                 <p className="text-xs text-gray-600 mt-2 truncate">{item.name}</p>
                 <p className="text-xs text-gray-500">
-                  {item.type === 'video' ? '🎥 ' : ''}{(item.size / 1024 / 1024).toFixed(2)} MB
+                  {item.type === 'video' ? 'Vidéo — ' : ''}{(item.size / 1024 / 1024).toFixed(2)} MB
                 </p>
               </div>
             ))}
@@ -247,7 +248,7 @@ export default function MediaManager({ data, onSave }: any) {
       {/* Boutons d’action */}
       <div className="flex gap-4 mt-8">
         <Button onClick={handleSave} className="bg-mahogany hover:bg-red-900">
-          💾 Sauvegarder
+          Sauvegarder
         </Button>
       </div>
     </div>

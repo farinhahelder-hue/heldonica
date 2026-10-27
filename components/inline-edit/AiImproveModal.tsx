@@ -71,7 +71,7 @@ export default function AiImproveModal({
         <div className="p-6 border-b border-stone-100 flex justify-between items-center bg-stone-50">
           <div>
             <h3 className="font-serif font-bold text-stone-900 text-lg">
-              ✨ Suggestions Voix Heldonica
+              Suggestions Voix Heldonica
             </h3>
             <p className="text-xs text-stone-500 mt-1">
               On applique les regles slow travel (anecdotes, sensoriel, tutoiement)
@@ -92,7 +92,7 @@ export default function AiImproveModal({
             <div className="flex flex-col items-center justify-center py-12 space-y-4">
               <div className="w-10 h-10 border-4 border-eucalyptus border-t-transparent rounded-full animate-spin" />
               <p className="text-sm font-medium text-stone-600 animate-pulse">
-                ✨ Generation en cours…
+                Génération en cours…
               </p>
             </div>
           )}

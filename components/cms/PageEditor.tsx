@@ -61,7 +61,7 @@ export default function PageEditor({ data, onSave }: any) {
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
-      <h2 className="text-2xl font-serif font-bold text-mahogany mb-6">📄 Gestion des Pages</h2>
+      <h2 className="text-2xl font-serif font-bold text-mahogany mb-6">Gestion des Pages</h2>
 
       <div className="grid grid-cols-3 gap-6">
         {/* Sidebar - Liste des pages */}
@@ -266,7 +266,7 @@ export default function PageEditor({ data, onSave }: any) {
               {/* Boutons d’action */}
               <div className="flex gap-4">
                 <Button onClick={handleSave} className="bg-mahogany hover:bg-red-900">
-                  💾 Sauvegarder
+                  Sauvegarder
                 </Button>
               </div>
             </div>

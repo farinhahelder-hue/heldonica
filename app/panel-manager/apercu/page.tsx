@@ -45,7 +45,7 @@ export default function ApercuPage() {
   return (
     <div style={{ minHeight: '100vh', background: '#1a1a1a', fontFamily: 'system-ui', display: 'flex', flexDirection: 'column' }}>
       <header style={{ display: 'flex', gap: '.6rem', alignItems: 'center', padding: '.7rem 1rem', background: '#222', color: 'white', flexWrap: 'wrap' }}>
-        <strong>👁 Aperçu live</strong>
+        <strong>Aperçu live</strong>
         {PRESETS.map((p) => (
           <button key={p.id} onClick={() => goPreset(p.path)} style={toolBtn(path === p.path)}>
             {p.label}
@@ -59,7 +59,7 @@ export default function ApercuPage() {
           style={{ flex: '1 1 200px', padding: '.45rem .7rem', borderRadius: 8, border: '1px solid #555', background: '#333', color: 'white' }}
         />
         <button onClick={() => setDevice(device === 'desktop' ? 'mobile' : 'desktop')} style={toolBtn(false)} title="Basculer mobile / bureau" aria-label="Basculer mobile / bureau">
-          {device === 'desktop' ? '📱 Mobile' : '🖥 Bureau'}
+          {device === 'desktop' ? 'Mobile' : 'Bureau'}
         </button>
         <button onClick={() => setFrameKey((k) => k + 1)} style={toolBtn(false)} title="Recharger" aria-label="Recharger l'aperçu">
           ⟳
