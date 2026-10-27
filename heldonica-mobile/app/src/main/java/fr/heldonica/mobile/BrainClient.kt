@@ -124,29 +124,32 @@ object BrainClient {
      */
     suspend fun verifierStationPcDisponible(baseUrlPc: String): Boolean = withContext(Dispatchers.IO) {
         val urlsATester = mutableListOf<String>()
+        urlsATester.add("http://127.0.0.1:8440")
         val url = baseUrlPc.trim().trimEnd('/')
-        if (url.isNotBlank() && (url.startsWith("http://") || url.startsWith("https://"))) {
+        if (url.isNotBlank() && (url.startsWith("http://") || url.startsWith("https://")) && !url.contains("127.0.0.1")) {
             urlsATester.add(url)
-        }
-        if (!url.contains("127.0.0.1")) {
-            urlsATester.add("http://127.0.0.1:8440")
         }
 
         val pingClient = httpClient.newBuilder()
-            .connectTimeout(1500, TimeUnit.MILLISECONDS)
-            .readTimeout(1500, TimeUnit.MILLISECONDS)
+            .connectTimeout(2500, TimeUnit.MILLISECONDS)
+            .readTimeout(3500, TimeUnit.MILLISECONDS)
             .build()
 
         for (u in urlsATester) {
-            try {
-                val req = Request.Builder()
-                    .url("$u/api/system/status")
-                    .get()
-                    .build()
-                val ok = pingClient.newCall(req).execute().use { it.isSuccessful }
-                if (ok) return@withContext true
-            } catch (e: Exception) {
-                // Essayer l'adresse suivante
+            for (endpoint in listOf("$u/api/knowledge", "$u/api/system/status")) {
+                try {
+                    val req = Request.Builder()
+                        .url(endpoint)
+                        .get()
+                        .build()
+                    val ok = pingClient.newCall(req).execute().use { it.isSuccessful }
+                    if (ok) {
+                        Log.d(TAG, "Station PC détectée avec succès via $endpoint")
+                        return@withContext true
+                    }
+                } catch (e: Exception) {
+                    Log.d(TAG, "Ping $endpoint échoué : ${e.message}")
+                }
             }
         }
         false
@@ -264,14 +267,14 @@ object BrainClient {
         message: String,
         mode: String
     ): ReponseCerveau? {
-        // 1. Tente l'URL configurée (LAN Wi-Fi)
-        val repConfig = appelerStationPc(brainBaseUrl, message, mode)
-        if (repConfig != null) return repConfig
+        // 1. Tente le tunnel local USB (ADB reverse tcp:8440 tcp:8440) en priorité
+        val repUsb = appelerStationPc("http://127.0.0.1:8440", message, mode)
+        if (repUsb != null) return repUsb
 
-        // 2. Tente le tunnel local USB (ADB reverse tcp:8440 tcp:8440) si l'URL configurée différait
+        // 2. Tente l'URL configurée (LAN Wi-Fi) si différente
         if (!brainBaseUrl.contains("127.0.0.1")) {
-            val repUsb = appelerStationPc("http://127.0.0.1:8440", message, mode)
-            if (repUsb != null) return repUsb
+            val repConfig = appelerStationPc(brainBaseUrl, message, mode)
+            if (repConfig != null) return repConfig
         }
         return null
     }

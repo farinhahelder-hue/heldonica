@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shortcut_hub_outils_short">Hub Outils</string>
+    <string name="shortcut_hub_outils_long">Hub Outils (Search Console, GA4, Meta, Jules)</string>
+    <string name="shortcut_creer_recit_short">Créer un récit</string>
+    <string name="shortcut_creer_recit_long">Créer un récit ou carrousel (Google Photos)</string>
+    <string name="shortcut_studio_cms_short">Studio CMS</string>
+    <string name="shortcut_studio_cms_long">Studio CMS 3.0 (Blocs, Hotspot, RAG)</string>
+    <string name="shortcut_taches_agents_short">Tâches Agents</string>
+    <string name="shortcut_taches_agents_long">Registre des Tâches (Jules &amp; Gemini)</string>
+</resources>

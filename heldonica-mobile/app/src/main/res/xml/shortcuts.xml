@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="hub_outils"
+        android:enabled="true"
+        android:icon="@android:drawable/ic_menu_compass"
+        android:shortcutShortLabel="@string/shortcut_hub_outils_short"
+        android:shortcutLongLabel="@string/shortcut_hub_outils_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="fr.heldonica.mobile"
+            android:targetClass="fr.heldonica.mobile.StudioActivity">
+            <extra android:name="extra_onglet" android:value="HUB" />
+        </intent>
+    </shortcut>
+    <shortcut
+        android:shortcutId="creer_recit"
+        android:enabled="true"
+        android:icon="@android:drawable/ic_menu_camera"
+        android:shortcutShortLabel="@string/shortcut_creer_recit_short"
+        android:shortcutLongLabel="@string/shortcut_creer_recit_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="fr.heldonica.mobile"
+            android:targetClass="fr.heldonica.mobile.StudioActivity">
+            <extra android:name="extra_onglet" android:value="CREER" />
+        </intent>
+    </shortcut>
+    <shortcut
+        android:shortcutId="studio_cms"
+        android:enabled="true"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:shortcutShortLabel="@string/shortcut_studio_cms_short"
+        android:shortcutLongLabel="@string/shortcut_studio_cms_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="fr.heldonica.mobile"
+            android:targetClass="fr.heldonica.mobile.EditeurActivity">
+            <extra android:name="chemin" android:value="/panel-manager?section=articles" />
+        </intent>
+    </shortcut>
+    <shortcut
+        android:shortcutId="taches_agents"
+        android:enabled="true"
+        android:icon="@android:drawable/ic_menu_agenda"
+        android:shortcutShortLabel="@string/shortcut_taches_agents_short"
+        android:shortcutLongLabel="@string/shortcut_taches_agents_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="fr.heldonica.mobile"
+            android:targetClass="fr.heldonica.mobile.StudioActivity">
+            <extra android:name="extra_onglet" android:value="TACHES" />
+        </intent>
+    </shortcut>
+</shortcuts>

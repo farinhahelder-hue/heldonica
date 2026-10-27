@@ -284,6 +284,157 @@ export default async function ExpertHotelierPage() {
           </div>
         </section>
 
+        {/* Pricing & Formules B2B Section */}
+        <section className="py-20 md:py-28 bg-[#FAF7F2] border-b border-[#DED5C6]">
+          <div className="max-w-6xl mx-auto px-6">
+            <EditableZone page="expert-hotelier" zone="b2b_pricing_badge" fallback="Formules claires"
+              className="text-eucalyptus text-xs font-bold tracking-[0.2em] uppercase mb-4 text-center block"
+            />
+            <h2 className="text-3xl md:text-4xl font-serif font-light text-stone-900 mb-4 text-center">
+              <EditableZone page="expert-hotelier" zone="b2b_pricing_title" fallback="Des forfaits transparents, amortis dès les premiers séjours" className="inline" />
+            </h2>
+            <EditableZone page="expert-hotelier" zone="b2b_pricing_subtitle" type="textarea" fallback="Le premier échange de diagnostic (30 min) est toujours offert et sans engagement. Si nous avançons ensemble, nos forfaits sont transparents et calibrés pour un retour sur investissement rapide."
+              className="text-stone-500 text-center max-w-2xl mx-auto mb-16 block text-sm leading-relaxed"
+            />
+
+            <div className="grid md:grid-cols-3 gap-8 items-stretch">
+              {/* Formule 1 */}
+              <div className="bg-[#F7F3EC] rounded-sm p-8 border border-[#DED5C6] flex flex-col justify-between">
+                <div>
+                  <span className="text-[11px] font-semibold tracking-[0.16em] uppercase text-stone-500 block mb-2">
+                    <EditableZone page="expert-hotelier" zone="b2b_plan_1_badge" fallback="Niveau 1 · En distanciel" className="inline" />
+                  </span>
+                  <h3 className="text-xl font-serif font-bold text-stone-900 mb-2">
+                    <EditableZone page="expert-hotelier" zone="b2b_plan_1_title" fallback="Audit Flash & Indépendance" className="inline" />
+                  </h3>
+                  <div className="text-3xl font-serif font-normal text-eucalyptus mb-4">
+                    <EditableZone page="expert-hotelier" zone="b2b_plan_1_price" fallback="890 € HT" className="inline" />
+                  </div>
+                  <EditableZone page="expert-hotelier" zone="b2b_plan_1_desc" type="textarea"
+                    fallback="Audit complet de votre visibilité locale Google, détection des fuites de commission Booking et plan d'action d'accueil couple."
+                    className="text-xs text-stone-600 mb-6 block leading-relaxed"
+                  />
+                  <div className="w-full h-px bg-[#DED5C6] mb-6" />
+                  <ul className="space-y-3 text-xs text-stone-700 mb-8">
+                    <li className="flex items-start gap-2">
+                      <CmsIcon name="Check" className="w-4 h-4 text-eucalyptus shrink-0" strokeWidth={1.5} />
+                      <EditableZone page="expert-hotelier" zone="b2b_plan_1_item_1" fallback="Analyse du parcours de réservation direct" className="inline" />
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CmsIcon name="Check" className="w-4 h-4 text-eucalyptus shrink-0" strokeWidth={1.5} />
+                      <EditableZone page="expert-hotelier" zone="b2b_plan_1_item_2" fallback="Optimisation Google Business Profile & SEO local" className="inline" />
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CmsIcon name="Check" className="w-4 h-4 text-eucalyptus shrink-0" strokeWidth={1.5} />
+                      <EditableZone page="expert-hotelier" zone="b2b_plan_1_item_3" fallback="Rapport opérationnel de 15 pages remis sous 10j" className="inline" />
+                    </li>
+                  </ul>
+                </div>
+                <B2bCtaButton
+                  href="#audit-form"
+                  eventName="choisir_formule_audit_flash"
+                  className="w-full py-3 text-center rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-mahogany text-xs font-semibold uppercase tracking-[0.14em] hover:bg-[#E8E0D2] transition-colors"
+                >
+                  <EditableZone page="expert-hotelier" zone="b2b_plan_1_cta" fallback="Demander cet audit" className="inline" />
+                </B2bCtaButton>
+              </div>
+
+              {/* Formule 2 — Hero */}
+              <div className="bg-[#FAF7F2] rounded-sm p-8 border-2 border-eucalyptus flex flex-col justify-between shadow-sm relative md:-translate-y-2">
+                <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-eucalyptus text-white px-3 py-1 rounded-sm text-[10px] font-bold tracking-[0.16em] uppercase">
+                  <EditableZone page="expert-hotelier" zone="b2b_plan_2_popular" fallback="Le plus complet" className="inline" />
+                </div>
+                <div>
+                  <span className="text-[11px] font-semibold tracking-[0.16em] uppercase text-eucalyptus block mb-2 mt-2">
+                    <EditableZone page="expert-hotelier" zone="b2b_plan_2_badge" fallback="Niveau 2 · Immersion terrain" className="inline" />
+                  </span>
+                  <h3 className="text-xl font-serif font-bold text-stone-900 mb-2">
+                    <EditableZone page="expert-hotelier" zone="b2b_plan_2_title" fallback="Immersion & Signature Slow" className="inline" />
+                  </h3>
+                  <div className="text-3xl font-serif font-normal text-eucalyptus mb-4">
+                    <EditableZone page="expert-hotelier" zone="b2b_plan_2_price" fallback="2 600 € HT" className="inline" />
+                  </div>
+                  <EditableZone page="expert-hotelier" zone="b2b_plan_2_desc" type="textarea"
+                    fallback="Venue sur place du duo fondateur (2j / 1 nuit), reportage photo d'auteur libre de droits et refonte de votre expérience d'accueil."
+                    className="text-xs text-stone-600 mb-6 block leading-relaxed"
+                  />
+                  <div className="w-full h-px bg-[#DED5C6] mb-6" />
+                  <ul className="space-y-3 text-xs text-stone-700 mb-8">
+                    <li className="flex items-start gap-2">
+                      <CmsIcon name="Check" className="w-4 h-4 text-eucalyptus shrink-0" strokeWidth={1.5} />
+                      <EditableZone page="expert-hotelier" zone="b2b_plan_2_item_1" fallback="Tout l'Audit Flash inclus" className="inline" />
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CmsIcon name="Check" className="w-4 h-4 text-eucalyptus shrink-0" strokeWidth={1.5} />
+                      <EditableZone page="expert-hotelier" zone="b2b_plan_2_item_2" fallback="Reportage photo d'auteur (30+ clichés HD)" className="inline" />
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CmsIcon name="Check" className="w-4 h-4 text-eucalyptus shrink-0" strokeWidth={1.5} />
+                      <EditableZone page="expert-hotelier" zone="b2b_plan_2_item_3" fallback="Test en conditions réelles du silence et du confort" className="inline" />
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CmsIcon name="Check" className="w-4 h-4 text-eucalyptus shrink-0" strokeWidth={1.5} />
+                      <EditableZone page="expert-hotelier" zone="b2b_plan_2_item_4" fallback="Création du livret des pépites locales pour vos hôtes" className="inline" />
+                    </li>
+                  </ul>
+                </div>
+                <B2bCtaButton
+                  href="#audit-form"
+                  eventName="choisir_formule_immersion"
+                  className="w-full py-3.5 text-center rounded-sm bg-eucalyptus text-white text-xs font-semibold uppercase tracking-[0.14em] hover:bg-eucalyptus/90 transition-colors"
+                >
+                  <EditableZone page="expert-hotelier" zone="b2b_plan_2_cta" fallback="Planifier l'immersion" className="inline" />
+                </B2bCtaButton>
+              </div>
+
+              {/* Formule 3 — Cercle Heldonica */}
+              <div className="bg-[#F7F3EC] rounded-sm p-8 border border-[#DED5C6] flex flex-col justify-between">
+                <div>
+                  <span className="text-[11px] font-semibold tracking-[0.16em] uppercase text-stone-500 block mb-2">
+                    <EditableZone page="expert-hotelier" zone="b2b_plan_3_badge" fallback="Niveau 3 · Adhésion annuelle" className="inline" />
+                  </span>
+                  <h3 className="text-xl font-serif font-bold text-stone-900 mb-2">
+                    <EditableZone page="expert-hotelier" zone="b2b_plan_3_title" fallback="Le Cercle Heldonica" className="inline" />
+                  </h3>
+                  <div className="text-3xl font-serif font-normal text-eucalyptus mb-4">
+                    <EditableZone page="expert-hotelier" zone="b2b_plan_3_price" fallback="120 € HT / mois" className="inline" />
+                  </div>
+                  <EditableZone page="expert-hotelier" zone="b2b_plan_3_desc" type="textarea"
+                    fallback="Adhésion à notre collection d'hôtes singuliers, référencement prioritaire auprès de nos voyageurs couples et 0% de commission."
+                    className="text-xs text-stone-600 mb-6 block leading-relaxed"
+                  />
+                  <div className="w-full h-px bg-[#DED5C6] mb-6" />
+                  <ul className="space-y-3 text-xs text-stone-700 mb-8">
+                    <li className="flex items-start gap-2">
+                      <CmsIcon name="Check" className="w-4 h-4 text-eucalyptus shrink-0" strokeWidth={1.5} />
+                      <EditableZone page="expert-hotelier" zone="b2b_plan_3_item_1" fallback="Réservé aux hébergements validés sur le terrain" className="inline" />
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CmsIcon name="Check" className="w-4 h-4 text-eucalyptus shrink-0" strokeWidth={1.5} />
+                      <EditableZone page="expert-hotelier" zone="b2b_plan_3_item_2" fallback="Recommandation prioritaire dans nos carnets B2C" className="inline" />
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CmsIcon name="Check" className="w-4 h-4 text-eucalyptus shrink-0" strokeWidth={1.5} />
+                      <EditableZone page="expert-hotelier" zone="b2b_plan_3_item_3" fallback="Zéro commission prélevée sur vos séjours" className="inline" />
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <CmsIcon name="Check" className="w-4 h-4 text-eucalyptus shrink-0" strokeWidth={1.5} />
+                      <EditableZone page="expert-hotelier" zone="b2b_plan_3_item_4" fallback="Badge de confiance « Recommandé par Heldonica »" className="inline" />
+                    </li>
+                  </ul>
+                </div>
+                <B2bCtaButton
+                  href="#audit-form"
+                  eventName="choisir_formule_cercle"
+                  className="w-full py-3 text-center rounded-sm bg-[#EFE9DF] border border-[#DED5C6] text-mahogany text-xs font-semibold uppercase tracking-[0.14em] hover:bg-[#E8E0D2] transition-colors"
+                >
+                  <EditableZone page="expert-hotelier" zone="b2b_plan_3_cta" fallback="Rejoindre la collection" className="inline" />
+                </B2bCtaButton>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Case Studies Section */}
         {SHOW_CASE_STUDIES && (
         <section id="cas-clients" className="py-20 md:py-28 bg-[#FAF7F2]">

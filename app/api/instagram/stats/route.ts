@@ -18,8 +18,11 @@ export async function GET() {
 
     return NextResponse.json({
       configured: true,
-      profile,
-      stats,
+      profile: profile || {
+        username: 'heldonica',
+        media_count: (media || []).length,
+      },
+      stats: stats || {},
       media: media || [],
     });
   } catch (error) {

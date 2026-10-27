@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- Minimal - pas de READ_MEDIA_IMAGES grâce au Picker système -->
+    <!-- Permissions réseau et géolocalisation -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <!-- Permet de lire les coordonnées GPS d'origine des photos partagées ou locales sans censure système -->
+    <uses-permission android:name="android.permission.ACCESS_MEDIA_LOCATION" />
 
     <queries>
         <package android:name="com.instagram.android" />
@@ -21,8 +23,28 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
         </activity>
-        <activity android:name=".MainActivity" android:exported="false" />
+
+        <!-- Réception directe de photos partagées depuis Google Photos ou le gestionnaire de fichiers -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+                <data android:mimeType="video/*" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.SEND_MULTIPLE" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+                <data android:mimeType="video/*" />
+            </intent-filter>
+        </activity>
 
         <!-- Editeur du site : affiche le panel d'administration existant plutot
              que d'en maintenir une seconde implementation en natif.

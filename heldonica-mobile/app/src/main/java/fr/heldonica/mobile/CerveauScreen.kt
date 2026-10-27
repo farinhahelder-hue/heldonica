@@ -138,11 +138,17 @@ fun CerveauScreen(
         }
     }
 
+    val etiquetteAppareilAccueil = remember {
+        if (android.os.Build.MODEL.contains("Pixel", ignoreCase = true)) "Pixel 8 Pro"
+        else if (android.os.Build.MODEL.contains("Poco", ignoreCase = true)) "Poco X6 Pro"
+        else android.os.Build.MODEL.ifBlank { "téléphone" }
+    }
+
     val messages = remember {
         mutableStateListOf(
             MessageCerveau(
                 estUtilisateur = false,
-                texte = "Bonjour. Je suis le Cerveau Heldonica sur ton Poco X6 Pro.\n\n" +
+                texte = "Bonjour. Je suis le Cerveau Heldonica sur ton $etiquetteAppareilAccueil.\n\n" +
                         "Le PC peut rester éteint : je réponds avec le modèle du téléphone, " +
                         "et ⚡ Cerveau boosté passe par les API gratuites quand il faut plus de finesse.\n" +
                         "Choisis un mode ci-dessus ou écris-moi directement.",
@@ -356,28 +362,34 @@ fun CerveauScreen(
                 // Badge d'état réseau
                 AssistChip(
                     onClick = {
-                        if (stationPcDetectee) {
-                            forcerPc = !forcerPc
-                            Toast.makeText(
-                                context,
-                                if (forcerPc) "Mode PC Local activé" else "Mode PC Local désactivé",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        } else {
-                            Toast.makeText(
-                                context,
-                                "Station PC hors ligne ou non détectée",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                        portee.launch {
+                            if (!stationPcDetectee) {
+                                stationPcDetectee = BrainClient.verifierStationPcDisponible(brainBaseUrl)
+                            }
+                            if (stationPcDetectee) {
+                                forcerPc = !forcerPc
+                                Toast.makeText(
+                                    context,
+                                    if (forcerPc) "Mode PC Local activé (GTX 1660 Ti)" else "Mode PC Local désactivé",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            } else {
+                                Toast.makeText(
+                                    context,
+                                    "Station PC hors ligne (vérifier câble USB et adb reverse)",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
                         }
                     },
                     label = {
+                        val nomCourtAppareil = if (android.os.Build.MODEL.contains("Pixel", ignoreCase = true)) "Pixel" else if (android.os.Build.MODEL.contains("Poco", ignoreCase = true)) "Poco" else "Tél"
                         Text(
                             text = when {
                                 libre -> "🔓 Libre"
                                 forcerPc && stationPcDetectee -> "💻 PC LAN"
                                 booste -> if (stationPcDetectee) "🟢 Cloud (PC dispo)" else "🟢 Cloud 0€"
-                                else -> if (stationPcDetectee) "📱 Poco (PC dispo)" else "📱 Poco"
+                                else -> if (stationPcDetectee) "📱 $nomCourtAppareil (PC dispo)" else "📱 $nomCourtAppareil"
                             },
                             fontSize = 11.sp,
                             fontWeight = FontWeight.SemiBold
@@ -706,7 +718,7 @@ fun CerveauScreen(
             text = {
                 Column {
                     Text(
-                        text = "Ce mot de passe est conservé localement sur ton Poco X6 Pro pour authentifier les requêtes vers le serveur (0 secret compilé dans l'APK).",
+                        text = "Ce mot de passe est conservé localement sur ton appareil pour authentifier les requêtes vers le serveur (0 secret compilé dans l'APK).",
                         fontSize = 12.sp,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
