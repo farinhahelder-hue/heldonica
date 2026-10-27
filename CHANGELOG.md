@@ -2,6 +2,22 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+  ## [2026-10-27 ter] — Heldonica CMS 3.0 « Sanity Killer » : Hotspot Focal Dynamique, Visual Click-to-Edit & In-Field IA
+
+  - **Point Focal & Hotspot Visuel Intelligent (`HotspotPicker.tsx`, `types/cms-blocks.ts`, `ImageBlock.tsx`)** :
+    - Reproduction et amélioration de la fonctionnalité phare de Sanity Studio : sélection interactive du point focal `(x, y)` directement sur les clichés de terrain (`ImageBlock` et `PhotoEvidenceBlock`).
+    - 6 presets photographiques 1-clic : *Centre*, *Visage / Sujet haut*, *Sommet / Ciel*, *Premier plan / Sol*, *Tiers gauche*, *Tiers droit*.
+    - Visualisation comparative en temps réel dans les 3 ratios clés : **16:9** (Bannière Desktop), **1:1** (Carrousel / Instagram), **9:16** (Reel / Mobile vertical) garantissant que le sujet n'est jamais tronqué.
+    - Application CSS automatique `object-position: X% Y%` sur le rendu public et sérialisation lossless dans `lib/cms-blocks-converter.ts`.
+  - **Visual Editing & Click-to-Edit Bi-directionnel (`BlockRenderer.tsx`, `CmsAdminClient.tsx`, `BlockCanvas.tsx`)** :
+    - En mode aperçu direct côte-à-côte (Split-Screen), chaque bloc dans le rendu lecteur porte `data-cms-block-id`.
+    - Un simple clic sur un paragraphe, une photo ou une pépite dans la prévisualisation défile et met immédiatement en surbrillance (`ring-2 ring-amber-500`) le bloc correspondant dans le canvas d'édition de gauche.
+  - **In-Field Gemini Vision Copilot (`BlockCanvas.tsx`)** :
+    - Bouton « 🧠 Cadrage IA » directement dans le HotspotPicker pour suggérer le point focal et renseigner les textes d'accessibilité via l'IA Vision.
+  - **Validation & Intégrité** :
+    - Nouvelle suite de tests dédiée `__tests__/components/SanityKillerCms3.test.tsx` (4 tests verts en 151ms).
+    - `npm run typecheck` (0 erreur), `npm run preflight` 13/13 vert (zéro tic visuel, conformité cliquet texte en dur).
+
   ## [2026-10-27 bis] — Édition des Pages & Articles Existants : Photos, IA Vision et Rédaction Assistée
 
   - **Édition de tous les articles (`RedactionScreen.kt`, `RedactionClient.kt`)** :
