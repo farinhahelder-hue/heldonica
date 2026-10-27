@@ -111,7 +111,7 @@ function InserterDivider({
       {/* Ligne discrète au survol */}
       <div
         className={`group relative flex items-center justify-center transition-all ${
-          isOpen ? 'py-2' : 'py-1 opacity-0 hover:opacity-100 focus-within:opacity-100'
+          isOpen ? 'py-2' : 'py-1 opacity-60 sm:opacity-0 hover:opacity-100 focus-within:opacity-100'
         }`}
       >
         <div className="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-300/80 to-transparent" />

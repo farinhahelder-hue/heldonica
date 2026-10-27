@@ -207,6 +207,19 @@ fun RedactionScreen() {
             }
         }
 
+        FilledTonalButton(
+            onClick = {
+                contexte.startActivity(
+                    android.content.Intent(contexte, EditeurActivity::class.java).putExtra(
+                        EditeurActivity.EXTRA_CHEMIN, "/panel-manager?section=articles&articleId=${b.id}"
+                    )
+                )
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("⚡ Ouvrir dans le Studio CMS 3.0 (Blocs & Hotspots)", fontSize = 12.sp)
+        }
+
         if (confirmerRetour) {
             AlertDialog(
                 onDismissRequest = { confirmerRetour = false },

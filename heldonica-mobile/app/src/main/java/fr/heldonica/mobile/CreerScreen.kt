@@ -156,6 +156,12 @@ fun CreerScreen(
                 // 2. Section "Édition & Autres formats de voyage"
                 SectionTitre("Édition & Récits de voyage")
                 CarteAction(
+                    icone = "⚡",
+                    titre = "Studio CMS 3.0 (Sanity Killer)",
+                    detail = "Éditeur visuel complet : blocs modulaires, cadrage photo Hotspot, machine à remonter le temps et recherche universelle."
+                ) { onCms() }
+
+                CarteAction(
                     icone = "✍️",
                     titre = "Rédiger ou enrichir un carnet (Photos & IA)",
                     detail = "Ouvrir un article existant, injecter des photos et dicter son vécu."

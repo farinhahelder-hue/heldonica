@@ -236,6 +236,20 @@ function CmsAdminClientInner() {
     }
   }, [editingArticle?.id]);
 
+  // Auto-sélection d'un article passé en paramètre d'URL (ex: depuis l'APK mobile ou lien direct)
+  useEffect(() => {
+    const targetId = searchParams.get('articleId') || searchParams.get('edit');
+    if (targetId && articles.length > 0 && !editingArticle) {
+      const found = articles.find(
+        (a) => String(a.id) === String(targetId) || a.slug === targetId
+      );
+      if (found) {
+        setEditingArticle(found);
+        setActiveSection('articles');
+      }
+    }
+  }, [articles, searchParams, editingArticle]);
+
   const handleBlocksChange = (updatedBlocks: CmsBlock[]) => {
     setActiveCmsBlocks(updatedBlocks);
     const html = blocksToHtml(updatedBlocks);
@@ -840,6 +854,18 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                 <span className="text-[11px] text-stone-400 font-medium">Admin (Fondateur)</span>
               </div>
             </div>
+            {/* Bouton Omnisearch rapide (accessible tactile mobile / APK) */}
+            <button
+              type="button"
+              onClick={() => setShowPalette(true)}
+              className="shrink-0 rounded-lg border border-amber-600/70 bg-amber-950/40 px-2.5 py-1.5 text-xs font-semibold text-amber-200 flex items-center gap-1.5 hover:bg-amber-900/60 transition-colors"
+              title="Recherche universelle Omnisearch (Cmd+K)"
+            >
+              <Search size={14} className="text-amber-400" />
+              <span className="hidden sm:inline">Omnisearch</span>
+              <kbd className="hidden lg:inline text-[9px] bg-amber-900 px-1 py-0.2 rounded font-mono">⌘K</kbd>
+            </button>
+
             {/* Le nom de la section en cours tient lieu d'etiquette : replie, le
                 menu doit dire ou l'on se trouve. */}
             <button
@@ -2501,6 +2527,17 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
         onOpenRevisions={() => setIsRevisionsDrawerOpen(true)}
         onOpenAgents={() => setIsAgentsDrawerOpen(true)}
       />
+
+      {/* Bouton Flottant Omnisearch Mobile (Pixel 8 Pro / APK) */}
+      <button
+        type="button"
+        onClick={() => setShowPalette(true)}
+        className="md:hidden fixed bottom-6 right-5 z-40 w-12 h-12 rounded-full bg-amber-800 text-white shadow-2xl flex items-center justify-center hover:bg-amber-900 active:scale-95 transition-all ring-2 ring-white/80"
+        aria-label="Recherche universelle Omnisearch"
+        title="Omnisearch CMS 3.0"
+      >
+        <Search size={20} />
+      </button>
     </>
   );
 }

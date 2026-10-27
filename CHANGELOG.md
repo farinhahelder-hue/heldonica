@@ -15,6 +15,12 @@
     - Séparateur d'insertion interactif (`InserterDivider`) positionné avant le premier bloc, entre chaque bloc et en fin de document.
     - Ligne subtile révélée au survol avec bouton `+ Insérer un bloc` déployant une grille de sélection rapide avec recherche instantanée.
     - Insertion à l'index exact avec sélection automatique et focus synchronisé sur le nouveau bloc.
+  - **Utilisabilité Tactile & Intégration Mobile APK (`heldonica-mobile`, `CmsAdminClient.tsx`, `BlockCanvas.tsx`)** :
+    - **Omnisearch Mobile & FAB Flottant** : Bouton d'accès direct dans le header et Floating Action Button (FAB) tactile permettant de déclencher l'Omnisearch d'une seule touche sur Pixel 8 Pro sans clavier physique.
+    - **Carte 1-clic dans l'écran Créer (`CreerScreen.kt`)** : Carte « ⚡ Studio CMS 3.0 (Sanity Killer) » ouvrant directement l'espace éditorial `/panel-manager?section=articles` avec session sans mot de passe.
+    - **Passerelle Rédaction ➔ Studio Visuel (`RedactionScreen.kt`)** : Bouton « ⚡ Ouvrir dans le Studio CMS 3.0 (Blocs & Hotspots) » sur chaque carnet en cours, injectant immédiatement l'article dans l'éditeur via `?articleId=...`.
+    - **Séparateurs tactiles inter-blocs (`BlockCanvas.tsx`)** : `InserterDivider` discoverable sur écran tactile (`opacity-60 sm:opacity-0`).
+    - **Déploiement APK validé** : Compilation `assembleDebug` réussie (44,2 Mo) via JDK 17 Temurin et installation directe via ADB (`Streamed Install Success`) sur Google Pixel 8 Pro (`39151FDJG000Z0`). Tunnels inversés (3000, 8440, 8470) opérationnels.
   - **Visual Time Machine & Live Device Preview (`RevisionsDrawer.tsx`)** :
     - Transformation du comparateur de révisions en véritable machine à remonter le temps visuelle, similaire à l'inspecteur d'historique de Sanity Studio.
     - Bascule instantanée entre la vue *Diff blocs* (détail technique des ajouts/modifications/suppressions) et la vue *Aperçu visuel* (rendu en direct du contenu archivé via `BlockRenderer`).

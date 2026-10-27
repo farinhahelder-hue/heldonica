@@ -100,7 +100,7 @@ class StudioActivity : ComponentActivity() {
                     onCms = {
                         contexte.startActivity(
                             Intent(contexte, EditeurActivity::class.java)
-                                .putExtra(EditeurActivity.EXTRA_CHEMIN, "/panel-manager")
+                                .putExtra(EditeurActivity.EXTRA_CHEMIN, "/panel-manager?section=articles")
                         )
                     },
                     onCerveau = { onglet = OngletStudio.CERVEAU },
@@ -119,7 +119,7 @@ class StudioActivity : ComponentActivity() {
                     // L'éditeur gère déjà mot de passe + cookie : on le réutilise tel quel.
                     contexte.startActivity(
                         Intent(contexte, EditeurActivity::class.java).putExtra(
-                            EditeurActivity.EXTRA_CHEMIN, "/panel-manager"
+                            EditeurActivity.EXTRA_CHEMIN, "/panel-manager?section=articles"
                         )
                     )
                     onglet = OngletStudio.parDefaut()
