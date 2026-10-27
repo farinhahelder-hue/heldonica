@@ -74,8 +74,8 @@ function ToastItem({ toast, onDone }: { toast: Toast; onDone: () => void }) {
     : toast.type === 'danger' ? 'bg-red-600'
     : 'bg-gray-800';
 
-  // L'icône porte le sens du message ; le texte du toast n'a plus à commencer
-  // par un emoji (✅ / ❌), qui variait d'un appel à l'autre.
+  // L'icône porte le sens du message : le texte du toast n'a plus à commencer
+  // par une coche ou une croix, qui variait d'un appel à l'autre.
   const Icone = toast.type === 'success' ? CircleCheck
     : toast.type === 'error' ? CircleX
     : toast.type === 'danger' ? CircleX

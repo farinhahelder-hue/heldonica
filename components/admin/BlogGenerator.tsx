@@ -116,8 +116,8 @@ export default function BlogGenerator({ onGenerated }: BlogGeneratorProps) {
             onChange={e => setLanguage(e.target.value as any)}
             style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.88rem', background: '#fff' }}
           >
-            <option value="FR">🇫🇷 Français</option>
-            <option value="EN">🇬🇧 English</option>
+            <option value="FR">Français</option>
+            <option value="EN">English</option>
           </select>
         </div>
       </div>
