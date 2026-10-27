@@ -1587,6 +1587,8 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                                 onChange={handleBlocksChange}
                                 selectedBlockId={selectedBlockId}
                                 onSelectBlock={setSelectedBlockId}
+                                onOpenAgents={() => setIsAgentsDrawerOpen(true)}
+                                articleSlug={editingArticle?.slug}
                               />
                             </div>
 
@@ -1625,6 +1627,8 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                             onChange={handleBlocksChange}
                             selectedBlockId={selectedBlockId}
                             onSelectBlock={setSelectedBlockId}
+                            onOpenAgents={() => setIsAgentsDrawerOpen(true)}
+                            articleSlug={editingArticle?.slug}
                           />
                         )
                       ) : (

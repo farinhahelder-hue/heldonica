@@ -94,6 +94,7 @@ import { LogoStudioModal } from '@/components/admin/LogoStudioModal';
 import { BubbleToolbar } from './BubbleToolbar';
 import { AstJsonInspectorModal } from './AstJsonInspectorModal';
 import { EeatScorecardHud } from './EeatScorecardHud';
+import { AgentPresenceBadge } from './AgentPresenceBadge';
 
 interface BlockCanvasProps {
   blocks: CmsBlock[];
@@ -101,6 +102,8 @@ interface BlockCanvasProps {
   className?: string;
   selectedBlockId?: string | null;
   onSelectBlock?: (id: string) => void;
+  onOpenAgents?: () => void;
+  articleSlug?: string;
 }
 
 const BLOCK_TYPES_CONFIG: { type: BlockType; label: string; icon: React.ElementType; description: string }[] = [
@@ -222,6 +225,8 @@ export function BlockCanvas({
   className = '',
   selectedBlockId,
   onSelectBlock,
+  onOpenAgents,
+  articleSlug,
 }: BlockCanvasProps) {
   const [activeConfigBlockId, setActiveConfigBlockId] = useState<string | null>(null);
   const [showTemplateModal, setShowTemplateModal] = useState<boolean>(false);
@@ -980,6 +985,7 @@ export function BlockCanvas({
         {/* Barre d'outils secondaire : Undo/Redo, Métriques de lecture & Simulateur Responsive */}
         <div className="flex flex-wrap items-center justify-between gap-2.5 pt-2 pb-1 border-t border-stone-100">
           <div className="flex items-center gap-2">
+            <AgentPresenceBadge onOpenAgentsDrawer={onOpenAgents} articleSlug={articleSlug} />
             <div className="inline-flex items-center border border-stone-200 rounded-lg p-0.5 bg-stone-50">
               <button
                 type="button"
