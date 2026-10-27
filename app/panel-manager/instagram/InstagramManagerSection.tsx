@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
+import { Smartphone, RefreshCw, Clock, CheckCircle2, ListChecks, Sparkles, Rocket } from 'lucide-react';
 
 interface InstagramComment {
   id: number;
@@ -100,12 +101,12 @@ export default function InstagramManagerSection() {
       const res = await fetch('/api/instagram/refresh', { method: 'POST' });
       const data = await res.json();
       if (res.ok) {
-        setTokenStatus(`✅ Token renouvelé pour ${data.expires_in_days} jours !`);
+        setTokenStatus(`Token renouvelé pour ${data.expires_in_days} jours`);
       } else {
-        setTokenStatus(`❌ Erreur : ${data.error}`);
+        setTokenStatus(`Erreur : ${data.error}`);
       }
     } catch (err: any) {
-      setTokenStatus(`❌ Erreur : ${err.message}`);
+      setTokenStatus(`Erreur : ${err.message}`);
     } finally {
       setRefreshingToken(false);
     }
@@ -117,7 +118,7 @@ export default function InstagramManagerSection() {
       <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-            <span>📱</span> Modération & Réponses Instagram Auto-Assistées
+            <Smartphone className="w-5 h-5" aria-hidden /> Modération & Réponses Instagram Auto-Assistées
           </h2>
           <p className="text-sm text-gray-500 mt-1">
             Gère et réponds aux commentaires de tes publications avec des brouillons générés dans le respect de la voix Heldonica (100% "on/tu", 0 hallucination).
@@ -129,7 +130,8 @@ export default function InstagramManagerSection() {
             disabled={refreshingToken}
             className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
           >
-            🔄 {refreshingToken ? 'Rafraîchissement...' : 'Rafraîchir le token Meta (60j)'}
+            <RefreshCw className={`w-4 h-4 ${refreshingToken ? 'animate-spin' : ''}`} aria-hidden />
+            {refreshingToken ? 'Rafraîchissement...' : 'Rafraîchir le token Meta (60j)'}
           </button>
           {tokenStatus && <span className="text-xs font-semibold">{tokenStatus}</span>}
         </div>
@@ -145,7 +147,7 @@ export default function InstagramManagerSection() {
               : 'text-gray-600 hover:bg-gray-100'
           }`}
         >
-          ⏳ En attente de validation ({comments.filter(c => c.status === 'pending_review').length})
+          <Clock className="w-4 h-4 inline-block mr-1.5" aria-hidden /> En attente de validation ({comments.filter(c => c.status === 'pending_review').length})
         </button>
         <button
           onClick={() => setActiveTab('approved')}
@@ -155,7 +157,7 @@ export default function InstagramManagerSection() {
               : 'text-gray-600 hover:bg-gray-100'
           }`}
         >
-          ✅ Réponses publiées
+          <CheckCircle2 className="w-4 h-4 inline-block mr-1.5" aria-hidden /> Réponses publiées
         </button>
         <button
           onClick={() => setActiveTab('all')}
@@ -165,7 +167,7 @@ export default function InstagramManagerSection() {
               : 'text-gray-600 hover:bg-gray-100'
           }`}
         >
-          📋 Tous les commentaires
+          <ListChecks className="w-4 h-4 inline-block mr-1.5" aria-hidden /> Tous les commentaires
         </button>
       </div>
 
@@ -176,7 +178,7 @@ export default function InstagramManagerSection() {
         </div>
       ) : comments.length === 0 ? (
         <div className="py-12 text-center text-gray-500 bg-white rounded-xl border border-gray-200">
-          ✨ Aucun commentaire en attente pour le moment !
+          <Sparkles className="w-4 h-4 inline-block mr-1.5 text-emerald-700" aria-hidden /> Aucun commentaire en attente pour le moment.
         </div>
       ) : (
         <div className="space-y-4">
@@ -226,7 +228,7 @@ export default function InstagramManagerSection() {
               {comment.status === 'pending_review' && (
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
-                    <span>✨</span> Proposition de réponse IA (Voix Heldonica) :
+                    <Sparkles className="w-3.5 h-3.5" aria-hidden /> Proposition de réponse IA (Voix Heldonica) :
                   </label>
                   <textarea
                     rows={2}
@@ -254,7 +256,11 @@ export default function InstagramManagerSection() {
                     >
                       {processingId === comment.ig_comment_id
                         ? 'Publication...'
-                        : '🚀 Approuver & Répondre sur Instagram'}
+                        : (
+                          <>
+                            <Rocket className="w-3.5 h-3.5" aria-hidden /> Approuver & Répondre sur Instagram
+                          </>
+                        )}
                     </button>
                   </div>
                 </div>
