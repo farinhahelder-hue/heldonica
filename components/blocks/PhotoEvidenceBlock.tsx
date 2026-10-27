@@ -16,6 +16,7 @@ export function PhotoEvidenceBlock({ block, className = '' }: Props) {
         date={block.date}
         anecdote={block.anecdote}
         albumLink={block.albumLink}
+        cameraInfo={block.cameraInfo}
       />
     </div>
   );

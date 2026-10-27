@@ -2,7 +2,32 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
-  ## [2026-10-27 quater] — Heldonica CMS 3.0 « Sanity Killer » : Omnisearch Cmd+K, In-Between Inserter & Visual Time Machine
+  ## [2026-10-27 quinquies] — Heldonica CMS 3.0 : Studio des Gabarits 3.0, Cartouche E-E-A-T Nikon D7200 & Thèmes Minéraux Slow Travel
+
+  - **Studio des Gabarits 3.0 & Personnalisation Interactive (`BlockCanvas.tsx`, `lib/cms-templates.ts`)** :
+    - Transformation de la modale basique en véritable **Studio de Composition éditoriale 2 colonnes** (`max-w-5xl`) :
+      - *Colonne gauche* : Personnalisation dynamique de destination/étape (`templateDestination`, ex: « Stoos, Suisse »), filtres thématiques par pilules tactiles (`Tous`, `Récits & Immersion`, `Guides & Étapes`, `Hébergements`, `Essais Visuels`), et sélection active parmi les 7 gabarits Slow Travel avec temps de lecture estimé et tags.
+      - *Colonne droite* : Prévisualisation en direct (`Live Layout Preview`) via `<BlockRenderer blocks={previewTemplateBlocks} />`, avec injection en temps réel du territoire saisi et compteur de blocs configurés.
+      - *Actions 1-clic* : Boutons d'insertion directe « Remplacer tout le carnet (X blocs) » ou « Ajouter à la suite (+X blocs) ».
+  - **Générateur de Cartouche de Terrain Certifié E-E-A-T (`BlockCanvas.tsx`, `components/PhotoEvidenceBlock.tsx`)** :
+    - Bouton d'action directe `🏷️ Cartouche de Terrain` dans la barre d'outils du canvas.
+    - Modale de configuration et certification humaine E-E-A-T (zéro tics IA, zéro partenariat commercial) :
+      - *Lieu exact & Altitude* (ex: Stoos, crête du Fronalpstock, 1 922 m).
+      - *Moment & Saison constatée* (ex: Printemps — mai 2026).
+      - *Météo & Lumière naturelle* (ex: Brume dissipée à 07h45, 9°C, vent léger).
+      - *Boîtier & Optique réels* avec raccourcis 1-clic : **Nikon D7200 • Nikkor 35mm f/1.8 DX**, **Nikon Zoom 18-105mm VR**, **Pixel 8 Pro RAW**.
+      - *Mobilités douces* (accès train/funiculaire + marche attentive).
+      - *Charte d'indépendance* (100% autofinancé par le duo).
+    - Insertion instantanée au format Parchemin naturel en tête de carnet ou à la suite.
+    - Support du champ `cameraInfo` sur `PhotoEvidenceBlock`, `PhotoEvidenceEditor` et `lib/cms-blocks-converter.ts`.
+  - **Palette de Thèmes Minéraux & Papiers d'Artisans (`types/cms-blocks.ts`, `BlockRenderer.tsx`)** :
+    - Extension du type `BlockTheme` : `'sand' | 'parchment' | 'terracotta' | 'forest_fog' | 'chalk' | 'gold_accent' | 'dark' | 'default'`.
+    - Rendu artisanal Slow Travel sans cartes SaaS agressives : Parchemin doux (`#F9F7F1`), Terre cuite (`#FDF6F0` bordure `#C86446`), Brume de forêt (`#F2F5F3`), Sable minéral (`#FAF7F2`), Craie pure et Accent doré subtil.
+    - Sélecteur de thème étendu dans le tiroir de réglages avancés de chaque bloc.
+  - **Vérifications & Garde-fous** :
+    - 20/20 tests unitaires et intégration au vert (`__tests__/components/SanityKillerCms3.test.tsx`, `BlockRenderer.test.tsx`, `cms-templates.test.ts`).
+    - `npm run typecheck` 0 erreur.
+    - `npm run preflight` 13/13 contrôles réussis.
 
   - **Omnisearch Command Palette (`Cmd+K`) (`components/admin/OmnisearchPalette.tsx`, `app/panel-manager/CmsAdminClient.tsx`)** :
     - Palette universelle déclenchable au clavier (`Cmd+K` / `Ctrl+K`) avec recherche temps réel ultra-rapide et indexation multi-domaines :

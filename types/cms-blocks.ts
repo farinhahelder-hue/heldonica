@@ -18,7 +18,7 @@ export type BlockType =
   | 'hospitality_spot';
 
 export type BlockSpacing = 'compact' | 'normal' | 'relaxed';
-export type BlockTheme = 'default' | 'sand' | 'dark' | 'gold_accent';
+export type BlockTheme = 'default' | 'sand' | 'dark' | 'gold_accent' | 'terracotta' | 'forest_fog' | 'parchment' | 'chalk';
 
 /** Cadrage intelligent et point focal Sanity-style (x: 0..1, y: 0..1) */
 export interface ImageHotspot {
@@ -117,6 +117,7 @@ export interface PhotoEvidenceBlock extends BaseBlock {
   anecdote: string; // Max 200 caractères, vécue et vérifiable
   albumLink?: string; // URL album Google Photos (optionnel)
   hotspot?: ImageHotspot;
+  cameraInfo?: string; // Boîtier & Optique réels (ex: Nikon D7200, 35mm f/1.8 DX)
 }
 
 // 10. Bloc Carte Interactive de balade et repères

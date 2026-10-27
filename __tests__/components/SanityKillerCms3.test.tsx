@@ -156,4 +156,52 @@ describe('CMS 3.0 Sanity Killer — Hotspot & Visual Click-to-Edit', () => {
     expect(newBlocksArg).toHaveLength(3);
     expect(newBlocksArg[0].type).toBe('image');
   });
+
+  it('Studio des Gabarits 3.0 permet la personnalisation de la destination et l’insertion', () => {
+    const onChange = vi.fn();
+    render(<BlockCanvas blocks={[]} onChange={onChange} />);
+
+    // Ouverture du modal de gabarits
+    const gabaritsBtn = screen.getByRole('button', { name: /Gabarits Slow Travel/i });
+    fireEvent.click(gabaritsBtn);
+
+    // Vérifie la présence du Studio 3.0
+    expect(screen.getByText(/Studio des Gabarits 3.0/i)).toBeDefined();
+
+    // Champ de destination
+    const destInput = screen.getByPlaceholderText(/ex: Stoos, Suisse/i);
+    expect(destInput).toBeDefined();
+    fireEvent.change(destInput, { target: { value: 'Val d’Hérens' } });
+
+    // Clic sur "Remplacer tout le carnet"
+    const replaceBtn = screen.getByRole('button', { name: /Remplacer tout le carnet/i });
+    fireEvent.click(replaceBtn);
+
+    expect(onChange).toHaveBeenCalled();
+    const appliedBlocks = onChange.mock.calls[0][0] as CmsBlock[];
+    expect(appliedBlocks.length).toBeGreaterThan(0);
+  });
+
+  it('Cartouche de Terrain génère des repères E-E-A-T certifiés (Nikon D7200, météo)', () => {
+    const onChange = vi.fn();
+    render(<BlockCanvas blocks={[]} onChange={onChange} />);
+
+    // Ouverture du modal de cartouche de terrain
+    const cartoucheBtn = screen.getByRole('button', { name: /Cartouche de Terrain/i });
+    fireEvent.click(cartoucheBtn);
+
+    // Vérifie la présence du modal
+    expect(screen.getByText(/Cartouche de Terrain Certifié \(E-E-A-T\)/i)).toBeDefined();
+    expect(screen.getByText(/Nikon D7200 35mm/i)).toBeDefined();
+
+    // Insertion en tête de carnet
+    const insertBtn = screen.getByRole('button', { name: /Insérer en tête de carnet/i });
+    fireEvent.click(insertBtn);
+
+    expect(onChange).toHaveBeenCalled();
+    const inserted = onChange.mock.calls[0][0] as CmsBlock[];
+    expect(inserted.length).toBe(2);
+    expect(inserted[0].type).toBe('heading');
+    expect(inserted[1].type).toBe('list');
+  });
 });

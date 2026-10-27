@@ -61,6 +61,7 @@ import HotspotPicker from '@/components/admin/media/HotspotPicker';
 import { PhotoInterviewModal } from '@/components/admin/PhotoInterviewModal';
 import { generateBlocksFromAlbum } from '@/lib/cms-draft-from-evidence';
 import { generateFaqVerdictBundle } from '@/lib/cms-faq-verdict-generator';
+import { BlockRenderer } from '@/components/blocks/BlockRenderer';
 
 interface BlockCanvasProps {
   blocks: CmsBlock[];
@@ -192,6 +193,16 @@ export function BlockCanvas({
 }: BlockCanvasProps) {
   const [activeConfigBlockId, setActiveConfigBlockId] = useState<string | null>(null);
   const [showTemplateModal, setShowTemplateModal] = useState<boolean>(false);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<CmsTemplateId>('slow_travel_diary');
+  const [templateDestination, setTemplateDestination] = useState<string>('Stoos, Suisse');
+  const [templateCategory, setTemplateCategory] = useState<'all' | 'diary' | 'guide' | 'hospitality' | 'visual'>('all');
+  const [showCartoucheModal, setShowCartoucheModal] = useState<boolean>(false);
+  const [cartoucheLocation, setCartoucheLocation] = useState<string>('Stoos, crête du Fronalpstock (1 922 m)');
+  const [cartoucheSeason, setCartoucheSeason] = useState<string>('Printemps — mai 2026');
+  const [cartoucheWeather, setCartoucheWeather] = useState<string>('Brume matinale dissipée vers 07h45, 9°C, vent léger');
+  const [cartoucheGear, setCartoucheGear] = useState<string>('Nikon D7200 • Nikkor 35mm f/1.8 DX (lumière naturelle)');
+  const [cartoucheMobility, setCartoucheMobility] = useState<string>('Funiculaire de Schwyz + 2h40 de marche attentive');
+  const [cartoucheEthics, setCartoucheEthics] = useState<string>('100% autofinancé par le duo, zéro partenariat commercial');
   const [showAlbumModal, setShowAlbumModal] = useState<boolean>(false);
   const [showFaqVerdictModal, setShowFaqVerdictModal] = useState<boolean>(false);
   const [faqDestInput, setFaqDestInput] = useState<string>('Stoos, Suisse');
@@ -255,14 +266,69 @@ export function BlockCanvas({
     setDismissedSuggestions(newDismissed);
   };
 
+  const previewTemplateBlocks = useMemo(() => {
+    try {
+      return instantiateCmsTemplate(selectedTemplateId, {
+        destination: templateDestination.trim() || 'Stoos, Suisse',
+      });
+    } catch {
+      return [];
+    }
+  }, [selectedTemplateId, templateDestination]);
+
+  const filteredTemplates = useMemo(() => {
+    const all = getCmsTemplates();
+    if (templateCategory === 'all') return all;
+    return all.filter((tpl) => tpl.category === templateCategory);
+  }, [templateCategory]);
+
   const handleApplyTemplate = (templateId: CmsTemplateId, mode: 'replace' | 'append') => {
-    const newBlocks = instantiateCmsTemplate(templateId);
+    const newBlocks = instantiateCmsTemplate(templateId, {
+      destination: templateDestination.trim() || undefined,
+    });
     if (mode === 'replace') {
       onChange(newBlocks);
     } else {
       onChange([...blocks, ...newBlocks]);
     }
     setShowTemplateModal(false);
+  };
+
+  const handleApplyCartouche = (position: 'top' | 'append') => {
+    const now = Date.now().toString(36);
+    const loc = cartoucheLocation.trim() || 'Lieu vérifié';
+    const cartoucheBlocks: CmsBlock[] = [
+      {
+        id: `blk_cartouche_h3_${now}`,
+        type: 'heading',
+        level: 3,
+        text: `Repères de terrain & Fiche certifiée : ${loc}`,
+        subtitle: 'Authenticité vérifiée du carnet — E-E-A-T Heldonica Slow Travel',
+        spacing: 'compact',
+      },
+      {
+        id: `blk_cartouche_list_${now}`,
+        type: 'list',
+        style: 'checklist',
+        theme: 'parchment',
+        spacing: 'relaxed',
+        items: [
+          `📍 **Lieu & Relevé** : ${loc}`,
+          `🗓️ **Moment vérifié** : ${cartoucheSeason.trim() || 'Saison constatée'}`,
+          `🌤️ **Météo & Lumière** : ${cartoucheWeather.trim() || 'Lumière naturelle sans filtre artificiel'}`,
+          `📷 **Boîtier & Optique** : ${cartoucheGear.trim() || 'Nikon D7200 • Nikkor 35mm f/1.8 DX'}`,
+          `🥾 **Mobilité douce** : ${cartoucheMobility.trim() || 'Accès bas carbone et sentier pédestre'}`,
+          `⚖️ **Indépendance** : ${cartoucheEthics.trim() || 'Expédition 100% autofinancée par le duo, zéro complaisance'}`,
+        ],
+      },
+    ];
+
+    if (position === 'top') {
+      onChange([...cartoucheBlocks, ...blocks]);
+    } else {
+      onChange([...blocks, ...cartoucheBlocks]);
+    }
+    setShowCartoucheModal(false);
   };
 
   const handleApplyAlbum = (album: any, mode: 'replace' | 'append') => {
@@ -594,6 +660,16 @@ export function BlockCanvas({
 
             <button
               type="button"
+              onClick={() => setShowCartoucheModal(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-100/70 border border-amber-300 hover:bg-amber-200/60 text-amber-950 rounded-lg text-xs font-semibold transition-all shadow-2xs"
+              title="Générer un cartouche de terrain vérifié (E-E-A-T, Nikon D7200, météo, mobilité)"
+            >
+              <ShieldAlert size={13} className="text-amber-800" />
+              <span>🏷️ Cartouche de Terrain</span>
+            </button>
+
+            <button
+              type="button"
               onClick={() => setShowTemplateModal(true)}
               className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 border border-amber-200 hover:bg-amber-100 text-amber-900 rounded-lg text-xs font-semibold transition-all shadow-2xs"
               title="Choisir un gabarit éditorial préconfiguré"
@@ -821,10 +897,14 @@ export function BlockCanvas({
                         onChange={(e) => updateBlock(block.id, { theme: e.target.value as BlockTheme })}
                         className="bg-white border border-stone-200 rounded-lg px-2 py-1 text-xs text-stone-700"
                       >
-                        <option value="default">Standard</option>
-                        <option value="sand">Fond Sable clair</option>
+                        <option value="default">Standard (Transparent)</option>
+                        <option value="sand">Sable minéral (#FAF7F2)</option>
+                        <option value="parchment">Papier parchemin naturel (#F9F7F1)</option>
+                        <option value="terracotta">Terre cuite & Argile (#FDF6F0)</option>
+                        <option value="forest_fog">Brume forestière (#F2F5F3)</option>
+                        <option value="chalk">Craie & Blanc pur (#FFFFFF)</option>
                         <option value="gold_accent">Accent Doré latéral</option>
-                        <option value="dark">Fond Sombre</option>
+                        <option value="dark">Ardoise sombre (#1E1A17)</option>
                       </select>
                     </div>
                   </div>
@@ -896,70 +976,325 @@ export function BlockCanvas({
         </div>
       )}
 
-      {/* Modal de sélection de Gabarit Slow Travel */}
+      {/* Studio des Gabarits 3.0 & Personnalisation Interactive */}
       {showTemplateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/50 backdrop-blur-xs">
-          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-xl border border-stone-200 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between pb-4 border-b border-stone-100 mb-5">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center">
-                  <LayoutTemplate size={18} />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-stone-900/60 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl max-w-5xl w-full p-5 sm:p-6 shadow-2xl border border-stone-200 max-h-[92vh] flex flex-col animate-in fade-in zoom-in-95 duration-150">
+            {/* En-tête du Studio */}
+            <div className="flex items-center justify-between pb-4 border-b border-stone-100 shrink-0 mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center shadow-2xs">
+                  <LayoutTemplate size={20} />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-stone-900 font-serif">Gabarits Éditoriaux Slow Travel</h3>
-                  <p className="text-xs text-stone-500">Initiez un carnet ou une fiche de caractère en un clic</p>
+                  <h3 className="text-base font-bold text-stone-900 font-serif flex items-center gap-2">
+                    <span>Studio des Gabarits 3.0</span>
+                    <span className="text-[10px] font-sans font-semibold px-2 py-0.5 rounded-full bg-amber-100 text-amber-900 border border-amber-200">
+                      Slow Travel certifié
+                    </span>
+                  </h3>
+                  <p className="text-xs text-stone-500">
+                    Prévisualisez en temps réel avec votre destination et injectez en 1 clic
+                  </p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setShowTemplateModal(false)}
-                className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100"
+                className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100 transition-colors"
+                aria-label="Fermer"
               >
                 <X size={18} />
               </button>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {getCmsTemplates().map((tpl) => (
-                <div
-                  key={tpl.id}
-                  className="p-4 rounded-xl border border-stone-200 hover:border-amber-300 hover:bg-amber-50/20 transition-all flex flex-col justify-between"
-                >
-                  <div>
-                    <div className="flex items-center justify-between mb-1.5">
-                      <span className="text-xs font-bold text-stone-900">{tpl.title}</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-stone-100 text-stone-600 font-medium">
-                        ~{tpl.estimatedReadingMinutes} min
-                      </span>
-                    </div>
-                    <p className="text-xs text-stone-600 mb-3 leading-relaxed">{tpl.description}</p>
-                    <div className="flex flex-wrap gap-1 mb-4">
-                      {tpl.tags.map((tag) => (
-                        <span key={tag} className="text-[9px] px-1.5 py-0.5 rounded bg-stone-100 text-stone-500">
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+            {/* Corps du Studio : 2 colonnes (Sélection & Paramètres à gauche, Prévisualisation directe à droite) */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1 min-h-0 overflow-hidden">
+              {/* Colonne gauche : Filtres, Destination & Liste des 7 Gabarits */}
+              <div className="lg:col-span-5 flex flex-col gap-3 min-h-0 overflow-hidden">
+                {/* Personnalisation de la destination */}
+                <div className="bg-amber-50/50 border border-amber-200/80 rounded-xl p-3 shrink-0">
+                  <label className="text-[11px] font-bold text-amber-950 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                    <MapPin size={13} className="text-amber-700" />
+                    <span>Destination ou étape à injecter :</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={templateDestination}
+                    onChange={(e) => setTemplateDestination(e.target.value)}
+                    placeholder="ex: Stoos, Suisse ou Madère..."
+                    className="w-full px-3 py-1.5 bg-white border border-stone-200 rounded-lg text-xs text-stone-900 font-medium focus:outline-none focus:border-amber-500 shadow-2xs"
+                  />
+                </div>
 
-                  <div className="flex items-center gap-2 pt-2 border-t border-stone-100">
+                {/* Filtres par thématique */}
+                <div className="flex flex-wrap gap-1 shrink-0">
+                  {[
+                    { id: 'all', label: `Tous (${getCmsTemplates().length})` },
+                    { id: 'diary', label: 'Récits & Vécu' },
+                    { id: 'guide', label: 'Guides & Étapes' },
+                    { id: 'hospitality', label: 'Hébergements' },
+                    { id: 'visual', label: 'Essais Visuels' },
+                  ].map((cat) => (
+                    <button
+                      key={cat.id}
+                      type="button"
+                      onClick={() => setTemplateCategory(cat.id as any)}
+                      className={`px-2.5 py-1 text-[11px] rounded-lg font-medium transition-all ${
+                        templateCategory === cat.id
+                          ? 'bg-amber-800 text-white shadow-2xs'
+                          : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
+                      }`}
+                    >
+                      {cat.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Liste scrollable des gabarits */}
+                <div className="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[200px]">
+                  {filteredTemplates.map((tpl) => {
+                    const isSelected = selectedTemplateId === tpl.id;
+                    return (
+                      <div
+                        key={tpl.id}
+                        onClick={() => setSelectedTemplateId(tpl.id)}
+                        className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
+                          isSelected
+                            ? 'border-amber-500 bg-amber-50/70 ring-2 ring-amber-400/30 shadow-2xs'
+                            : 'border-stone-200 hover:border-amber-300 hover:bg-stone-50/60'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between mb-1">
+                          <span className={`text-xs font-bold ${isSelected ? 'text-amber-950 font-serif' : 'text-stone-900'}`}>
+                            {tpl.title}
+                          </span>
+                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-white border border-stone-200 text-stone-600 font-mono">
+                            ~{tpl.estimatedReadingMinutes} min
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-stone-600 line-clamp-2 leading-relaxed mb-2">
+                          {tpl.description}
+                        </p>
+                        <div className="flex flex-wrap gap-1">
+                          {tpl.tags.map((t) => (
+                            <span key={t} className="text-[9px] px-1.5 py-0.5 rounded bg-white text-stone-500 border border-stone-100">
+                              #{t}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Colonne droite : Prévisualisation dynamique en direct */}
+              <div className="lg:col-span-7 flex flex-col bg-stone-50/80 border border-stone-200 rounded-xl p-3.5 min-h-0 overflow-hidden">
+                <div className="flex items-center justify-between pb-2 mb-2 border-b border-stone-200 shrink-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-bold text-stone-700 uppercase tracking-wider">
+                      Aperçu dynamique du gabarit
+                    </span>
+                    <span className="text-[10px] px-2 py-0.5 bg-amber-100 text-amber-900 rounded-full font-semibold">
+                      {previewTemplateBlocks.length} blocs
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-stone-500 truncate max-w-[180px]">
+                    📍 {templateDestination || 'cette étape'}
+                  </span>
+                </div>
+
+                {/* Rendu des blocs */}
+                <div className="flex-1 overflow-y-auto p-4 bg-white rounded-lg border border-stone-200/90 shadow-2xs">
+                  <BlockRenderer blocks={previewTemplateBlocks} interactivePreview={false} />
+                </div>
+              </div>
+            </div>
+
+            {/* Pied du Studio avec actions directes */}
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-stone-100 shrink-0 mt-3">
+              <span className="text-[11px] text-stone-500 text-center sm:text-left">
+                💡 Remplace l&apos;intégralité du carnet ou ajoute les {previewTemplateBlocks.length} blocs à la suite de vos écrits existants.
+              </span>
+              <div className="flex items-center gap-2 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={() => handleApplyTemplate(selectedTemplateId, 'replace')}
+                  className="flex-1 sm:flex-none px-4 py-2 bg-stone-900 hover:bg-black text-white rounded-xl text-xs font-semibold transition-colors shadow-xs"
+                >
+                  Remplacer tout le carnet ({previewTemplateBlocks.length} blocs)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleApplyTemplate(selectedTemplateId, 'append')}
+                  className="flex-1 sm:flex-none px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-semibold transition-colors shadow-xs"
+                >
+                  Ajouter à la suite (+{previewTemplateBlocks.length})
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal du Cartouche de Terrain Certifié (E-E-A-T & Preuves vécues) */}
+      {showCartoucheModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-stone-900/60 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl max-w-2xl w-full p-5 sm:p-6 shadow-2xl border border-stone-200 max-h-[90vh] overflow-y-auto animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-4 border-b border-stone-100 mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center shadow-2xs">
+                  <ShieldAlert size={20} />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-stone-900 font-serif">
+                    Cartouche de Terrain Certifié (E-E-A-T)
+                  </h3>
+                  <p className="text-xs text-stone-500">
+                    Scellez la légitimité vécue : boîtier Nikon, météo, mobilité douce et zéro sponsor commercial.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowCartoucheModal(false)}
+                className="p-1.5 rounded-lg text-stone-400 hover:text-stone-700 hover:bg-stone-100"
+                aria-label="Fermer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="space-y-3.5 text-xs">
+              <div>
+                <label className="font-semibold text-stone-700 block mb-1">
+                  📍 Lieu exact & Altitude / Relevé :
+                </label>
+                <input
+                  type="text"
+                  value={cartoucheLocation}
+                  onChange={(e) => setCartoucheLocation(e.target.value)}
+                  placeholder="ex: Stoos, crête du Fronalpstock (1 922 m)"
+                  className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 font-medium focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="font-semibold text-stone-700 block mb-1">
+                    🗓️ Date de passage & Saison :
+                  </label>
+                  <input
+                    type="text"
+                    value={cartoucheSeason}
+                    onChange={(e) => setCartoucheSeason(e.target.value)}
+                    placeholder="ex: Mai 2026 — Printemps matinal"
+                    className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+                <div>
+                  <label className="font-semibold text-stone-700 block mb-1">
+                    🌤️ Météo & Conditions constatées :
+                  </label>
+                  <input
+                    type="text"
+                    value={cartoucheWeather}
+                    onChange={(e) => setCartoucheWeather(e.target.value)}
+                    placeholder="ex: Brume dissipée à 07h45, 9°C, vent léger"
+                    className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:border-amber-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="font-semibold text-stone-700 block">
+                    📷 Boîtier & Optique photographique :
+                  </label>
+                  <div className="flex items-center gap-1.5">
                     <button
                       type="button"
-                      onClick={() => handleApplyTemplate(tpl.id, 'replace')}
-                      className="flex-1 py-1.5 px-2 bg-stone-900 hover:bg-black text-white rounded-lg text-xs font-medium transition-colors text-center"
+                      onClick={() => setCartoucheGear('Nikon D7200 • Nikkor 35mm f/1.8 DX (lumière naturelle)')}
+                      className="text-[10px] px-2 py-0.5 rounded bg-stone-100 hover:bg-amber-100 text-stone-700 transition-colors"
                     >
-                      Remplacer
+                      Nikon D7200 35mm
                     </button>
                     <button
                       type="button"
-                      onClick={() => handleApplyTemplate(tpl.id, 'append')}
-                      className="flex-1 py-1.5 px-2 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-lg text-xs font-medium transition-colors text-center"
+                      onClick={() => setCartoucheGear('Nikon D7200 • Nikkor 18-105mm VR')}
+                      className="text-[10px] px-2 py-0.5 rounded bg-stone-100 hover:bg-amber-100 text-stone-700 transition-colors"
                     >
-                      Ajouter à la suite
+                      Nikon Zoom
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setCartoucheGear('Pixel 8 Pro RAW (format brut non saturé)')}
+                      className="text-[10px] px-2 py-0.5 rounded bg-stone-100 hover:bg-amber-100 text-stone-700 transition-colors"
+                    >
+                      Pixel RAW
                     </button>
                   </div>
                 </div>
-              ))}
+                <input
+                  type="text"
+                  value={cartoucheGear}
+                  onChange={(e) => setCartoucheGear(e.target.value)}
+                  placeholder="ex: Nikon D7200 • Nikkor 35mm f/1.8 DX"
+                  className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 font-mono text-xs focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div>
+                <label className="font-semibold text-stone-700 block mb-1">
+                  🥾 Mobilité douce & Accès pédestre :
+                </label>
+                <input
+                  type="text"
+                  value={cartoucheMobility}
+                  onChange={(e) => setCartoucheMobility(e.target.value)}
+                  placeholder="ex: Train régional + funiculaire + 2h40 de marche en crête"
+                  className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div>
+                <label className="font-semibold text-stone-700 block mb-1">
+                  ⚖️ Engagement d&apos;authenticité & Éthique :
+                </label>
+                <input
+                  type="text"
+                  value={cartoucheEthics}
+                  onChange={(e) => setCartoucheEthics(e.target.value)}
+                  placeholder="ex: 100% autofinancé par le duo, zéro partenariat rémunéré"
+                  className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:border-amber-500"
+                />
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="flex items-center justify-end gap-2.5 pt-5 border-t border-stone-100 mt-5">
+              <button
+                type="button"
+                onClick={() => setShowCartoucheModal(false)}
+                className="px-4 py-2 border border-stone-200 hover:bg-stone-50 text-stone-700 rounded-xl text-xs font-medium transition-colors"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={() => handleApplyCartouche('top')}
+                className="px-4 py-2 bg-amber-700 hover:bg-amber-800 text-white rounded-xl text-xs font-semibold transition-colors shadow-xs"
+              >
+                📌 Insérer en tête de carnet
+              </button>
+              <button
+                type="button"
+                onClick={() => handleApplyCartouche('append')}
+                className="px-4 py-2 bg-stone-900 hover:bg-black text-white rounded-xl text-xs font-semibold transition-colors shadow-xs"
+              >
+                ➕ Ajouter à la suite
+              </button>
             </div>
           </div>
         </div>
@@ -1737,6 +2072,7 @@ function PhotoEvidenceEditor({
       date: photo.date,
       anecdote: photo.suggestedAnecdote,
       albumLink: photo.albumLink,
+      cameraInfo: photo.cameraInfo,
     });
     setIsPickerOpen(false);
   };
@@ -1909,6 +2245,13 @@ function PhotoEvidenceEditor({
           {anecdoteLen}/200
         </span>
       </div>
+      <input
+        type="text"
+        value={block.cameraInfo ?? ''}
+        onChange={(e) => onUpdate({ cameraInfo: e.target.value })}
+        placeholder="Boîtier & optique réels (ex: Nikon D7200 • 35mm f/1.8 DX)..."
+        className="w-full bg-white border border-stone-200 rounded-xl px-3 py-2 text-xs text-stone-800 font-mono focus:outline-none focus:border-teal-500"
+      />
 
       <PhotoInterviewModal
         isOpen={isInterviewOpen}

@@ -19,7 +19,10 @@ export type CmsTemplateId =
   | 'slow_travel_diary' 
   | 'step_by_step_guide' 
   | 'hospitality_spotlight' 
-  | 'photo_essay';
+  | 'photo_essay'
+  | 'verdict_counter_tourism'
+  | 'dispatch_field_notes'
+  | 'sensory_micro_escape';
 
 export interface CmsTemplate {
   id: CmsTemplateId;
@@ -286,6 +289,199 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
       ];
     },
   },
+  verdict_counter_tourism: {
+    id: 'verdict_counter_tourism',
+    title: 'Bilan sans complaisance & Anti-surtourisme',
+    description: 'Analyse critique du duo : note de terrain /10, piège commercial à éviter et alternative secrète préservée.',
+    category: 'diary',
+    estimatedReadingMinutes: 6,
+    tags: ['verdict', 'anti-surtourisme', 'vérité', 'alternative'],
+    generateBlocks: (opts) => {
+      const dest = opts?.destination || 'cette étape';
+      return [
+        {
+          id: generateId('tpl_heading'),
+          type: 'heading',
+          level: 1,
+          text: `Bilan sans complaisance à ${dest} : ce qui vaut le voyage`,
+          subtitle: 'Dans le vacarme promotionnel ambiant, notre retour d’expérience direct sans aucun partenariat rémunéré.',
+          spacing: 'relaxed',
+        },
+        {
+          id: generateId('tpl_text'),
+          type: 'text',
+          content: '<p>Voyager à contre-courant exige de regarder les réalités en face. Certains lieux vantés par les brochures ont perdu leur âme sous la pression des autocars ; d’autres, protégés par l’exigence de la marche, conservent une pureté intacte.</p>',
+          spacing: 'normal',
+        },
+        {
+          id: generateId('tpl_vault'),
+          type: 'vault_spot',
+          title: 'Halte préservée : le sentier des bergers',
+          location: `${dest} — versant sauvage`,
+          livedExperience: 'À trois kilomètres du parking payant, nous avons retrouvé le silence minéral et la mémoire des transhumances.',
+          spacing: 'normal',
+        },
+        {
+          id: generateId('tpl_photo'),
+          type: 'photo_evidence',
+          imageUrl: 'https://heldonica.fr/images/destinations/montenegro/moraca_millennium.jpg',
+          location: `${dest} — au lever du jour`,
+          date: '2026-05-18',
+          anecdote: 'Le village avant le premier bus : preuve que la tranquillité appartient à ceux qui se lèvent tôt.',
+          spacing: 'relaxed',
+        },
+        {
+          id: generateId('tpl_h2'),
+          type: 'heading',
+          level: 2,
+          text: 'Les trois repères clés du duo',
+          spacing: 'normal',
+        },
+        {
+          id: generateId('tpl_list'),
+          type: 'list',
+          style: 'checklist',
+          items: [
+            'Fuir les boutiques de souvenirs standardisées de la rue principale.',
+            'S’attabler chez les aubergistes qui cuisinent les légumes de leur propre potager.',
+            'Demander le chemin de traverse aux anciens du village plutôt que de suivre les flèches balisées.',
+          ],
+          spacing: 'normal',
+        },
+        {
+          id: generateId('tpl_btn'),
+          type: 'button',
+          label: 'Lire notre manifeste Slow Travel',
+          url: '/a-propos',
+          variant: 'primary_gold',
+          spacing: 'relaxed',
+        },
+      ];
+    },
+  },
+
+  dispatch_field_notes: {
+    id: 'dispatch_field_notes',
+    title: 'Chronique de marche & Journal d’expédition',
+    description: 'Récit brut de terrain : météo, relevé altimétrique, matières naturelles et carnet manuscrit.',
+    category: 'visual',
+    estimatedReadingMinutes: 4,
+    tags: ['carnet', 'randonnée', 'météo', 'nature'],
+    generateBlocks: (opts) => {
+      const dest = opts?.destination || 'les crêtes';
+      return [
+        {
+          id: generateId('tpl_heading'),
+          type: 'heading',
+          level: 1,
+          text: `Journal de marche : traverser ${dest}`,
+          subtitle: 'Relevé de terrain à 1 200 mètres d’altitude, entre roche nue et forêt silencieuse.',
+          spacing: 'relaxed',
+        },
+        {
+          id: generateId('tpl_text'),
+          type: 'text',
+          content: '<p>Départ 06h40. La température affiche 9 degrés sous un ciel d’ardoise. La vapeur de notre souffle accompagne chaque foulée sur le sol encore mouillé par la bruine nocturne.</p>',
+          spacing: 'normal',
+        },
+        {
+          id: generateId('tpl_image'),
+          type: 'image',
+          url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/achadas_da_cruz.jpg',
+          alt: 'Ligne de crête découpée dans la brume matinale',
+          caption: 'La sente à pic plongeant vers l’océan à perte de vue.',
+          layout: 'wide',
+          aspectRatio: '16:9',
+          hotspot: { x: 0.5, y: 0.25 },
+          spacing: 'relaxed',
+        },
+        {
+          id: generateId('tpl_h2'),
+          type: 'heading',
+          level: 2,
+          text: 'Sensations et matières du sentier',
+          spacing: 'normal',
+        },
+        {
+          id: generateId('tpl_text2'),
+          type: 'text',
+          content: '<p>L’odeur forte du pin résineux se mêle à l’humus frais. En ralentissant la cadence, on perçoit le bruissement discret d’une source cachée sous les fougères.</p>',
+          spacing: 'normal',
+        },
+        {
+          id: generateId('tpl_btn'),
+          type: 'button',
+          label: 'Parcourir nos autres étapes de randonnée',
+          url: '/destinations',
+          variant: 'outline',
+          spacing: 'relaxed',
+        },
+      ];
+    },
+  },
+
+  sensory_micro_escape: {
+    id: 'sensory_micro_escape',
+    title: 'Micro-échappée 48h déconnectée (Sans voiture)',
+    description: 'Format week-end en mobilités douces : train, auberge de caractère, marche au grand air et déconnexion.',
+    category: 'guide',
+    estimatedReadingMinutes: 5,
+    tags: ['week-end', 'train', 'mobilités douces', 'déconnexion'],
+    generateBlocks: (opts) => {
+      const dest = opts?.destination || 'cette vallée';
+      return [
+        {
+          id: generateId('tpl_heading'),
+          type: 'heading',
+          level: 1,
+          text: `48 heures déconnectées à ${dest} (En train et à pied)`,
+          subtitle: 'Partir léger un vendredi soir, savourer le temps long, rentrer transformé.',
+          spacing: 'relaxed',
+        },
+        {
+          id: generateId('tpl_text'),
+          type: 'text',
+          content: '<p>À moins de deux heures de rail, le paysage se transforme. Nous avons laissé la voiture derrière nous pour redécouvrir le plaisir simple d’arriver par le train et de tout faire à pied.</p>',
+          spacing: 'normal',
+        },
+        {
+          id: generateId('tpl_h2_1'),
+          type: 'heading',
+          level: 2,
+          text: 'Le fil conducteur des deux journées',
+          spacing: 'normal',
+        },
+        {
+          id: generateId('tpl_list'),
+          type: 'list',
+          style: 'numbered',
+          items: [
+            'Vendredi soir : Trajet en train régional, installation à la maison d’hôtes et dîner de saison.',
+            'Samedi : Traversée du sentier de crête avec pique-nique de producteurs locaux.',
+            'Dimanche : Matinée de repos, lecture sous les tilleuls et retour en train au crépuscule.',
+          ],
+          spacing: 'normal',
+        },
+        {
+          id: generateId('tpl_vault'),
+          type: 'vault_spot',
+          title: 'Refuge éthique & hospitalité sans artifice',
+          location: `${dest} — fin de piste`,
+          livedExperience: 'Chambres aux murs de chaux, cuisine paysanne au feu de bois et accueil familial profondément sincère.',
+          spacing: 'relaxed',
+        },
+        {
+          id: generateId('tpl_btn'),
+          type: 'button',
+          label: 'Demander notre carnet de voyage sur-mesure',
+          url: '/travel-planning',
+          variant: 'primary_gold',
+          spacing: 'relaxed',
+        },
+      ];
+    },
+  },
+
 };
 
 /**

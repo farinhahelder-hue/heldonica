@@ -10,12 +10,15 @@ import {
 describe('CMS Templates Library (lib/cms-templates.ts)', () => {
   it('fournit la liste exhaustive des 4 gabarits éditoriaux', () => {
     const templates = getCmsTemplates();
-    expect(templates).toHaveLength(4);
+    expect(templates).toHaveLength(7);
     const ids = templates.map((t) => t.id);
     expect(ids).toContain('slow_travel_diary');
     expect(ids).toContain('step_by_step_guide');
     expect(ids).toContain('hospitality_spotlight');
     expect(ids).toContain('photo_essay');
+    expect(ids).toContain('verdict_counter_tourism');
+    expect(ids).toContain('dispatch_field_notes');
+    expect(ids).toContain('sensory_micro_escape');
   });
 
   it('instancie un gabarit slow_travel_diary avec des IDs uniques et personnalisation de destination', () => {

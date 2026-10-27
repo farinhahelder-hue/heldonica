@@ -13,6 +13,7 @@ export interface PhotoEvidenceItem {
   location: string;
   date: string; // ISO 8601 YYYY-MM-DD
   suggestedAnecdote: string;
+  cameraInfo?: string;
   albumLink?: string;
 }
 
@@ -47,6 +48,7 @@ export const VERIFIED_PHOTO_ALBUMS: PhotoEvidenceAlbum[] = [
         location: 'Podgorica, Morača',
         date: '2026-05-27',
         suggestedAnecdote: 'Le pont du Millénium au couchant au-dessus des eaux turquoise de la Morača.',
+        cameraInfo: 'Nikon D7200 • 35mm f/1.8 DX',
         albumLink: 'https://www.heldonica.fr/destinations/montenegro',
       },
       {

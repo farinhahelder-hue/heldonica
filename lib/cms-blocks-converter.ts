@@ -81,7 +81,10 @@ export function blocksToHtml(blocks: CmsBlock[]): string {
           const album = block.albumLink
             ? `\n  <p><a href="${escapeHtml(block.albumLink)}" target="_blank" rel="noopener noreferrer">Voir l’album</a></p>`
             : '';
-          return `<figure class="photo-evidence">\n  <img src="${escapeHtml(block.imageUrl)}" alt="${escapeHtml(block.anecdote || block.location)}" />\n  <figcaption>${escapeHtml(block.location)} – ${escapeHtml(block.date)}</figcaption>\n  <blockquote>${escapeHtml(block.anecdote)}</blockquote>${album}\n</figure>`;
+          const cam = block.cameraInfo
+            ? `\n  <small class="camera-info">${escapeHtml(block.cameraInfo)}</small>`
+            : '';
+          return `<figure class="photo-evidence">\n  <img src="${escapeHtml(block.imageUrl)}" alt="${escapeHtml(block.anecdote || block.location)}" />\n  <figcaption>${escapeHtml(block.location)} – ${escapeHtml(block.date)}</figcaption>\n  <blockquote>${escapeHtml(block.anecdote)}</blockquote>${cam}${album}\n</figure>`;
         }
 
         default:
@@ -215,6 +218,7 @@ export function htmlToBlocks(rawTextOrHtml: string): CmsBlock[] {
       const capMatch = innerContent.match(/<figcaption[^>]*>([\s\S]*?)<\/figcaption>/i);
       const quoteMatch = innerContent.match(/<blockquote>([\s\S]*?)<\/blockquote>/i);
       const linkMatch = innerContent.match(/<a[^>]+href=["']([^"']+)["']/i);
+      const camMatch = innerContent.match(/<small class="camera-info">([\s\S]*?)<\/small>/i);
 
       if (fullMatch.includes('photo-evidence') && srcMatch) {
         const figcap = capMatch ? stripTags(capMatch[1]) : '';
@@ -229,6 +233,7 @@ export function htmlToBlocks(rawTextOrHtml: string): CmsBlock[] {
           date,
           anecdote: quoteMatch ? stripTags(quoteMatch[1]) : '',
           albumLink: linkMatch ? linkMatch[1] : undefined,
+          cameraInfo: camMatch ? stripTags(camMatch[1]) : undefined,
         });
       } else if (srcMatch) {
         blocks.push({
