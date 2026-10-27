@@ -1,6 +1,12 @@
 'use client'
 
 import { useState, useEffect, useMemo, useCallback } from 'react'
+import {
+  Share2, Zap, BookOpen, Mail, Palette, Compass, Wrench, BarChart3, Brain,
+  MapPin, Check, Target, Sparkles, AlertTriangle, PenLine, Tag, ClipboardCopy,
+  Map as MapIcon,
+  ExternalLink, CheckCircle2, X, Database, RefreshCw, Star,
+} from 'lucide-react'
 
 type ModeCoach = '1' | '2' | '3'
 type ModeEcriture = 'instagram' | 'story' | 'blog' | 'newsletter'
@@ -42,17 +48,17 @@ type DestinationSummary = {
   faq?: Array<{ q: string; a: string }>
 }
 
-const MODES_ECRITURE: { id: ModeEcriture; label: string; tag: string; icon: string; desc: string; targetWords: string }[] = [
-  { id: 'instagram', label: 'Légende Instagram', tag: 'Instagram', icon: '📸', desc: 'Accroche vécue, matière & lumière, question en « tu », hashtags sobres', targetWords: '80 à 150 mots' },
-  { id: 'story', label: 'Story Instagram', tag: 'Story', icon: '⚡', desc: '1 à 3 lignes sensorielles + ligne Sticker sondage ou question', targetWords: '≤ 25 mots' },
-  { id: 'blog', label: 'Article de blog', tag: 'Blog', icon: '📖', desc: 'Carnet de route Markdown en 5 sections H2, infos pratiques, méta', targetWords: '500 à 800 mots' },
-  { id: 'newsletter', label: 'Email Newsletter', tag: 'Newsletter', icon: '💌', desc: 'Objet court, pré-en-tête, une seule histoire vécue, un appel doux', targetWords: '150 à 250 mots' },
+const MODES_ECRITURE: { id: ModeEcriture; label: string; tag: string; icon: typeof Share2; desc: string; targetWords: string }[] = [
+  { id: 'instagram', label: 'Légende Instagram', tag: 'Instagram', icon: Share2, desc: 'Accroche vécue, matière & lumière, question en « tu », hashtags sobres', targetWords: '80 à 150 mots' },
+  { id: 'story', label: 'Story Instagram', tag: 'Story', icon: Zap, desc: '1 à 3 lignes sensorielles + ligne Sticker sondage ou question', targetWords: '≤ 25 mots' },
+  { id: 'blog', label: 'Article de blog', tag: 'Blog', icon: BookOpen, desc: 'Carnet de route Markdown en 5 sections H2, infos pratiques, méta', targetWords: '500 à 800 mots' },
+  { id: 'newsletter', label: 'Email Newsletter', tag: 'Newsletter', icon: Mail, desc: 'Objet court, pré-en-tête, une seule histoire vécue, un appel doux', targetWords: '150 à 250 mots' },
 ]
 
-const MODES_COACH: { id: ModeCoach; label: string; tag: string; icon: string; desc: string }[] = [
-  { id: '1', label: 'Mode 1 — Contenu', tag: 'Coach 1', icon: '🎨', desc: 'Création : blog, carrousel, Reel, CMS, recyclage' },
-  { id: '2', label: 'Mode 2 — Pilotage', tag: 'Coach 2', icon: '🧭', desc: 'Démarrage, planification, déblocage, bilan' },
-  { id: '3', label: 'Mode 3 — Site & Dev', tag: 'Coach 3', icon: '🛠️', desc: 'Dev, audit, check, nettoyage, sécurité' },
+const MODES_COACH: { id: ModeCoach; label: string; tag: string; icon: typeof Share2; desc: string }[] = [
+  { id: '1', label: 'Mode 1 — Contenu', tag: 'Coach 1', icon: Palette, desc: 'Création : blog, carrousel, Reel, CMS, recyclage' },
+  { id: '2', label: 'Mode 2 — Pilotage', tag: 'Coach 2', icon: Compass, desc: 'Démarrage, planification, déblocage, bilan' },
+  { id: '3', label: 'Mode 3 — Site & Dev', tag: 'Coach 3', icon: Wrench, desc: 'Dev, audit, check, nettoyage, sécurité' },
 ]
 
 const EXEMPLES: Record<Exclude<Mode, null>, string[]> = {
@@ -91,7 +97,7 @@ function estEcriture(m: Mode): m is ModeEcriture {
 
 function libelleMode(m: string) {
   const item = [...MODES_ECRITURE, ...MODES_COACH].find((x) => x.id === m)
-  return item ? `${item.icon} ${item.label}` : m
+  return item ? item.label : m
 }
 
 function compterMots(texte: string): number {
@@ -366,7 +372,7 @@ Nuance / ce qu'on a moins aimé : [À TOI : détail ou route étroite].`
             className="text-xs px-2.5 py-1.5 rounded-lg border border-stone-200 bg-white hover:bg-stone-50 hover:border-[#2D8B7A] text-stone-600 hover:text-[#2D8B7A] transition-colors flex items-center gap-1.5 font-medium shadow-2xs"
             title="Surveiller la consommation des clés IA et quotas"
           >
-            <span>📊</span>
+            <BarChart3 size={13} aria-hidden />
             <span>Analytics IA</span>
           </a>
           <button
@@ -402,7 +408,7 @@ Nuance / ce qu'on a moins aimé : [À TOI : détail ou route étroite].`
               >
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-semibold text-stone-800 flex items-center gap-1.5">
-                    <span>{m.icon}</span>
+                    <m.icon size={15} aria-hidden />
                     <span>{m.label}</span>
                   </span>
                   <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-stone-100 text-stone-600">
@@ -438,7 +444,7 @@ Nuance / ce qu'on a moins aimé : [À TOI : détail ou route étroite].`
                 }`}
               >
                 <span className="text-xs font-semibold text-stone-800 flex items-center gap-1.5">
-                  <span>{m.icon}</span>
+                  <m.icon size={14} aria-hidden />
                   <span>{m.label}</span>
                 </span>
                 <p className="text-[11px] text-stone-500 mt-1 line-clamp-1">{m.desc}</p>
@@ -481,7 +487,7 @@ Nuance / ce qu'on a moins aimé : [À TOI : détail ou route étroite].`
                         : 'text-stone-600 hover:text-stone-900'
                     }`}
                   >
-                    🗺️ Liste ({destinations.length})
+                    <MapIcon size={12} aria-hidden /> Liste ({destinations.length})
                   </button>
                   <button
                     type="button"
@@ -492,7 +498,8 @@ Nuance / ce qu'on a moins aimé : [À TOI : détail ou route étroite].`
                         : 'text-stone-600 hover:text-stone-900'
                     }`}
                   >
-                    <span>🧠 Recherche sémantique</span>
+                    <Brain size={12} aria-hidden />
+                    <span>Recherche sémantique</span>
                     <span className="text-[9px] bg-emerald-700/20 px-1 rounded font-mono">IA</span>
                   </button>
                 </div>
@@ -529,10 +536,10 @@ Nuance / ce qu'on a moins aimé : [À TOI : détail ou route étroite].`
                         onChange={(e) => setEtapeIndex(e.target.value)}
                         className="text-xs px-2.5 py-1.5 bg-white border border-stone-300 rounded-lg text-stone-700 focus:outline-none focus:ring-1 focus:ring-[#2D8B7A]"
                       >
-                        <option value="all">🌟 Toute la destination (ambiance globale)</option>
+                        <option value="all">Toute la destination (ambiance globale)</option>
                         {destinationSelectionnee.itinerary.map((it, idx) => (
                           <option key={idx} value={String(idx)}>
-                            📍 {it.day ? `Jour ${it.day} : ` : ''}{it.title}
+                            {it.day ? `Jour ${it.day} : ` : ''}{it.title}
                           </option>
                         ))}
                       </select>
@@ -549,7 +556,11 @@ Nuance / ce qu'on a moins aimé : [À TOI : détail ou route étroite].`
                       onClick={() => injecterDestination()}
                       className="w-full text-xs py-2 px-3 bg-[#2D8B7A] hover:bg-[#257567] text-white rounded-lg font-medium transition-all flex items-center justify-center gap-1.5 shadow-xs active:scale-[0.99]"
                     >
-                      <span>{injecteFeedback ? '✓ Notes de terrain injectées avec succès !' : '⚡ Injecter ce vécu dans mes notes'}</span>
+                      {injecteFeedback ? (
+                        <><Check size={13} aria-hidden /> Notes de terrain injectées avec succès !</>
+                      ) : (
+                        <><Zap size={13} aria-hidden /> Injecter ce vécu dans mes notes</>
+                      )}
                     </button>
                   )}
                 </div>
@@ -595,7 +606,7 @@ Nuance / ce qu'on a moins aimé : [À TOI : détail ou route étroite].`
                                 {res.title}
                               </span>
                               <span className="text-[10px] font-bold px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">
-                                🎯 {res.matchScorePercent}%
+                                <Target size={10} aria-hidden /> {res.matchScorePercent}%
                               </span>
                             </div>
                             <p className="text-[11px] text-stone-500 line-clamp-1">
@@ -671,7 +682,7 @@ Nuance / ce qu'on a moins aimé : [À TOI : détail ou route étroite].`
                 </>
               ) : (
                 <>
-                  <span>✨</span>
+                  <Sparkles size={15} aria-hidden />
                   <span>{ecriture ? 'Rédiger le contenu' : 'Obtenir l’action'}</span>
                 </>
               )}
@@ -683,7 +694,7 @@ Nuance / ce qu'on a moins aimé : [À TOI : détail ou route étroite].`
       {/* Message d'erreur */}
       {error && (
         <div className="mb-6 p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-sm text-rose-800 flex items-center gap-2">
-          <span>⚠️</span>
+          <AlertTriangle size={15} aria-hidden />
           <span>{error}</span>
         </div>
       )}
@@ -710,7 +721,11 @@ Nuance / ce qu'on a moins aimé : [À TOI : détail ou route étroite].`
                     className="text-xs px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-md font-medium transition-colors"
                     title="Copier uniquement le corps du texte sans les hashtags"
                   >
-                    {copiedId === 'main-caption' ? '✓ Légende copiée' : '📝 Légende seule'}
+                    {copiedId === 'main-caption' ? (
+                      <><Check size={12} aria-hidden /> Légende copiée</>
+                    ) : (
+                      <><PenLine size={12} aria-hidden /> Légende seule</>
+                    )}
                   </button>
 
                   <button
@@ -718,7 +733,11 @@ Nuance / ce qu'on a moins aimé : [À TOI : détail ou route étroite].`
                     className="text-xs px-2.5 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-md font-medium transition-colors"
                     title="Copier uniquement les hashtags"
                   >
-                    {copiedId === 'main-hashtags' ? '✓ Hashtags copiés' : '🏷️ Hashtags seuls'}
+                    {copiedId === 'main-hashtags' ? (
+                      <><Check size={12} aria-hidden /> Hashtags copiés</>
+                    ) : (
+                      <><Tag size={12} aria-hidden /> Hashtags seuls</>
+                    )}
                   </button>
                 </>
               )}
@@ -730,12 +749,12 @@ Nuance / ce qu'on a moins aimé : [À TOI : détail ou route étroite].`
               >
                 {copiedId === 'main-all' ? (
                   <>
-                    <span>✓</span>
+                    <Check size={13} aria-hidden />
                     <span>Copié dans le presse-papier !</span>
                   </>
                 ) : (
                   <>
-                    <span>📋</span>
+                    <ClipboardCopy size={13} aria-hidden />
                     <span>Copier tout</span>
                   </>
                 )}
@@ -750,7 +769,7 @@ Nuance / ce qu'on a moins aimé : [À TOI : détail ou route étroite].`
                   className="text-xs px-2.5 py-1.5 bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 text-purple-800 rounded-md font-medium transition-colors border border-purple-200 flex items-center gap-1"
                   title="Ouvrir l'éditeur de publication officiel Meta Business Suite dans un nouvel onglet"
                 >
-                  <span>↗️</span>
+                  <ExternalLink size={12} aria-hidden />
                   <span>Meta Business Suite</span>
                 </a>
               )}
@@ -762,7 +781,7 @@ Nuance / ce qu'on a moins aimé : [À TOI : détail ou route étroite].`
             <div className={`mb-4 p-3 rounded-lg text-xs ${controle.passed ? 'bg-emerald-50 text-emerald-900 border border-emerald-200' : 'bg-amber-50 text-amber-900 border border-amber-200'}`}>
               <div className="font-semibold flex items-center justify-between">
                 <span className="flex items-center gap-1.5">
-                  <span>{controle.passed ? '✅' : '⚠️'}</span>
+                  {controle.passed ? <CheckCircle2 size={13} aria-hidden /> : <AlertTriangle size={13} aria-hidden />}
                   <span>{controle.passed ? 'Voix Heldonica : 100% Conforme' : 'Voix Heldonica : points à vérifier'}</span>
                 </span>
                 {controle.score !== null && (
@@ -781,7 +800,7 @@ Nuance / ce qu'on a moins aimé : [À TOI : détail ou route étroite].`
               <div className="mt-2 space-y-1">
                 {controle.checks.map((c) => (
                   <div key={c.id} className="flex items-center gap-1.5 text-[11px]">
-                    <span>{c.ok ? '✓' : '✗'}</span>
+                    {c.ok ? <Check size={12} aria-hidden /> : <X size={12} aria-hidden />}
                     <span className={c.ok ? 'text-emerald-800' : 'text-amber-800 font-medium'}>{c.message}</span>
                   </div>
                 ))}
@@ -796,12 +815,18 @@ Nuance / ce qu'on a moins aimé : [À TOI : détail ou route étroite].`
 
           {/* Note sur la persistance en base */}
           <div className="mt-3 flex items-center justify-between text-[11px] text-stone-400">
-            <span>
-              {enregistre === true
-                ? '✅ Enregistré automatiquement dans la table Supabase `copilot_generations`.'
-                : enregistre === false
-                ? '⚠️ Non persisté dans l’historique.'
-                : ''}
+            <span className="inline-flex items-center gap-1">
+              {enregistre === true ? (
+                <>
+                  <CheckCircle2 size={12} aria-hidden />
+                  Enregistré automatiquement dans la table Supabase copilot_generations.
+                </>
+              ) : enregistre === false ? (
+                <>
+                  <AlertTriangle size={12} aria-hidden />
+                  Non persisté dans l’historique.
+                </>
+              ) : null}
             </span>
           </div>
         </div>
@@ -812,7 +837,7 @@ Nuance / ce qu'on a moins aimé : [À TOI : détail ou route étroite].`
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <h3 className="text-sm font-bold text-stone-800 flex items-center gap-1.5">
-              <span>🗄️</span>
+              <Database size={15} aria-hidden />
               <span>Historique en base de données</span>
             </h3>
             {historique && (
@@ -829,7 +854,7 @@ Nuance / ce qu'on a moins aimé : [À TOI : détail ou route étroite].`
               className="text-xs px-2.5 py-1 text-stone-600 hover:text-stone-900 hover:bg-stone-100 rounded transition-colors flex items-center gap-1"
               title="Actualiser l'historique"
             >
-              <span className={chargementHistorique ? 'animate-spin' : ''}>🔄</span>
+              <RefreshCw size={13} className={chargementHistorique ? 'animate-spin' : ''} aria-hidden />
               <span>Actualiser</span>
             </button>
             <button
@@ -847,11 +872,11 @@ Nuance / ce qu'on a moins aimé : [À TOI : détail ou route étroite].`
             <div className="flex flex-wrap gap-1.5 mb-3">
               {[
                 { id: 'tous', label: 'Tous' },
-                { id: 'instagram', label: '📸 Instagram' },
-                { id: 'story', label: '⚡ Story' },
-                { id: 'blog', label: '📖 Blog' },
-                { id: 'newsletter', label: '💌 Newsletter' },
-                { id: 'coach', label: '🧭 Coachs' },
+                { id: 'instagram', label: 'Instagram' },
+                { id: 'story', label: 'Story' },
+                { id: 'blog', label: 'Blog' },
+                { id: 'newsletter', label: 'Newsletter' },
+                { id: 'coach', label: 'Coachs' },
               ].map((f) => (
                 <button
                   key={f.id}
@@ -932,7 +957,11 @@ Nuance / ce qu'on a moins aimé : [À TOI : détail ou route étroite].`
                           className="text-[11px] px-2 py-1 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 font-medium transition-colors"
                           title="Copier directement ce texte"
                         >
-                          {cardCopied ? '✓ Copié' : '📋 Copier'}
+                          {cardCopied ? (
+                            <><Check size={11} aria-hidden /> Copié</>
+                          ) : (
+                            <><ClipboardCopy size={11} aria-hidden /> Copier</>
+                          )}
                         </button>
 
                         <button
