@@ -85,6 +85,104 @@ const BLOCK_TYPES_CONFIG: { type: BlockType; label: string; icon: React.ElementT
   { type: 'hospitality_spot', label: 'Hébergement Éthique', icon: Home, description: 'Chambre d’hôtes ou hôtel slow travel avec critères' },
 ];
 
+function InserterDivider({
+  index,
+  isOpen,
+  onToggle,
+  onSelectType,
+}: {
+  index: number;
+  isOpen: boolean;
+  onToggle: () => void;
+  onSelectType: (type: BlockType, index: number) => void;
+}) {
+  const [filter, setFilter] = useState('');
+
+  const filteredTypes = useMemo(() => {
+    if (!filter.trim()) return BLOCK_TYPES_CONFIG;
+    const q = filter.toLowerCase();
+    return BLOCK_TYPES_CONFIG.filter(
+      (c) => c.label.toLowerCase().includes(q) || c.description.toLowerCase().includes(q)
+    );
+  }, [filter]);
+
+  return (
+    <div className="relative my-1">
+      {/* Ligne discrète au survol */}
+      <div
+        className={`group relative flex items-center justify-center transition-all ${
+          isOpen ? 'py-2' : 'py-1 opacity-0 hover:opacity-100 focus-within:opacity-100'
+        }`}
+      >
+        <div className="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-amber-300/80 to-transparent" />
+        <button
+          type="button"
+          onClick={onToggle}
+          className={`relative z-10 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold shadow-xs transition-all ${
+            isOpen
+              ? 'bg-amber-700 text-white ring-2 ring-amber-300'
+              : 'bg-white border border-stone-200 text-stone-600 hover:bg-amber-600 hover:text-white hover:border-amber-600'
+          }`}
+          title="Insérer un bloc ici"
+        >
+          {isOpen ? <X size={12} /> : <Plus size={12} />}
+          <span>{isOpen ? 'Fermer' : 'Insérer un bloc'}</span>
+        </button>
+      </div>
+
+      {/* Menu d'insertion rapide déroulé */}
+      {isOpen && (
+        <div className="relative z-20 my-2 p-3 bg-white border border-amber-300 rounded-2xl shadow-lg ring-2 ring-amber-100 animate-in fade-in zoom-in-95 duration-150">
+          <div className="flex items-center justify-between pb-2 mb-2 border-b border-stone-100">
+            <div className="flex items-center gap-2 flex-1 max-w-xs">
+              <Search size={14} className="text-stone-400" />
+              <input
+                type="text"
+                autoFocus
+                value={filter}
+                onChange={(e) => setFilter(e.target.value)}
+                placeholder="Filtrer un type de bloc… (titre, image, RAG, preuve)"
+                className="w-full text-xs bg-stone-50 border border-stone-200 rounded-lg px-2.5 py-1 focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={onToggle}
+              className="p-1 text-stone-400 hover:text-stone-700 rounded-lg hover:bg-stone-100"
+              aria-label="Fermer"
+            >
+              <X size={14} />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-56 overflow-y-auto pr-1">
+            {filteredTypes.map(({ type, label, icon: Icon, description }) => (
+              <button
+                key={type}
+                type="button"
+                onClick={() => onSelectType(type, index)}
+                className="flex items-start gap-2 p-2 rounded-xl border border-stone-100 hover:border-amber-300 hover:bg-amber-50/40 text-left transition-all group"
+              >
+                <div className="w-7 h-7 rounded-lg bg-stone-100 group-hover:bg-amber-100 text-stone-600 group-hover:text-amber-800 flex items-center justify-center shrink-0 transition-colors">
+                  <Icon size={14} />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold text-stone-800 group-hover:text-amber-900 truncate">
+                    {label}
+                  </div>
+                  <div className="text-[10px] text-stone-400 group-hover:text-stone-600 truncate">
+                    {description}
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function BlockCanvas({
   blocks,
   onChange,
@@ -102,6 +200,7 @@ export function BlockCanvas({
   const [showA11yDetails, setShowA11yDetails] = useState<boolean>(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [openInserterIndex, setOpenInserterIndex] = useState<number | null>(null);
 
   // Synchronisation Live Preview -> Défilement et focus automatique du bloc sélectionné
   useEffect(() => {
@@ -219,15 +318,17 @@ export function BlockCanvas({
   };
 
   // Manipulations de blocs
-  const addBlock = (type: BlockType, index?: number) => {
+  const addBlock = (type: BlockType, targetIndex?: number) => {
     const newBlock = createDefaultBlock(type);
-    if (typeof index === 'number') {
+    if (typeof targetIndex === 'number') {
       const updated = [...blocks];
-      updated.splice(index + 1, 0, newBlock);
+      updated.splice(targetIndex, 0, newBlock);
       onChange(updated);
     } else {
       onChange([...blocks, newBlock]);
     }
+    setOpenInserterIndex(null);
+    onSelectBlock?.(newBlock.id);
   };
 
   const updateBlock = (id: string, partial: Partial<CmsBlock>) => {
@@ -560,6 +661,14 @@ export function BlockCanvas({
         </div>
       ) : (
         <div className="space-y-4">
+          {/* Inserter avant le premier bloc (index 0) */}
+          <InserterDivider
+            index={0}
+            isOpen={openInserterIndex === 0}
+            onToggle={() => setOpenInserterIndex(openInserterIndex === 0 ? null : 0)}
+            onSelectType={(type, targetIdx) => addBlock(type, targetIdx)}
+          />
+
           {blocks.map((block, idx) => {
             const config = BLOCK_TYPES_CONFIG.find((c) => c.type === block.type) || BLOCK_TYPES_CONFIG[0];
             const Icon = config.icon;
@@ -567,22 +676,22 @@ export function BlockCanvas({
             const blockLint = lintSummary.blockResults[block.id];
 
             return (
-              <div
-                key={block.id}
-                id={`block-editor-${block.id}`}
-                onClick={() => onSelectBlock?.(block.id)}
-                onDragOver={(e) => handleDragOver(e, idx)}
-                onDrop={(e) => handleDrop(e, idx)}
-                className={`bg-white border rounded-2xl shadow-sm overflow-hidden transition-all ${
-                  draggedIndex === idx
-                    ? 'opacity-40 border-dashed border-amber-400 scale-[0.99]'
-                    : dragOverIndex === idx
-                    ? 'border-amber-400 ring-2 ring-amber-300/50 bg-amber-50/20'
-                    : selectedBlockId === block.id
-                    ? 'border-amber-500 ring-2 ring-amber-400 shadow-md bg-amber-50/20'
-                    : 'border-stone-200 hover:border-stone-300'
-                }`}
-              >
+              <React.Fragment key={block.id}>
+                <div
+                  id={`block-editor-${block.id}`}
+                  onClick={() => onSelectBlock?.(block.id)}
+                  onDragOver={(e) => handleDragOver(e, idx)}
+                  onDrop={(e) => handleDrop(e, idx)}
+                  className={`bg-white border rounded-2xl shadow-sm overflow-hidden transition-all ${
+                    draggedIndex === idx
+                      ? 'opacity-40 border-dashed border-amber-400 scale-[0.99]'
+                      : dragOverIndex === idx
+                      ? 'border-amber-400 ring-2 ring-amber-300/50 bg-amber-50/20'
+                      : selectedBlockId === block.id
+                      ? 'border-amber-500 ring-2 ring-amber-400 shadow-md bg-amber-50/20'
+                      : 'border-stone-200 hover:border-stone-300'
+                  }`}
+                >
                 {/* En-tête du bloc */}
                 <div className="flex items-center justify-between px-4 py-3 bg-stone-50/80 border-b border-stone-100">
                   <div className="flex items-center gap-2">
@@ -761,8 +870,17 @@ export function BlockCanvas({
                   )}
                 </div>
               </div>
-            );
-          })}
+
+              {/* Inserter entre les blocs idx et idx + 1 */}
+              <InserterDivider
+                index={idx + 1}
+                isOpen={openInserterIndex === idx + 1}
+                onToggle={() => setOpenInserterIndex(openInserterIndex === idx + 1 ? null : idx + 1)}
+                onSelectType={(type, targetIdx) => addBlock(type, targetIdx)}
+              />
+            </React.Fragment>
+          );
+        })}
 
           {/* Bouton d'ajout rapide en fin de liste */}
           <div className="pt-2 flex justify-center">

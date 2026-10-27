@@ -26,7 +26,9 @@ import ArticleMigrateToBlocksModal from '@/components/admin/ArticleMigrateToBloc
 import { computeReadingMetrics } from '@/lib/cms-reading-metrics';
 import { VERIFIED_PHOTO_ALBUMS } from '@/lib/cms-photo-albums';
 import { htmlToBlocks, blocksToHtml } from '@/lib/cms-blocks-converter';
-import type { CmsBlock } from '@/types/cms-blocks';
+import type { CmsBlock, VaultSpotBlock } from '@/types/cms-blocks';
+import { createDefaultBlock } from '@/types/cms-blocks';
+import OmnisearchPalette from '@/components/admin/OmnisearchPalette';
 import SerpAndSocialPreview from '@/components/admin/seo/SerpAndSocialPreview';
 import {
   SLOW_SEASONS,
@@ -2455,38 +2457,50 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
           }}
         />
       )}
-      {showPalette && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-start justify-center pt-20" onClick={() => setShowPalette(false)}>
-          <div className="bg-white rounded-xl w-full max-w-md mx-4 p-4 shadow-xl" onClick={e => e.stopPropagation()}>
-            <input
-              autoFocus
-              placeholder="Tape 'carrousel'…"
-              value={navSearch}
-              onChange={e => setNavSearch(e.target.value)}
-              className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal"
-            />
-            <div className="mt-3 max-h-64 overflow-y-auto space-y-1">
-              {navGroups
-                .flatMap(g => g.items)
-                .filter(i => i.label.toLowerCase().includes(navSearch.toLowerCase()))
-                .slice(0, 8)
-                .map(item => (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      navigateTo(item.id)
-                      setShowPalette(false)
-                      setNavSearch('')
-                    }}
-                    className="w-full text-left px-3 py-2 hover:bg-stone-100 rounded-lg text-sm flex items-center gap-2"
-                  >
-                    {item.icon} {item.label}
-                  </button>
-                ))}
-            </div>
-          </div>
-        </div>
-      )}
+      <OmnisearchPalette
+        isOpen={showPalette}
+        onClose={() => setShowPalette(false)}
+        articles={articles}
+        activeArticleTitle={editingArticle?.title}
+        navItems={navGroups.flatMap((g) => g.items)}
+        onNavigateSection={(sec) => navigateTo(sec as NavSection)}
+        onSelectArticle={(art) => {
+          const found = articles.find((a) => a.id === art.id);
+          if (found) {
+            setEditingArticle(found);
+            navigateTo('articles');
+          }
+        }}
+        onAddBlock={(blockType) => {
+          if (!editingArticle) {
+            toast('Ouvrez ou créez un article pour insérer un bloc', 'info');
+            return;
+          }
+          const newBlock = createDefaultBlock(blockType);
+          handleBlocksChange([...activeCmsBlocks, newBlock]);
+          setSelectedBlockId(newBlock.id);
+          toast(`Bloc « ${blockType} » inséré dans l'article`, 'success');
+        }}
+        onInsertVaultSpot={(spot) => {
+          if (!editingArticle) {
+            toast('Ouvrez ou créez un article pour insérer une pépite du Coffre', 'info');
+            return;
+          }
+          const newSpotBlock: VaultSpotBlock = {
+            id: `blk_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`,
+            type: 'vault_spot',
+            spotId: spot.id,
+            title: spot.title,
+            location: spot.location,
+            livedExperience: spot.livedExperience,
+          };
+          handleBlocksChange([...activeCmsBlocks, newSpotBlock]);
+          setSelectedBlockId(newSpotBlock.id);
+          toast(`Pépite RAG « ${spot.title} » insérée`, 'success');
+        }}
+        onOpenRevisions={() => setIsRevisionsDrawerOpen(true)}
+        onOpenAgents={() => setIsAgentsDrawerOpen(true)}
+      />
     </>
   );
 }

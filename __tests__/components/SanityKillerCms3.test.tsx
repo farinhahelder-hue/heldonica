@@ -4,6 +4,8 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { HotspotPicker } from '@/components/admin/media/HotspotPicker';
 import { ImageBlock } from '@/components/blocks/ImageBlock';
 import { BlockRenderer } from '@/components/blocks/BlockRenderer';
+import { OmnisearchPalette } from '@/components/admin/OmnisearchPalette';
+import { BlockCanvas } from '@/components/admin/blocks/BlockCanvas';
 import { blocksToHtml, htmlToBlocks } from '@/lib/cms-blocks-converter';
 import type { ImageBlock as ImageBlockType, CmsBlock } from '@/types/cms-blocks';
 
@@ -94,5 +96,64 @@ describe('CMS 3.0 Sanity Killer — Hotspot & Visual Click-to-Edit', () => {
     expect(restored[0].type).toBe('image');
     const restoredImg = restored[0] as ImageBlockType;
     expect(restoredImg.hotspot).toEqual({ x: 0.7, y: 0.25 });
+  });
+
+  it('OmnisearchPalette filtre par mot-clé et insère une pépite du Coffre RAG', () => {
+    const onInsertVaultSpot = vi.fn();
+    const onClose = vi.fn();
+
+    render(
+      <OmnisearchPalette
+        isOpen={true}
+        onClose={onClose}
+        onInsertVaultSpot={onInsertVaultSpot}
+        articles={[{ id: 1, title: 'Guide Madère', slug: 'madere' }]}
+      />
+    );
+
+    const input = screen.getByPlaceholderText(/Rechercher partout/i);
+    expect(input).toBeDefined();
+
+    // Filtre par "Stoos"
+    fireEvent.change(input, { target: { value: 'Stoos' } });
+
+    // Vérifie la présence d'un spot RAG contenant Stoos
+    const spotElements = screen.getAllByText(/Stoos/i);
+    expect(spotElements.length).toBeGreaterThan(0);
+
+    fireEvent.click(spotElements[0]);
+    expect(onInsertVaultSpot).toHaveBeenCalled();
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it('BlockCanvas propose l’insertion de bloc intermédiaire (InserterDivider)', () => {
+    const initialBlocks: CmsBlock[] = [
+      { id: 'b_head', type: 'heading', level: 2, text: 'Premier bloc' },
+      { id: 'b_text', type: 'text', content: 'Deuxième bloc' },
+    ];
+    const onChange = vi.fn();
+
+    render(
+      <BlockCanvas
+        blocks={initialBlocks}
+        onChange={onChange}
+      />
+    );
+
+    // Les boutons d'insertion intermédiaire sont présents
+    const insertButtons = screen.getAllByRole('button', { name: /Insérer un bloc/i });
+    expect(insertButtons.length).toBeGreaterThanOrEqual(2);
+
+    // Clic sur le premier inserter pour ouvrir le menu
+    fireEvent.click(insertButtons[0]);
+
+    // Sélectionne un type de bloc (Image)
+    const addImageBtn = screen.getByRole('button', { name: /Image Photo responsive/i });
+    fireEvent.click(addImageBtn);
+
+    expect(onChange).toHaveBeenCalled();
+    const newBlocksArg = onChange.mock.calls[0][0];
+    expect(newBlocksArg).toHaveLength(3);
+    expect(newBlocksArg[0].type).toBe('image');
   });
 });

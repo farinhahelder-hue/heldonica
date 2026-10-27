@@ -2,6 +2,28 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+  ## [2026-10-27 quater] — Heldonica CMS 3.0 « Sanity Killer » : Omnisearch Cmd+K, In-Between Inserter & Visual Time Machine
+
+  - **Omnisearch Command Palette (`Cmd+K`) (`components/admin/OmnisearchPalette.tsx`, `app/panel-manager/CmsAdminClient.tsx`)** :
+    - Palette universelle déclenchable au clavier (`Cmd+K` / `Ctrl+K`) avec recherche temps réel ultra-rapide et indexation multi-domaines :
+      - *⚡ Actions Rapides & Navigation* : Sections d'administration, raccourcis Time Machine, Tour de Contrôle Agents IA, création d'article.
+      - *📄 Articles & Carnets de Route* : Recherche dans tous les articles en base (titres, slugs, extraits, catégories) avec ouverture instantanée dans l'éditeur.
+      - *💎 Coffre des Savoirs RAG* : Recherche en direct dans les 78+ fiches de terrain certifiées (ex: Stoos, Ponta do Sol, Muotathal) avec insertion 1-clic sous forme de bloc `vault_spot`.
+      - *🧩 Blocs CMS Modulaires* : Filtrage et insertion directe des 12 types de blocs (Heading, Paragraphe, Photo Hotspot, Preuve photo, Sommaire, Carte, Hébergement, etc.).
+    - Navigation au clavier complète (`↑/↓`, `Entrée`, `Échap`), filtres d'onglets rapides, raccourcis d'action et esthétique Slow Travel soignée.
+  - **In-Between Fast Block Inserter (`BlockCanvas.tsx`)** :
+    - Séparateur d'insertion interactif (`InserterDivider`) positionné avant le premier bloc, entre chaque bloc et en fin de document.
+    - Ligne subtile révélée au survol avec bouton `+ Insérer un bloc` déployant une grille de sélection rapide avec recherche instantanée.
+    - Insertion à l'index exact avec sélection automatique et focus synchronisé sur le nouveau bloc.
+  - **Visual Time Machine & Live Device Preview (`RevisionsDrawer.tsx`)** :
+    - Transformation du comparateur de révisions en véritable machine à remonter le temps visuelle, similaire à l'inspecteur d'historique de Sanity Studio.
+    - Bascule instantanée entre la vue *Diff blocs* (détail technique des ajouts/modifications/suppressions) et la vue *Aperçu visuel* (rendu en direct du contenu archivé via `BlockRenderer`).
+    - Cadre adaptatif avec bascule *Bureau* / *Mobile (375px)* pour inspecter l'expérience lecteur de chaque version avant restauration.
+  - **Vérifications & Garde-fous** :
+    - Suite de tests unitaire `__tests__/components/SanityKillerCms3.test.tsx` et `RevisionsDrawer.test.tsx` (9 tests passants en 3,9s).
+    - `npm run typecheck` strict sans erreur (0 faute de typage).
+    - `npm run preflight` 13/13 vert (parité marque TS/Python, cliquet texte en dur, zéro tic visuel).
+
   ## [2026-10-27 ter] — Heldonica CMS 3.0 « Sanity Killer » : Hotspot Focal Dynamique, Visual Click-to-Edit & In-Field IA
 
   - **Point Focal & Hotspot Visuel Intelligent (`HotspotPicker.tsx`, `types/cms-blocks.ts`, `ImageBlock.tsx`)** :
