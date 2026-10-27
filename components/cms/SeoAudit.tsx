@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
+import { Search, Play, Loader2, AlertCircle, AlertTriangle, Info } from 'lucide-react';
 
 interface AuditIssue {
   type: 'error' | 'warning' | 'info'
@@ -28,7 +29,7 @@ export default function SeoAudit({ data, onSave }: any) {
     if (!data?.site?.title) {
       issues.push({
         type: 'error',
-        page: '🏠 Site Settings',
+        page: 'Site Settings',
         message: 'Titre du site manquant',
         fix: 'Ajouter un titre dans Paramètres du Site'
       })
@@ -37,7 +38,7 @@ export default function SeoAudit({ data, onSave }: any) {
     if (!data?.site?.description) {
       issues.push({
         type: 'error',
-        page: '🏠 Site Settings',
+        page: 'Site Settings',
         message: 'Meta description manquante',
         fix: 'Ajouter une description dans Paramètres du Site'
       })
@@ -46,7 +47,7 @@ export default function SeoAudit({ data, onSave }: any) {
     if (!data?.site?.ogImage) {
       issues.push({
         type: 'warning',
-        page: '🏠 Site Settings',
+        page: 'Site Settings',
         message: 'Image OG par défaut manquante',
         fix: 'Ajouter une image OG dans SEO Settings'
       })
@@ -55,7 +56,7 @@ export default function SeoAudit({ data, onSave }: any) {
     if (!data?.site?.metaKeywords) {
       issues.push({
         type: 'info',
-        page: '🏠 Site Settings',
+        page: 'Site Settings',
         message: 'Mots-clés SEO non configurés',
         fix: 'Ajouter des mots-clés dans SEO Settings'
       })
@@ -107,7 +108,7 @@ export default function SeoAudit({ data, onSave }: any) {
       if (!post.title) {
         issues.push({
           type: 'error',
-          page: '📝 Blog',
+          page: 'Blog',
           message: 'Article sans titre',
           fix: 'Ajouter un titre'
         })
@@ -116,7 +117,7 @@ export default function SeoAudit({ data, onSave }: any) {
       if (!post.slug) {
         issues.push({
           type: 'error',
-          page: '📝 Blog',
+          page: 'Blog',
           message: 'Article sans slug/URL',
           fix: 'Générer un slug automatique'
         })
@@ -125,7 +126,7 @@ export default function SeoAudit({ data, onSave }: any) {
       if (!post.excerpt && post.content?.length > 500) {
         issues.push({
           type: 'info',
-          page: `📝 ${post.title?.slice(0, 30)}...`,
+          page: `${post.title?.slice(0, 30)}...`,
           message: 'Pas de résumé (excerpt)',
           fix: 'Ajouter un excerpt pour SEO et listes'
         })
@@ -135,7 +136,7 @@ export default function SeoAudit({ data, onSave }: any) {
       if (post.content && !post.content.includes('alt=')) {
         issues.push({
           type: 'warning',
-          page: `📝 ${post.title?.slice(0, 30)}...`,
+          page: `${post.title?.slice(0, 30)}...`,
           message: 'Images sans texte alt',
           fix: 'Ajouter alt="description" aux images'
         })
@@ -148,7 +149,7 @@ export default function SeoAudit({ data, onSave }: any) {
       if (!dest.highlights || dest.highlights.length === 0) {
         issues.push({
           type: 'info',
-          page: `📍 ${dest.name || 'Destination'}`,
+          page: `${dest.name || 'Destination'}`,
           message: 'Pas de points forts listés',
           fix: 'Ajouter des highlights'
         })
@@ -162,7 +163,7 @@ export default function SeoAudit({ data, onSave }: any) {
     if (issues.length === 0) {
       issues.push({
         type: 'info',
-        page: '✅',
+        page: 'Audit',
         message: 'Audit SEO terminé - Aucune erreur trouvée !',
         fix: undefined
       })
@@ -177,14 +178,24 @@ export default function SeoAudit({ data, onSave }: any) {
     <div className="bg-white rounded-lg shadow-lg p-6">
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-2xl font-serif font-bold text-mahogany">
-          🔍 Analyse SEO
+          <span className="inline-flex items-center gap-2">
+            <Search className="w-5 h-5" aria-hidden /> Analyse SEO
+          </span>
         </h2>
         <Button 
           onClick={runAudit} 
           disabled={scanning}
           variant="outline"
         >
-          {scanning ? '⏳ Analyse en cours...' : '▶️ Lancer l\'audit'}
+          {scanning ? (
+            <span className="inline-flex items-center gap-1.5">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden /> Analyse en cours...
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5">
+              <Play className="w-3.5 h-3.5" aria-hidden /> Lancer l\'audit
+            </span>
+          )}
         </Button>
       </div>
 
@@ -196,7 +207,7 @@ export default function SeoAudit({ data, onSave }: any) {
 
       {results.length === 0 && !scanning && (
         <div className="text-center py-12 text-gray-500">
-          <p className="text-4xl mb-4">🔍</p>
+          <Search className="w-10 h-10 mx-auto mb-4 text-gray-300" aria-hidden />
           <p>Cliquez "Lancer l’audit" pour analyser votre contenu</p>
           <p className="text-sm mt-2">Détecte: titres, descriptions, images, liens...</p>
         </div>
@@ -240,9 +251,13 @@ export default function SeoAudit({ data, onSave }: any) {
                 }`}
               >
                 <div className="flex items-start gap-3">
-                  <span className="text-lg">
-                    {issue.type === 'error' ? '❌' : issue.type === 'warning' ? '⚠️' : 'ℹ️'}
-                  </span>
+                  {issue.type === 'error' ? (
+                    <AlertCircle className="w-5 h-5 text-red-500 shrink-0" aria-hidden />
+                  ) : issue.type === 'warning' ? (
+                    <AlertTriangle className="w-5 h-5 text-orange-500 shrink-0" aria-hidden />
+                  ) : (
+                    <Info className="w-5 h-5 text-blue-500 shrink-0" aria-hidden />
+                  )}
                   <div className="flex-1">
                     <p className="font-medium text-sm">{issue.page}</p>
                     <p className="text-gray-700">{issue.message}</p>
