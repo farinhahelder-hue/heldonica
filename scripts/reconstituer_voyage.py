@@ -335,6 +335,21 @@ def rattacher_photos(photos, visites, positions):
     RAYON_PHOTO_KM — et si aucun ne l'est, la photo reste sans lieu (le GPS
     contredit la Timeline, on ne force pas). Sans GPS : au lieu ou l'on etait
     a cette heure-la."""
+
+    positions_par_jour = {}
+    for t, la, lo in positions:
+        j = jour_local(t)
+        if j not in positions_par_jour:
+            positions_par_jour[j] = []
+        positions_par_jour[j].append((la, lo))
+
+    visites_par_jour = {}
+    for idx, v in enumerate(visites):
+        j = jour_local(v["debut"])
+        if j not in visites_par_jour:
+            visites_par_jour[j] = []
+        visites_par_jour[j].append((idx, v))
+
     for ph in photos:
         ph["lieu_index"] = None
         ph["rattachement"] = None
@@ -343,9 +358,8 @@ def rattacher_photos(photos, visites, positions):
             continue
         if ph["gps"]:
             meilleur, ecart = None, None
-            for idx, v in enumerate(visites):
-                if jour_local(v["debut"]) != jour_local(prise):
-                    continue
+            jour = jour_local(prise)
+            for idx, v in visites_par_jour.get(jour, []):
                 d = distance_km(ph["gps"]["lat"], ph["gps"]["lon"], v["lat"], v["lon"])
                 if ecart is None or d < ecart:
                     meilleur, ecart = idx, d
@@ -354,11 +368,8 @@ def rattacher_photos(photos, visites, positions):
                 ph["rattachement"] = f"gps ({ecart:.2f} km)"
                 continue
             # Loin de tout arret, mais sur la trace du jour ? (photo en chemin)
-            jour = jour_local(prise)
             d_trace = None
-            for t, la, lo in positions:
-                if jour_local(t) != jour:
-                    continue
+            for la, lo in positions_par_jour.get(jour, []):
                 d = distance_km(ph["gps"]["lat"], ph["gps"]["lon"], la, lo)
                 if d_trace is None or d < d_trace:
                     d_trace = d
@@ -366,7 +377,8 @@ def rattacher_photos(photos, visites, positions):
                 for idx, v in enumerate(visites):
                     if v["debut"] <= prise <= v["fin"]:
                         ph["lieu_index"] = idx
-                        ph["rattachement"] = f"gps sur la trace du jour ({d_trace:.2f} km de la trace, {ecart:.1f} km de l'arret)"
+                        ecart_str = f"{ecart:.1f}" if ecart is not None else "?"
+                        ph["rattachement"] = f"gps sur la trace du jour ({d_trace:.2f} km de la trace, {ecart_str} km de l'arret)"
                         break
                 if ph["lieu_index"] is None:
                     ph["rattachement"] = f"gps sur la trace du jour ({d_trace:.2f} km) mais aucun arret a cette heure"
