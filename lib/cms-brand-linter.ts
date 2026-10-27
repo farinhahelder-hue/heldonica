@@ -35,6 +35,22 @@ export interface CanvasLintSummary {
   suggestions: { word: string; suggestion: string }[];
 }
 
+/** ⚡ Bolt Performance Optimization:
+ * What: Pre-compiled regexes for forbidden words.
+ * Why: lintBlock is called inside useMemo on every keystroke during block editing.
+ *      Instantiating new RegExp() inside the loop caused O(N) regex compilations
+ *      per block render, leading to main thread blocking and typing latency.
+ * Impact: Eliminates redundant regex compilations, making linter O(1) in compilation time.
+ */
+const PRECOMPILED_FORBIDDEN_REGEXES = FORBIDDEN_WORDS.map((forbidden) => {
+  const fLower = forbidden.toLowerCase();
+  const escaped = fLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return {
+    word: forbidden,
+    regex: new RegExp(`(^|[^a-zà-ÿ0-9])${escaped}([^a-zà-ÿ0-9]|$)`, 'i')
+  };
+});
+
 /** Suggestions de remplacement pour les tics et mots bannis */
 export const BRAND_REPLACEMENTS: Record<string, string> = {
   'bon plan': 'pépite dénichée',
@@ -101,18 +117,14 @@ export function lintBlock(block: CmsBlock): BlockLintResult {
   }
 
   // 1. Détection des mots bannis
-  for (const forbidden of FORBIDDEN_WORDS) {
-    const fLower = forbidden.toLowerCase();
-    // Évite les faux positifs sur sous-chaînes courtes
-    const escaped = fLower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const regex = new RegExp(`(^|[^a-zà-ÿ0-9])${escaped}([^a-zà-ÿ0-9]|$)`, 'i');
+  for (const { word, regex } of PRECOMPILED_FORBIDDEN_REGEXES) {
     if (regex.test(lower)) {
-      forbiddenFound.push(forbidden);
-      const suggestion = BRAND_REPLACEMENTS[forbidden] || 'reformuler sans superlatif';
+      forbiddenFound.push(word);
+      const suggestion = BRAND_REPLACEMENTS[word] || 'reformuler sans superlatif';
       issues.push({
         type: 'forbidden_word',
-        word: forbidden,
-        message: `Mot banni détecté : "${forbidden}"`,
+        word: word,
+        message: `Mot banni détecté : "${word}"`,
         suggestion,
       });
     }
