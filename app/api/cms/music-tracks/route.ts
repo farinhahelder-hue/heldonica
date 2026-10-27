@@ -14,7 +14,7 @@ export interface MusicTrack {
   promptGoogleFlow: string;
 }
 
-export const CATALOGUE_MUSIQUES: MusicTrack[] = [
+const CATALOGUE_MUSIQUES: MusicTrack[] = [
   {
     id: 'atrium_lin_brut',
     titre: 'Atrium Lin Brut',
