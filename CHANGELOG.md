@@ -2,6 +2,41 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-27 bis] — Lot emoji, périmètre administration : 70 emojis retirés de 32 fichiers
+
+La décision #682 (« supprimer TOUS les emojis ») tranche ce que l'audit du 21/10
+avait laissé ouvert : les composants **admin/CMS** gardaient leurs emojis
+d'interface, « hors périmètre éditorial public, à trancher ». C'est tranché.
+
+- **Périmètre** : `app/admin`, `app/panel-manager`, `components/admin`,
+  `components/cms`, `components/inline-edit` — soit les 34 fichiers candidats que
+  `check-design-tics` exclut volontairement ; **32** ont effectivement changé.
+- **Retiré (70)** : emojis pictographiques d'interface (épingle, billet, clap,
+  dossier, sablier, étincelle, fusée, boussole, éclair…) dans les libellés, boutons
+  et titres.
+- **Conservé, par la politique déjà arrêtée** : marques légales (`© ® ™`),
+  flèches (`→ ← ↑ ↓ ➔`), et la convention de liste `✓` / `✗` / `⚠`.
+  Les **drapeaux** (indicateurs régionaux, ex. le drapeau portugais) restent exclus : sémantiques,
+  jamais décoratifs — même règle que `check-cms-emojis` et la migration de purge.
+- **Laissé volontairement, et c'est le point à ne pas rater** : le glyphe `✦` de la
+  signature carrousel **n'est pas un tic** mais le **wordmark de marque**, enregistré
+  comme icône CMS et utilisé dans le contenu publié. Le retirer changerait la marque —
+  même raison que le `flag_emoji` des destinations, qui est une donnée de contenu.
+  Ces deux points avaient déjà été tranchés par l'audit ; le premier jet de ce lot les
+  avait repris par erreur, puis restaurés.
+- **Convention de remplacement** : icône `lucide-react` (`<Zap size={18} aria-hidden="true" />`),
+  celle qu'avait posée le commit `0403353f` pour `Toast` et `OmnisearchPalette` —
+  pas de suppression sèche qui laisserait un libellé orphelin.
+- **Deux justesses corrigées au passage** : le placeholder de
+  `destinations_tabs_json` proposait un globe en emoji comme valeur d'`icon`
+  alors que `tabs[].icon` est rendu **tel quel** (`DestinationsClient.tsx:145`)
+  et que la valeur par défaut est vide — il suggérait donc d'afficher le mot
+  « globe ». Le champ `emoji` de `SeasonsManager` gardait un soleil en placeholder
+  pour un champ vidé en base le 21/10.
+- **Vérifié** : `garde-fous` **20/20** (dont `tsc` et `vitest`), `eslint` **0 erreur**
+  (2 avertissements préexistants, lignes non touchées), **0** emoji restant au
+  détecteur `DECORATIVE_EMOJI_RE` sur le périmètre admin.
+
   ## [2026-10-27] — Heldonica CMS 3.0 (in-house) : le back-office passe au niveau d'un vrai éditeur de blocs
 
   Périmètre volontairement limité au **back-office CMS**. Cette entrée documente ce que la branche `agent/freebuff/cms-inhouse` (PR #752) contenait réellement, désormais fusionné via la PR #753 (branche `agent/antigravity/cms-inhouse-editor`) ; le reste de la branche Gemini d'origine (APK Kotlin, studio musique et vidéo, dispatcher Jules, Instagram, hub SEO, pages publiques) est écarté et reste à traiter séparément.

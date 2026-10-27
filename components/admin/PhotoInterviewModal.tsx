@@ -254,7 +254,7 @@ export function PhotoInterviewModal({
               className="w-full py-2.5 px-4 bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-stone-950 font-medium rounded-xl text-xs transition-colors flex items-center justify-center gap-2 shadow-lg shadow-amber-600/10"
             >
               <Sparkles className="w-4 h-4" />
-              {isSynthesizing ? 'Tissage du récit...' : '✨ Tisser le Récit Slow Travel'}
+              {isSynthesizing ? 'Tissage du récit...' : 'Tisser le Récit Slow Travel'}
             </button>
 
             {/* Prévisualisation de la synthèse */}

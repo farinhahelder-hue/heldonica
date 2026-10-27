@@ -5,8 +5,7 @@ import {
   Scissors, Play, Pause, Plus, Trash2, Download, 
   FileVideo, Check, Clock, ZoomIn, ZoomOut, 
   RotateCcw, ChevronLeft, ChevronRight, AlertCircle,
-  Loader2, Layers
-} from 'lucide-react';
+  Loader2, Layers, MapPin } from 'lucide-react';
 
 // ===== Types =====
 export interface TrimSegment {
@@ -265,7 +264,7 @@ export default function FastTrimTool() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <h1 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#6b2a1a', margin: 0 }}>
-            ✂️ Découpe Rapide
+            <Scissors size={18} aria-hidden="true" /> Découpe Rapide
           </h1>
           <span style={{
             fontSize: '0.8rem',
@@ -472,7 +471,7 @@ export default function FastTrimTool() {
           }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
               <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#302925', margin: 0 }}>
-                📍 Timeline
+                <MapPin size={16} aria-hidden="true" /> Timeline
               </h3>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button

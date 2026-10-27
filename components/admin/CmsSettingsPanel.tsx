@@ -73,7 +73,7 @@ const GROUPS: GroupDef[] = [
       // par les zones CMS de la page, éditables en inline. Les champs
       // destinations_hub_* qui vivaient ici ne sont plus lus par personne :
       // les laisser afficherait un éditeur sans effet.
-      { key: 'destinations_tabs_json',    label: 'Onglets (JSON)',   type: 'textarea', placeholder: '[{"value":"all","label":"Toutes","icon":"🌍"},{"value":"starred","label":"Coups de cœur","icon":"⭐"}]' },
+      { key: 'destinations_tabs_json',    label: 'Onglets (JSON)',   type: 'textarea', placeholder: '[{"value":"all","label":"Toutes","icon":""},{"value":"starred","label":"Coups de cœur","icon":""}]' },
     ],
   },
   {

@@ -115,7 +115,7 @@ export default function PartageManuelPage() {
   return (
     <div style={{ minHeight: '100vh', background: '#f8f8f8', fontFamily: 'system-ui', padding: '1.5rem' }}>
       <div style={{ maxWidth: 960, margin: '0 auto' }}>
-        <h1 style={{ fontSize: '1.4rem', fontWeight: 700 }}>📤 Partage manuel Instagram (sans API Meta)</h1>
+        <h1 style={{ fontSize: '1.4rem', fontWeight: 700 }}>Partage manuel Instagram (sans API Meta)</h1>
         <ol style={{ background: 'white', borderRadius: 12, padding: '1rem 1rem 1rem 2.2rem', lineHeight: 2 }}>
           <li><strong>Copie</strong> la légende ci-dessous.</li>
           <li><strong>Télécharge</strong> l'image (ou retrouve-la sur ton téléphone).</li>
@@ -156,17 +156,17 @@ export default function PartageManuelPage() {
                   )}
                   <textarea readOnly value={pack.caption} rows={8} style={{ width: '100%', fontSize: '.85rem', padding: '.5rem' }} />
                   <div style={{ display: 'flex', gap: '.5rem', marginTop: '.8rem', flexWrap: 'wrap' }}>
-                    <button onClick={copyCaption} style={btn}>📋 Copier la légende</button>
+                    <button onClick={copyCaption} style={btn}>Copier la légende</button>
                     {pack.image_url && (
                       <a href={pack.image_url} download target="_blank" rel="noreferrer" style={{ ...btn, textDecoration: 'none' }}>
                         ⬇ Télécharger l'image
                       </a>
                     )}
                     <a href="https://www.instagram.com/" target="_blank" rel="noreferrer" style={{ ...btn, textDecoration: 'none' }}>
-                      📸 Ouvrir Instagram
+                      Ouvrir Instagram
                     </a>
                     <button onClick={markPublished} style={{ ...btn, background: '#2E4F4F', color: 'white' }}>
-                      ✅ Marqué comme publié
+                      Marqué comme publié
                     </button>
                   </div>
                 </>

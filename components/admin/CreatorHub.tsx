@@ -13,8 +13,7 @@ import {
   Radio,
   ArrowUpRight,
   ShieldCheck,
-  Zap,
-} from 'lucide-react'
+  Zap, Rocket } from 'lucide-react'
 
 const InstagramIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" {...props}>
@@ -153,7 +152,7 @@ export default function CreatorHub() {
       <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-[#241D1A] font-serif flex items-center gap-2">
-            <span>🚀</span> Hub Créateur & Accès Direct aux Suites d&apos;Outils
+            <Rocket size={20} className="shrink-0" aria-hidden="true" /> Hub Créateur & Accès Direct aux Suites d&apos;Outils
           </h2>
           <p className="text-xs text-stone-500 mt-1">
             Accès direct sans ressaisie aux plateformes de pilotage : Google Search Console, Analytics, Meta Business, YouTube Creator, Jules &amp; Supabase.

@@ -20,7 +20,7 @@ import {
   horizontalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { GripVertical } from 'lucide-react';
+import { GripVertical, MapPin, Wallet, Plane, Lightbulb } from 'lucide-react';
 
 // Colors from spec
 const COLORS = {
@@ -143,7 +143,7 @@ function SortableCard({
           gap: '0.35rem',
         }}
       >
-        <span>📍</span>
+        <span><MapPin size={14} aria-hidden="true" /></span>
         {demande.destination || 'Non renseigné'}
       </div>
 
@@ -161,7 +161,7 @@ function SortableCard({
         }}
       >
         <span style={{ color: COLORS.accent, fontWeight: 600 }}>
-          💰 {demande.budget_fourchette || 'N/A'}
+          <Wallet size={13} aria-hidden="true" /> {demande.budget_fourchette || 'N/A'}
         </span>
         <span style={{ color: daysSince > 7 ? '#dc2626' : '#888' }}>
           {daysSince}j ago
@@ -203,7 +203,7 @@ function DragCard({ demande }: { demande: DemandeTravel }) {
           marginBottom: '0.5rem',
         }}
       >
-        📍 {demande.destination || 'Non renseigné'}
+        <MapPin size={14} aria-hidden="true" /> {demande.destination || 'Non renseigné'}
       </div>
       <div
         style={{
@@ -214,7 +214,7 @@ function DragCard({ demande }: { demande: DemandeTravel }) {
         }}
       >
         <span style={{ color: COLORS.accent, fontWeight: 600 }}>
-          💰 {demande.budget_fourchette || 'N/A'}
+          <Wallet size={13} aria-hidden="true" /> {demande.budget_fourchette || 'N/A'}
         </span>
         <span>{daysSince}j ago</span>
       </div>
@@ -438,7 +438,7 @@ export default function KanbanBoard({ initialDemandes, onStatutChange }: KanbanB
             color: COLORS.accent,
           }}
         >
-          ✈️ Kanban Travel Planning
+          <Plane size={18} aria-hidden="true" /> Kanban Travel Planning
         </h2>
         <span
           style={{
@@ -499,7 +499,7 @@ export default function KanbanBoard({ initialDemandes, onStatutChange }: KanbanB
           color: '#888',
         }}
       >
-        <strong>💡 Astuce :</strong> Glissez les cartes pour changer leur statut.
+        <strong><Lightbulb size={14} className="inline" aria-hidden="true" /> Astuce :</strong> Glissez les cartes pour changer leur statut.
         Les modifications sont sauvegardées automatiquement.
       </div>
     </div>

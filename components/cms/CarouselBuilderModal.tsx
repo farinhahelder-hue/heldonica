@@ -202,7 +202,7 @@ export default function CarouselBuilderModal({
                   fontSize: '.9rem',
                 }}
               >
-                {uploading ? '⏳ Upload…' : '⬆️ Uploader plusieurs images'}
+                {uploading ? 'Upload…' : 'Uploader plusieurs images'}
                 <input
                   type="file"
                   accept="image/*"
