@@ -8,9 +8,10 @@ import ImageUploadButton from './ImageUploadButton'
 export interface SettingField {
   key: string
   label: string
-  type: 'text' | 'textarea' | 'email' | 'url' | 'color' | 'toggle' | 'number' | 'image'
+  type: 'text' | 'textarea' | 'email' | 'url' | 'color' | 'toggle' | 'number' | 'image' | 'select'
   description?: string
   placeholder?: string
+  options?: { value: string; label: string }[]
 }
 
 interface SettingsFormProps {
@@ -140,6 +141,20 @@ export function SettingsForm({ fields, initialValues, section, onSave }: Setting
                   placeholder="#000000"
                 />
               </div>
+            )}
+
+            {field.type === 'select' && (
+              <select
+                value={values[field.key] ?? (field.options?.[0]?.value || '')}
+                onChange={e => handleChange(field.key, e.target.value)}
+                className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus"
+              >
+                {field.options?.map(opt => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
             )}
 
             {field.type === 'image' && (

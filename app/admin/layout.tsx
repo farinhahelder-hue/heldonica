@@ -83,6 +83,18 @@ export default async function AdminLayout({
                 Redirections
               </Link>
               <Link 
+                href="/admin/branding" 
+                className="text-eucalyptus font-medium hover:underline"
+              >
+                Identité & Logo
+              </Link>
+              <Link 
+                href="/admin/settings" 
+                className="text-charcoal/70 hover:text-charcoal hover:underline"
+              >
+                Paramètres
+              </Link>
+              <Link 
                 href="/admin/analytics" 
                 className="text-charcoal/70 hover:text-charcoal hover:underline"
               >

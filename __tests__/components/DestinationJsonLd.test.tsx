@@ -117,4 +117,26 @@ describe('DestinationJsonLd', () => {
     expect(json.offers.price).toBe('250')
     expect(json.offers.priceCurrency).toBe('EUR')
   })
+
+  it('generates breadcrumb and automatic OpenStreetMap hasMap link from coordinates', () => {
+    const { container } = render(
+      <DestinationJsonLd
+        name="Apuseni"
+        description="Monts secrets de Roumanie."
+        url="https://www.heldonica.fr/destinations/roumanie/apuseni"
+        latitude={46.5}
+        longitude={22.8}
+      />
+    )
+
+    const script = container.querySelector('script[type="application/ld+json"]')
+    const json = JSON.parse(script!.innerHTML)
+
+    expect(json.breadcrumb).toBeDefined()
+    expect(json.breadcrumb['@type']).toBe('BreadcrumbList')
+    expect(json.breadcrumb.itemListElement).toHaveLength(3)
+    expect(json.breadcrumb.itemListElement[2].name).toBe('Apuseni')
+
+    expect(json.hasMap).toBe('https://www.openstreetmap.org/?mlat=46.5&mlon=22.8#map=12/46.5/22.8')
+  })
 })

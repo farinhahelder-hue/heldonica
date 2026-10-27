@@ -95,7 +95,34 @@ export default function DestinationJsonLd({
 
   if (mapUrl) {
     schema.hasMap = mapUrl;
+  } else if (typeof latitude === 'number' && typeof longitude === 'number') {
+    schema.hasMap = `https://www.openstreetmap.org/?mlat=${latitude}&mlon=${longitude}#map=12/${latitude}/${longitude}`;
   }
+
+  // Cocon sémantique BreadcrumbList pour le référencement Geo Google
+  schema.breadcrumb = {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Accueil',
+        item: 'https://www.heldonica.fr',
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: 'Destinations',
+        item: 'https://www.heldonica.fr/destinations',
+      },
+      {
+        '@type': 'ListItem',
+        position: 3,
+        name,
+        item: url,
+      },
+    ],
+  };
 
   if (touristType && touristType.length > 0) {
     schema.touristType = touristType;
