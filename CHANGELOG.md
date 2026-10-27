@@ -2,7 +2,37 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
-  ## [2026-10-27 sexies] — Heldonica CMS 3.0 : UX Impeccable, Simulateur Mobile APK, Studio des Gabarits Hors-Pair & Anti-IA Radical
+  ## [2026-10-27 septies] — Automatisation Jules GitHub Actions, Remplacement In-House de Bravo, Métriques Instagram, Moteur SEO Geo & Studio Vectoriel de Sceaux
+
+- **Dispatcher de Tâches Jules via GitHub Actions (`.github/workflows/dispatch-jules.yml`, `scripts/dispatch_jules_action.mjs`)** :
+  - Lancement manuel via `workflow_dispatch` (titre, prompt, branche, liaison avec la table Supabase `agent_tasks`).
+  - Lancement automatique depuis les commentaires GitHub Issues : un simple commentaire `/jules <instructions>` sur une issue ou PR déclenche l'agent Google Jules et répond avec le lien direct de session (`https://jules.google.com/session/<id>`).
+  - Génération de récapitulatif d'exécution Markdown dans `$GITHUB_STEP_SUMMARY` et mise à jour de la table `agent_tasks` (`in_progress`, `claimed_by = 'jules'`).
+- **Remplacement In-House de Bravo Studio (`heldonica-mobile/`, `components/PwaInstallPrompt.tsx`)** :
+  - Écosystème 100% in-house et 0€ : application Android native Kotlin (`heldonica-mobile/`) avec Photo Picker sans scope invasif, géocodage inverse OpenStreetMap Nominatim et upload direct Supabase Media.
+  - Déploiement CI automatisé de l'APK via `.github/workflows/build-apk.yml` et `release-apk.yml` (zéro secret compilé dans le bytecode dex).
+  - Composant Web `PwaInstallPrompt.tsx` : invitation douce à l'installation sur smartphone (PWA standalone, mode hors-ligne) sans passer par des plateformes tierces payantes.
+- **Tableau de Bord & Métriques Instagram en Direct (`app/panel-manager/instagram/InstagramManagerSection.tsx`)** :
+  - Intégration de 4 KPI en temps réel : abonnés officiels, total des publications, commentaires modérés et score de conformité de la voix slow travel.
+  - Grille visuelle des 6 dernières publications avec permaliens, photos, décompte des likes (❤️) et commentaires (💬).
+- **Moteur SEO Geo & Données Structurées Schema.org Étendues (`lib/seo-geo.ts`, `components/seo/DestinationJsonLd.tsx`)** :
+  - Support complet de `TouristDestination`, `TouristTrip`, `Place` et `GeoCoordinates` (latitude, longitude, altitude).
+  - Générateur de balises méta conformes au standard W3C et OpenGraph (`geo.position`, `ICBM`, `geo.placename`, `place:location:latitude`, `place:location:longitude`).
+  - Calcul de distance orthodromique (formule de Haversine) et estimation du temps de marche slow travel (4 km/h à plat + 1h pour 300m D+).
+  - Sécurisation stricte contre les injections XSS dans les balises JSON-LD via échappement unicode `\u003c`.
+- **Générateur Vectoriel de Sceaux & Monogrammes (`lib/logo-generator.ts`, `components/admin/LogoStudioModal.tsx`)** :
+  - 4 styles géométriques haute résolution : Sceau Circulaire Officiel (double filet gravé, texte courbé, crête et soleil levant), Écusson Minéral, Rose des Vents Artisanale, Monogramme Typographique épuré.
+  - Personnalisation complète : nom de marque, sous-titre, coordonnées GPS réelles, millésime et palettes chromatiques (Encre & Or, Eucalyptus & Cuivre, Vert Forêt & Terre Cuite, Bleu Ardoise).
+  - Export instantané en fichier `.svg`, copie du code vectoriel et application directe en tant que logo officiel du site.
+- **Répertoire Typographique & Packs d'Icônes (`lib/brand-customization.ts`)** :
+  - 4 combinaisons de polices slow travel (*Héritage Éditorial*, *Grand Romain & Alpin*, *Solitude Poétique*, *Minéral & Gravure Ancienne*).
+  - 3 packs d'icônes dédiés (*Ligne Fine Artisanale 1.5px*, *Minéral & Silhouette 2px*, *Sceau Botanique*).
+- **Vérifications & Tests** :
+  - 29/29 tests au vert (`DestinationJsonLd.test.tsx`, `seo-geo.test.ts`, `logo-generator.test.ts`, `SanityKillerCms3.test.tsx`).
+  - `npm run preflight` : 13/13 contrôles réussis.
+  - `npm run typecheck` : 0 erreur.
+
+## [2026-10-27 sexies] — Heldonica CMS 3.0 : UX Impeccable, Simulateur Mobile APK, Studio des Gabarits Hors-Pair & Anti-IA Radical
 
 - **Simulateur Responsive Tactile Mobile APK / Tablette / Bureau (`BlockCanvas.tsx`)** :
   - Sélecteur de viewport 3 modes dans la barre secondaire du canvas (`Bureau`, `Tablette 768px`, `Mobile APK 390px`).

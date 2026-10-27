@@ -89,6 +89,7 @@ import { PhotoInterviewModal } from '@/components/admin/PhotoInterviewModal';
 import { generateBlocksFromAlbum } from '@/lib/cms-draft-from-evidence';
 import { generateFaqVerdictBundle } from '@/lib/cms-faq-verdict-generator';
 import { BlockRenderer } from '@/components/blocks/BlockRenderer';
+import { LogoStudioModal } from '@/components/admin/LogoStudioModal';
 
 interface BlockCanvasProps {
   blocks: CmsBlock[];
@@ -242,6 +243,7 @@ export function BlockCanvas({
   const [cartoucheMobility, setCartoucheMobility] = useState<string>('Funiculaire de Schwyz + 2h40 de marche attentive');
   const [cartoucheEthics, setCartoucheEthics] = useState<string>('100% autofinancé par le duo, zéro partenariat commercial');
   const [showAlbumModal, setShowAlbumModal] = useState<boolean>(false);
+  const [showLogoStudioModal, setShowLogoStudioModal] = useState<boolean>(false);
   const [showFaqVerdictModal, setShowFaqVerdictModal] = useState<boolean>(false);
   const [faqDestInput, setFaqDestInput] = useState<string>('Stoos, Suisse');
   const [faqSeasonInput, setFaqSeasonInput] = useState<string>('Automne doré');
@@ -941,6 +943,16 @@ export function BlockCanvas({
                 <span>💾 Sauvegarder Gabarit</span>
               </button>
             )}
+
+            <button
+              type="button"
+              onClick={() => setShowLogoStudioModal(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-1 bg-stone-100 border border-stone-200 hover:bg-stone-200 text-stone-800 rounded-lg text-xs font-semibold transition-all shadow-2xs"
+              title="Générer un logo vectoriel SVG, un sceau circulaire ou un monogramme d'artisan"
+            >
+              <Sparkles size={13} className="text-amber-700" />
+              <span>🎨 Studio Logos</span>
+            </button>
             <span className="text-xs text-stone-400">
               {blocks.length} bloc{blocks.length > 1 ? 's' : ''} actif{blocks.length > 1 ? 's' : ''}
             </span>
@@ -2062,6 +2074,12 @@ export function BlockCanvas({
           </div>
         </div>
       )}
+
+      {/* Modal du Studio de Sceaux & Logos Vectoriels */}
+      <LogoStudioModal
+        isOpen={showLogoStudioModal}
+        onClose={() => setShowLogoStudioModal(false)}
+      />
     </div>
   );
 }

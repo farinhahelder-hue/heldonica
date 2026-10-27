@@ -1,13 +1,12 @@
 /**
  * components/seo/DestinationJsonLd.tsx
  *
- * Données structurées schema.org (JSON-LD) pour une page destination.
- * Aide les moteurs à comprendre qu'il s'agit d'une destination touristique
- * rattachée à un pays. Aucune donnée n'est inventée : le composant ne rend
- * que ce que la page lui transmet.
+ * Données structurées schema.org (JSON-LD) enrichies pour une page destination.
+ * Supporte TouristDestination, TouristTrip, Place, GeoCoordinates et Author Organization E-E-A-T.
+ * Sécurisation stricte XSS via échappement unicode \\u003c.
  */
 
-import Script from 'next/script';
+import React from 'react';
 
 export interface DestinationJsonLdProps {
   /** Nom de la destination (ex. « Madère »). */
@@ -18,6 +17,18 @@ export interface DestinationJsonLdProps {
   url: string;
   /** Pays ou région de rattachement. */
   country?: string;
+  /** Région administrative */
+  region?: string;
+  /** Coordonnées GPS réelles */
+  latitude?: number;
+  longitude?: number;
+  elevation?: number;
+  /** Image principale */
+  imageUrl?: string;
+  /** Types de tourisme ciblés */
+  touristType?: string[];
+  /** Lien vers la carte interactive */
+  mapUrl?: string;
 }
 
 export default function DestinationJsonLd({
@@ -25,27 +36,68 @@ export default function DestinationJsonLd({
   description,
   url,
   country,
+  region,
+  latitude,
+  longitude,
+  elevation,
+  imageUrl,
+  touristType,
+  mapUrl,
 }: DestinationJsonLdProps) {
   const schema: Record<string, unknown> = {
     '@context': 'https://schema.org',
-    '@type': 'TouristDestination',
+    '@type': ['TouristDestination', 'TouristTrip', 'Place'],
     name,
     description,
     url,
+    author: {
+      '@type': 'Organization',
+      name: 'Heldonica',
+      url: 'https://www.heldonica.fr',
+    },
   };
 
-  if (country) {
-    schema.containedInPlace = {
-      '@type': 'Country',
-      name: country,
+  if (imageUrl) {
+    schema.image = imageUrl;
+  }
+
+  if (typeof latitude === 'number' && typeof longitude === 'number') {
+    schema.geo = {
+      '@type': 'GeoCoordinates',
+      latitude,
+      longitude,
+      ...(elevation ? { elevation } : {}),
     };
   }
 
+  if (country || region) {
+    schema.address = {
+      '@type': 'PostalAddress',
+      ...(country ? { addressCountry: country } : {}),
+      ...(region ? { addressRegion: region } : {}),
+    };
+    schema.containedInPlace = {
+      '@type': region ? 'AdministrativeArea' : 'Country',
+      name: region || country,
+    };
+  }
+
+  if (mapUrl) {
+    schema.hasMap = mapUrl;
+  }
+
+  if (touristType && touristType.length > 0) {
+    schema.touristType = touristType;
+  }
+
+  // Échappe < pour la sécurité anti-XSS
+  const safeJson = JSON.stringify(schema).replace(/</g, '\\u003c');
+
   return (
-    <Script
+    <script
       id={`destination-jsonld-${url}`}
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
+      dangerouslySetInnerHTML={{ __html: safeJson }}
     />
   );
 }
