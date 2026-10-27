@@ -19,6 +19,8 @@ describe('CMS Templates Library (lib/cms-templates.ts)', () => {
     expect(ids).toContain('verdict_counter_tourism');
     expect(ids).toContain('dispatch_field_notes');
     expect(ids).toContain('sensory_micro_escape');
+    expect(ids).toContain('terroir_artisan_table');
+    expect(ids).toContain('train_escape_zero_carbon');
   });
 
   it('instancie un gabarit slow_travel_diary avec des IDs uniques et personnalisation de destination', () => {

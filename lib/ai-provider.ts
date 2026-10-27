@@ -13,6 +13,13 @@
  */
 export const GROQ_MODEL = 'openai/gpt-oss-120b';
 export const GEMINI_MODEL = 'gemini-2.5-flash';
+/**
+ * Libellés des deux cibles non facturées du donneur de tâches du CMS.
+ * `JULES_MODEL` désigne l'API Google Jules (endpoint `v1alpha/sessions`) :
+ * ce n'est pas un modèle de langage appelé ici, seulement l'étiquette
+ * renvoyée au CMS pour dire quelle cible a répondu.
+ * `BRAIN_MODEL` désigne le service local Heldonica Brain II (RAG, port 8451).
+ */
 export const JULES_MODEL = 'jules-v1alpha';
 export const BRAIN_MODEL = 'heldonica-brain-rag';
 
