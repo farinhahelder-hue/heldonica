@@ -7,7 +7,7 @@ import EnhancedRichContent from '@/components/EnhancedRichContent';
 import MediaLibrary from '@/components/MediaLibrary';
 import EeaatScore from '@/components/EeaatScore';
 import { sanitizeHtml } from '@/lib/sanitize-html';
-import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot, Mail, Map as MapIcon, ChevronLeft, ChevronRight, Palette, Zap, Inbox, MapPin, ListTree, Type } from 'lucide-react';
+import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot, Mail, Map as MapIcon, ChevronLeft, ChevronRight, Palette, Zap, Inbox, MapPin, ListTree, Type, ExternalLink, Globe } from 'lucide-react';
 import { Film, Clapperboard, Camera, Calendar, MessageSquare, ClipboardList, History, ShieldCheck, Bed, Key, FolderOpen } from 'lucide-react';
 import CmsSettingsPanel from '@/components/admin/CmsSettingsPanel';
 import ErrorBoundary from '@/components/admin/ErrorBoundary';
@@ -70,6 +70,11 @@ const AiAnalyticsDashboard = dynamic(() => import('@/components/admin/AiAnalytic
 const AuditLogPanel = dynamic(() => import('./AuditLogPanel'), { ssr: false });
 const HospitalityManager = dynamic(() => import('./HospitalityManager'), { ssr: false });
 const TokensAndReleasesManager = dynamic(() => import('./TokensAndReleasesManager').then(m => m.TokensAndReleasesManager), { ssr: false });
+const CreatorHub = dynamic(() => import('@/components/admin/CreatorHub'), { ssr: false });
+const SeoGeoEngine = dynamic(() => import('@/components/admin/SeoGeoEngine'), { ssr: false });
+const AgentTaskGiver = dynamic(() => import('@/components/admin/AgentTaskGiver'), { ssr: false });
+const LogoGenerator = dynamic(() => import('@/components/admin/LogoGenerator'), { ssr: false });
+const IconPackExplorer = dynamic(() => import('@/components/admin/IconPackExplorer'), { ssr: false });
 
 type Article = {
   id: number;
@@ -111,7 +116,8 @@ type NavSection =
   | 'map' | 'auto-shorts' | 'design' | 'geo' | 'instagram' | 'messages' | 'demandes'
   | 'testimonials' | 'checklists'
   | 'destination-pillars' | 'guides' | 'editable-zones' | 'sub-destinations'
-  | 'seasons' | 'redirects' | 'layouts' | 'audit' | 'hospitality' | 'tokens-releases';
+  | 'seasons' | 'redirects' | 'layouts' | 'audit' | 'hospitality' | 'tokens-releases'
+  | 'hub' | 'task-giver' | 'seo-geo' | 'branding';
 
 // Sections adressables depuis l'URL. Le panneau ne gardait sa section qu'en
 // memoire : impossible d'ouvrir directement « Design » ou « Articles », que ce
@@ -125,6 +131,7 @@ const SECTIONS_URL: readonly NavSection[] = [
   'testimonials', 'checklists',
   'destination-pillars', 'guides', 'editable-zones', 'sub-destinations',
   'seasons', 'redirects', 'layouts', 'audit', 'hospitality', 'tokens-releases',
+  'hub', 'task-giver', 'seo-geo', 'branding',
 ]
 
 function sectionDepuisUrl(valeur: string | null): NavSection | null {
@@ -806,6 +813,8 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
     {
       title: 'Marketing & Outils',
       items: [
+        { id: 'hub',           label: 'Hub Outils (Google/Meta)', icon: <ExternalLink size={15} /> },
+        { id: 'task-giver',    label: 'Tâches Jules & IA',   icon: <Bot size={15} /> },
         { id: 'blog-generator',label: 'Générateur blog',  icon: <Bot size={15} /> },
         { id: 'instagram',     label: 'Instagram',           icon: <Camera size={15} /> },
         { id: 'analytics',     label: 'Analytics IA',        icon: <BarChart3 size={15} /> },
@@ -816,6 +825,8 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
     {
       title: 'Configuration & Audit',
       items: [
+        { id: 'branding',      label: 'Logo & Icônes',       icon: <Sparkles size={15} /> },
+        { id: 'seo-geo',       label: 'SEO & Géo Engine',    icon: <Globe size={15} /> },
         { id: 'design',        label: 'Design',             icon: <Palette size={15} /> },
         { id: 'geo',           label: 'GEO',                icon: <Zap size={15} /> },
         { id: 'layouts',       label: 'Templates',          icon: <Type size={15} /> },
@@ -2364,6 +2375,45 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
             <ErrorBoundary>
               <Suspense fallback={<SkeletonForm />}>
                 <TokensAndReleasesManager />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Hub Créateur Externe (Google, Meta, YouTube, Jules) ── */}
+          {activeSection === 'hub' && (
+            <ErrorBoundary>
+              <Suspense fallback={<SkeletonForm />}>
+                <CreatorHub />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Donneur de Tâches Jules & IA ── */}
+          {activeSection === 'task-giver' && (
+            <ErrorBoundary>
+              <Suspense fallback={<SkeletonForm />}>
+                <AgentTaskGiver />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Moteur SEO Géo ── */}
+          {activeSection === 'seo-geo' && (
+            <ErrorBoundary>
+              <Suspense fallback={<SkeletonForm />}>
+                <SeoGeoEngine />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Identité, Logo & Icônes ── */}
+          {activeSection === 'branding' && (
+            <ErrorBoundary>
+              <Suspense fallback={<SkeletonForm />}>
+                <div className="space-y-10">
+                  <LogoGenerator />
+                  <IconPackExplorer />
+                </div>
               </Suspense>
             </ErrorBoundary>
           )}

@@ -83,6 +83,24 @@ export default async function AdminLayout({
                 Redirections
               </Link>
               <Link 
+                href="/admin/hub" 
+                className="text-indigo-700 font-semibold hover:underline"
+              >
+                🚀 Hub Outils
+              </Link>
+              <Link 
+                href="/admin/seo-geo" 
+                className="text-emerald-700 font-semibold hover:underline"
+              >
+                🌍 SEO Géo
+              </Link>
+              <Link 
+                href="/admin/task-giver" 
+                className="text-amber-800 font-semibold hover:underline"
+              >
+                ⚡ Tâches Jules
+              </Link>
+              <Link 
                 href="/admin/branding" 
                 className="text-eucalyptus font-medium hover:underline"
               >
