@@ -57,42 +57,36 @@ export const ATMOSPHERE_PRESETS: Record<TemplateAtmosphere, {
   subtitleSuffix: string;
   sensorySnippet: string;
   blockTheme: 'forest_fog' | 'terracotta' | 'parchment' | 'dark' | 'sand';
-  cameraLabel: string;
 }> = {
   aube_brume: {
     label: 'Brume d’aube & Silence',
     subtitleSuffix: 'au fil de la brume suspendue au petit matin',
     sensorySnippet: 'L’air vif du matin pique délicatement le visage. La rosée perle sur les pierres et le sentier appartient à ceux qui partent tôt.',
     blockTheme: 'forest_fog',
-    cameraLabel: 'Nikon D7200 • Nikkor 35mm f/1.8 DX (lumière diffuse du matin)',
   },
   soleil_crepuscule: {
     label: 'Crépuscule & Pierre chaude',
     subtitleSuffix: 'quand la roche ocre restitue la tiédeur du jour écoulé',
     sensorySnippet: 'Les senteurs de pinède et d’herbes sèches montent avec la fraîcheur tombante. Le soleil rasant découpe des ombres nettes sur les murs patinés.',
     blockTheme: 'terracotta',
-    cameraLabel: 'Nikon D7200 • Nikkor 35mm f/1.8 DX (lumière dorée rasante)',
   },
   altitude_mineral: {
     label: 'Crête & Silence minéral',
     subtitleSuffix: 'sur la ligne de crête où le calcaire côtoie le ciel',
     sensorySnippet: 'Le silence n’est troublé que par le vent d’altitude et l’écho assourdi d’une clarine. Le pas se fait attentif sur le roc brut.',
     blockTheme: 'parchment',
-    cameraLabel: 'Nikon D7200 • Nikkor 35mm f/1.8 DX (ISO 100, f/4.0 sans filtre artificiel)',
   },
   fajas_ocean: {
     label: 'Falaises & Océan sauvage',
     subtitleSuffix: 'entre parois basaltiques et ressac puissant de l’Atlantique',
     sensorySnippet: 'L’embrun salé se dépose sur la peau. En contrebas des falaises verticales, quelques parcelles cultivées témoignent de l’obstination des anciens.',
     blockTheme: 'dark',
-    cameraLabel: 'Nikon D7200 • Nikkor 18-105mm VR (format brut non saturé)',
   },
   foret_silence: {
     label: 'Forêt ancienne & Sous-bois',
     subtitleSuffix: 'sous la voûte des mousses et des lauriers centenaires',
     sensorySnippet: 'Chaque pas s’enfonce dans un tapis d’aiguilles et d’humus. La lumière filtre timidement, créant des clairières suspendues hors du temps.',
     blockTheme: 'forest_fog',
-    cameraLabel: 'Nikon D7200 • Nikkor 35mm f/1.8 DX (f/1.8, lumière tamisée)',
   },
 };
 
@@ -124,9 +118,9 @@ export const SEASON_PRESETS: Record<TemplateSeason, {
 };
 
 export const CAMERA_PRESETS: Record<TemplateCameraPreset, string> = {
-  nikon_35mm: 'Nikon D7200 • Nikkor 35mm f/1.8 DX (lumière naturelle)',
+  nikon_35mm: 'Nikon D7200 • Nikkor 35mm f/1.8 DX',
   nikon_zoom: 'Nikon D7200 • Nikkor 18-105mm f/3.5-5.6 VR',
-  pixel_raw: 'Pixel 8 Pro RAW (format brut non saturé, zéro filtre IA)',
+  pixel_raw: 'Pixel 8 Pro RAW',
 };
 
 export interface CmsTemplate {
@@ -154,7 +148,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
     generateBlocks: (opts) => {
       const dest = opts?.destination || 'cette étape';
       const atmo = opts?.atmosphere ? ATMOSPHERE_PRESETS[opts.atmosphere] : undefined;
-      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : (atmo?.cameraLabel || 'Nikon D7200 • Nikkor 35mm f/1.8 DX');
+      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : undefined;
       const theme = atmo?.blockTheme || 'sand';
       return [
         {
@@ -363,7 +357,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
     generateBlocks: (opts) => {
       const dest = opts?.destination || 'ces horizons';
       const atmo = opts?.atmosphere ? ATMOSPHERE_PRESETS[opts.atmosphere] : undefined;
-      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : (atmo?.cameraLabel || 'Nikon D7200 • Nikkor 35mm f/1.8 DX');
+      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : undefined;
       const theme = atmo?.blockTheme || 'parchment';
       return [
         {
@@ -413,7 +407,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
     generateBlocks: (opts) => {
       const dest = opts?.destination || 'cette étape';
       const atmo = opts?.atmosphere ? ATMOSPHERE_PRESETS[opts.atmosphere] : undefined;
-      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : (atmo?.cameraLabel || 'Nikon D7200 • Nikkor 35mm f/1.8 DX');
+      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : undefined;
       const theme = atmo?.blockTheme || 'sand';
       return [
         {
@@ -488,7 +482,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
     generateBlocks: (opts) => {
       const dest = opts?.destination || 'les crêtes';
       const atmo = opts?.atmosphere ? ATMOSPHERE_PRESETS[opts.atmosphere] : undefined;
-      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : (atmo?.cameraLabel || 'Nikon D7200 • Nikkor 35mm f/1.8 DX');
+      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : undefined;
       const theme = atmo?.blockTheme || 'forest_fog';
       return [
         {
@@ -551,7 +545,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
     generateBlocks: (opts) => {
       const dest = opts?.destination || 'cette vallée';
       const atmo = opts?.atmosphere ? ATMOSPHERE_PRESETS[opts.atmosphere] : undefined;
-      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : (atmo?.cameraLabel || 'Nikon D7200 • Nikkor 35mm f/1.8 DX');
+      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : undefined;
       const theme = atmo?.blockTheme || 'parchment';
       return [
         {
@@ -616,7 +610,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
     generateBlocks: (opts) => {
       const dest = opts?.destination || 'cette étape';
       const atmo = opts?.atmosphere ? ATMOSPHERE_PRESETS[opts.atmosphere] : undefined;
-      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : (atmo?.cameraLabel || 'Nikon D7200 • Nikkor 35mm f/1.8 DX');
+      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : undefined;
       const theme = atmo?.blockTheme || 'terracotta';
       return [
         {
@@ -691,7 +685,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
     generateBlocks: (opts) => {
       const dest = opts?.destination || 'cette vallée';
       const atmo = opts?.atmosphere ? ATMOSPHERE_PRESETS[opts.atmosphere] : undefined;
-      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : (atmo?.cameraLabel || 'Nikon D7200 • Nikkor 35mm f/1.8 DX');
+      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : undefined;
       const theme = atmo?.blockTheme || 'forest_fog';
       return [
         {

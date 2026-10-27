@@ -259,6 +259,7 @@ export function BlockCanvas({
   const [showFaqVerdictModal, setShowFaqVerdictModal] = useState<boolean>(false);
   const [faqDestInput, setFaqDestInput] = useState<string>('Stoos, Suisse');
   const [faqSeasonInput, setFaqSeasonInput] = useState<string>('Automne doré');
+  const [faqScoreInput, setFaqScoreInput] = useState<string>('');
   const [showLintDetails, setShowLintDetails] = useState<boolean>(false);
   const [showA11yDetails, setShowA11yDetails] = useState<boolean>(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -608,10 +609,12 @@ export function BlockCanvas({
   };
 
   const handleApplyFaqVerdict = () => {
+    const scoreSaisi = faqScoreInput.trim() === '' ? undefined : Number(faqScoreInput);
     const bundle = generateFaqVerdictBundle({
       destination: faqDestInput,
       season: faqSeasonInput,
       mobility: 'mobilités douces et marche',
+      score: Number.isFinite(scoreSaisi as number) ? (scoreSaisi as number) : undefined,
     });
 
     const now = Date.now().toString(36);
@@ -634,7 +637,9 @@ export function BlockCanvas({
         type: 'heading',
         level: 2,
         text: `Verdict Heldonica sans complaisance`,
-        subtitle: `Note de terrain : ${bundle.verdict.verdictScore}/10`,
+        ...(bundle.verdict.verdictScore !== null
+          ? { subtitle: `Note de terrain : ${bundle.verdict.verdictScore}/10` }
+          : {}),
       },
       {
         id: `blk_verdict_spot_${now}`,
@@ -2105,6 +2110,23 @@ export function BlockCanvas({
                   className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-stone-900 focus:outline-none focus:border-sky-500"
                 />
               </div>
+
+                <div>
+                  <label className="block font-semibold text-stone-700 mb-1">Note de terrain (sur 10) :</label>
+                  <input
+                    type="number"
+                    min="0"
+                    max="10"
+                    step="0.5"
+                    value={faqScoreInput}
+                    onChange={(e) => setFaqScoreInput(e.target.value)}
+                    placeholder="Laisser vide si la note n'est pas posée"
+                    className="w-full bg-stone-50 border border-stone-200 rounded-xl px-3 py-2 text-stone-900 focus:outline-none focus:border-sky-500"
+                  />
+                  <p className="text-[10px] text-stone-500 mt-1">
+                    Aucune note n'est inventée : laissée vide, le bloc verdict n'affiche pas de chiffre.
+                  </p>
+                </div>
 
               <div className="p-3 bg-sky-50 rounded-xl border border-sky-100 text-sky-900 text-[11px] space-y-1">
                 <div>✓ 3 questions pratiques (heures sans foule, mobilités douces, animaux/sentiers).</div>
