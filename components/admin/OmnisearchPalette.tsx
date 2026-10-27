@@ -32,6 +32,9 @@ import {
   Home,
   BarChart3,
   Globe,
+  Zap,
+  Gem,
+  Blocks,
 } from 'lucide-react';
 import { getAllVaultSpots, type VaultSpotRecord } from '@/lib/cms-vault-spots';
 import type { BlockType } from '@/types/cms-blocks';
@@ -464,7 +467,7 @@ export function OmnisearchPalette({
                 : 'text-stone-600 hover:bg-stone-100'
             }`}
           >
-            ⚡ Actions
+            <span className="inline-flex items-center gap-1"><Zap size={12} className="shrink-0" />Actions</span>
           </button>
           <button
             type="button"
@@ -475,7 +478,7 @@ export function OmnisearchPalette({
                 : 'text-stone-600 hover:bg-stone-100'
             }`}
           >
-            📄 Articles & Carnets
+            <span className="inline-flex items-center gap-1"><FileText size={12} className="shrink-0" />Articles & Carnets</span>
           </button>
           <button
             type="button"
@@ -486,7 +489,7 @@ export function OmnisearchPalette({
                 : 'text-stone-600 hover:bg-stone-100'
             }`}
           >
-            💎 Coffre RAG
+            <span className="inline-flex items-center gap-1"><Gem size={12} className="shrink-0" />Coffre RAG</span>
           </button>
           <button
             type="button"
@@ -497,7 +500,7 @@ export function OmnisearchPalette({
                 : 'text-stone-600 hover:bg-stone-100'
             }`}
           >
-            🧩 Blocs CMS
+            <span className="inline-flex items-center gap-1"><Blocks size={12} className="shrink-0" />Blocs CMS</span>
           </button>
         </div>
 

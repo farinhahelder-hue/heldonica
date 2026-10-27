@@ -15,7 +15,8 @@ import {
   Sparkles,
   Layers,
   ArrowRight,
-  ShieldCheck,
+    ShieldCheck,
+    Link as LinkIcon,
 } from 'lucide-react'
 
 export interface GeoDestinationAudit {
@@ -166,7 +167,8 @@ export default function SeoGeoEngine() {
       <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-[#241D1A] font-serif flex items-center gap-2">
-            <span>🌍</span> Moteur SEO &amp; Géo-Positionnement Sémantique
+            <Globe size={20} className="text-mahogany shrink-0" />
+            <span>Moteur SEO &amp; Géo-Positionnement Sémantique</span>
           </h2>
           <p className="text-xs text-stone-500 mt-1">
             Optimisation du ranking local, balises Schema.org TouristTrip/Breadcrumb, coordonnées OpenStreetMap et exports GeoJSON.
@@ -315,7 +317,7 @@ export default function SeoGeoEngine() {
                     key={kw}
                     className="px-2.5 py-1 rounded-lg bg-[#FAF7F2] border border-[#DED5C6] text-xs font-medium text-charcoal/80"
                   >
-                    🔍 {kw}
+                    <Search size={11} className="inline shrink-0 mr-1" />{kw}
                   </span>
                 ))}
               </div>
@@ -335,7 +337,7 @@ export default function SeoGeoEngine() {
                     rel="noopener noreferrer"
                     className="text-xs px-3 py-1 rounded-lg bg-stone-100 hover:bg-stone-200 text-stone-700 font-mono transition-colors"
                   >
-                    🔗 {link}
+                    <LinkIcon size={11} className="inline shrink-0 mr-1" />{link}
                   </a>
                 ))}
               </div>

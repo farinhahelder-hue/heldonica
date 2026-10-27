@@ -13,12 +13,12 @@ interface HotspotPickerProps {
 }
 
 const PRESETS = [
-  { label: '🎯 Centre', x: 0.5, y: 0.5 },
-  { label: '👤 Visage / Sujet haut', x: 0.5, y: 0.25 },
-  { label: '⛰️ Sommet / Ciel', x: 0.5, y: 0.15 },
-  { label: '🌊 Premier plan / Sol', x: 0.5, y: 0.8 },
-  { label: '👈 Tiers gauche', x: 0.3, y: 0.5 },
-  { label: '👉 Tiers droit', x: 0.7, y: 0.5 },
+  { label: 'Centre', x: 0.5, y: 0.5 },
+  { label: 'Visage / Sujet haut', x: 0.5, y: 0.25 },
+  { label: 'Sommet / Ciel', x: 0.5, y: 0.15 },
+  { label: 'Premier plan / Sol', x: 0.5, y: 0.8 },
+  { label: 'Tiers gauche', x: 0.3, y: 0.5 },
+  { label: 'Tiers droit', x: 0.7, y: 0.5 },
 ];
 
 export function HotspotPicker({

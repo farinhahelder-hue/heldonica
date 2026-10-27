@@ -44,6 +44,11 @@ import {
   Copy,
   AlertTriangle,
   CheckCircle2,
+  Check,
+  Lightbulb,
+  Pin,
+  CalendarDays,
+  BookOpen,
   ShieldAlert,
   Mic,
   MapPin,
@@ -580,12 +585,12 @@ export function BlockCanvas({
         theme: 'parchment',
         spacing: 'relaxed',
         items: [
-          `📍 **Lieu & Relevé** : ${loc}`,
-          `🗓️ **Moment vérifié** : ${cartoucheSeason.trim() || 'Saison constatée'}`,
-          `🌤️ **Météo & Lumière** : ${cartoucheWeather.trim() || 'Lumière naturelle sans filtre artificiel'}`,
-          `📷 **Boîtier & Optique** : ${cartoucheGear.trim() || 'Nikon D7200 • Nikkor 35mm f/1.8 DX'}`,
-          `🥾 **Mobilité douce** : ${cartoucheMobility.trim() || 'Accès bas carbone et sentier pédestre'}`,
-          `⚖️ **Indépendance** : ${cartoucheEthics.trim() || 'Expédition 100% autofinancée par le duo, zéro complaisance'}`,
+          `Lieu & relevé : ${loc}`,
+          `Moment vérifié : ${cartoucheSeason.trim() || 'Saison constatée'}`,
+          `Météo & lumière : ${cartoucheWeather.trim() || 'Lumière naturelle sans filtre artificiel'}`,
+          `Boîtier & optique : ${cartoucheGear.trim() || 'Nikon D7200 • Nikkor 35mm f/1.8 DX'}`,
+          `Mobilité douce : ${cartoucheMobility.trim() || 'Accès bas carbone et sentier pédestre'}`,
+          `Indépendance : ${cartoucheEthics.trim() || 'Expédition 100% autofinancée par le duo, zéro complaisance'}`,
         ],
       },
     ];
@@ -751,7 +756,8 @@ export function BlockCanvas({
                 </div>
                 <div>
                   <h4 className="text-xs font-semibold text-amber-950 flex items-center gap-2">
-                    💡 Pépite du Coffre détectée pour {spot.location}
+                    <Lightbulb size={12} className="text-amber-600 shrink-0" />
+                    Pépite du Coffre détectée pour {spot.location}
                     <span className="text-[10px] bg-white text-amber-800 px-2 py-0.5 rounded-full border border-amber-200 font-mono">
                       {spot.id}
                     </span>
@@ -852,8 +858,9 @@ export function BlockCanvas({
                   )}
 
                   {lintSummary.hasPronounIssues && (
-                    <div className="p-2 bg-amber-50 rounded border border-amber-200 text-amber-900 text-[11px] mt-1">
-                      ⚠️ Utiliser « on » pour le duo et « tu » pour le lecteur (aucun « je », « nous », « les voyageurs »).
+                    <div className="p-2 bg-amber-50 rounded border border-amber-200 text-amber-900 text-[11px] mt-1 flex items-start gap-1.5">
+                      <AlertTriangle size={12} className="text-amber-600 shrink-0 mt-0.5" />
+                      <span>Utiliser « on » pour le duo et « tu » pour le lecteur (aucun « je », « nous », « les voyageurs »).</span>
                     </div>
                   )}
                 </div>
@@ -921,8 +928,9 @@ export function BlockCanvas({
                       ))}
                     </div>
                   ) : (
-                    <div className="p-2 bg-emerald-50 rounded border border-emerald-100 text-emerald-800 text-[11px]">
-                      ✓ Toutes les images ont un texte alternatif et la hiérarchie des titres est respectée.
+                    <div className="p-2 bg-emerald-50 rounded border border-emerald-100 text-emerald-800 text-[11px] flex items-start gap-1.5">
+                      <CheckCircle2 size={12} className="text-emerald-600 shrink-0 mt-0.5" />
+                      <span>Toutes les images ont un texte alternatif et la hiérarchie des titres est respectée.</span>
                     </div>
                   )}
                 </div>
@@ -936,7 +944,7 @@ export function BlockCanvas({
               title="Générer un cartouche de terrain vérifié (E-E-A-T, Nikon D7200, météo, mobilité)"
             >
               <ShieldAlert size={13} className="text-amber-800" />
-              <span>🏷️ Cartouche de Terrain</span>
+              <span>Cartouche de Terrain</span>
             </button>
 
             <button
@@ -946,7 +954,7 @@ export function BlockCanvas({
               title="Choisir un gabarit éditorial préconfiguré"
             >
               <LayoutTemplate size={13} className="text-amber-700" />
-              <span>📋 Gabarits Slow Travel</span>
+              <span>Gabarits Slow Travel</span>
             </button>
 
             <button
@@ -956,7 +964,7 @@ export function BlockCanvas({
               title="Générer un carnet de route complet à partir d'un album photo de terrain vérifié"
             >
               <Camera size={13} className="text-emerald-700" />
-              <span>📷 Album Preuves</span>
+              <span>Album Preuves</span>
             </button>
 
             <button
@@ -966,7 +974,7 @@ export function BlockCanvas({
               title="Générer une FAQ de terrain et un Verdict slow travel sans complaisance"
             >
               <Sparkles size={13} className="text-sky-700" />
-              <span>🧭 FAQ & Verdict</span>
+              <span>FAQ & Verdict</span>
             </button>
 
             {blocks.length > 0 && (
@@ -977,7 +985,7 @@ export function BlockCanvas({
                 title="Enregistrer la structure actuelle de blocs comme gabarit réutilisable"
               >
                 <Bookmark size={13} className="text-amber-700" />
-                <span>💾 Sauvegarder Gabarit</span>
+                <span>Sauvegarder Gabarit</span>
               </button>
             )}
 
@@ -988,7 +996,7 @@ export function BlockCanvas({
               title="Générer un logo vectoriel SVG, un sceau circulaire ou un monogramme d'artisan"
             >
               <Sparkles size={13} className="text-amber-700" />
-              <span>🎨 Studio Logos</span>
+              <span>Studio Logos</span>
             </button>
 
             <EeatScorecardHud blocks={blocks} />
@@ -1050,7 +1058,8 @@ export function BlockCanvas({
             </div>
 
             <div className="text-[11px] text-stone-600 bg-stone-50 border border-stone-200/80 px-2.5 py-0.5 rounded-lg flex items-center gap-1.5 font-mono">
-              <span>📖 {readingStats.words} mots</span>
+              <BookOpen size={12} className="text-stone-500" />
+              <span>{readingStats.words} mots</span>
               <span className="text-stone-300">•</span>
               <span>~{readingStats.readTimeMin} min de lecture slow travel</span>
             </div>
@@ -1514,7 +1523,7 @@ export function BlockCanvas({
                                 : 'bg-white border border-stone-200 text-stone-600 hover:bg-stone-100'
                             }`}
                           >
-                            {key === 'nikon_35mm' ? '📷 Nikon D7200 35mm' : key === 'nikon_zoom' ? '📷 Nikon Zoom' : '📱 Pixel RAW'}
+                            {key === 'nikon_35mm' ? 'Nikon D7200 35mm' : key === 'nikon_zoom' ? 'Nikon Zoom' : 'Pixel RAW'}
                           </button>
                         ))}
                       </div>
@@ -1557,7 +1566,7 @@ export function BlockCanvas({
                     { id: 'guide', label: 'Guides' },
                     { id: 'hospitality', label: 'Hébergements' },
                     { id: 'visual', label: 'Visuels' },
-                    { id: 'custom', label: `⭐ Mes Gabarits (${userSavedTemplates.length})` },
+                    { id: 'custom', label: `Mes Gabarits (${userSavedTemplates.length})` },
                   ].map((cat) => (
                     <button
                       key={cat.id}
@@ -1611,7 +1620,7 @@ export function BlockCanvas({
                         <Bookmark size={24} className="mx-auto text-stone-300 mb-2" />
                         <p className="text-xs font-semibold text-stone-700 mb-1">Aucun gabarit personnalisé</p>
                         <p className="text-[11px] text-stone-500 leading-relaxed mb-3">
-                          Composez un carnet dans l&apos;éditeur et cliquez sur « 💾 Sauvegarder Gabarit » pour le réutiliser ici à tout moment.
+                          Composez un carnet dans l&apos;éditeur et cliquez sur « Sauvegarder Gabarit » pour le réutiliser ici à tout moment.
                         </p>
                       </div>
                     ) : (
@@ -1628,8 +1637,9 @@ export function BlockCanvas({
                             }`}
                           >
                             <div className="flex items-center justify-between mb-1">
-                              <span className={`text-xs font-bold ${isSelected ? 'text-amber-950 font-serif' : 'text-stone-900'}`}>
-                                ⭐ {custom.title}
+                              <span className={`text-xs font-bold inline-flex items-center gap-1 ${isSelected ? 'text-amber-950 font-serif' : 'text-stone-900'}`}>
+                                <Star size={11} className="text-amber-500 shrink-0" />
+                                {custom.title}
                               </span>
                               <div className="flex items-center gap-1.5">
                                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-white border border-stone-200 text-stone-600 font-mono">
@@ -1705,8 +1715,9 @@ export function BlockCanvas({
                       {previewTemplateBlocks.length} blocs
                     </span>
                   </div>
-                  <span className="text-[10px] text-stone-500 truncate max-w-[180px]">
-                    📍 {templateDestination || 'cette étape'}
+                  <span className="text-[10px] text-stone-500 truncate max-w-[180px] inline-flex items-center gap-1">
+                    <MapPin size={10} className="shrink-0" />
+                    {templateDestination || 'cette étape'}
                   </span>
                 </div>
 
@@ -1719,8 +1730,9 @@ export function BlockCanvas({
 
             {/* Pied du Studio avec actions directes */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-stone-100 shrink-0 mt-3">
-              <span className="text-[11px] text-stone-500 text-center sm:text-left">
-                💡 Remplace l&apos;intégralité du carnet ou ajoute les {previewTemplateBlocks.length} blocs à la suite de vos écrits existants.
+              <span className="text-[11px] text-stone-500 text-center sm:text-left inline-flex items-start gap-1.5">
+                <Lightbulb size={12} className="shrink-0 mt-0.5 text-amber-600" />
+                <span>Remplace l&apos;intégralité du carnet ou ajoute les {previewTemplateBlocks.length} blocs à la suite de vos écrits existants.</span>
               </span>
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <button
@@ -1788,7 +1800,7 @@ export function BlockCanvas({
             <div className="space-y-3.5 text-xs">
               <div>
                 <label className="font-semibold text-stone-700 block mb-1">
-                  📍 Lieu exact & Altitude / Relevé :
+                  Lieu exact & altitude / relevé :
                 </label>
                 <input
                   type="text"
@@ -1802,7 +1814,7 @@ export function BlockCanvas({
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="font-semibold text-stone-700 block mb-1">
-                    🗓️ Date de passage & Saison :
+                    Date de passage & saison :
                   </label>
                   <input
                     type="text"
@@ -1814,7 +1826,7 @@ export function BlockCanvas({
                 </div>
                 <div>
                   <label className="font-semibold text-stone-700 block mb-1">
-                    🌤️ Météo & Conditions constatées :
+                    Météo & conditions constatées :
                   </label>
                   <input
                     type="text"
@@ -1829,7 +1841,7 @@ export function BlockCanvas({
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <label className="font-semibold text-stone-700 block">
-                    📷 Boîtier & Optique photographique :
+                    Boîtier & optique photographique :
                   </label>
                   <div className="flex items-center gap-1.5">
                     <button
@@ -1866,7 +1878,7 @@ export function BlockCanvas({
 
               <div>
                 <label className="font-semibold text-stone-700 block mb-1">
-                  🥾 Mobilité douce & Accès pédestre :
+                  Mobilité douce & accès pédestre :
                 </label>
                 <input
                   type="text"
@@ -1879,7 +1891,7 @@ export function BlockCanvas({
 
               <div>
                 <label className="font-semibold text-stone-700 block mb-1">
-                  ⚖️ Engagement d&apos;authenticité & Éthique :
+                  Engagement d&apos;authenticité & éthique :
                 </label>
                 <input
                   type="text"
@@ -1903,16 +1915,18 @@ export function BlockCanvas({
               <button
                 type="button"
                 onClick={() => handleApplyCartouche('top')}
-                className="px-4 py-2 bg-amber-700 hover:bg-amber-800 text-white rounded-xl text-xs font-semibold transition-colors shadow-xs"
+                className="px-4 py-2 bg-amber-700 hover:bg-amber-800 text-white rounded-xl text-xs font-semibold transition-colors shadow-xs inline-flex items-center gap-1.5"
               >
-                📌 Insérer en tête de carnet
+                <Pin size={12} />
+                Insérer en tête de carnet
               </button>
               <button
                 type="button"
                 onClick={() => handleApplyCartouche('append')}
-                className="px-4 py-2 bg-stone-900 hover:bg-black text-white rounded-xl text-xs font-semibold transition-colors shadow-xs"
+                className="px-4 py-2 bg-stone-900 hover:bg-black text-white rounded-xl text-xs font-semibold transition-colors shadow-xs inline-flex items-center gap-1.5"
               >
-                ➕ Ajouter à la suite
+                <Plus size={12} />
+                Ajouter à la suite
               </button>
             </div>
           </div>
@@ -2023,9 +2037,9 @@ export function BlockCanvas({
                     <div className="min-w-0">
                       <h4 className="text-sm font-bold text-stone-900 truncate">{album.title}</h4>
                       <div className="flex items-center gap-2 mt-1 text-xs text-stone-500">
-                        <span>📅 {album.period}</span>
+                        <span className="inline-flex items-center gap-1"><CalendarDays size={12} />{album.period}</span>
                         <span>•</span>
-                        <span className="font-semibold text-emerald-700">📸 {album.photos.length} photos vérifiées</span>
+                        <span className="font-semibold text-emerald-700 inline-flex items-center gap-1"><Images size={12} />{album.photos.length} photos vérifiées</span>
                       </div>
                     </div>
                   </div>
@@ -2129,9 +2143,9 @@ export function BlockCanvas({
                 </div>
 
               <div className="p-3 bg-sky-50 rounded-xl border border-sky-100 text-sky-900 text-[11px] space-y-1">
-                <div>✓ 3 questions pratiques (heures sans foule, mobilités douces, animaux/sentiers).</div>
-                <div>✓ Verdict Heldonica noté sur 10 avec moment fort et piège à éviter.</div>
-                <div>✓ 100% conforme à la charte éditoriale (0 mot banni).</div>
+                <div className="flex items-start gap-1.5"><Check size={12} className="text-sky-600 shrink-0 mt-0.5" /><span>3 questions pratiques (heures sans foule, mobilités douces, animaux/sentiers).</span></div>
+                <div className="flex items-start gap-1.5"><Check size={12} className="text-sky-600 shrink-0 mt-0.5" /><span>Verdict Heldonica noté sur 10 avec moment fort et piège à éviter.</span></div>
+                <div className="flex items-start gap-1.5"><Check size={12} className="text-sky-600 shrink-0 mt-0.5" /><span>100% conforme à la charte éditoriale (0 mot banni).</span></div>
               </div>
 
               <div className="flex items-center justify-end gap-2 pt-3 border-t border-stone-100">
@@ -2291,7 +2305,7 @@ function ImageEditor({ block, onUpdate }: { block: ImageBlock; onUpdate: (p: Par
               className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium bg-amber-600 hover:bg-amber-700 text-white rounded-lg transition-colors shadow-2xs"
             >
               <Mic size={12} />
-              <span>🎙️ Interviewer (Questions IA)</span>
+              <span>Interviewer (Questions IA)</span>
             </button>
           )}
           <button
@@ -2300,7 +2314,7 @@ function ImageEditor({ block, onUpdate }: { block: ImageBlock; onUpdate: (p: Par
             className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium bg-teal-700 hover:bg-teal-800 text-white rounded-lg transition-colors shadow-2xs"
           >
             <Camera size={12} />
-            <span>📸 Choisir depuis un album de terrain</span>
+            <span>Choisir depuis un album de terrain</span>
           </button>
         </div>
       </div>
@@ -2460,7 +2474,7 @@ function GalleryEditor({ block, onUpdate }: { block: GalleryBlock; onUpdate: (p:
             className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded-xl text-xs font-medium transition-colors"
           >
             <Camera size={13} />
-            <span>📸 Album de terrain</span>
+            <span>Album de terrain</span>
           </button>
           <button
             type="button"
@@ -2696,7 +2710,7 @@ function VaultSpotEditor({
           className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium bg-amber-700 hover:bg-amber-800 text-white rounded-lg transition-colors shadow-2xs"
         >
           <Search size={12} />
-          <span>{isVaultPickerOpen ? 'Fermer le Coffre' : '🔍 Piocher dans le Coffre'}</span>
+          <span>{isVaultPickerOpen ? 'Fermer le Coffre' : 'Piocher dans le Coffre'}</span>
         </button>
       </div>
 
@@ -2822,7 +2836,7 @@ function PhotoEvidenceEditor({
             className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium bg-amber-600 hover:bg-amber-700 disabled:opacity-40 text-white rounded-lg transition-colors shadow-xs"
           >
             <Mic size={13} />
-            <span>🎙️ Interviewer (Questions IA)</span>
+            <span>Interviewer (Questions IA)</span>
           </button>
           <button
             type="button"
@@ -2884,8 +2898,9 @@ function PhotoEvidenceEditor({
                   </span>
                 </div>
                 <div className="p-2 flex-1 flex flex-col justify-between">
-                  <div className="text-[11px] font-semibold text-stone-800 truncate">
-                    📍 {photo.location}
+                  <div className="text-[11px] font-semibold text-stone-800 truncate flex items-center gap-1">
+                    <MapPin size={11} className="shrink-0 text-stone-500" />
+                    {photo.location}
                   </div>
                   <p className="text-[10px] text-stone-500 line-clamp-2 mt-0.5 italic">
                     {photo.suggestedAnecdote}
@@ -2912,7 +2927,7 @@ function PhotoEvidenceEditor({
           </div>
           <div className="min-w-0 flex-1 text-xs">
             <div className="font-semibold text-stone-800 truncate flex items-center gap-1.5">
-              <span>📍 {block.location || 'Lieu non spécifié'}</span>
+              <span className="inline-flex items-center gap-1"><MapPin size={11} className="text-stone-500 shrink-0" />{block.location || 'Lieu non spécifié'}</span>
               {block.date && <span className="text-stone-400 font-normal">({block.date})</span>}
             </div>
             <div className="text-[11px] text-stone-500 truncate italic">

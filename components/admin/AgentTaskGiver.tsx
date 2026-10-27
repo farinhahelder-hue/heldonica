@@ -134,7 +134,8 @@ export default function AgentTaskGiver() {
       <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-[#241D1A] font-serif flex items-center gap-2">
-            <span>⚡</span> Donneur de Tâches IA &amp; Pilotage Jules
+            <Zap size={20} className="text-mahogany shrink-0" />
+            <span>Donneur de Tâches IA &amp; Pilotage Jules</span>
           </h2>
           <p className="text-xs text-stone-500 mt-1">
             Distribuez des tâches autonomes à Google Jules (GitHub) ou aux modèles gratuits de votre environnement (Gemini 2.5 Flash, Groq, Cerveau Local).
@@ -320,8 +321,8 @@ export default function AgentTaskGiver() {
         <div className="flex items-center justify-between pt-2">
           <span className="text-[11px] text-stone-400">
             {target === 'jules'
-              ? '✨ Créera une session Google Jules et enregistrera la tâche dans le registre agent_tasks.'
-              : '⚡ Traitement immédiat avec retour direct dans la console.'}
+              ? 'Créera une session Google Jules et enregistrera la tâche dans le registre agent_tasks.'
+              : 'Traitement immédiat avec retour direct dans la console.' }
           </span>
 
           <button

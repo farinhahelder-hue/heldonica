@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useRef } from 'react'
-import { Download, Copy, Check, Eye, RefreshCw, Palette, Sparkles, Layout } from 'lucide-react'
+import { Download, Copy, Check, Eye, RefreshCw, Palette, Sparkles, Layout, Flower, Crown, Compass, PenTool } from 'lucide-react'
 
 export type LogoArchetype = 'botanic' | 'monogram' | 'compass' | 'editorial'
 
@@ -138,7 +138,8 @@ export default function LogoGenerator() {
       <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-[#241D1A] font-serif flex items-center gap-2">
-            <span>⚜️</span> Générateur de Logo & Sceau Heldonica
+            <Flower size={20} className="text-mahogany shrink-0" />
+            <span>Générateur de Logo & Sceau Heldonica</span>
           </h2>
           <p className="text-xs text-stone-500 mt-1">
             Concepteur vectoriel de logo, sceaux botaniques et monogrammes de marque avec export SVG/PNG direct.
@@ -176,7 +177,9 @@ export default function LogoGenerator() {
             className="px-3.5 py-2 rounded-xl bg-action hover:bg-action-fonce text-white text-xs font-semibold flex items-center gap-1.5 transition-colors shadow-2xs disabled:opacity-50"
           >
             <Sparkles className="w-4 h-4" />
-            <span>{saving ? 'Application...' : savedSuccess ? '✓ Appliqué !' : 'Appliquer au site'}</span>
+            <span className="inline-flex items-center gap-1.5">
+            {saving ? 'Application...' : savedSuccess ? 'Appliqué !' : 'Appliquer au site'}
+            </span>
           </button>
         </div>
       </div>
@@ -200,7 +203,8 @@ export default function LogoGenerator() {
                 }`}
               >
                 <div className="text-sm font-semibold text-charcoal flex items-center gap-1.5">
-                  🌿 Sceau Botanique
+                  <Flower size={14} className="shrink-0" />
+                  Sceau Botanique
                 </div>
                 <div className="text-[11px] text-stone-500 mt-1">
                   Arbre emblème & cercle timbré slow travel
@@ -217,7 +221,8 @@ export default function LogoGenerator() {
                 }`}
               >
                 <div className="text-sm font-semibold text-charcoal flex items-center gap-1.5">
-                  ⚜️ Monogramme H
+                  <Crown size={14} className="shrink-0" />
+                  Monogramme H
                 </div>
                 <div className="text-[11px] text-stone-500 mt-1">
                   Serifs ciselés et rameau d&apos;olivier
@@ -234,7 +239,8 @@ export default function LogoGenerator() {
                 }`}
               >
                 <div className="text-sm font-semibold text-charcoal flex items-center gap-1.5">
-                  🧭 Rose des Vents
+                  <Compass size={14} className="shrink-0" />
+                  Rose des Vents
                 </div>
                 <div className="text-[11px] text-stone-500 mt-1">
                   Méridiens géographiques & compas
@@ -251,7 +257,8 @@ export default function LogoGenerator() {
                 }`}
               >
                 <div className="text-sm font-semibold text-charcoal flex items-center gap-1.5">
-                  🖋️ Éditorial Épuré
+                  <PenTool size={14} className="shrink-0" />
+                  Éditorial Épuré
                 </div>
                 <div className="text-[11px] text-stone-500 mt-1">
                   Logotype sérigraphié & filet discret

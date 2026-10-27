@@ -1,7 +1,7 @@
 'use client';
 
 import { createContext, useContext, useState, useCallback, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, CircleCheck, CircleX, Info } from 'lucide-react';
 
 type ToastType = 'success' | 'error' | 'info' | 'danger';
 
@@ -74,8 +74,16 @@ function ToastItem({ toast, onDone }: { toast: Toast; onDone: () => void }) {
     : toast.type === 'danger' ? 'bg-red-600'
     : 'bg-gray-800';
 
+  // L'icône porte le sens du message ; le texte du toast n'a plus à commencer
+  // par un emoji (✅ / ❌), qui variait d'un appel à l'autre.
+  const Icone = toast.type === 'success' ? CircleCheck
+    : toast.type === 'error' ? CircleX
+    : toast.type === 'danger' ? CircleX
+    : Info;
+
   return (
     <div className={`${bg} text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-3 text-sm animate-in slide-in-from-right`}>
+      <Icone size={16} className="shrink-0" aria-hidden="true" />
       <span className="flex-1">{toast.message}</span>
       <button onClick={onDone} className="text-white/70 hover:text-white">
         <X size={14} />
