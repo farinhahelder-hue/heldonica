@@ -30,6 +30,8 @@ import {
   ListOrdered,
   ListTree,
   Home,
+  BarChart3,
+  Globe,
 } from 'lucide-react';
 import { getAllVaultSpots, type VaultSpotRecord } from '@/lib/cms-vault-spots';
 import type { BlockType } from '@/types/cms-blocks';
@@ -173,6 +175,84 @@ export function OmnisearchPalette({
           iconColor: 'text-emerald-700',
           onSelect: () => {
             onNavigateSection?.('new-article');
+            onClose();
+          },
+        },
+        {
+          id: 'action_google_search_console',
+          type: 'action' as const,
+          title: 'Google Search Console',
+          subtitle: 'Santé sc-domain:heldonica.fr, indexation et requêtes sans reconnexion',
+          badge: 'Console',
+          icon: Search,
+          iconColor: 'text-blue-700',
+          onSelect: () => {
+            window.open('https://search.google.com/search-console?resource_id=sc-domain%3Aheldonica.fr', '_blank', 'noopener,noreferrer');
+            onClose();
+          },
+        },
+        {
+          id: 'action_google_analytics',
+          type: 'action' as const,
+          title: 'Google Analytics 4',
+          subtitle: 'Trafic temps réel & métriques d\'audience G-JDJNTZLBJS',
+          badge: 'Audience',
+          icon: BarChart3,
+          iconColor: 'text-amber-700',
+          onSelect: () => {
+            window.open('https://analytics.google.com/analytics/web/#/p477545934/reports/intelligenthome', '_blank', 'noopener,noreferrer');
+            onClose();
+          },
+        },
+        {
+          id: 'action_meta_business',
+          type: 'action' as const,
+          title: 'Meta Business Suite',
+          subtitle: 'Planification, messagerie & insights Instagram / Facebook',
+          badge: 'Meta',
+          icon: Globe,
+          iconColor: 'text-blue-600',
+          onSelect: () => {
+            window.open('https://business.facebook.com/latest/home?asset_id=1073841119139682', '_blank', 'noopener,noreferrer');
+            onClose();
+          },
+        },
+        {
+          id: 'action_instagram',
+          type: 'action' as const,
+          title: 'Instagram @heldonica',
+          subtitle: 'Profil slow travel officiel, stories et reels',
+          badge: 'Social',
+          icon: Camera,
+          iconColor: 'text-pink-600',
+          onSelect: () => {
+            window.open('https://www.instagram.com/heldonica/', '_blank', 'noopener,noreferrer');
+            onClose();
+          },
+        },
+        {
+          id: 'action_youtube_creator',
+          type: 'action' as const,
+          title: 'YouTube Studio (Creator)',
+          subtitle: 'Gestion des vidéos, shorts et analyses de chaîne',
+          badge: 'Vidéo',
+          icon: Video,
+          iconColor: 'text-red-600',
+          onSelect: () => {
+            window.open('https://studio.youtube.com/channel/UCheldonica', '_blank', 'noopener,noreferrer');
+            onClose();
+          },
+        },
+        {
+          id: 'action_google_jules',
+          type: 'action' as const,
+          title: 'Google Jules (Agent IA)',
+          subtitle: 'Console agent async Google Cloud & sessions de fond',
+          badge: 'Agent IA',
+          icon: Bot,
+          iconColor: 'text-indigo-600',
+          onSelect: () => {
+            window.open('https://jules.google.com/', '_blank', 'noopener,noreferrer');
             onClose();
           },
         },

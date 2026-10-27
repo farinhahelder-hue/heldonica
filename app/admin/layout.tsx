@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getCmsAuthStatus, CMS_SESSION_COOKIE } from '@/lib/cms-auth'
+import { CreatorQuickDock } from '@/components/admin/CreatorQuickDock'
 
 export default async function AdminLayout({
   children,
@@ -129,6 +130,7 @@ export default async function AdminLayout({
           </div>
         </header>
         {children}
+        <CreatorQuickDock />
       </div>
     </div>
   )

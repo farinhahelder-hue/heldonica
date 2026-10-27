@@ -35,6 +35,7 @@ import androidx.compose.ui.viewinterop.AndroidView
  * - Rédaction : éditeur de carnets et articles existants assisté par IA.
  * - CMS : ouvre EditeurActivity (session cookie déjà gérée là-bas).
  * - Studio / Insta : écrans terrain et génération.
+ * - Hub : accès direct aux consoles Google, Meta, YouTube, Jules et outils SEO.
  */
 class StudioActivity : ComponentActivity() {
 
@@ -130,6 +131,15 @@ class StudioActivity : ComponentActivity() {
                     contexte.startActivity(Intent(contexte, MainActivity::class.java))
                     onglet = OngletStudio.parDefaut()
                 }
+                OngletStudio.HUB -> HubScreen(
+                    onNaviguerCms = { chemin ->
+                        contexte.startActivity(
+                            Intent(contexte, EditeurActivity::class.java).apply {
+                                putExtra(EditeurActivity.EXTRA_CHEMIN, chemin)
+                            }
+                        )
+                    }
+                )
             }
         }
     }

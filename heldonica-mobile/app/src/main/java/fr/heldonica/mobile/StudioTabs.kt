@@ -10,7 +10,8 @@ enum class OngletStudio(val titre: String, val emoji: String) {
     REDACTION("Rédaction", "✍️"),
     CMS("CMS", "\uD83D\uDCDD"),
     STUDIO("Memoria", "\uD83C\uDFDB"),
-    INSTA("Terrain", "\uD83D\uDCF8");
+    INSTA("Terrain", "\uD83D\uDCF8"),
+    HUB("Hub Outils", "\uD83D\uDE80");
 
     companion object {
         fun parDefaut(): OngletStudio = CREER
