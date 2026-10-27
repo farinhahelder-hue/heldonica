@@ -1,4 +1,4 @@
--- Migration 20261026170000_desactivation_zones_articles_alentejo.sql
+-- Migration 20261026190000_desactivation_zones_articles_alentejo.sql
 -- Les trois cartes « Nos carnets liés » d'Alentejo pointaient toutes vers /blog
 -- avec des titres d'articles qui n'existaient pas. Le 26/10/2026, la page a été
 -- câblée sur les vrais articles (`getAllPosts` + filtre « alentejo ») ; les neuf
