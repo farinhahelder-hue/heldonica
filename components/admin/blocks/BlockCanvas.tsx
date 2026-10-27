@@ -58,6 +58,7 @@ import {
   Monitor,
   Undo2,
   Redo2,
+  FileCode,
 } from 'lucide-react';
 import { VERIFIED_PHOTO_ALBUMS, type PhotoEvidenceItem } from '@/lib/cms-photo-albums';
 import {
@@ -90,6 +91,9 @@ import { generateBlocksFromAlbum } from '@/lib/cms-draft-from-evidence';
 import { generateFaqVerdictBundle } from '@/lib/cms-faq-verdict-generator';
 import { BlockRenderer } from '@/components/blocks/BlockRenderer';
 import { LogoStudioModal } from '@/components/admin/LogoStudioModal';
+import { BubbleToolbar } from './BubbleToolbar';
+import { AstJsonInspectorModal } from './AstJsonInspectorModal';
+import { EeatScorecardHud } from './EeatScorecardHud';
 
 interface BlockCanvasProps {
   blocks: CmsBlock[];
@@ -221,6 +225,7 @@ export function BlockCanvas({
 }: BlockCanvasProps) {
   const [activeConfigBlockId, setActiveConfigBlockId] = useState<string | null>(null);
   const [showTemplateModal, setShowTemplateModal] = useState<boolean>(false);
+  const [showAstModal, setShowAstModal] = useState<boolean>(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<CmsTemplateId>('slow_travel_diary');
   const [templateDestination, setTemplateDestination] = useState<string>('Stoos, Suisse');
   const [selectedAtmosphere, setSelectedAtmosphere] = useState<TemplateAtmosphere>('altitude_mineral');
@@ -952,6 +957,19 @@ export function BlockCanvas({
             >
               <Sparkles size={13} className="text-amber-700" />
               <span>🎨 Studio Logos</span>
+            </button>
+
+            <EeatScorecardHud blocks={blocks} />
+
+            <button
+              type="button"
+              onClick={() => setShowAstModal(true)}
+              aria-label="Inspecter et éditer l'arbre JSON AST"
+              className="inline-flex items-center gap-1.5 px-3 py-1 bg-stone-900 border border-stone-800 hover:bg-stone-800 text-stone-100 rounded-lg text-xs font-semibold transition-all shadow-2xs"
+              title="Inspecter et éditer l'arbre JSON AST brut des blocs (Mode Sanity Studio)"
+            >
+              <FileCode size={13} className="text-emerald-400" />
+              <span>&lt; / &gt; AST JSON</span>
             </button>
             <span className="text-xs text-stone-400">
               {blocks.length} bloc{blocks.length > 1 ? 's' : ''} actif{blocks.length > 1 ? 's' : ''}
@@ -2079,6 +2097,26 @@ export function BlockCanvas({
       <LogoStudioModal
         isOpen={showLogoStudioModal}
         onClose={() => setShowLogoStudioModal(false)}
+      />
+
+      {/* Barre d'outils flottante contextuelle inline (Sanity Killer Bubble Toolbar) */}
+      <BubbleToolbar
+        onInsertVaultSpot={() => {
+          const firstSpot = getAllVaultSpots()[0];
+          if (firstSpot) {
+            handleInsertVaultSpotDirect(firstSpot);
+          }
+        }}
+      />
+
+      {/* Inspecteur AST JSON Modal (Mode Sanity Studio) */}
+      <AstJsonInspectorModal
+        isOpen={showAstModal}
+        onClose={() => setShowAstModal(false)}
+        blocks={blocks}
+        onApplyBlocks={(newBlocks) => {
+          commitBlocks(newBlocks);
+        }}
       />
     </div>
   );

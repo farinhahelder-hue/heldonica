@@ -6,6 +6,9 @@ import { ImageBlock } from '@/components/blocks/ImageBlock';
 import { BlockRenderer } from '@/components/blocks/BlockRenderer';
 import { OmnisearchPalette } from '@/components/admin/OmnisearchPalette';
 import { BlockCanvas } from '@/components/admin/blocks/BlockCanvas';
+import { AstJsonInspectorModal } from '@/components/admin/blocks/AstJsonInspectorModal';
+import { EeatScorecardHud } from '@/components/admin/blocks/EeatScorecardHud';
+import { BubbleToolbar } from '@/components/admin/blocks/BubbleToolbar';
 import { blocksToHtml, htmlToBlocks } from '@/lib/cms-blocks-converter';
 import type { ImageBlock as ImageBlockType, CmsBlock } from '@/types/cms-blocks';
 
@@ -302,5 +305,66 @@ describe('CMS 3.0 Sanity Killer — Hotspot & Visual Click-to-Edit', () => {
     const saved = localStorage.getItem('heldonica_user_templates_v1');
     expect(saved).not.toBeNull();
     expect(saved).toContain('Mon Gabarit Épique');
+  });
+
+  it('AstJsonInspectorModal affiche l’arbre AST brut, la taille en Ko et gère la copie', () => {
+    const blocks: CmsBlock[] = [
+      { id: 'blk_test_1', type: 'heading', level: 2, text: 'Falaise de basalte' },
+      { id: 'blk_test_2', type: 'text', content: 'On a marché sous la brume.' },
+    ];
+    const onClose = vi.fn();
+
+    render(<AstJsonInspectorModal isOpen={true} onClose={onClose} blocks={blocks} />);
+
+    expect(screen.getByText(/Inspecteur AST JSON \(Sanity Killer Engine\)/i)).toBeDefined();
+    expect(screen.getByText(/Portable Blocks v1/i)).toBeDefined();
+    expect(screen.getByText(/Arbre de structure brut des 2 blocs/i)).toBeDefined();
+    expect(screen.getByText(/Copier JSON/i)).toBeDefined();
+
+    // Clic sur Copier JSON
+    const copyBtn = screen.getByText(/Copier JSON/i);
+    fireEvent.click(copyBtn);
+  });
+
+  it('EeatScorecardHud calcule et affiche en direct le score slow travel et la conformité déontologique', () => {
+    const blocks: CmsBlock[] = [
+      { id: 'b_head', type: 'heading', level: 1, text: 'Immersion lente' },
+      { id: 'b_text', type: 'text', content: 'On a dégusté du pain cuit au feu de bois dans le refuge.' },
+      {
+        id: 'b_ev',
+        type: 'photo_evidence',
+        url: 'https://heldonica.fr/photo.jpg',
+        location: 'Stoos',
+        date: '2025-06-12',
+        anecdote: 'Rencontre avec le berger.',
+      },
+    ];
+
+    render(<EeatScorecardHud blocks={blocks} />);
+
+    // Présence du bouton HUD compact
+    const hudBtn = screen.getByRole('button', { name: /ouvrir le scorecard e-e-a-t/i });
+    expect(hudBtn).toBeDefined();
+
+    // Déroule le popover détaillé
+    fireEvent.click(hudBtn);
+    expect(screen.getByText(/Scorecard E-E-A-T & Vérité Terrain/i)).toBeDefined();
+    expect(screen.getByText(/Pureté Voix de Marque :/i)).toBeDefined();
+    expect(screen.getByText('100% Conforme')).toBeDefined();
+    expect(screen.getByText(/1 bloc\(s\) cartographié\(s\)/i)).toBeDefined();
+  });
+
+  it('BlockCanvas ouvre l’Inspecteur AST JSON lors du clic sur le bouton d’en-tête', () => {
+    const blocks: CmsBlock[] = [
+      { id: 'b_1', type: 'text', content: 'Contenu carnet slow travel.' },
+    ];
+
+    render(<BlockCanvas blocks={blocks} onChange={vi.fn()} />);
+
+    const astBtn = screen.getByRole('button', { name: /inspecter et éditer l'arbre json ast/i });
+    expect(astBtn).toBeDefined();
+
+    fireEvent.click(astBtn);
+    expect(screen.getByText(/Inspecteur AST JSON \(Sanity Killer Engine\)/i)).toBeDefined();
   });
 });
