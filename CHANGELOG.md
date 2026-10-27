@@ -2,7 +2,35 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
-  ## [2026-10-27 quinquies] — Heldonica CMS 3.0 : Studio des Gabarits 3.0, Cartouche E-E-A-T Nikon D7200 & Thèmes Minéraux Slow Travel
+  ## [2026-10-27 sexies] — Heldonica CMS 3.0 : UX Impeccable, Simulateur Mobile APK, Studio des Gabarits Hors-Pair & Anti-IA Radical
+
+- **Simulateur Responsive Tactile Mobile APK / Tablette / Bureau (`BlockCanvas.tsx`)** :
+  - Sélecteur de viewport 3 modes dans la barre secondaire du canvas (`Bureau`, `Tablette 768px`, `Mobile APK 390px`).
+  - En mode `Mobile APK` : simulation fidèle d'un smartphone moderne (coque sombre arrondie `rounded-[2.75rem]`, encoche haut-parleur, barre de balayage tactile inférieure) permettant aux rédacteurs de vérifier instantanément le rendu pour l'application mobile et les smartphones sans déploiement.
+- **Historique de Modification Lossless Undo / Redo (`BlockCanvas.tsx`)** :
+  - Pile d'historique complète (`undoStack` et `redoStack` jusqu'à 30 états mémorisés).
+  - Raccourcis clavier universels (`Ctrl+Z` / `Cmd+Z` pour Annuler, `Ctrl+Y` / `Cmd+Shift+Z` pour Rétablir) sans interférer avec la saisie textuelle native.
+  - Boutons tactiles interactifs d'annulation/rétablissement dans la barre d'outils avec état désactivé automatique.
+- **Studio des Gabarits 3.0 & Personnalisation Sensorielle Hors-Pair (`lib/cms-templates.ts`, `BlockCanvas.tsx`)** :
+  - Sélecteur de **Saisons & Teintes de terrain** (`SEASON_PRESETS` : Printemps sauvage, Été d'altitude, Automne flamboyant, Hiver feutré) avec snippets sensoriels et dates réalistes.
+  - Sélecteur d'**Atmosphères & Lumière naturelle** (`ATMOSPHERE_PRESETS` : Brume d'aube, Crépuscule & Pierre chaude, Crête & Silence minéral, Falaises & Océan, Forêt ancienne).
+  - Préréglages d'optiques réelles (`CAMERA_PRESETS` : Nikon D7200 35mm f/1.8 DX, Nikon Zoom 18-105mm, Pixel RAW sans filtre IA).
+  - Gestion des Gabarits Personnalisés : enregistrement dans `localStorage` (`heldonica_user_templates_v1`), suppression, et boutons d'**Export JSON (`heldonica_gabarits_*.json`)** et d'**Import JSON** pour partage et sauvegarde hors-ligne.
+- **Compteur de Mots & Métriques de Lecture Lente en Temps Réel (`BlockCanvas.tsx`)** :
+  - Décompte instantané des mots sur tous les blocs (paragraphes, titres, pépites du Coffre, récits de photos de terrain).
+  - Calcul du temps de lecture slow travel attentive (base 170 mots/min).
+- **Cartouche de Terrain Certifié E-E-A-T Public Conforme au Cliquet CMS (`app/blog/[slug]/page.tsx`)** :
+  - Cartouche de terrain façon carnet de route imprimé avec liaisons complètes aux zones éditables du CMS (`<EditableZone page="blog" zone="..." fallback="..." />`).
+  - Zéro hardcode visible (100% conforme à `check-cms-hardcode.mjs`).
+- **Garantie Zéro Look IA & Alignement Voix de Marque (`lib/cms-templates.ts`)** :
+  - Remplacement strict de tous les pronoms interdits (`notre`, `votre`, `nos`) par `on` pour le duo, `tu` pour le lecteur, garantissant une authenticité humaine absolue.
+  - Éradication de tout cliché marketing générique.
+- **Vérifications & Garde-fous** :
+  - `npm run preflight` : 13/13 contrôles réussis au vert.
+  - `npm run typecheck` : 0 erreur TypeScript (`tsc --noEmit`).
+  - Vitest : 21/21 tests unitaires et intégration au vert (`SanityKillerCms3.test.tsx`, `cms-templates.test.ts`).
+
+## [2026-10-27 quinquies] — Heldonica CMS 3.0 : Studio des Gabarits 3.0, Cartouche E-E-A-T Nikon D7200 & Thèmes Minéraux Slow Travel
 
   - **Studio des Gabarits 3.0 & Personnalisation Interactive (`BlockCanvas.tsx`, `lib/cms-templates.ts`)** :
     - Transformation de la modale basique en véritable **Studio de Composition éditoriale 2 colonnes** (`max-w-5xl`) :

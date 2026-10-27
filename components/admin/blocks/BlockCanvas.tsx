@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import type {
   CmsBlock,
   BlockType,
@@ -49,9 +49,36 @@ import {
   MapPin,
   ListTree,
   Home,
+  Bookmark,
+  Star,
+  Download,
+  Upload,
+  Smartphone,
+  Tablet,
+  Monitor,
+  Undo2,
+  Redo2,
 } from 'lucide-react';
 import { VERIFIED_PHOTO_ALBUMS, type PhotoEvidenceItem } from '@/lib/cms-photo-albums';
-import { getCmsTemplates, instantiateCmsTemplate, type CmsTemplateId } from '@/lib/cms-templates';
+import {
+  getCmsTemplates,
+  instantiateCmsTemplate,
+  type CmsTemplateId,
+  type TemplateAtmosphere,
+  type TemplateSeason,
+  type TemplateCameraPreset,
+  ATMOSPHERE_PRESETS,
+  SEASON_PRESETS,
+  CAMERA_PRESETS,
+} from '@/lib/cms-templates';
+
+export interface UserSavedTemplate {
+  id: string;
+  title: string;
+  description: string;
+  createdAt: string;
+  blocks: CmsBlock[];
+}
 import { searchVaultSpots, getAllVaultSpots, type VaultSpotRecord } from '@/lib/cms-vault-spots';
 import { suggestVaultSpotsForContent } from '@/lib/cms-vault-suggest';
 import { lintCanvasBlocks } from '@/lib/cms-brand-linter';
@@ -195,7 +222,18 @@ export function BlockCanvas({
   const [showTemplateModal, setShowTemplateModal] = useState<boolean>(false);
   const [selectedTemplateId, setSelectedTemplateId] = useState<CmsTemplateId>('slow_travel_diary');
   const [templateDestination, setTemplateDestination] = useState<string>('Stoos, Suisse');
-  const [templateCategory, setTemplateCategory] = useState<'all' | 'diary' | 'guide' | 'hospitality' | 'visual'>('all');
+  const [selectedAtmosphere, setSelectedAtmosphere] = useState<TemplateAtmosphere>('altitude_mineral');
+  const [selectedCameraPreset, setSelectedCameraPreset] = useState<TemplateCameraPreset>('nikon_35mm');
+  const [selectedSeason, setSelectedSeason] = useState<TemplateSeason>('automne');
+  const [viewportMode, setViewportMode] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [undoStack, setUndoStack] = useState<CmsBlock[][]>([]);
+  const [redoStack, setRedoStack] = useState<CmsBlock[][]>([]);
+  const [templateCategory, setTemplateCategory] = useState<'all' | 'diary' | 'guide' | 'hospitality' | 'visual' | 'custom'>('all');
+  const [userSavedTemplates, setUserSavedTemplates] = useState<UserSavedTemplate[]>([]);
+  const [selectedCustomTemplateId, setSelectedCustomTemplateId] = useState<string | null>(null);
+  const [showSaveTemplateModal, setShowSaveTemplateModal] = useState<boolean>(false);
+  const [newTemplateTitle, setNewTemplateTitle] = useState<string>('');
+  const [newTemplateDesc, setNewTemplateDesc] = useState<string>('');
   const [showCartoucheModal, setShowCartoucheModal] = useState<boolean>(false);
   const [cartoucheLocation, setCartoucheLocation] = useState<string>('Stoos, crête du Fronalpstock (1 922 m)');
   const [cartoucheSeason, setCartoucheSeason] = useState<string>('Printemps — mai 2026');
@@ -222,7 +260,135 @@ export function BlockCanvas({
     }
   }, [selectedBlockId]);
 
-  // Linter de voix éditoriale temps réel (source de vérité : lib/brand-voice.ts)
+  // Chargement des gabarits personnalisés de l'utilisateur
+  useEffect(() => {
+    try {
+      const raw = typeof window !== 'undefined' ? localStorage.getItem('heldonica_user_templates_v1') : null;
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          setUserSavedTemplates(parsed);
+          if (parsed.length > 0 && !selectedCustomTemplateId) {
+            setSelectedCustomTemplateId(parsed[0].id);
+          }
+        }
+      }
+    } catch {}
+  }, []);
+
+  // Gestionnaire d'historique Undo / Redo sans perte
+  const commitBlocks = useCallback(
+    (newBlocks: CmsBlock[]) => {
+      setUndoStack((prev) => [...prev.slice(-30), blocks]);
+      setRedoStack([]);
+      onChange(newBlocks);
+    },
+    [blocks, onChange]
+  );
+
+  const handleUndo = useCallback(() => {
+    if (undoStack.length === 0) return;
+    const prev = undoStack[undoStack.length - 1];
+    setUndoStack((old) => old.slice(0, -1));
+    setRedoStack((old) => [...old, blocks]);
+    onChange(prev);
+  }, [undoStack, blocks, onChange]);
+
+  const handleRedo = useCallback(() => {
+    if (redoStack.length === 0) return;
+    const next = redoStack[redoStack.length - 1];
+    setRedoStack((old) => old.slice(0, -1));
+    setUndoStack((old) => [...old, blocks]);
+    onChange(next);
+  }, [redoStack, blocks, onChange]);
+
+  // Raccourcis clavier Ctrl+Z / Ctrl+Y
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const target = e.target as HTMLElement | null;
+      const isInput =
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.isContentEditable);
+      if (isInput) return;
+
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        if (e.shiftKey) {
+          e.preventDefault();
+          handleRedo();
+        } else {
+          e.preventDefault();
+          handleUndo();
+        }
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
+        e.preventDefault();
+        handleRedo();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleUndo, handleRedo]);
+
+  // Statistiques de lecture lente et décompte de mots
+  const readingStats = useMemo(() => {
+    let words = 0;
+    for (const b of blocks) {
+      if (b.type === 'text') {
+        words += ((b as TextBlock).content || '').replace(/<[^>]+>/g, ' ').trim().split(/\s+/).filter(Boolean).length;
+      } else if (b.type === 'heading') {
+        words += (((b as HeadingBlock).text || '') + ' ' + ((b as HeadingBlock).subtitle || '')).trim().split(/\s+/).filter(Boolean).length;
+      } else if (b.type === 'list') {
+        words += ((b as ListBlock).items || []).join(' ').trim().split(/\s+/).filter(Boolean).length;
+      } else if (b.type === 'photo_evidence') {
+        words += (((b as PhotoEvidenceBlock).anecdote || '') + ' ' + ((b as PhotoEvidenceBlock).location || '')).trim().split(/\s+/).filter(Boolean).length;
+      } else if (b.type === 'vault_spot') {
+        words += (((b as VaultSpotBlock).livedExperience || '') + ' ' + ((b as VaultSpotBlock).title || '')).trim().split(/\s+/).filter(Boolean).length;
+      }
+    }
+    const readTimeMin = Math.max(1, Math.ceil(words / 170));
+    return { words, readTimeMin };
+  }, [blocks]);
+
+  // Export / Import de Gabarits Utilisateur
+  const handleExportUserTemplates = () => {
+    if (userSavedTemplates.length === 0) return;
+    const blob = new Blob([JSON.stringify(userSavedTemplates, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `heldonica_gabarits_${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportUserTemplates = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const parsed = JSON.parse(event.target?.result as string);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const existingIds = new Set(userSavedTemplates.map((t) => t.id));
+          const newToAdd = parsed.filter((t: any) => t && t.id && t.blocks && !existingIds.has(t.id));
+          const merged = [...userSavedTemplates, ...newToAdd];
+          setUserSavedTemplates(merged);
+          localStorage.setItem('heldonica_user_templates_v1', JSON.stringify(merged));
+          if (newToAdd.length > 0) {
+            setSelectedCustomTemplateId(newToAdd[0].id);
+          }
+        }
+      } catch (err) {
+        console.error('Erreur import gabarits:', err);
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
+    // Linter de voix éditoriale temps réel (source de vérité : lib/brand-voice.ts)
   const lintSummary = useMemo(() => lintCanvasBlocks(blocks), [blocks]);
 
   // Audit d'accessibilité WCAG 2.1 (A11y)
@@ -254,7 +420,7 @@ export function BlockCanvas({
       location: spot.location,
       livedExperience: spot.livedExperience,
     };
-    onChange([newBlock, ...blocks]);
+    commitBlocks([newBlock, ...blocks]);
     const newDismissed = new Set(dismissedSuggestions);
     newDismissed.add(spot.id);
     setDismissedSuggestions(newDismissed);
@@ -267,31 +433,97 @@ export function BlockCanvas({
   };
 
   const previewTemplateBlocks = useMemo(() => {
+    if (templateCategory === 'custom') {
+      const custom = userSavedTemplates.find((t) => t.id === selectedCustomTemplateId);
+      if (custom) return custom.blocks;
+    }
     try {
       return instantiateCmsTemplate(selectedTemplateId, {
         destination: templateDestination.trim() || 'Stoos, Suisse',
+        atmosphere: selectedAtmosphere,
+        season: selectedSeason,
+        cameraPreset: selectedCameraPreset,
       });
     } catch {
       return [];
     }
-  }, [selectedTemplateId, templateDestination]);
+  }, [
+    selectedTemplateId,
+    templateDestination,
+    selectedAtmosphere,
+    selectedCameraPreset,
+    templateCategory,
+    selectedCustomTemplateId,
+    userSavedTemplates,
+  ]);
 
   const filteredTemplates = useMemo(() => {
     const all = getCmsTemplates();
     if (templateCategory === 'all') return all;
+    if (templateCategory === 'custom') return [];
     return all.filter((tpl) => tpl.category === templateCategory);
   }, [templateCategory]);
 
-  const handleApplyTemplate = (templateId: CmsTemplateId, mode: 'replace' | 'append') => {
-    const newBlocks = instantiateCmsTemplate(templateId, {
-      destination: templateDestination.trim() || undefined,
-    });
+  const handleApplyTemplate = (templateId: string, mode: 'replace' | 'append') => {
+    let newBlocks: CmsBlock[] = [];
+    if (templateCategory === 'custom') {
+      const custom = userSavedTemplates.find((t) => t.id === templateId);
+      if (custom) {
+        newBlocks = JSON.parse(JSON.stringify(custom.blocks)).map((b: CmsBlock) => ({
+          ...b,
+          id: `blk_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`,
+        }));
+      }
+    } else {
+      newBlocks = instantiateCmsTemplate(templateId as CmsTemplateId, {
+        destination: templateDestination.trim() || undefined,
+        atmosphere: selectedAtmosphere,
+        cameraPreset: selectedCameraPreset,
+      });
+    }
+
+    if (newBlocks.length === 0) return;
+
     if (mode === 'replace') {
       onChange(newBlocks);
     } else {
       onChange([...blocks, ...newBlocks]);
     }
     setShowTemplateModal(false);
+  };
+
+  const handleSaveCurrentAsTemplate = () => {
+    if (blocks.length === 0) return;
+    const title = newTemplateTitle.trim() || `Mon Gabarit (${new Date().toLocaleDateString('fr-FR')})`;
+    const desc = newTemplateDesc.trim() || `Structure slow travel de ${blocks.length} blocs.`;
+    const newTpl: UserSavedTemplate = {
+      id: `usr_tpl_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`,
+      title,
+      description: desc,
+      createdAt: new Date().toISOString(),
+      blocks: JSON.parse(JSON.stringify(blocks)),
+    };
+    const updated = [newTpl, ...userSavedTemplates];
+    setUserSavedTemplates(updated);
+    setSelectedCustomTemplateId(newTpl.id);
+    try {
+      localStorage.setItem('heldonica_user_templates_v1', JSON.stringify(updated));
+    } catch {}
+    setShowSaveTemplateModal(false);
+    setNewTemplateTitle('');
+    setNewTemplateDesc('');
+  };
+
+  const handleDeleteUserTemplate = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const updated = userSavedTemplates.filter((t) => t.id !== id);
+    setUserSavedTemplates(updated);
+    try {
+      localStorage.setItem('heldonica_user_templates_v1', JSON.stringify(updated));
+    } catch {}
+    if (selectedCustomTemplateId === id) {
+      setSelectedCustomTemplateId(updated[0]?.id || null);
+    }
   };
 
   const handleApplyCartouche = (position: 'top' | 'append') => {
@@ -324,9 +556,9 @@ export function BlockCanvas({
     ];
 
     if (position === 'top') {
-      onChange([...cartoucheBlocks, ...blocks]);
+      commitBlocks([...cartoucheBlocks, ...blocks]);
     } else {
-      onChange([...blocks, ...cartoucheBlocks]);
+      commitBlocks([...blocks, ...cartoucheBlocks]);
     }
     setShowCartoucheModal(false);
   };
@@ -379,7 +611,7 @@ export function BlockCanvas({
       },
     ];
 
-    onChange([...blocks, ...faqBlocks]);
+    commitBlocks([...blocks, ...faqBlocks]);
     setShowFaqVerdictModal(false);
   };
 
@@ -389,9 +621,9 @@ export function BlockCanvas({
     if (typeof targetIndex === 'number') {
       const updated = [...blocks];
       updated.splice(targetIndex, 0, newBlock);
-      onChange(updated);
+      commitBlocks(updated);
     } else {
-      onChange([...blocks, newBlock]);
+      commitBlocks([...blocks, newBlock]);
     }
     setOpenInserterIndex(null);
     onSelectBlock?.(newBlock.id);
@@ -407,7 +639,7 @@ export function BlockCanvas({
   };
 
   const removeBlock = (id: string) => {
-    onChange(blocks.filter((b) => b.id !== id));
+    commitBlocks(blocks.filter((b) => b.id !== id));
   };
 
   const moveBlock = (index: number, direction: 'up' | 'down') => {
@@ -417,7 +649,7 @@ export function BlockCanvas({
     const copy = [...blocks];
     const [moved] = copy.splice(index, 1);
     copy.splice(targetIndex, 0, moved);
-    onChange(copy);
+    commitBlocks(copy);
   };
 
   const duplicateBlock = (id: string) => {
@@ -463,7 +695,7 @@ export function BlockCanvas({
     const copy = [...blocks];
     const [moved] = copy.splice(draggedIndex, 1);
     copy.splice(targetIndex, 0, moved);
-    onChange(copy);
+    commitBlocks(copy);
     handleDragEnd();
   };
 
@@ -697,11 +929,101 @@ export function BlockCanvas({
               <Sparkles size={13} className="text-sky-700" />
               <span>🧭 FAQ & Verdict</span>
             </button>
+
+            {blocks.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setShowSaveTemplateModal(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1 bg-stone-100 border border-stone-200 hover:bg-stone-200 text-stone-800 rounded-lg text-xs font-semibold transition-all shadow-2xs"
+                title="Enregistrer la structure actuelle de blocs comme gabarit réutilisable"
+              >
+                <Bookmark size={13} className="text-amber-700" />
+                <span>💾 Sauvegarder Gabarit</span>
+              </button>
+            )}
             <span className="text-xs text-stone-400">
               {blocks.length} bloc{blocks.length > 1 ? 's' : ''} actif{blocks.length > 1 ? 's' : ''}
             </span>
           </div>
         </div>
+
+        {/* Barre d'outils secondaire : Undo/Redo, Métriques de lecture & Simulateur Responsive */}
+        <div className="flex flex-wrap items-center justify-between gap-2.5 pt-2 pb-1 border-t border-stone-100">
+          <div className="flex items-center gap-2">
+            <div className="inline-flex items-center border border-stone-200 rounded-lg p-0.5 bg-stone-50">
+              <button
+                type="button"
+                onClick={handleUndo}
+                disabled={undoStack.length === 0}
+                className="p-1 rounded text-stone-600 hover:text-stone-900 hover:bg-white disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+                title="Annuler la dernière action (Ctrl+Z)"
+                aria-label="Annuler"
+              >
+                <Undo2 size={13} />
+              </button>
+              <button
+                type="button"
+                onClick={handleRedo}
+                disabled={redoStack.length === 0}
+                className="p-1 rounded text-stone-600 hover:text-stone-900 hover:bg-white disabled:opacity-30 disabled:hover:bg-transparent transition-all"
+                title="Rétablir l'action annulée (Ctrl+Y)"
+                aria-label="Rétablir"
+              >
+                <Redo2 size={13} />
+              </button>
+            </div>
+
+            <div className="text-[11px] text-stone-600 bg-stone-50 border border-stone-200/80 px-2.5 py-0.5 rounded-lg flex items-center gap-1.5 font-mono">
+              <span>📖 {readingStats.words} mots</span>
+              <span className="text-stone-300">•</span>
+              <span>~{readingStats.readTimeMin} min de lecture slow travel</span>
+            </div>
+          </div>
+
+          {/* Sélecteur de simulateur viewport (APK Mobile / Tablette / Bureau) */}
+          <div className="inline-flex items-center p-0.5 bg-stone-100 rounded-lg border border-stone-200/80 text-xs">
+            <button
+              type="button"
+              onClick={() => setViewportMode('desktop')}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-medium flex items-center gap-1.5 transition-all ${
+                viewportMode === 'desktop'
+                  ? 'bg-white text-stone-900 shadow-2xs font-semibold'
+                  : 'text-stone-500 hover:text-stone-800'
+              }`}
+              title="Vue Bureau (largeur standard)"
+            >
+              <Monitor size={12} />
+              <span className="hidden sm:inline">Bureau</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewportMode('tablet')}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-medium flex items-center gap-1.5 transition-all ${
+                viewportMode === 'tablet'
+                  ? 'bg-white text-stone-900 shadow-2xs font-semibold'
+                  : 'text-stone-500 hover:text-stone-800'
+              }`}
+              title="Vue Tablette (768px)"
+            >
+              <Tablet size={12} />
+              <span className="hidden sm:inline">Tablette</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewportMode('mobile')}
+              className={`px-2.5 py-1 rounded-md text-[11px] font-medium flex items-center gap-1.5 transition-all ${
+                viewportMode === 'mobile'
+                  ? 'bg-amber-800 text-white shadow-2xs font-semibold'
+                  : 'text-stone-500 hover:text-stone-800'
+              }`}
+              title="Simulateur Mobile APK (390px tactile)"
+            >
+              <Smartphone size={12} />
+              <span>Mobile APK</span>
+            </button>
+          </div>
+        </div>
+
         <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-2">
           {BLOCK_TYPES_CONFIG.map(({ type, label, icon: Icon }) => (
             <button
@@ -736,8 +1058,38 @@ export function BlockCanvas({
           </button>
         </div>
       ) : (
-        <div className="space-y-4">
-          {/* Inserter avant le premier bloc (index 0) */}
+        <div className={`transition-all duration-300 ${
+          viewportMode === 'mobile'
+            ? 'max-w-[420px] mx-auto bg-stone-900 p-3 pt-5 pb-6 rounded-[2.75rem] shadow-2xl border-4 border-stone-800'
+            : viewportMode === 'tablet'
+            ? 'max-w-[768px] mx-auto bg-stone-200/50 p-5 rounded-2xl shadow-lg border border-stone-300'
+            : 'w-full'
+        }`}>
+          {viewportMode === 'mobile' && (
+            <div className="flex flex-col items-center mb-3">
+              {/* Encoche haut-parleur smartphone / APK */}
+              <div className="w-24 h-4 bg-stone-950 rounded-full flex items-center justify-center gap-1.5 shadow-inner">
+                <span className="w-2 h-2 rounded-full bg-stone-800" />
+                <span className="w-9 h-1 rounded-full bg-stone-800" />
+              </div>
+              <span className="text-[9px] text-stone-400 font-mono mt-1 tracking-wider uppercase">
+                Simulateur Mobile APK (390px)
+              </span>
+            </div>
+          )}
+
+          {viewportMode === 'tablet' && (
+            <div className="text-center mb-3">
+              <span className="text-[10px] text-stone-500 font-mono tracking-wider uppercase">
+                Simulateur Tablette (768px)
+              </span>
+            </div>
+          )}
+
+          <div className={`space-y-4 ${
+            viewportMode === 'mobile' ? 'bg-[#FAF7F2] p-3 rounded-[2rem] min-h-[500px]' : ''
+          }`}>
+            {/* Inserter avant le premier bloc (index 0) */}
           <InserterDivider
             index={0}
             isOpen={openInserterIndex === 0}
@@ -974,6 +1326,14 @@ export function BlockCanvas({
             </button>
           </div>
         </div>
+
+        {viewportMode === 'mobile' && (
+          <div className="mt-4 flex justify-center">
+            {/* Barre de navigation tactile Android / iOS */}
+            <div className="w-28 h-1 bg-stone-600 rounded-full" />
+          </div>
+        )}
+      </div>
       )}
 
       {/* Studio des Gabarits 3.0 & Personnalisation Interactive */}
@@ -1027,14 +1387,101 @@ export function BlockCanvas({
                   />
                 </div>
 
+                {/* Personnalisation de l'Atmosphère & Boîtier (pour les gabarits slow travel) */}
+                {templateCategory !== 'custom' && (
+                  <div className="bg-stone-50 border border-stone-200/90 rounded-xl p-2.5 shrink-0 space-y-2">
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[10px] font-bold text-stone-700 uppercase tracking-wider">
+                          Atmosphère & Lumière :
+                        </span>
+                        <span className="text-[10px] text-amber-900 font-medium truncate max-w-[170px]">
+                          {ATMOSPHERE_PRESETS[selectedAtmosphere].label}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-1">
+                        {(Object.keys(ATMOSPHERE_PRESETS) as TemplateAtmosphere[]).map((key) => (
+                          <button
+                            key={key}
+                            type="button"
+                            onClick={() => setSelectedAtmosphere(key)}
+                            className={`px-2 py-1 rounded text-[10px] font-medium transition-all text-left truncate ${
+                              selectedAtmosphere === key
+                                ? 'bg-amber-800 text-white shadow-2xs font-semibold'
+                                : 'bg-white border border-stone-200 text-stone-700 hover:bg-amber-50'
+                            }`}
+                          >
+                            {ATMOSPHERE_PRESETS[key].label.split('&')[0].trim()}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[10px] font-bold text-stone-700 uppercase tracking-wider">
+                          Boîtier & Optique photo :
+                        </span>
+                        <span className="text-[9px] text-stone-500 font-mono truncate max-w-[170px]">
+                          {CAMERA_PRESETS[selectedCameraPreset]}
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-1">
+                        {(Object.keys(CAMERA_PRESETS) as TemplateCameraPreset[]).map((key) => (
+                          <button
+                            key={key}
+                            type="button"
+                            onClick={() => setSelectedCameraPreset(key)}
+                            className={`px-2 py-0.5 rounded text-[10px] font-medium transition-all ${
+                              selectedCameraPreset === key
+                                ? 'bg-stone-900 text-white font-semibold'
+                                : 'bg-white border border-stone-200 text-stone-600 hover:bg-stone-100'
+                            }`}
+                          >
+                            {key === 'nikon_35mm' ? '📷 Nikon D7200 35mm' : key === 'nikon_zoom' ? '📷 Nikon Zoom' : '📱 Pixel RAW'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[10px] font-bold text-stone-700 uppercase tracking-wider">
+                          Saison & Teintes de terrain :
+                        </span>
+                        <span className="text-[10px] text-amber-900 font-medium truncate max-w-[170px]">
+                          {SEASON_PRESETS[selectedSeason].label}
+                        </span>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-1">
+                        {(Object.keys(SEASON_PRESETS) as TemplateSeason[]).map((key) => (
+                          <button
+                            key={key}
+                            type="button"
+                            onClick={() => setSelectedSeason(key)}
+                            className={`px-2 py-1 rounded text-[10px] font-medium transition-all text-center truncate ${
+                              selectedSeason === key
+                                ? 'bg-amber-800 text-white shadow-2xs font-semibold'
+                                : 'bg-white border border-stone-200 text-stone-700 hover:bg-amber-50'
+                            }`}
+                          >
+                            {SEASON_PRESETS[key].seasonKicker}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 {/* Filtres par thématique */}
                 <div className="flex flex-wrap gap-1 shrink-0">
                   {[
                     { id: 'all', label: `Tous (${getCmsTemplates().length})` },
-                    { id: 'diary', label: 'Récits & Vécu' },
-                    { id: 'guide', label: 'Guides & Étapes' },
+                    { id: 'diary', label: 'Récits' },
+                    { id: 'guide', label: 'Guides' },
                     { id: 'hospitality', label: 'Hébergements' },
-                    { id: 'visual', label: 'Essais Visuels' },
+                    { id: 'visual', label: 'Visuels' },
+                    { id: 'custom', label: `⭐ Mes Gabarits (${userSavedTemplates.length})` },
                   ].map((cat) => (
                     <button
                       key={cat.id}
@@ -1053,39 +1500,121 @@ export function BlockCanvas({
 
                 {/* Liste scrollable des gabarits */}
                 <div className="flex-1 overflow-y-auto space-y-2 pr-1 min-h-[200px]">
-                  {filteredTemplates.map((tpl) => {
-                    const isSelected = selectedTemplateId === tpl.id;
-                    return (
-                      <div
-                        key={tpl.id}
-                        onClick={() => setSelectedTemplateId(tpl.id)}
-                        className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
-                          isSelected
-                            ? 'border-amber-500 bg-amber-50/70 ring-2 ring-amber-400/30 shadow-2xs'
-                            : 'border-stone-200 hover:border-amber-300 hover:bg-stone-50/60'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <span className={`text-xs font-bold ${isSelected ? 'text-amber-950 font-serif' : 'text-stone-900'}`}>
-                            {tpl.title}
-                          </span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded bg-white border border-stone-200 text-stone-600 font-mono">
-                            ~{tpl.estimatedReadingMinutes} min
-                          </span>
-                        </div>
-                        <p className="text-[11px] text-stone-600 line-clamp-2 leading-relaxed mb-2">
-                          {tpl.description}
-                        </p>
-                        <div className="flex flex-wrap gap-1">
-                          {tpl.tags.map((t) => (
-                            <span key={t} className="text-[9px] px-1.5 py-0.5 rounded bg-white text-stone-500 border border-stone-100">
-                              #{t}
-                            </span>
-                          ))}
+                  {templateCategory === 'custom' ? (
+                    <div>
+                      <div className="flex items-center justify-between pb-2 mb-2 border-b border-stone-200">
+                        <span className="text-[11px] font-semibold text-stone-700">
+                          Gabarits personnalisés ({userSavedTemplates.length})
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          {userSavedTemplates.length > 0 && (
+                            <button
+                              type="button"
+                              onClick={handleExportUserTemplates}
+                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-stone-100 hover:bg-stone-200 text-stone-700 text-[10px] font-medium transition-colors"
+                              title="Exporter vos gabarits en fichier JSON"
+                            >
+                              <Download size={11} />
+                              <span>Exporter (.json)</span>
+                            </button>
+                          )}
+                          <label className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-100 hover:bg-amber-200 text-amber-900 text-[10px] font-medium transition-colors cursor-pointer">
+                            <Upload size={11} />
+                            <span>Importer (.json)</span>
+                            <input
+                              type="file"
+                              accept=".json"
+                              onChange={handleImportUserTemplates}
+                              className="hidden"
+                            />
+                          </label>
                         </div>
                       </div>
-                    );
-                  })}
+                    {userSavedTemplates.length === 0 ? (
+                      <div className="p-6 text-center border-2 border-dashed border-stone-200 rounded-xl bg-stone-50/50">
+                        <Bookmark size={24} className="mx-auto text-stone-300 mb-2" />
+                        <p className="text-xs font-semibold text-stone-700 mb-1">Aucun gabarit personnalisé</p>
+                        <p className="text-[11px] text-stone-500 leading-relaxed mb-3">
+                          Composez un carnet dans l&apos;éditeur et cliquez sur « 💾 Sauvegarder Gabarit » pour le réutiliser ici à tout moment.
+                        </p>
+                      </div>
+                    ) : (
+                      userSavedTemplates.map((custom) => {
+                        const isSelected = selectedCustomTemplateId === custom.id;
+                        return (
+                          <div
+                            key={custom.id}
+                            onClick={() => setSelectedCustomTemplateId(custom.id)}
+                            className={`p-3 rounded-xl border text-left cursor-pointer transition-all relative group ${
+                              isSelected
+                                ? 'border-amber-500 bg-amber-50/70 ring-2 ring-amber-400/30 shadow-2xs'
+                                : 'border-stone-200 hover:border-amber-300 hover:bg-stone-50/60'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between mb-1">
+                              <span className={`text-xs font-bold ${isSelected ? 'text-amber-950 font-serif' : 'text-stone-900'}`}>
+                                ⭐ {custom.title}
+                              </span>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-white border border-stone-200 text-stone-600 font-mono">
+                                  {custom.blocks.length} blocs
+                                </span>
+                                <button
+                                  type="button"
+                                  onClick={(e) => handleDeleteUserTemplate(custom.id, e)}
+                                  className="text-stone-400 hover:text-rose-600 p-0.5 rounded transition-colors"
+                                  title="Supprimer ce gabarit"
+                                >
+                                  <Trash2 size={13} />
+                                </button>
+                              </div>
+                            </div>
+                            <p className="text-[11px] text-stone-600 line-clamp-2 leading-relaxed mb-1">
+                              {custom.description}
+                            </p>
+                            <span className="text-[9px] text-stone-400 font-mono">
+                              Créé le {new Date(custom.createdAt).toLocaleDateString('fr-FR')}
+                            </span>
+                          </div>
+                        );
+                      })
+                    )}
+                    </div>
+                  ) : (
+                    filteredTemplates.map((tpl) => {
+                      const isSelected = selectedTemplateId === tpl.id;
+                      return (
+                        <div
+                          key={tpl.id}
+                          onClick={() => setSelectedTemplateId(tpl.id)}
+                          className={`p-3 rounded-xl border text-left cursor-pointer transition-all ${
+                            isSelected
+                              ? 'border-amber-500 bg-amber-50/70 ring-2 ring-amber-400/30 shadow-2xs'
+                              : 'border-stone-200 hover:border-amber-300 hover:bg-stone-50/60'
+                          }`}
+                        >
+                          <div className="flex items-center justify-between mb-1">
+                            <span className={`text-xs font-bold ${isSelected ? 'text-amber-950 font-serif' : 'text-stone-900'}`}>
+                              {tpl.title}
+                            </span>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-white border border-stone-200 text-stone-600 font-mono">
+                              ~{tpl.estimatedReadingMinutes} min
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-stone-600 line-clamp-2 leading-relaxed mb-2">
+                            {tpl.description}
+                          </p>
+                          <div className="flex flex-wrap gap-1">
+                            {tpl.tags.map((t) => (
+                              <span key={t} className="text-[9px] px-1.5 py-0.5 rounded bg-white text-stone-500 border border-stone-100">
+                                #{t}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })
+                  )}
                 </div>
               </div>
 
@@ -1120,14 +1649,28 @@ export function BlockCanvas({
               <div className="flex items-center gap-2 w-full sm:w-auto">
                 <button
                   type="button"
-                  onClick={() => handleApplyTemplate(selectedTemplateId, 'replace')}
+                  onClick={() =>
+                    handleApplyTemplate(
+                      templateCategory === 'custom'
+                        ? selectedCustomTemplateId || ''
+                        : selectedTemplateId,
+                      'replace'
+                    )
+                  }
                   className="flex-1 sm:flex-none px-4 py-2 bg-stone-900 hover:bg-black text-white rounded-xl text-xs font-semibold transition-colors shadow-xs"
                 >
                   Remplacer tout le carnet ({previewTemplateBlocks.length} blocs)
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleApplyTemplate(selectedTemplateId, 'append')}
+                  onClick={() =>
+                    handleApplyTemplate(
+                      templateCategory === 'custom'
+                        ? selectedCustomTemplateId || ''
+                        : selectedTemplateId,
+                      'append'
+                    )
+                  }
                   className="flex-1 sm:flex-none px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl text-xs font-semibold transition-colors shadow-xs"
                 >
                   Ajouter à la suite (+{previewTemplateBlocks.length})
@@ -1294,6 +1837,73 @@ export function BlockCanvas({
                 className="px-4 py-2 bg-stone-900 hover:bg-black text-white rounded-xl text-xs font-semibold transition-colors shadow-xs"
               >
                 ➕ Ajouter à la suite
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Sauvegarde de Gabarit Personnalisé */}
+      {showSaveTemplateModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-stone-900/60 backdrop-blur-xs">
+          <div className="bg-white rounded-2xl max-w-md w-full p-5 sm:p-6 shadow-2xl border border-stone-200 animate-in fade-in zoom-in-95 duration-150">
+            <div className="flex items-center justify-between pb-3 border-b border-stone-100 mb-4">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-800 flex items-center justify-center">
+                  <Bookmark size={16} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-stone-900 font-serif">Mémoriser comme Gabarit</h3>
+                  <p className="text-[11px] text-stone-500">Réutilisez cette composition de {blocks.length} blocs en 1 clic</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowSaveTemplateModal(false)}
+                className="p-1 text-stone-400 hover:text-stone-600"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div className="space-y-3 text-xs">
+              <div>
+                <label className="font-semibold text-stone-700 block mb-1">Nom du gabarit :</label>
+                <input
+                  type="text"
+                  value={newTemplateTitle}
+                  onChange={(e) => setNewTemplateTitle(e.target.value)}
+                  placeholder="ex: Mon Itinéraire 3 Jours Randonnée & Refuge"
+                  className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 font-medium focus:outline-none focus:border-amber-500"
+                />
+              </div>
+
+              <div>
+                <label className="font-semibold text-stone-700 block mb-1">Description courte :</label>
+                <input
+                  type="text"
+                  value={newTemplateDesc}
+                  onChange={(e) => setNewTemplateDesc(e.target.value)}
+                  placeholder="ex: Récit avec relevé de crête, météo et bilan critique"
+                  className="w-full px-3 py-2 bg-stone-50 border border-stone-200 rounded-xl text-stone-900 focus:outline-none focus:border-amber-500"
+                />
+              </div>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-4 border-t border-stone-100 mt-4">
+              <button
+                type="button"
+                onClick={() => setShowSaveTemplateModal(false)}
+                className="px-3.5 py-1.5 border border-stone-200 text-stone-600 rounded-xl text-xs hover:bg-stone-50"
+              >
+                Annuler
+              </button>
+              <button
+                type="button"
+                onClick={handleSaveCurrentAsTemplate}
+                className="px-4 py-1.5 bg-amber-700 hover:bg-amber-800 text-white rounded-xl text-xs font-semibold shadow-xs"
+              >
+                Enregistrer le gabarit
               </button>
             </div>
           </div>

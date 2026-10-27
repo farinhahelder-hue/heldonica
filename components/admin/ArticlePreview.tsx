@@ -3,6 +3,9 @@
 import { useEffect } from 'react';
 import { X } from 'lucide-react';
 import { sanitizeHtml } from '@/lib/sanitize-html';
+import { isArticleConvertedToBlocks } from '@/lib/cms-article-migrator';
+import { htmlToBlocks } from '@/lib/cms-blocks-converter';
+import { BlockRenderer } from '@/components/blocks/BlockRenderer';
 
 type Props = {
   open: boolean;
@@ -70,10 +73,16 @@ export default function ArticlePreview({
           )}
 
           {content ? (
-            <div
-              className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-a:text-[#2D8B7A]"
-              dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
-            />
+            isArticleConvertedToBlocks(content) ? (
+              <div className="pt-2">
+                <BlockRenderer blocks={htmlToBlocks(content)} />
+              </div>
+            ) : (
+              <div
+                className="prose prose-sm max-w-none prose-headings:text-gray-900 prose-a:text-[#2D8B7A]"
+                dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }}
+              />
+            )
           ) : (
             <p className="text-gray-400 text-sm">Aucun contenu à afficher.</p>
           )}

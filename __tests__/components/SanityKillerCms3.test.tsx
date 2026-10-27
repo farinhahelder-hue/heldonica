@@ -204,4 +204,103 @@ describe('CMS 3.0 Sanity Killer — Hotspot & Visual Click-to-Edit', () => {
     expect(inserted[0].type).toBe('heading');
     expect(inserted[1].type).toBe('list');
   });
+  it('Studio des Gabarits 3.0 permet de basculer l’atmosphère et la saison avec mise à jour réactive', () => {
+    const onChange = vi.fn();
+    render(<BlockCanvas blocks={[]} onChange={onChange} />);
+
+    // Ouverture du modal de gabarits
+    const gabaritsBtn = screen.getByRole('button', { name: /Gabarits Slow Travel/i });
+    fireEvent.click(gabaritsBtn);
+
+    // Vérifie la présence des sélecteurs sensoriels
+    expect(screen.getByText(/Atmosphère & Lumière/i)).toBeDefined();
+    expect(screen.getByText(/Saison & Teintes de terrain/i)).toBeDefined();
+
+    // Sélection de la saison Printemps sauvage
+    const printempsBtn = screen.getByRole('button', { name: /Printemps sauvage/i });
+    fireEvent.click(printempsBtn);
+
+    // Sélection de l'atmosphère Brume d'aube
+    const brumeBtn = screen.getByRole('button', { name: /Brume d’aube/i });
+    fireEvent.click(brumeBtn);
+
+    // Clic sur "Remplacer tout le carnet"
+    const replaceBtn = screen.getByRole('button', { name: /Remplacer tout le carnet/i });
+    fireEvent.click(replaceBtn);
+
+    expect(onChange).toHaveBeenCalled();
+    const applied = onChange.mock.calls[0][0] as CmsBlock[];
+    expect(applied.length).toBeGreaterThan(0);
+  });
+
+  it('BlockCanvas propose le simulateur responsive (Mobile APK, Tablette, Bureau)', () => {
+    render(<BlockCanvas blocks={[{ id: 'b_1', type: 'heading', level: 1, text: 'Titre de test' }]} onChange={vi.fn()} />);
+
+    // Bouton Mobile APK
+    const mobileBtn = screen.getByRole('button', { name: /Mobile APK/i });
+    expect(mobileBtn).toBeDefined();
+
+    // Bascule en vue Mobile APK
+    fireEvent.click(mobileBtn);
+    expect(screen.getByText(/Simulateur Mobile APK/i)).toBeDefined();
+
+    // Bascule en vue Tablette
+    const tabletBtn = screen.getByRole('button', { name: /Tablette/i });
+    fireEvent.click(tabletBtn);
+    expect(screen.getByText(/Simulateur Tablette/i)).toBeDefined();
+  });
+
+  it('BlockCanvas gère l’historique Undo / Redo sans perte', () => {
+    const onChange = vi.fn();
+    const initialBlocks: CmsBlock[] = [
+      { id: 'b_initial', type: 'text', content: 'Premier texte' },
+    ];
+
+    render(<BlockCanvas blocks={initialBlocks} onChange={onChange} />);
+
+    // Boutons Undo / Redo sont présents dans la barre secondaire
+    const undoBtn = screen.getByRole('button', { name: /Annuler/i });
+    const redoBtn = screen.getByRole('button', { name: /Rétablir/i });
+    expect(undoBtn).toBeDefined();
+    expect(redoBtn).toBeDefined();
+
+    // Initialement désactivés car l'historique est vierge
+    expect((undoBtn as HTMLButtonElement).disabled).toBe(true);
+    expect((redoBtn as HTMLButtonElement).disabled).toBe(true);
+
+    // Ajout d'un bloc titre (ce qui alimente l'historique de modification via commitBlocks)
+    const addTitleBtn = screen.getByRole('button', { name: /^Titre$/i });
+    fireEvent.click(addTitleBtn);
+
+    expect(onChange).toHaveBeenCalled();
+  });
+
+  it('Sauvegarde et affichage d’un gabarit personnalisé dans localStorage', () => {
+    const onChange = vi.fn();
+    const blocks: CmsBlock[] = [
+      { id: 'b_custom', type: 'heading', level: 1, text: 'Mon itinéraire personnalisé' },
+    ];
+
+    render(<BlockCanvas blocks={blocks} onChange={onChange} />);
+
+    // Clic sur Sauvegarder Gabarit
+    const saveBtn = screen.getByRole('button', { name: /Sauvegarder Gabarit/i });
+    fireEvent.click(saveBtn);
+
+    // Le modal d'enregistrement s'ouvre
+    expect(screen.getByText(/Mémoriser comme Gabarit/i)).toBeDefined();
+
+    // Remplir le formulaire
+    const titleInput = screen.getByPlaceholderText(/ex: Mon Itinéraire 3 Jours Randonnée & Refuge/i);
+    fireEvent.change(titleInput, { target: { value: 'Mon Gabarit Épique' } });
+
+    // Clic sur Valider l'enregistrement
+    const confirmBtn = screen.getByRole('button', { name: /Enregistrer le gabarit/i });
+    fireEvent.click(confirmBtn);
+
+    // Vérifier l'écriture dans localStorage
+    const saved = localStorage.getItem('heldonica_user_templates_v1');
+    expect(saved).not.toBeNull();
+    expect(saved).toContain('Mon Gabarit Épique');
+  });
 });

@@ -86,10 +86,25 @@ describe('CMS Templates Library (lib/cms-templates.ts)', () => {
 
   it('détecte un doublon d\'identifiants de blocs', () => {
     const blocks = instantiateCmsTemplate('slow_travel_diary');
-    blocks[1].id = blocks[0].id; // Forcer le doublon
+    blocks[1].id = blocks[0].id;
 
     const validation = validateTemplateBlocks(blocks);
     expect(validation.valid).toBe(false);
     expect(validation.issues.some((msg) => msg.includes('doublon'))).toBe(true);
+  });
+
+  it('personnalise les blocs avec atmosphère sensorielle et boëtier Nikon D7200', () => {
+    const blocks = instantiateCmsTemplate('slow_travel_diary', {
+      destination: 'Stoos, Suisse',
+      atmosphere: 'altitude_mineral',
+      cameraPreset: 'nikon_35mm',
+    });
+
+    const photoBlock = blocks.find((b) => b.type === 'photo_evidence');
+    expect(photoBlock).toBeDefined();
+    expect(photoBlock.cameraInfo).toContain('Nikon D7200');
+
+    const h1 = blocks.find((b) => b.type === 'heading' && b.level === 1);
+    expect(h1.subtitle).toContain('sur la ligne de crête');
   });
 });
