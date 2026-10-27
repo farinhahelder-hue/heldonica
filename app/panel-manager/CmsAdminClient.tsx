@@ -1588,6 +1588,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                                 selectedBlockId={selectedBlockId}
                                 onSelectBlock={setSelectedBlockId}
                                 onOpenAgents={() => setIsAgentsDrawerOpen(true)}
+                                onOpenExport={() => setIsExportImportModalOpen(true)}
                                 articleSlug={editingArticle?.slug}
                               />
                             </div>
@@ -1628,6 +1629,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                             selectedBlockId={selectedBlockId}
                             onSelectBlock={setSelectedBlockId}
                             onOpenAgents={() => setIsAgentsDrawerOpen(true)}
+                            onOpenExport={() => setIsExportImportModalOpen(true)}
                             articleSlug={editingArticle?.slug}
                           />
                         )

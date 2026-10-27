@@ -103,6 +103,7 @@ interface BlockCanvasProps {
   selectedBlockId?: string | null;
   onSelectBlock?: (id: string) => void;
   onOpenAgents?: () => void;
+  onOpenExport?: () => void;
   articleSlug?: string;
 }
 
@@ -226,6 +227,7 @@ export function BlockCanvas({
   selectedBlockId,
   onSelectBlock,
   onOpenAgents,
+  onOpenExport,
   articleSlug,
 }: BlockCanvasProps) {
   const [activeConfigBlockId, setActiveConfigBlockId] = useState<string | null>(null);
@@ -314,7 +316,7 @@ export function BlockCanvas({
     onChange(next);
   }, [redoStack, blocks, onChange]);
 
-  // Raccourcis clavier Ctrl+Z / Ctrl+Y
+  // Raccourcis clavier Pro Studio (Undo/Redo, AST, Gabarits, Cartouche, Export)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
@@ -336,12 +338,32 @@ export function BlockCanvas({
       } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') {
         e.preventDefault();
         handleRedo();
+      } else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'j') {
+        e.preventDefault();
+        setShowAstModal((prev) => !prev);
+      } else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 't') {
+        e.preventDefault();
+        setShowTemplateModal((prev) => !prev);
+      } else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'c') {
+        e.preventDefault();
+        setShowCartoucheModal((prev) => !prev);
+      } else if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'x') {
+        if (onOpenExport) {
+          e.preventDefault();
+          onOpenExport();
+        }
+      } else if (e.key === 'Escape') {
+        setShowAstModal(false);
+        setShowTemplateModal(false);
+        setShowCartoucheModal(false);
+        setShowAlbumModal(false);
+        setShowLogoStudioModal(false);
       }
     };
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [handleUndo, handleRedo]);
+  }, [handleUndo, handleRedo, onOpenExport]);
 
   // Statistiques de lecture lente et décompte de mots
   const readingStats = useMemo(() => {
@@ -971,11 +993,24 @@ export function BlockCanvas({
               onClick={() => setShowAstModal(true)}
               aria-label="Inspecter et éditer l'arbre JSON AST"
               className="inline-flex items-center gap-1.5 px-3 py-1 bg-stone-900 border border-stone-800 hover:bg-stone-800 text-stone-100 rounded-lg text-xs font-semibold transition-all shadow-2xs"
-              title="Inspecter et éditer l'arbre JSON AST brut des blocs (Mode Sanity Studio)"
+              title="Inspecter et éditer l'arbre JSON AST brut des blocs (Mode Sanity Studio • Ctrl+Shift+J)"
             >
               <FileCode size={13} className="text-emerald-400" />
               <span>&lt; / &gt; AST JSON</span>
             </button>
+
+            {onOpenExport && (
+              <button
+                type="button"
+                onClick={onOpenExport}
+                aria-label="Exporter Markdown ou HTML newsletter"
+                className="inline-flex items-center gap-1.5 px-3 py-1 bg-amber-50 border border-amber-200 hover:bg-amber-100 text-amber-900 rounded-lg text-xs font-semibold transition-all shadow-2xs"
+                title="Exporter l'article en Markdown, JSON ou HTML Newsletter artisanal (Ctrl+Shift+X)"
+              >
+                <Download size={13} className="text-amber-700" />
+                <span>Exporter</span>
+              </button>
+            )}
             <span className="text-xs text-stone-400">
               {blocks.length} bloc{blocks.length > 1 ? 's' : ''} actif{blocks.length > 1 ? 's' : ''}
             </span>
@@ -2110,7 +2145,7 @@ export function BlockCanvas({
         onInsertVaultSpot={() => {
           const firstSpot = getAllVaultSpots()[0];
           if (firstSpot) {
-            handleInsertVaultSpotDirect(firstSpot);
+            insertSuggestedSpot(firstSpot);
           }
         }}
       />

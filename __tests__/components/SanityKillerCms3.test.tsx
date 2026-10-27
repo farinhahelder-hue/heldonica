@@ -10,6 +10,7 @@ import { AstJsonInspectorModal } from '@/components/admin/blocks/AstJsonInspecto
 import { EeatScorecardHud } from '@/components/admin/blocks/EeatScorecardHud';
 import { BubbleToolbar } from '@/components/admin/blocks/BubbleToolbar';
 import { blocksToHtml, htmlToBlocks } from '@/lib/cms-blocks-converter';
+import { instantiateCmsTemplate, CMS_TEMPLATES } from '@/lib/cms-templates';
 import type { ImageBlock as ImageBlockType, CmsBlock } from '@/types/cms-blocks';
 
 describe('CMS 3.0 Sanity Killer — Hotspot & Visual Click-to-Edit', () => {
@@ -366,5 +367,36 @@ describe('CMS 3.0 Sanity Killer — Hotspot & Visual Click-to-Edit', () => {
 
     fireEvent.click(astBtn);
     expect(screen.getByText(/Inspecteur AST JSON \(Sanity Killer Engine\)/i)).toBeDefined();
+  });
+
+  it('Les nouveaux gabarits Terroir et Train bas carbone génèrent des structures certifiées', () => {
+    expect(CMS_TEMPLATES.terroir_artisan_table).toBeDefined();
+    expect(CMS_TEMPLATES.train_escape_zero_carbon).toBeDefined();
+
+    const terroirBlocks = instantiateCmsTemplate('terroir_artisan_table', {
+      destination: 'Alentejo',
+      atmosphere: 'terracotta_dore',
+    });
+    expect(terroirBlocks.length).toBeGreaterThan(4);
+    expect(terroirBlocks.some((b: CmsBlock) => b.type === 'vault_spot')).toBe(true);
+    expect(terroirBlocks.some((b: CmsBlock) => b.type === 'photo_evidence')).toBe(true);
+
+    const trainBlocks = instantiateCmsTemplate('train_escape_zero_carbon', {
+      destination: 'Vallée de la Roya',
+      atmosphere: 'altitude_mineral',
+    });
+    expect(trainBlocks.length).toBeGreaterThan(4);
+    expect(trainBlocks.some((b: CmsBlock) => b.type === 'list')).toBe(true);
+  });
+
+  it('BlockCanvas affiche le bouton d’export rapide lorsque onOpenExport est fourni', () => {
+    const onExport = vi.fn();
+    render(<BlockCanvas blocks={[]} onChange={vi.fn()} onOpenExport={onExport} />);
+
+    const exportBtn = screen.getByRole('button', { name: /exporter markdown ou html newsletter/i });
+    expect(exportBtn).toBeDefined();
+
+    fireEvent.click(exportBtn);
+    expect(onExport).toHaveBeenCalledTimes(1);
   });
 });

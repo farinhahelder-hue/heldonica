@@ -22,7 +22,9 @@ export type CmsTemplateId =
   | 'photo_essay'
   | 'verdict_counter_tourism'
   | 'dispatch_field_notes'
-  | 'sensory_micro_escape';
+  | 'sensory_micro_escape'
+  | 'terroir_artisan_table'
+  | 'train_escape_zero_carbon';
 
 export type TemplateAtmosphere =
   | 'aube_brume'
@@ -597,6 +599,150 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
           type: 'button',
           label: 'Demander un carnet de voyage sur-mesure',
           url: '/travel-planning',
+          variant: 'primary_gold',
+          spacing: 'relaxed',
+        },
+      ];
+    },
+  },
+
+  terroir_artisan_table: {
+    id: 'terroir_artisan_table',
+    title: 'Halte de Terroir & Table d’Artisan',
+    description: 'Tasca de pêcheurs, fromagerie d’alpage ou vignoble en terrasses : immersion culinaire brute sans intermédiaire commercial.',
+    category: 'diary',
+    estimatedReadingMinutes: 5,
+    tags: ['terroir', 'cuisine de saison', 'artisans', 'adresses vécues'],
+    generateBlocks: (opts) => {
+      const dest = opts?.destination || 'cette étape';
+      const atmo = opts?.atmosphere ? ATMOSPHERE_PRESETS[opts.atmosphere] : undefined;
+      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : (atmo?.cameraLabel || 'Nikon D7200 • Nikkor 35mm f/1.8 DX');
+      const theme = atmo?.blockTheme || 'terracotta';
+      return [
+        {
+          id: generateId('tpl_heading'),
+          type: 'heading',
+          level: 1,
+          text: `Table d’artisan à ${dest} : ce que le terroir a de plus vrai`,
+          subtitle: atmo ? `Des assiettes dictées par la pêche ou la récolte du jour, ${atmo.subtitleSuffix}.` : 'Des assiettes dictées par la pêche du matin ou la récolte du jour.',
+          spacing: 'relaxed',
+        },
+        {
+          id: generateId('tpl_text'),
+          type: 'text',
+          content: '<p>On s’attable là où il n’y a pas de menu imprimé sous plastique. Les propriétaires cuisinent ce que la terre ou la marée leur donne, sans chercher à flatter les habitudes des foules de passage.</p>',
+          spacing: 'normal',
+        },
+        {
+          id: generateId('tpl_vault'),
+          type: 'vault_spot',
+          title: 'Tasca de village & cuisine de mémoire',
+          location: `${dest} — quartier des pêcheurs`,
+          livedExperience: 'Poissons grillés à la braise de sarments de vigne, huile d’olive de première pression et accueil spontané.',
+          spacing: 'normal',
+        },
+        {
+          id: generateId('tpl_photo'),
+          type: 'photo_evidence',
+          imageUrl: 'https://heldonica.fr/images/destinations/montenegro/moraca_millennium.jpg',
+          location: `${dest} — au marché du matin`,
+          date: '2026-05-18',
+          anecdote: 'Le patron choisit lui-même ses légumes à l’aube : le secret d’une cuisine authentique.',
+          cameraInfo: camera,
+          spacing: 'relaxed',
+        },
+        {
+          id: generateId('tpl_h2'),
+          type: 'heading',
+          level: 2,
+          text: 'Les repères du goût de saison',
+          spacing: 'normal',
+        },
+        {
+          id: generateId('tpl_list'),
+          type: 'list',
+          style: 'checklist',
+          items: [
+            'Commander le poisson ou le plat du jour noté sur l’ardoise à la craie.',
+            'Demander d’où provient le vin de table (souvent tiré du tonneau voisin).',
+            'Prendre le temps d’échanger avec les artisans au moment du café.',
+          ],
+          spacing: 'normal',
+        },
+        {
+          id: generateId('tpl_btn'),
+          type: 'button',
+          label: 'Explorer les autres adresses de terroir vérifiées',
+          url: '/destinations',
+          variant: 'primary_gold',
+          spacing: 'relaxed',
+        },
+      ];
+    },
+  },
+
+  train_escape_zero_carbon: {
+    id: 'train_escape_zero_carbon',
+    title: 'Échappée Sans Voiture & De Gare en Gare',
+    description: 'Itinéraire 100% ferroviaire et pédestre : départ sur le quai, traversée de crêtes et bilan carbone minime.',
+    category: 'guide',
+    estimatedReadingMinutes: 6,
+    tags: ['train', 'mobilités douces', 'bas carbone', 'randonnée'],
+    generateBlocks: (opts) => {
+      const dest = opts?.destination || 'cette vallée';
+      const atmo = opts?.atmosphere ? ATMOSPHERE_PRESETS[opts.atmosphere] : undefined;
+      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : (atmo?.cameraLabel || 'Nikon D7200 • Nikkor 35mm f/1.8 DX');
+      const theme = atmo?.blockTheme || 'forest_fog';
+      return [
+        {
+          id: generateId('tpl_heading'),
+          type: 'heading',
+          level: 1,
+          text: `De gare en gare : traverser ${dest} sans voiture`,
+          subtitle: 'Laisser la clé de contact derrière soi pour redécouvrir le temps du rail et le rythme du pas.',
+          spacing: 'relaxed',
+        },
+        {
+          id: generateId('tpl_text'),
+          type: 'text',
+          content: '<p>Descendre du train régional, lacer ses chaussures de marche et s’engager sur le sentier directement depuis le bout du quai. Voyager sans voiture libère l’esprit de toute contrainte de circulation ou de parking.</p>',
+          spacing: 'normal',
+        },
+        {
+          id: generateId('tpl_list'),
+          type: 'list',
+          style: 'numbered',
+          items: [
+            '08h15 : Arrivée en gare avec sacs à dos légers.',
+            '09h00 : Montée par le vieux chemin pavé vers le col.',
+            '13h30 : Halte contemplative au refuge avec panorama dégagé.',
+            '17h45 : Descente vers la seconde gare et train du retour.',
+          ],
+          spacing: 'normal',
+        },
+        {
+          id: generateId('tpl_vault'),
+          type: 'vault_spot',
+          title: 'Viaduc historique & belvédère sans foule',
+          location: `${dest} — bifurcation du sentier haut`,
+          livedExperience: 'Vue plongeante sur la combe silencieuse, accessible uniquement par deux heures de marche soutenue.',
+          spacing: 'normal',
+        },
+        {
+          id: generateId('tpl_photo'),
+          type: 'photo_evidence',
+          imageUrl: 'https://heldonica.fr/images/destinations/montenegro/moraca_millennium.jpg',
+          location: `${dest} — en fin d’après-midi`,
+          date: '2026-05-18',
+          anecdote: 'Lumière rasante sur les rails au moment où le train s’arrête dans le calme du crépuscule.',
+          cameraInfo: camera,
+          spacing: 'relaxed',
+        },
+        {
+          id: generateId('tpl_btn'),
+          type: 'button',
+          label: 'Parcourir nos échappées en train',
+          url: '/destinations',
           variant: 'primary_gold',
           spacing: 'relaxed',
         },

@@ -48,7 +48,8 @@ fun CreerScreen(
     onCms: () -> Unit,
     onCerveau: () -> Unit,
     onRedaction: () -> Unit = {},
-    onPagesSite: () -> Unit = {}
+    onPagesSite: () -> Unit = {},
+    onHub: () -> Unit = {}
 ) {
     val contexte = LocalContext.current
     var marque by remember { mutableStateOf(MarqueCreation.HELDONICA) }
@@ -156,6 +157,12 @@ fun CreerScreen(
                 // 2. Section "Édition & Autres formats de voyage"
                 SectionTitre("Édition & Récits de voyage")
                 CarteAction(
+                    icone = "🚀",
+                    titre = "Hub Outils & Analytics (Sans login)",
+                    detail = "Google Search Console, GA4, Meta Business, YouTube Creator, Jules & Moteurs SEO."
+                ) { onHub() }
+
+                CarteAction(
                     icone = "⚡",
                     titre = "Studio CMS 3.0 (Sanity Killer)",
                     detail = "Éditeur visuel complet : blocs modulaires, cadrage photo Hotspot, machine à remonter le temps et recherche universelle."
@@ -219,13 +226,19 @@ fun CreerScreen(
                         onClick = onCms,
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("🌐 CMS Heldonica", fontSize = 12.sp)
+                        Text("🌐 CMS", fontSize = 12.sp)
+                    }
+                    OutlinedButton(
+                        onClick = onHub,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text("🚀 Hub Outils", fontSize = 12.sp)
                     }
                     OutlinedButton(
                         onClick = onCerveau,
                         modifier = Modifier.weight(1f)
                     ) {
-                        Text("🧠 Cerveau (8440)", fontSize = 12.sp)
+                        Text("🧠 Cerveau", fontSize = 12.sp)
                     }
                 }
             }

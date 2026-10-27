@@ -111,7 +111,8 @@ class StudioActivity : ComponentActivity() {
                             Intent(contexte, EditeurActivity::class.java)
                                 .putExtra(EditeurActivity.EXTRA_CHEMIN, "/panel-manager/pages")
                         )
-                    }
+                    },
+                    onHub = { onglet = OngletStudio.HUB }
                 )
                 OngletStudio.CERVEAU -> CerveauScreen()
                 OngletStudio.TACHES -> TachesScreen()

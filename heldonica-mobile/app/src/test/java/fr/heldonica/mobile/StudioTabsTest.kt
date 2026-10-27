@@ -9,6 +9,8 @@ class StudioTabsTest {
     fun `huit onglets, creer par defaut`() {
         assertEquals(8, OngletStudio.values().size)
         assertEquals(OngletStudio.CREER, OngletStudio.parDefaut())
+        assertEquals("Hub Outils", OngletStudio.HUB.titre)
+        assertEquals("\uD83D\uDE80", OngletStudio.HUB.emoji)
     }
 
     @Test
