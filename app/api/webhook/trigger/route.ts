@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase'
 import { dispatchWebhook, dispatchValidationFailure } from '@/lib/webhook-dispatcher'
+import { requireN8nSecret } from '@/lib/n8n-auth'
 
 // Lazy initialization to avoid build-time crash
 const getSupabase = () => {
@@ -13,8 +14,16 @@ const getSupabase = () => {
 
 // POST /api/webhook/trigger - Manually trigger a webhook event
 // Body: { event: 'article.published'|'validation.failed', article_id: number }
+// Requires header: x-n8n-secret: <N8N_WEBHOOK_SECRET>
 
 export async function POST(request: NextRequest) {
+  // Aucune verification ici jusqu'au 27/10/2026 : un POST anonyme lisait
+  // n'importe quel article par son id, brouillons compris (la requete ne
+  // filtre pas sur `published`), et declenchait les webhooks sortants
+  // n8n / Slack / Discord. Signale par l'audit du 27/07/2026, jamais corrige.
+  const refus = requireN8nSecret(request)
+  if (refus) return refus
+
   const supabase = getSupabase()
   if (!supabase) {
     return NextResponse.json({ error: 'Service unavailable - Supabase not configured' }, { status: 503 })
