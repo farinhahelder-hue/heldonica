@@ -15,6 +15,13 @@ enum class OngletStudio(val titre: String, val emoji: String) {
 
     companion object {
         fun parDefaut(): OngletStudio = CREER
+
+        /**
+         * Résout un onglet depuis une chaîne (intent extra, raccourci lanceur ou CLI).
+         * Tolérant à la casse ("hub" -> HUB), retourne l'onglet par défaut si invalide.
+         */
+        fun depuisChaine(nom: String?): OngletStudio =
+            values().firstOrNull { it.name.equals(nom?.trim(), ignoreCase = true) } ?: parDefaut()
     }
 }
 

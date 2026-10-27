@@ -14,6 +14,16 @@ class StudioTabsTest {
     }
 
     @Test
+    fun `resolution robuste de l onglet depuis chaine ou intent`() {
+        assertEquals(OngletStudio.HUB, OngletStudio.depuisChaine("HUB"))
+        assertEquals(OngletStudio.HUB, OngletStudio.depuisChaine("hub"))
+        assertEquals(OngletStudio.CREER, OngletStudio.depuisChaine("creer"))
+        assertEquals(OngletStudio.TACHES, OngletStudio.depuisChaine("TACHES"))
+        assertEquals(OngletStudio.CREER, OngletStudio.depuisChaine(null))
+        assertEquals(OngletStudio.CREER, OngletStudio.depuisChaine("inconnu"))
+    }
+
+    @Test
     fun `url console absente ou vide donne null`() {
         assertNull(urlConsoleBrain(null))
         assertNull(urlConsoleBrain(""))

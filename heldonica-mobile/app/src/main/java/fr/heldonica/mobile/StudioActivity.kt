@@ -41,16 +41,32 @@ class StudioActivity : ComponentActivity() {
 
     companion object {
         const val TAG = "HeldonicaStudio"
+        const val EXTRA_ONGLET = "extra_onglet"
     }
+
+    private val ongletSelectionne = mutableStateOf(OngletStudio.parDefaut())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        traiterIntent(intent)
         setContent { EcranStudio() }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        traiterIntent(intent)
+    }
+
+    private fun traiterIntent(targetIntent: Intent?) {
+        targetIntent?.getStringExtra(EXTRA_ONGLET)?.let { brut ->
+            ongletSelectionne.value = OngletStudio.depuisChaine(brut)
+        }
     }
 
     @Composable
     private fun EcranStudio() {
-        var onglet by remember { mutableStateOf(OngletStudio.parDefaut()) }
+        var onglet by remember { ongletSelectionne }
         val contexte = LocalContext.current
         Column(Modifier.fillMaxSize()) {
             ScrollableTabRow(selectedTabIndex = onglet.ordinal) {
