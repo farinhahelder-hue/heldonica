@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/input';
+import { RefreshCw, Eye, EyeOff, Trash2, Save, FileCode } from 'lucide-react';
 
 interface RedirectRule {
   id: string
@@ -99,7 +100,7 @@ export default function RedirectManager({ data, onSave }: any) {
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
       <h2 className="text-2xl font-serif font-bold text-mahogany mb-6">
-        🔄 Redirects Manager
+        <RefreshCw className="w-6 h-6 inline-block mr-2 align-text-bottom" aria-hidden /> Redirects Manager
       </h2>
 
       {/* Add new */}
@@ -160,14 +161,18 @@ export default function RedirectManager({ data, onSave }: any) {
                 className="text-sm"
                 title={redirect.active ? 'Désactiver' : 'Activer'}
               >
-                {redirect.active ? '👁️' : '👁️‍🗨️'}
+                {redirect.active
+                  ? <Eye className="w-4 h-4" aria-hidden />
+                  : <EyeOff className="w-4 h-4" aria-hidden />}
+                <span className="sr-only">{redirect.active ? 'Désactiver' : 'Activer'}</span>
               </button>
               <button
                 onClick={() => removeRedirect(redirect.id)}
                 className="text-red-500 text-sm"
                 title="Supprimer"
               >
-                🗑️
+                <Trash2 className="w-4 h-4" aria-hidden />
+                <span className="sr-only">Supprimer</span>
               </button>
             </div>
           ))
@@ -177,7 +182,7 @@ export default function RedirectManager({ data, onSave }: any) {
       {/* Save */}
       <div className="flex gap-4 mb-6">
         <Button onClick={handleSave} className="flex-1">
-          💾 Sauvegarder
+          <Save className="w-4 h-4" aria-hidden /> Sauvegarder
         </Button>
       </div>
 
@@ -186,10 +191,10 @@ export default function RedirectManager({ data, onSave }: any) {
         <h3 className="font-bold text-mahogany mb-3">Exporter</h3>
         <div className="flex gap-2">
           <Button onClick={generateHtaccess} variant="outline" size="sm">
-            📄 .htaccess
+            <FileCode className="w-4 h-4" aria-hidden /> .htaccess
           </Button>
           <Button onClick={generateNextJs} variant="outline" size="sm">
-            📄 redirects.json
+            <FileCode className="w-4 h-4" aria-hidden /> redirects.json
           </Button>
         </div>
         <p className="text-xs text-gray-500 mt-2">
