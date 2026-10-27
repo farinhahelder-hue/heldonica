@@ -2,6 +2,164 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+  ## [2026-10-27 septies] — Automatisation Jules GitHub Actions, Remplacement In-House de Bravo, Métriques Instagram, Moteur SEO Geo & Studio Vectoriel de Sceaux
+
+- **Dispatcher de Tâches Jules via GitHub Actions (`.github/workflows/dispatch-jules.yml`, `scripts/dispatch_jules_action.mjs`)** :
+  - Lancement manuel via `workflow_dispatch` (titre, prompt, branche, liaison avec la table Supabase `agent_tasks`).
+  - Lancement automatique depuis les commentaires GitHub Issues : un simple commentaire `/jules <instructions>` sur une issue ou PR déclenche l'agent Google Jules et répond avec le lien direct de session (`https://jules.google.com/session/<id>`).
+  - Génération de récapitulatif d'exécution Markdown dans `$GITHUB_STEP_SUMMARY` et mise à jour de la table `agent_tasks` (`in_progress`, `claimed_by = 'jules'`).
+- **Remplacement In-House de Bravo Studio (`heldonica-mobile/`, `components/PwaInstallPrompt.tsx`)** :
+  - Écosystème 100% in-house et 0€ : application Android native Kotlin (`heldonica-mobile/`) avec Photo Picker sans scope invasif, géocodage inverse OpenStreetMap Nominatim et upload direct Supabase Media.
+  - Déploiement CI automatisé de l'APK via `.github/workflows/build-apk.yml` et `release-apk.yml` (zéro secret compilé dans le bytecode dex).
+  - Composant Web `PwaInstallPrompt.tsx` : invitation douce à l'installation sur smartphone (PWA standalone, mode hors-ligne) sans passer par des plateformes tierces payantes.
+- **Tableau de Bord & Métriques Instagram en Direct (`app/panel-manager/instagram/InstagramManagerSection.tsx`)** :
+  - Intégration de 4 KPI en temps réel : abonnés officiels, total des publications, commentaires modérés et score de conformité de la voix slow travel.
+  - Grille visuelle des 6 dernières publications avec permaliens, photos, décompte des likes (❤️) et commentaires (💬).
+- **Moteur SEO Geo & Données Structurées Schema.org Étendues (`lib/seo-geo.ts`, `components/seo/DestinationJsonLd.tsx`)** :
+  - Support complet de `TouristDestination`, `TouristTrip`, `Place` et `GeoCoordinates` (latitude, longitude, altitude).
+  - Générateur de balises méta conformes au standard W3C et OpenGraph (`geo.position`, `ICBM`, `geo.placename`, `place:location:latitude`, `place:location:longitude`).
+  - Calcul de distance orthodromique (formule de Haversine) et estimation du temps de marche slow travel (4 km/h à plat + 1h pour 300m D+).
+  - Sécurisation stricte contre les injections XSS dans les balises JSON-LD via échappement unicode `\u003c`.
+- **Générateur Vectoriel de Sceaux & Monogrammes (`lib/logo-generator.ts`, `components/admin/LogoStudioModal.tsx`)** :
+  - 4 styles géométriques haute résolution : Sceau Circulaire Officiel (double filet gravé, texte courbé, crête et soleil levant), Écusson Minéral, Rose des Vents Artisanale, Monogramme Typographique épuré.
+  - Personnalisation complète : nom de marque, sous-titre, coordonnées GPS réelles, millésime et palettes chromatiques (Encre & Or, Eucalyptus & Cuivre, Vert Forêt & Terre Cuite, Bleu Ardoise).
+  - Export instantané en fichier `.svg`, copie du code vectoriel et application directe en tant que logo officiel du site.
+- **Répertoire Typographique & Packs d'Icônes (`lib/brand-customization.ts`)** :
+  - 4 combinaisons de polices slow travel (*Héritage Éditorial*, *Grand Romain & Alpin*, *Solitude Poétique*, *Minéral & Gravure Ancienne*).
+  - 3 packs d'icônes dédiés (*Ligne Fine Artisanale 1.5px*, *Minéral & Silhouette 2px*, *Sceau Botanique*).
+- **Vérifications & Tests** :
+  - 29/29 tests au vert (`DestinationJsonLd.test.tsx`, `seo-geo.test.ts`, `logo-generator.test.ts`, `SanityKillerCms3.test.tsx`).
+  - `npm run preflight` : 13/13 contrôles réussis.
+  - `npm run typecheck` : 0 erreur.
+
+## [2026-10-27 sexies] — Heldonica CMS 3.0 : UX Impeccable, Simulateur Mobile APK, Studio des Gabarits Hors-Pair & Anti-IA Radical
+
+- **Simulateur Responsive Tactile Mobile APK / Tablette / Bureau (`BlockCanvas.tsx`)** :
+  - Sélecteur de viewport 3 modes dans la barre secondaire du canvas (`Bureau`, `Tablette 768px`, `Mobile APK 390px`).
+  - En mode `Mobile APK` : simulation fidèle d'un smartphone moderne (coque sombre arrondie `rounded-[2.75rem]`, encoche haut-parleur, barre de balayage tactile inférieure) permettant aux rédacteurs de vérifier instantanément le rendu pour l'application mobile et les smartphones sans déploiement.
+- **Historique de Modification Lossless Undo / Redo (`BlockCanvas.tsx`)** :
+  - Pile d'historique complète (`undoStack` et `redoStack` jusqu'à 30 états mémorisés).
+  - Raccourcis clavier universels (`Ctrl+Z` / `Cmd+Z` pour Annuler, `Ctrl+Y` / `Cmd+Shift+Z` pour Rétablir) sans interférer avec la saisie textuelle native.
+  - Boutons tactiles interactifs d'annulation/rétablissement dans la barre d'outils avec état désactivé automatique.
+- **Studio des Gabarits 3.0 & Personnalisation Sensorielle Hors-Pair (`lib/cms-templates.ts`, `BlockCanvas.tsx`)** :
+  - Sélecteur de **Saisons & Teintes de terrain** (`SEASON_PRESETS` : Printemps sauvage, Été d'altitude, Automne flamboyant, Hiver feutré) avec snippets sensoriels et dates réalistes.
+  - Sélecteur d'**Atmosphères & Lumière naturelle** (`ATMOSPHERE_PRESETS` : Brume d'aube, Crépuscule & Pierre chaude, Crête & Silence minéral, Falaises & Océan, Forêt ancienne).
+  - Préréglages d'optiques réelles (`CAMERA_PRESETS` : Nikon D7200 35mm f/1.8 DX, Nikon Zoom 18-105mm, Pixel RAW sans filtre IA).
+  - Gestion des Gabarits Personnalisés : enregistrement dans `localStorage` (`heldonica_user_templates_v1`), suppression, et boutons d'**Export JSON (`heldonica_gabarits_*.json`)** et d'**Import JSON** pour partage et sauvegarde hors-ligne.
+- **Compteur de Mots & Métriques de Lecture Lente en Temps Réel (`BlockCanvas.tsx`)** :
+  - Décompte instantané des mots sur tous les blocs (paragraphes, titres, pépites du Coffre, récits de photos de terrain).
+  - Calcul du temps de lecture slow travel attentive (base 170 mots/min).
+- **Cartouche de Terrain Certifié E-E-A-T Public Conforme au Cliquet CMS (`app/blog/[slug]/page.tsx`)** :
+  - Cartouche de terrain façon carnet de route imprimé avec liaisons complètes aux zones éditables du CMS (`<EditableZone page="blog" zone="..." fallback="..." />`).
+  - Zéro hardcode visible (100% conforme à `check-cms-hardcode.mjs`).
+- **Garantie Zéro Look IA & Alignement Voix de Marque (`lib/cms-templates.ts`)** :
+  - Remplacement strict de tous les pronoms interdits (`notre`, `votre`, `nos`) par `on` pour le duo, `tu` pour le lecteur, garantissant une authenticité humaine absolue.
+  - Éradication de tout cliché marketing générique.
+- **Vérifications & Garde-fous** :
+  - `npm run preflight` : 13/13 contrôles réussis au vert.
+  - `npm run typecheck` : 0 erreur TypeScript (`tsc --noEmit`).
+  - Vitest : 21/21 tests unitaires et intégration au vert (`SanityKillerCms3.test.tsx`, `cms-templates.test.ts`).
+
+## [2026-10-27 quinquies] — Heldonica CMS 3.0 : Studio des Gabarits 3.0, Cartouche E-E-A-T Nikon D7200 & Thèmes Minéraux Slow Travel
+
+  - **Studio des Gabarits 3.0 & Personnalisation Interactive (`BlockCanvas.tsx`, `lib/cms-templates.ts`)** :
+    - Transformation de la modale basique en véritable **Studio de Composition éditoriale 2 colonnes** (`max-w-5xl`) :
+      - *Colonne gauche* : Personnalisation dynamique de destination/étape (`templateDestination`, ex: « Stoos, Suisse »), filtres thématiques par pilules tactiles (`Tous`, `Récits & Immersion`, `Guides & Étapes`, `Hébergements`, `Essais Visuels`), et sélection active parmi les 7 gabarits Slow Travel avec temps de lecture estimé et tags.
+      - *Colonne droite* : Prévisualisation en direct (`Live Layout Preview`) via `<BlockRenderer blocks={previewTemplateBlocks} />`, avec injection en temps réel du territoire saisi et compteur de blocs configurés.
+      - *Actions 1-clic* : Boutons d'insertion directe « Remplacer tout le carnet (X blocs) » ou « Ajouter à la suite (+X blocs) ».
+  - **Générateur de Cartouche de Terrain Certifié E-E-A-T (`BlockCanvas.tsx`, `components/PhotoEvidenceBlock.tsx`)** :
+    - Bouton d'action directe `🏷️ Cartouche de Terrain` dans la barre d'outils du canvas.
+    - Modale de configuration et certification humaine E-E-A-T (zéro tics IA, zéro partenariat commercial) :
+      - *Lieu exact & Altitude* (ex: Stoos, crête du Fronalpstock, 1 922 m).
+      - *Moment & Saison constatée* (ex: Printemps — mai 2026).
+      - *Météo & Lumière naturelle* (ex: Brume dissipée à 07h45, 9°C, vent léger).
+      - *Boîtier & Optique réels* avec raccourcis 1-clic : **Nikon D7200 • Nikkor 35mm f/1.8 DX**, **Nikon Zoom 18-105mm VR**, **Pixel 8 Pro RAW**.
+      - *Mobilités douces* (accès train/funiculaire + marche attentive).
+      - *Charte d'indépendance* (100% autofinancé par le duo).
+    - Insertion instantanée au format Parchemin naturel en tête de carnet ou à la suite.
+    - Support du champ `cameraInfo` sur `PhotoEvidenceBlock`, `PhotoEvidenceEditor` et `lib/cms-blocks-converter.ts`.
+  - **Palette de Thèmes Minéraux & Papiers d'Artisans (`types/cms-blocks.ts`, `BlockRenderer.tsx`)** :
+    - Extension du type `BlockTheme` : `'sand' | 'parchment' | 'terracotta' | 'forest_fog' | 'chalk' | 'gold_accent' | 'dark' | 'default'`.
+    - Rendu artisanal Slow Travel sans cartes SaaS agressives : Parchemin doux (`#F9F7F1`), Terre cuite (`#FDF6F0` bordure `#C86446`), Brume de forêt (`#F2F5F3`), Sable minéral (`#FAF7F2`), Craie pure et Accent doré subtil.
+    - Sélecteur de thème étendu dans le tiroir de réglages avancés de chaque bloc.
+  - **Vérifications & Garde-fous** :
+    - 20/20 tests unitaires et intégration au vert (`__tests__/components/SanityKillerCms3.test.tsx`, `BlockRenderer.test.tsx`, `cms-templates.test.ts`).
+    - `npm run typecheck` 0 erreur.
+    - `npm run preflight` 13/13 contrôles réussis.
+
+  - **Omnisearch Command Palette (`Cmd+K`) (`components/admin/OmnisearchPalette.tsx`, `app/panel-manager/CmsAdminClient.tsx`)** :
+    - Palette universelle déclenchable au clavier (`Cmd+K` / `Ctrl+K`) avec recherche temps réel ultra-rapide et indexation multi-domaines :
+      - *⚡ Actions Rapides & Navigation* : Sections d'administration, raccourcis Time Machine, Tour de Contrôle Agents IA, création d'article.
+      - *📄 Articles & Carnets de Route* : Recherche dans tous les articles en base (titres, slugs, extraits, catégories) avec ouverture instantanée dans l'éditeur.
+      - *💎 Coffre des Savoirs RAG* : Recherche en direct dans les 78+ fiches de terrain certifiées (ex: Stoos, Ponta do Sol, Muotathal) avec insertion 1-clic sous forme de bloc `vault_spot`.
+      - *🧩 Blocs CMS Modulaires* : Filtrage et insertion directe des 12 types de blocs (Heading, Paragraphe, Photo Hotspot, Preuve photo, Sommaire, Carte, Hébergement, etc.).
+    - Navigation au clavier complète (`↑/↓`, `Entrée`, `Échap`), filtres d'onglets rapides, raccourcis d'action et esthétique Slow Travel soignée.
+  - **In-Between Fast Block Inserter (`BlockCanvas.tsx`)** :
+    - Séparateur d'insertion interactif (`InserterDivider`) positionné avant le premier bloc, entre chaque bloc et en fin de document.
+    - Ligne subtile révélée au survol avec bouton `+ Insérer un bloc` déployant une grille de sélection rapide avec recherche instantanée.
+    - Insertion à l'index exact avec sélection automatique et focus synchronisé sur le nouveau bloc.
+  - **Utilisabilité Tactile & Intégration Mobile APK (`heldonica-mobile`, `CmsAdminClient.tsx`, `BlockCanvas.tsx`)** :
+    - **Omnisearch Mobile & FAB Flottant** : Bouton d'accès direct dans le header et Floating Action Button (FAB) tactile permettant de déclencher l'Omnisearch d'une seule touche sur Pixel 8 Pro sans clavier physique.
+    - **Carte 1-clic dans l'écran Créer (`CreerScreen.kt`)** : Carte « ⚡ Studio CMS 3.0 (Sanity Killer) » ouvrant directement l'espace éditorial `/panel-manager?section=articles` avec session sans mot de passe.
+    - **Passerelle Rédaction ➔ Studio Visuel (`RedactionScreen.kt`)** : Bouton « ⚡ Ouvrir dans le Studio CMS 3.0 (Blocs & Hotspots) » sur chaque carnet en cours, injectant immédiatement l'article dans l'éditeur via `?articleId=...`.
+    - **Séparateurs tactiles inter-blocs (`BlockCanvas.tsx`)** : `InserterDivider` discoverable sur écran tactile (`opacity-60 sm:opacity-0`).
+    - **Déploiement APK validé** : Compilation `assembleDebug` réussie (44,2 Mo) via JDK 17 Temurin et installation directe via ADB (`Streamed Install Success`) sur Google Pixel 8 Pro (`39151FDJG000Z0`). Tunnels inversés (3000, 8440, 8470) opérationnels.
+  - **Visual Time Machine & Live Device Preview (`RevisionsDrawer.tsx`)** :
+    - Transformation du comparateur de révisions en véritable machine à remonter le temps visuelle, similaire à l'inspecteur d'historique de Sanity Studio.
+    - Bascule instantanée entre la vue *Diff blocs* (détail technique des ajouts/modifications/suppressions) et la vue *Aperçu visuel* (rendu en direct du contenu archivé via `BlockRenderer`).
+    - Cadre adaptatif avec bascule *Bureau* / *Mobile (375px)* pour inspecter l'expérience lecteur de chaque version avant restauration.
+  - **Vérifications & Garde-fous** :
+    - Suite de tests unitaire `__tests__/components/SanityKillerCms3.test.tsx` et `RevisionsDrawer.test.tsx` (9 tests passants en 3,9s).
+    - `npm run typecheck` strict sans erreur (0 faute de typage).
+    - `npm run preflight` 13/13 vert (parité marque TS/Python, cliquet texte en dur, zéro tic visuel).
+
+  ## [2026-10-27 ter] — Heldonica CMS 3.0 « Sanity Killer » : Hotspot Focal Dynamique, Visual Click-to-Edit & In-Field IA
+
+  - **Point Focal & Hotspot Visuel Intelligent (`HotspotPicker.tsx`, `types/cms-blocks.ts`, `ImageBlock.tsx`)** :
+    - Reproduction et amélioration de la fonctionnalité phare de Sanity Studio : sélection interactive du point focal `(x, y)` directement sur les clichés de terrain (`ImageBlock` et `PhotoEvidenceBlock`).
+    - 6 presets photographiques 1-clic : *Centre*, *Visage / Sujet haut*, *Sommet / Ciel*, *Premier plan / Sol*, *Tiers gauche*, *Tiers droit*.
+    - Visualisation comparative en temps réel dans les 3 ratios clés : **16:9** (Bannière Desktop), **1:1** (Carrousel / Instagram), **9:16** (Reel / Mobile vertical) garantissant que le sujet n'est jamais tronqué.
+    - Application CSS automatique `object-position: X% Y%` sur le rendu public et sérialisation lossless dans `lib/cms-blocks-converter.ts`.
+  - **Visual Editing & Click-to-Edit Bi-directionnel (`BlockRenderer.tsx`, `CmsAdminClient.tsx`, `BlockCanvas.tsx`)** :
+    - En mode aperçu direct côte-à-côte (Split-Screen), chaque bloc dans le rendu lecteur porte `data-cms-block-id`.
+    - Un simple clic sur un paragraphe, une photo ou une pépite dans la prévisualisation défile et met immédiatement en surbrillance (`ring-2 ring-amber-500`) le bloc correspondant dans le canvas d'édition de gauche.
+  - **In-Field Gemini Vision Copilot (`BlockCanvas.tsx`)** :
+    - Bouton « 🧠 Cadrage IA » directement dans le HotspotPicker pour suggérer le point focal et renseigner les textes d'accessibilité via l'IA Vision.
+  - **Validation & Intégrité** :
+    - Nouvelle suite de tests dédiée `__tests__/components/SanityKillerCms3.test.tsx` (4 tests verts en 151ms).
+    - `npm run typecheck` (0 erreur), `npm run preflight` 13/13 vert (zéro tic visuel, conformité cliquet texte en dur).
+
+  ## [2026-10-27 bis] — Édition des Pages & Articles Existants : Photos, IA Vision et Rédaction Assistée
+
+  - **Édition de tous les articles (`RedactionScreen.kt`, `RedactionClient.kt`)** :
+    - Filtre rapide par statut (`Tous`, `Brouillons`, `En ligne`) permettant d'ouvrir et d'enrichir **n'importe quel carnet existant** (les 8 articles publiés en production ou les brouillons).
+    - Détection automatique des lacunes `[À TOI : …]` et dictée vocale des sensations réelles.
+    - Assistance IA (`/api/cms/ai-assist`) respectant la voix de marque Heldonica (zéro mot banni, réalité vécue) avec avertissement sur les ajouts non sourcés.
+    - Enregistrement immédiat via `PUT /api/cms/articles/:id` avec recalcul automatique du temps de lecture et revalidation de cache.
+  - **Reconnaissance IA Vision des Photos (`RedactionClient.identifierParVision`)** :
+    - Ajout du bouton « 🔍 Identifier (IA Vision) » sur chaque photo choisie dans Google Photos : envoie l'image au serveur (`/api/cms/ai-vision`) pour déduire automatiquement le lieu et générer la description de la photo si l'EXIF ou la Timeline manquent.
+    - Respect absolu de la règle #5 (case à cocher obligatoire garantissant l'absence d'enfants avant tout téléversement).
+  - **Navigation directe depuis l'écran Créer (`CreerScreen.kt`, `StudioActivity.kt`)** :
+    - Ajout des cartes « ✍️ Rédiger ou enrichir un carnet (Photos & IA) » (bascule vers l'onglet Rédaction) et « 📄 Éditer les pages du site (Destinations & Zones) » (ouvre directement `/panel-manager/pages` avec session sans mot de passe).
+
+  ## [2026-10-27] — Studio Musique & Vidéo : Storyboards Gemini sans Flow & Presets 1-clic Veo / MusicFX
+
+  - **Flux Vidéo Dual-Track (`CatalogueVideo.kt`, `CreerScreen.kt`)** :
+    - **Piste 1 : Storyboard Gemini Direct (sans Google Flow / 0€)** : découpage vertical 9:16 complet en 4 plans par Gemini 2.5 Flash via `/api/cms/ai-video-storyboard` (mouvement de caméra, description visuelle, voix off/narration, musique Heldonica recommandée). Bouton 1-clic « Monter (Media3) » ouvrant directement le studio de montage local avec la piste audio préchargée, sans aucun copier-coller ni dépendance web Google Labs.
+    - **Piste 2 : Presets cinématographiques Google Flow (Veo 3.1)** : 6 styles pré-calibrés 1-toucher (`Sentier Brumeux`, `Boutique Hôtel & Lin`, `Falaises & Océan`, `Train Panoramique`, `César au Rubicon`, `Sénat Romain`) avec copie presse-papier automatique et ouverture directe.
+  - **Studio Musique (`CatalogueMusique.kt`, `app/api/cms/music-tracks`)** :
+    - 3 pistes originales slow travel embarquées en assets locaux (`atrium_lin_brut.mp3`, `golden_hour_marbre.mp3`, `echappee_slow_luxury.mp3`) écoutables en pré-écoute et injectables en 1 clic dans le montage. Presets pour Google MusicFX.
+  - **Correction d'intégrité** : dédoublonnage du traitement `EXTRA_PISTE_MUSIQUE` dans `MainActivity.kt`.
+  - **Déploiement & Vérifications** : compilation `assembleDebug` réussie (13 exécutées, 26 up-to-date) ; installation validée par ADB sur Pixel 8 Pro (`39151FDJG000Z0`) ; tunnels ADB reverse actifs (3000, 8440, 8470) ; `npm run preflight` 13/13 réussi.
+
+  ## [2026-10-26 bis] — Câblage Heldonica Mobile & Heldonica Brain II pour Google Pixel 8 Pro
+
+  - **Espace unifié « Créer » (`CreerScreen.kt`)** : nouvel écran d'accueil par défaut de `heldonica-mobile` (7 onglets). Permet la sélection photo/carrousel depuis Google Photos (Photo Picker Android natif), l'analyse d'images par vision IA (`/api/cms/ai-vision`), la génération de légendes avec Heldonica Brain II ou le modèle local, l'accès direct aux carnets et à la médiathèque `/panel-manager/photos`.
+  - **Câblage Heldonica Brain II (`BrainClient.kt`, `MainActivity.kt`)** : priorité donnée au tunnel USB direct `http://127.0.0.1:8440` (`adb reverse tcp:8440 tcp:8440`) pour des inférences instantanées sur la GTX 1660 Ti, avec repli automatique sur le réseau Wi-Fi LAN et le Cloud Relay `/api/ai/mobile-brain`.
+  - **Dynamisme matériel** : adaptation automatique de l'interface au modèle de smartphone détecté (`Pixel 8 Pro` au lieu de mentions en dur « Poco »).
+  - **Scripts d'installation & de reverse proxy** : mise à jour de `INSTALLER_SUR_TELEPHONE.bat` sur le Bureau (APK 40.5 Mo) avec reverse tunnel automatique (ports 8440, 8470, 3000) et script dédié `CONNECTER_PIXEL8PRO_AU_BRAIN.bat`. Déploiement dans `ci-artifacts/app-debug.apk` pour téléchargement direct sans fil depuis la console locale (port 8480).
+  - **Vérifications** : tests unitaires JVM Kotlin (`StudioTabsTest`) verts ; compilation Gradle `assembleDebug` réussie (APK 40.5 Mo) ; `npm run preflight` 13/13 vert ; `tsc` 0 erreur.
+
   ## [2026-10-26] — Lot 2 (A/B/C/I/F) : entrées sous maintenance, og:image:alt, JSON-LD, compte de carnets
 
   - **A — matcher du middleware** : il n'excluait pas les fichiers de `public/`. Pendant la maintenance, `og:image` et les favicons renvoyaient **307 -> /maintenance**. Le matcher exclut désormais tout chemin à extension ; `llms.txt` (seule route dont un segment contient un point) reste exclu aussi. Mesuré : `/og-default.jpg` **200**, `/favicon.ico` **200**, `/site.webmanifest` **200**, page `/` toujours **307** (protection intacte).

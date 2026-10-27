@@ -69,7 +69,7 @@ const RACINES = ['.'];
 
 // Les tests contiennent des fautes **à dessein** (jeux d'essai de régression) :
 // les refuser interdirait d'écrire un test. C'est la seule exclusion.
-const EXCLUS = ['__tests__', 'node_modules', '.next', '.git', '.audit', '.openhands'];
+const EXCLUS = ['__tests__', 'node_modules', '.next', '.git', '.audit', '.openhands', '.kilo'];
 
 function estExclu(chemin) {
   const rel = chemin.replace(/\\/g, '/');

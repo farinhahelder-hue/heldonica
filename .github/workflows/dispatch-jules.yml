@@ -1,0 +1,133 @@
+name: Dispatcher Jules (Google Agent)
+
+on:
+  workflow_dispatch:
+    inputs:
+      title:
+        description: "Titre de la tâche Jules (ex: fix: corriger alignement cartouche E-E-A-T)"
+        required: true
+        type: string
+      prompt:
+        description: "Description détaillée et instructions pour Jules"
+        required: true
+        type: string
+      branch:
+        description: "Branche de départ"
+        required: false
+        default: "main"
+        type: string
+      task_id:
+        description: "ID de la tâche dans agent_tasks (optionnel)"
+        required: false
+        default: ""
+        type: string
+
+  # Déclenchement automatique depuis un commentaire d'Issue : /jules <instructions>
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  # issues: write pour commenter une issue ; pull-requests: write parce que
+  # issue_comment se déclenche aussi sur les commentaires de PR, et que la
+  # réponse passe alors par l'API pull-requests.
+  issues: write
+  pull-requests: write
+
+jobs:
+  dispatch_jules:
+    # Le dépôt est public et ses issues sont ouvertes à tous : sans contrôle
+    # d'auteur, n'importe qui sur Internet déclencherait ce job, qui porte
+    # JULES_API_KEY et SUPABASE_SERVICE_ROLE_KEY. Seules la propriétaire, les
+    # membres et les collaborateurs peuvent lancer Jules par commentaire.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issue_comment' &&
+       startsWith(github.event.comment.body, '/jules') &&
+       contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.comment.author_association))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Configurer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      # Le titre de l'issue et le corps du commentaire sont écrits à la main :
+      # ils passent par l'environnement, jamais par `${{ }}` dans le script. Un
+      # `$(...)` glissé dans un commentaire s'exécutait sinon sur le runner, et
+      # l'étape suivante lui livrait la clé de service Supabase.
+      - name: Déterminer le titre et les instructions
+        id: params
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_TITLE: ${{ github.event.inputs.title }}
+          INPUT_PROMPT: ${{ github.event.inputs.prompt }}
+          INPUT_BRANCH: ${{ github.event.inputs.branch }}
+          INPUT_TASK_ID: ${{ github.event.inputs.task_id }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          COMMENT_BODY: ${{ github.event.comment.body }}
+        run: |
+          set -eu
+          if [ "${EVENT_NAME:-}" = "workflow_dispatch" ]; then
+            TITLE="${INPUT_TITLE:-}"
+            PROMPT="${INPUT_PROMPT:-}"
+            BRANCH="${INPUT_BRANCH:-main}"
+            TASK_ID="${INPUT_TASK_ID:-}"
+          else
+            TITLE="Issue #${ISSUE_NUMBER:-} : ${ISSUE_TITLE:-}"
+            # Retire le préfixe /jules. Le texte est lu depuis l'environnement,
+            # donc jamais interprété comme du code par le shell.
+            PROMPT=$(printf '%s' "${COMMENT_BODY:-}" | sed 's|^/jules[[:space:]]*||')
+            BRANCH="main"
+            TASK_ID=""
+          fi
+
+          # Délimiteur tiré au hasard pour chaque valeur : avec « EOF » en dur,
+          # un commentaire contenant une ligne « EOF » injectait les sorties et
+          # les variables d'environnement de son choix dans les étapes suivantes.
+          ecrire_sortie() {
+            delim="EOF_$(openssl rand -hex 16)"
+            {
+              printf '%s<<%s\n' "$1" "$delim"
+              printf '%s\n' "$2"
+              printf '%s\n' "$delim"
+            } >> "$GITHUB_OUTPUT"
+          }
+          ecrire_sortie title "$TITLE"
+          ecrire_sortie prompt "$PROMPT"
+          ecrire_sortie branch "$BRANCH"
+          ecrire_sortie task_id "$TASK_ID"
+
+      - name: Lancer la session Jules
+        id: dispatch
+        env:
+          JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
+          TASK_TITLE: ${{ steps.params.outputs.title }}
+          TASK_PROMPT: ${{ steps.params.outputs.prompt }}
+          TASK_BRANCH: ${{ steps.params.outputs.branch }}
+          TASK_ID: ${{ steps.params.outputs.task_id }}
+          # Le script lit TASK_REPO, que le workflow ne lui passait jamais.
+          TASK_REPO: ${{ github.repository }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node scripts/dispatch_jules_action.mjs
+
+      - name: Répondre sur l'issue GitHub
+        if: github.event_name == 'issue_comment' && steps.dispatch.outputs.session_url != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const sessionUrl = process.env.SESSION_URL;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `🤖 **Tâche Google Jules lancée avec succès !**\n\n🔗 Session active : [Ouvrir dans Jules](${sessionUrl})`
+            });
+        env:
+          SESSION_URL: ${{ steps.dispatch.outputs.session_url }}

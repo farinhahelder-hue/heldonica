@@ -38,6 +38,10 @@ while True:
             print(install_res.stdout, flush=True)
             if "Success" in install_res.stdout:
                 print(f"[SUCCÈS] Heldonica Mobile est installé sur votre téléphone !", flush=True)
+                subprocess.run(["adb", "-s", dev, "reverse", "tcp:8440", "tcp:8440"], capture_output=True)
+                subprocess.run(["adb", "-s", dev, "reverse", "tcp:8470", "tcp:8470"], capture_output=True)
+                subprocess.run(["adb", "-s", dev, "reverse", "tcp:3000", "tcp:3000"], capture_output=True)
+                print(f"[CÂBLAGE] Tunnels USB établis vers Brain II (8440) et Copilote CMS (8470) !", flush=True)
                 subprocess.run(["adb", "-s", dev, "shell", "monkey", "-p", "fr.heldonica.mobile", "-c", "android.intent.category.LAUNCHER", "1"], capture_output=True)
                 print(f"[OUVERTURE] L'application est lancée sur votre écran !", flush=True)
                 sys.exit(0)

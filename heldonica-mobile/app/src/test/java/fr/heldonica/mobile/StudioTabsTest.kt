@@ -6,9 +6,21 @@ import org.junit.Test
 class StudioTabsTest {
 
     @Test
-    fun `six onglets, cerveau par defaut`() {
-        assertEquals(6, OngletStudio.values().size)
-        assertEquals(OngletStudio.CERVEAU, OngletStudio.parDefaut())
+    fun `huit onglets, creer par defaut`() {
+        assertEquals(8, OngletStudio.values().size)
+        assertEquals(OngletStudio.CREER, OngletStudio.parDefaut())
+        assertEquals("Hub Outils", OngletStudio.HUB.titre)
+        assertEquals("\uD83D\uDE80", OngletStudio.HUB.emoji)
+    }
+
+    @Test
+    fun `resolution robuste de l onglet depuis chaine ou intent`() {
+        assertEquals(OngletStudio.HUB, OngletStudio.depuisChaine("HUB"))
+        assertEquals(OngletStudio.HUB, OngletStudio.depuisChaine("hub"))
+        assertEquals(OngletStudio.CREER, OngletStudio.depuisChaine("creer"))
+        assertEquals(OngletStudio.TACHES, OngletStudio.depuisChaine("TACHES"))
+        assertEquals(OngletStudio.CREER, OngletStudio.depuisChaine(null))
+        assertEquals(OngletStudio.CREER, OngletStudio.depuisChaine("inconnu"))
     }
 
     @Test
