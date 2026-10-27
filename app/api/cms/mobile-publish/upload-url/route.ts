@@ -56,28 +56,34 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `Maximum ${MAX_FICHIERS} fichiers par envoi` }, { status: 400 })
   }
 
-  const cibles = []
-
-  for (const nom of fichiers) {
+  const promises = fichiers.map(async (nom) => {
     // Le nom vient du telephone : on ne garde que des caracteres surs et on
     // prefixe d'un horodatage, pour qu'aucun envoi n'ecrase le precedent.
     const sain = String(nom).replace(/[^a-zA-Z0-9._-]/g, '_').slice(-80) || 'media.jpg'
     const chemin = `${rangement}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${sain}`
 
     const { data, error } = await sb.storage.from(BUCKET).createSignedUploadUrl(chemin)
-    if (error) {
+
+    return { sain, chemin, data, error }
+  })
+
+  const results = await Promise.all(promises)
+  const cibles = []
+
+  for (const result of results) {
+    if (result.error) {
       return NextResponse.json(
-        { error: `URL de televersement refusee pour ${sain} : ${error.message}` },
+        { error: `URL de televersement refusee pour ${result.sain} : ${result.error.message}` },
         { status: 502 }
       )
     }
 
     cibles.push({
-      nom: sain,
-      chemin,
-      signedUrl: data.signedUrl,
-      token: data.token,
-      url: sb.storage.from(BUCKET).getPublicUrl(chemin).data.publicUrl,
+      nom: result.sain,
+      chemin: result.chemin,
+      signedUrl: result.data!.signedUrl,
+      token: result.data!.token,
+      url: sb.storage.from(BUCKET).getPublicUrl(result.chemin).data.publicUrl,
     })
   }
 
