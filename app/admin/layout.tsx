@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getCmsAuthStatus, CMS_SESSION_COOKIE } from '@/lib/cms-auth'
+import { CreatorQuickDock } from '@/components/admin/CreatorQuickDock'
 
 export default async function AdminLayout({
   children,
@@ -83,6 +84,36 @@ export default async function AdminLayout({
                 Redirections
               </Link>
               <Link 
+                href="/admin/hub" 
+                className="text-indigo-700 font-semibold hover:underline"
+              >
+                🚀 Hub Outils
+              </Link>
+              <Link 
+                href="/admin/seo-geo" 
+                className="text-emerald-700 font-semibold hover:underline"
+              >
+                🌍 SEO Géo
+              </Link>
+              <Link 
+                href="/admin/task-giver" 
+                className="text-amber-800 font-semibold hover:underline"
+              >
+                ⚡ Tâches Jules
+              </Link>
+              <Link 
+                href="/admin/branding" 
+                className="text-eucalyptus font-medium hover:underline"
+              >
+                Identité & Logo
+              </Link>
+              <Link 
+                href="/admin/settings" 
+                className="text-charcoal/70 hover:text-charcoal hover:underline"
+              >
+                Paramètres
+              </Link>
+              <Link 
                 href="/admin/analytics" 
                 className="text-charcoal/70 hover:text-charcoal hover:underline"
               >
@@ -99,6 +130,7 @@ export default async function AdminLayout({
           </div>
         </header>
         {children}
+        <CreatorQuickDock />
       </div>
     </div>
   )

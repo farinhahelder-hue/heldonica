@@ -329,6 +329,55 @@ export default async function BlogPostPage({ params, searchParams }: Props) {
 
   const BlockContent = () => (
     <div className="mx-auto max-w-4xl px-4 py-12 md:py-16">
+      {/* Cartouche de terrain authentique — Direction carnet de route imprimé */}
+      <div className="mb-10 rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 pb-3 mb-4 border-b border-[#E2D9C8]">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-700" />
+            <span className="text-xs font-semibold text-[#241D1A] uppercase tracking-[0.14em]">
+              <EditableZone page="blog" zone="field_monograph_badge" fallback="Carnet de terrain certifié • Slow Travel" />
+            </span>
+          </div>
+          <span className="text-xs font-mono text-[#241D1A]/60">
+            <EditableZone page="blog" zone="field_monograph_duo" fallback="Duo fondateur • Expédition réelle" />
+          </span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+          <div>
+            <span className="text-[10px] uppercase font-bold text-[#241D1A]/50 tracking-wider block mb-1">
+              <EditableZone page="blog" zone="field_monograph_terrain" fallback="Terrain vérifié" />
+            </span>
+            <span className="font-semibold text-[#241D1A]">
+              {post.destination || post.category || 'Sur place'}
+            </span>
+          </div>
+          <div>
+            <span className="text-[10px] uppercase font-bold text-[#241D1A]/50 tracking-wider block mb-1">
+              <EditableZone page="blog" zone="field_monograph_gear" fallback="Prise de vue" />
+            </span>
+            <span className="font-mono text-[#241D1A]/90">
+              <EditableZone page="blog" zone="field_monograph_gear_detail" fallback="Nikon D7200 • 35mm" />
+            </span>
+          </div>
+          <div>
+            <span className="text-[10px] uppercase font-bold text-[#241D1A]/50 tracking-wider block mb-1">
+              <EditableZone page="blog" zone="field_monograph_mobility" fallback="Mobilité douce" />
+            </span>
+            <span className="text-[#241D1A]/90">
+              <EditableZone page="blog" zone="field_monograph_mobility_detail" fallback="Train & sentier pédestre" />
+            </span>
+          </div>
+          <div>
+            <span className="text-[10px] uppercase font-bold text-[#241D1A]/50 tracking-wider block mb-1">
+              <EditableZone page="blog" zone="field_monograph_independence" fallback="Indépendance" />
+            </span>
+            <span className="text-[#241D1A]/90">
+              <EditableZone page="blog" zone="field_monograph_independence_detail" fallback="100% autofinancé" />
+            </span>
+          </div>
+        </div>
+      </div>
+
       {post.excerpt && (
         <div className="mb-10 rounded-[2rem] border border-eucalyptus/20 bg-eucalyptus/5 px-6 py-6 md:px-8">
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-mahogany">Ouverture</p>
