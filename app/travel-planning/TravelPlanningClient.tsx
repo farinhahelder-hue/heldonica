@@ -8,7 +8,9 @@ import Footer from '@/components/Footer'
 import Breadcrumb from '@/components/Breadcrumb'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
-import { Clock, Compass, Gem, Map, BedDouble, PhoneCall, Mail, Check } from 'lucide-react'
+import { Clock, Compass, Gem, Map, BedDouble, PhoneCall, Mail, Check, ShieldCheck, BookOpen } from 'lucide-react'
+import DiscoveryCallModal from '@/components/DiscoveryCallModal'
+import LeadMagnetCoupleModal from '@/components/LeadMagnetCoupleModal'
 
 const SITE_URL = 'https://www.heldonica.fr'
 
@@ -101,6 +103,8 @@ export default function TravelPlanningClient({
   const [formStarted, setFormStarted] = useState(false)
   const [testimonials, setTestimonials] = useState<Testimonial[]>([])
   const [pricingPlans, setPricingPlans] = useState(PRICING_PLANS)
+  const [discoveryOpen, setDiscoveryOpen] = useState(false)
+  const [leadMagnetOpen, setLeadMagnetOpen] = useState(false)
 
   useEffect(() => {
     async function fetchPricing() {
@@ -246,21 +250,35 @@ export default function TravelPlanningClient({
             <EditableZone page="travel-planning" zone="hero_text" fallback="On conçoit ton voyage avec nos adresses terrain, sans compromis."
               className="text-[#E6DEC8]/80 max-w-xl text-lg leading-relaxed mb-8 block"
             />
-            <a
-              href="#formulaire"
-              onClick={() => {
-                if (typeof window !== 'undefined' && (window as any).gtag) {
-                  ;(window as any).gtag('event', 'cta_travel_planning_clique', {
-                    event_category: 'Travel Planning',
-                    event_label: 'hero_cta',
-                    source: 'page_travel_planning',
-                  })
-                }
-              }}
-              className="inline-flex items-center gap-2 rounded-sm bg-action px-7 py-3.5 text-xs font-medium uppercase tracking-[0.16em] text-[#F7F3EC] hover:bg-action-fonce transition-colors"
-            >
-              <EditableZone page="travel-planning" zone="hero_cta" fallback="Démarrer ma demande" />
-            </a>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-4">
+              <a
+                href="#formulaire"
+                onClick={() => {
+                  if (typeof window !== 'undefined' && (window as any).gtag) {
+                    ;(window as any).gtag('event', 'cta_travel_planning_clique', {
+                      event_category: 'Travel Planning',
+                      event_label: 'hero_cta',
+                      source: 'page_travel_planning',
+                    })
+                  }
+                }}
+                className="inline-flex items-center justify-center gap-2 rounded-sm bg-action px-7 py-3.5 text-xs font-medium uppercase tracking-[0.16em] text-[#F7F3EC] hover:bg-action-fonce transition-colors"
+              >
+                <EditableZone page="travel-planning" zone="hero_cta" fallback="Démarrer ma demande" />
+              </a>
+              <button
+                type="button"
+                onClick={() => setDiscoveryOpen(true)}
+                className="inline-flex items-center justify-center gap-2 rounded-sm bg-[#FAF7F2]/10 backdrop-blur-sm border border-[#E6DEC8]/30 px-6 py-3.5 text-xs font-medium uppercase tracking-[0.16em] text-[#F7F3EC] hover:bg-[#FAF7F2]/20 transition-colors"
+              >
+                <PhoneCall className="w-3.5 h-3.5 text-[#E6DEC8]" strokeWidth={1.25} />
+                <EditableZone page="travel-planning" zone="hero_discovery_cta" fallback="Appel découverte (20 min)" className="inline" />
+              </button>
+            </div>
+            <div className="flex items-center gap-2 text-xs text-[#E6DEC8]/70">
+              <ShieldCheck className="w-4 h-4 text-eucalyptus shrink-0" strokeWidth={1.25} />
+              <EditableZone page="travel-planning" zone="hero_reassurance_badge" fallback="Forfaits dès 250 € • Zéro commission cachée • 100% testé sur le terrain" className="inline" />
+            </div>
           </div>
         </section>
 
@@ -357,6 +375,30 @@ export default function TravelPlanningClient({
                   <EditableZone page="travel-planning" zone="personas_not_3" fallback="Les départs dans moins de dix jours : on a besoin de temps pour faire les choses bien." className="inline" />
                 </li>
               </ul>
+            </div>
+
+            {/* Guide offert — Lead Magnet couple */}
+            <div className="mt-12 rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-8 max-w-3xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
+              <div className="flex-1">
+                <div className="inline-flex items-center gap-2 text-xs text-eucalyptus font-medium uppercase tracking-[0.14em] mb-2">
+                  <BookOpen className="w-4 h-4" strokeWidth={1.25} />
+                  <EditableZone page="travel-planning" zone="lead_magnet_badge" fallback="Guide numérique offert" className="inline" />
+                </div>
+                <h3 className="text-xl font-serif font-normal text-mahogany mb-2">
+                  <EditableZone page="travel-planning" zone="lead_magnet_title" fallback="Les 5 erreurs qui gâchent un voyage en couple" className="inline" />
+                </h3>
+                <EditableZone page="travel-planning" zone="lead_magnet_text" type="textarea"
+                  fallback="Comment alléger la charge mentale de l'organisation et déjouer les pièges des faux avis en ligne."
+                  className="text-sm text-charcoal/70 leading-relaxed block"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => setLeadMagnetOpen(true)}
+                className="shrink-0 px-6 py-3 rounded-sm bg-eucalyptus text-[#FAF7F2] text-xs font-medium uppercase tracking-[0.14em] hover:bg-eucalyptus/90 transition-colors"
+              >
+                <EditableZone page="travel-planning" zone="lead_magnet_cta" fallback="Recevoir le guide" className="inline" />
+              </button>
             </div>
           </div>
         </section>
@@ -649,8 +691,27 @@ export default function TravelPlanningClient({
             >
               <EditableZone page="travel-planning" zone="cta_button" fallback="Démarrer ma demande" />
             </a>
+            <div className="mt-8">
+              <button
+                type="button"
+                onClick={() => setDiscoveryOpen(true)}
+                className="text-xs text-[#E6DEC8]/80 hover:text-[#E6DEC8] underline underline-offset-4 tracking-[0.12em] uppercase transition-colors"
+              >
+                <EditableZone page="travel-planning" zone="cta_final_discovery" fallback="Ou réserver directement un appel découverte (20 min)" className="inline" />
+              </button>
+            </div>
           </div>
         </section>
+
+        <DiscoveryCallModal
+          isOpen={discoveryOpen}
+          onClose={() => setDiscoveryOpen(false)}
+          defaultAudience="voyageur"
+        />
+        <LeadMagnetCoupleModal
+          isOpen={leadMagnetOpen}
+          onClose={() => setLeadMagnetOpen(false)}
+        />
       </main>
       <Footer />
     </InlineEditProvider>
