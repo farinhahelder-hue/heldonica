@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase'
+import { requireN8nSecret } from '@/lib/n8n-auth'
 
 // Lazy initialization to avoid build-time crash
 const getSupabase = () => {
@@ -15,11 +16,9 @@ const getSupabase = () => {
 // Requires header: x-n8n-secret: <N8N_WEBHOOK_SECRET>
 
 export async function GET(request: NextRequest) {
-  // Verify webhook secret
-  const secret = request.headers.get('x-n8n-secret')
-  if (!secret || secret !== process.env.N8N_WEBHOOK_SECRET) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-  }
+  // Verify webhook secret (N8N_WEBHOOK_SECRET) — echoue ferme si non configure
+  const refus = requireN8nSecret(request)
+  if (refus) return refus
 
   const supabase = getSupabase()
   if (!supabase) {
@@ -77,8 +76,14 @@ export async function GET(request: NextRequest) {
 
 // PATCH /api/n8n/articles - Update article from n8n
 // Body: { id, published?, category?, travel_style?, season? }
+// Requires header: x-n8n-secret: <N8N_WEBHOOK_SECRET>
 
 export async function PATCH(request: NextRequest) {
+  // Le GET verifiait son secret, ce PATCH ne verifiait rien : un appel anonyme
+  // suffisait a depublier n'importe quel article, ou a publier un brouillon.
+  const refus = requireN8nSecret(request)
+  if (refus) return refus
+
   const supabase = getSupabase()
   if (!supabase) {
     return NextResponse.json({ error: 'Service unavailable - Supabase not configured' }, { status: 503 })

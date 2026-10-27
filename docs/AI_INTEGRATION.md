@@ -298,10 +298,16 @@ DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/xxx
 
 ### API Manuelle
 
+Ces routes manient la clé de service Supabase, qui contourne les règles d'accès
+de la base. Elles exigent toutes l'en-tête `x-n8n-secret`, comparé à
+`N8N_WEBHOOK_SECRET` ; sans cette variable côté serveur, elles répondent 503 au
+lieu de s'ouvrir.
+
 ```bash
 # Trigger un événement
 curl -X POST "https://www.heldonica.fr/api/webhook/trigger" \
   -H "Content-Type: application/json" \
+  -H "x-n8n-secret: $N8N_WEBHOOK_SECRET" \
   -d '{
     "event": "article.published",
     "article_id": 42
@@ -312,11 +318,13 @@ curl -X POST "https://www.heldonica.fr/api/webhook/trigger" \
 
 ```bash
 #Liste les articles pour n8n
-curl "https://www.heldonica.fr/api/n8n/articles?status=draft&days=7"
+curl "https://www.heldonica.fr/api/n8n/articles?status=draft&days=7" \
+  -H "x-n8n-secret: $N8N_WEBHOOK_SECRET"
 
 # Met à jour un article
 curl -X PATCH "https://www.heldonica.fr/api/n8n/articles" \
   -H "Content-Type: application/json" \
+  -H "x-n8n-secret: $N8N_WEBHOOK_SECRET" \
   -d '{
     "id": 42,
     "published": true,
