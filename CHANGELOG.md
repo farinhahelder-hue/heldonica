@@ -45,6 +45,13 @@
 - **Vérifié** : `tsc` 0 erreur ; `preflight` **13/13** ; `check:content-pages` vert (« aucune dérive éditoriale dans les pages publiées ») ; `check:image-paths` vert avec 4 chemins en dette connue (Suisse) ; `unpublished-pages` + `SubDestinationTemplate` **12/12**. Aucune écriture en base, mode maintenance non touché.
 - **Rebasage final** : branche rebasée sur `origin/main` `301e7553` (#742 lot 2, #743 logo, #745 compteurs, #747 CI quotidienne, #748 règle secrets) ; conflits CHANGELOG résolus en conservant les deux lots ; contrôles rejoués après résolution.
 
+  ## [2026-10-26 quater] — CI zones CMS : note de capture rétablie, zones Alentejo désactivées
+
+- **`quiz.capture_email_note` réutilisée** : le remplacement de la note « Gratuit · Sans engagement · Zéro spam » par la case de consentement avait laissé la zone active sans lecteur. La note est rétablie au-dessus de la case ; `check:cms-zones` ne la compte plus comme orpheline.
+- **Zones Alentejo** : la page rend désormais les vrais articles `getAllPosts` (filtre « alentejo ») ; les neuf zones `article_1_*` à `article_3_*` ne sont plus affichées. Migration `20261026170000_desactivation_zones_articles_alentejo.sql` : `is_active = false` pour ces neuf clés. **Non appliquée** — elle attend un `db push` (écriture de production réservée au propriétaire).
+- **Zones logo** : le correctif amont #743 (`NULL` au lieu de chaîne vide) est inclus par le rebasage ; il ne reste que la migration Alentejo à appliquer pour que le garde-fou cesse de compter ces neuf zones.
+- **Vérifié** : `tsc` 0 ; `preflight` **13/13** ; `check:content-pages` vert.
+
   ## [2026-10-25 quindecies] — Le filtre CMS n'est pas supprimé, il est déclaré
 
 - **Le constat** : la levée du verrou de câblage (lot 1) a retiré `CONSUMED_ZONE_KEYS` de `getGlobalZones()`, avec pour seule contrepartie un commentaire renvoyant à `check-cms-zones.mjs`. Or ce garde-fou ne vérifie qu'une chose : qu'une zone active est **lue par un composant**. Il ne dit rien de ce qui part dans le HTML public. La précaution d'origine — ne pas sérialiser une valeur qu'aucun composant n'affiche (résidus « Monica Schneider / Executive Coach », lus par Googlebot) — n'était donc plus portée par personne.

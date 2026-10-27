@@ -368,6 +368,9 @@ export default function QuizClient({
                               {Z('capture_email_error', 'text', "Une erreur est survenue. Merci de réessayer.", undefined, 'span')}
                             </p>
                           )}
+                          <p className="text-xs text-stone-500">
+                            {Z('capture_email_note', 'text', "Gratuit · Sans engagement · Zéro spam", undefined, 'span')}
+                          </p>
                           <label className="flex items-start gap-2 text-left text-xs text-stone-500">
                             <input
                               type="checkbox"
