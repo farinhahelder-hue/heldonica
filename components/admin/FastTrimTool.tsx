@@ -719,6 +719,8 @@ export default function FastTrimTool() {
                           seekTo(seg.startTime);
                         }}
                         style={smallButtonStyle}
+                        title="Lire"
+                        aria-label="Lire"
                       >
                         <Play size={12} /> Lire
                       </button>
@@ -728,6 +730,8 @@ export default function FastTrimTool() {
                           deleteSegment(seg.id);
                         }}
                         style={{ ...smallButtonStyle, background: '#fee2e2', color: '#dc2626' }}
+                        title="Supprimer"
+                        aria-label="Supprimer"
                       >
                         <Trash2 size={12} />
                       </button>
