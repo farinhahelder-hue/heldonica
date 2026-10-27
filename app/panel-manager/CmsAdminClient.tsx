@@ -217,6 +217,7 @@ function CmsAdminClientInner() {
   const [contentEditorMode, setContentEditorMode] = useState<'blocks' | 'classic'>('blocks');
   const [activeCmsBlocks, setActiveCmsBlocks] = useState<CmsBlock[]>([]);
   const [liveSplitPreview, setLiveSplitPreview] = useState<boolean>(true);
+  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [isRevisionsDrawerOpen, setIsRevisionsDrawerOpen] = useState(false);
   const [isAgentsDrawerOpen, setIsAgentsDrawerOpen] = useState(false);
   const [isExportImportModalOpen, setIsExportImportModalOpen] = useState(false);
@@ -1545,6 +1546,8 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                               <BlockCanvas
                                 blocks={activeCmsBlocks}
                                 onChange={handleBlocksChange}
+                                selectedBlockId={selectedBlockId}
+                                onSelectBlock={setSelectedBlockId}
                               />
                             </div>
 
@@ -1568,7 +1571,12 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                                     {editingArticle.excerpt}
                                   </p>
                                 )}
-                                <BlockRenderer blocks={activeCmsBlocks} />
+                                <BlockRenderer
+                                  blocks={activeCmsBlocks}
+                                  interactivePreview={true}
+                                  selectedBlockId={selectedBlockId}
+                                  onSelectBlock={setSelectedBlockId}
+                                />
                               </div>
                             </div>
                           </div>
@@ -1576,6 +1584,8 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                           <BlockCanvas
                             blocks={activeCmsBlocks}
                             onChange={handleBlocksChange}
+                            selectedBlockId={selectedBlockId}
+                            onSelectBlock={setSelectedBlockId}
                           />
                         )
                       ) : (

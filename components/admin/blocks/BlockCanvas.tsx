@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import type {
   CmsBlock,
   BlockType,
@@ -57,6 +57,7 @@ import { suggestVaultSpotsForContent } from '@/lib/cms-vault-suggest';
 import { lintCanvasBlocks } from '@/lib/cms-brand-linter';
 import { auditCanvasA11y } from '@/lib/cms-a11y';
 import PhotoPickerModal, { type SelectedPhotoPayload } from '@/components/admin/media/PhotoPickerModal';
+import HotspotPicker from '@/components/admin/media/HotspotPicker';
 import { PhotoInterviewModal } from '@/components/admin/PhotoInterviewModal';
 import { generateBlocksFromAlbum } from '@/lib/cms-draft-from-evidence';
 import { generateFaqVerdictBundle } from '@/lib/cms-faq-verdict-generator';
@@ -65,6 +66,8 @@ interface BlockCanvasProps {
   blocks: CmsBlock[];
   onChange: (blocks: CmsBlock[]) => void;
   className?: string;
+  selectedBlockId?: string | null;
+  onSelectBlock?: (id: string) => void;
 }
 
 const BLOCK_TYPES_CONFIG: { type: BlockType; label: string; icon: React.ElementType; description: string }[] = [
@@ -82,7 +85,13 @@ const BLOCK_TYPES_CONFIG: { type: BlockType; label: string; icon: React.ElementT
   { type: 'hospitality_spot', label: 'Hébergement Éthique', icon: Home, description: 'Chambre d’hôtes ou hôtel slow travel avec critères' },
 ];
 
-export function BlockCanvas({ blocks, onChange, className = '' }: BlockCanvasProps) {
+export function BlockCanvas({
+  blocks,
+  onChange,
+  className = '',
+  selectedBlockId,
+  onSelectBlock,
+}: BlockCanvasProps) {
   const [activeConfigBlockId, setActiveConfigBlockId] = useState<string | null>(null);
   const [showTemplateModal, setShowTemplateModal] = useState<boolean>(false);
   const [showAlbumModal, setShowAlbumModal] = useState<boolean>(false);
@@ -93,6 +102,15 @@ export function BlockCanvas({ blocks, onChange, className = '' }: BlockCanvasPro
   const [showA11yDetails, setShowA11yDetails] = useState<boolean>(false);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+
+  // Synchronisation Live Preview -> Défilement et focus automatique du bloc sélectionné
+  useEffect(() => {
+    if (!selectedBlockId) return;
+    const el = document.getElementById(`block-editor-${selectedBlockId}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [selectedBlockId]);
 
   // Linter de voix éditoriale temps réel (source de vérité : lib/brand-voice.ts)
   const lintSummary = useMemo(() => lintCanvasBlocks(blocks), [blocks]);
@@ -551,6 +569,8 @@ export function BlockCanvas({ blocks, onChange, className = '' }: BlockCanvasPro
             return (
               <div
                 key={block.id}
+                id={`block-editor-${block.id}`}
+                onClick={() => onSelectBlock?.(block.id)}
                 onDragOver={(e) => handleDragOver(e, idx)}
                 onDrop={(e) => handleDrop(e, idx)}
                 className={`bg-white border rounded-2xl shadow-sm overflow-hidden transition-all ${
@@ -558,6 +578,8 @@ export function BlockCanvas({ blocks, onChange, className = '' }: BlockCanvasPro
                     ? 'opacity-40 border-dashed border-amber-400 scale-[0.99]'
                     : dragOverIndex === idx
                     ? 'border-amber-400 ring-2 ring-amber-300/50 bg-amber-50/20'
+                    : selectedBlockId === block.id
+                    ? 'border-amber-500 ring-2 ring-amber-400 shadow-md bg-amber-50/20'
                     : 'border-stone-200 hover:border-stone-300'
                 }`}
               >
@@ -1035,6 +1057,33 @@ function TextEditor({ block, onUpdate }: { block: TextBlock; onUpdate: (p: Parti
 function ImageEditor({ block, onUpdate }: { block: ImageBlock; onUpdate: (p: Partial<ImageBlock>) => void }) {
   const [isPickerOpen, setIsPickerOpen] = useState(false);
   const [isInterviewOpen, setIsInterviewOpen] = useState(false);
+  const [isAiFocalLoading, setIsAiFocalLoading] = useState(false);
+
+  const handleAutoFocalAi = async () => {
+    if (!block.url) return;
+    setIsAiFocalLoading(true);
+    try {
+      const res = await fetch('/api/cms/ai-vision', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image_url: block.url, place_title: block.alt }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.suggestedPlace && !block.alt) {
+          onUpdate({ alt: data.suggestedPlace });
+        }
+        if (data.description && !block.caption) {
+          onUpdate({ caption: data.description });
+        }
+        onUpdate({ hotspot: { x: 0.5, y: 0.25 } });
+      }
+    } catch (e) {
+      console.error('Erreur cadrage IA:', e);
+    } finally {
+      setIsAiFocalLoading(false);
+    }
+  };
 
   const handleSelectPhoto = (photo: SelectedPhotoPayload) => {
     onUpdate({
@@ -1093,6 +1142,17 @@ function ImageEditor({ block, onUpdate }: { block: ImageBlock; onUpdate: (p: Par
             Changer
           </button>
         </div>
+      )}
+
+      {/* Point focal & Hotspot intelligent Sanity-style */}
+      {block.url && (
+        <HotspotPicker
+          imageUrl={block.url}
+          hotspot={block.hotspot}
+          onChange={(hotspot) => onUpdate({ hotspot })}
+          onAutoFocalAi={handleAutoFocalAi}
+          isAiLoading={isAiFocalLoading}
+        />
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1677,6 +1737,15 @@ function PhotoEvidenceEditor({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Point focal & Hotspot intelligent Sanity-style sur la preuve photo */}
+      {block.imageUrl && (
+        <HotspotPicker
+          imageUrl={block.imageUrl}
+          hotspot={block.hotspot}
+          onChange={(hotspot) => onUpdate({ hotspot })}
+        />
       )}
 
       {/* Champs d'édition */}

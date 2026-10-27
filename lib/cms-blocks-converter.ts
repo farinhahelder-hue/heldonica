@@ -41,7 +41,8 @@ export function blocksToHtml(blocks: CmsBlock[]): string {
 
         case 'image': {
           const cap = block.caption ? `\n  <figcaption>${escapeHtml(block.caption)}</figcaption>` : '';
-          return `<figure>\n  <img src="${escapeHtml(block.url)}" alt="${escapeHtml(block.alt || '')}" />${cap}\n</figure>`;
+          const focalAttr = block.hotspot ? ` style="object-position: ${Math.round(block.hotspot.x * 100)}% ${Math.round(block.hotspot.y * 100)}%;"` : '';
+          return `<figure>\n  <img src="${escapeHtml(block.url)}" alt="${escapeHtml(block.alt || '')}"${focalAttr} />${cap}\n</figure>`;
         }
 
         case 'gallery': {
