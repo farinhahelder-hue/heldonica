@@ -29,6 +29,8 @@ export interface PhotoEvidenceBlockProps {
   anecdote: string;
   /** URL vers l'album Google Photos (optionnel) */
   albumLink?: string;
+  /** Boîtier & optique certifiés de terrain (ex: Nikon D7200, 35mm f/1.8 DX) */
+  cameraInfo?: string;
 }
 
 export function PhotoEvidenceBlock({
@@ -37,6 +39,7 @@ export function PhotoEvidenceBlock({
   date,
   anecdote,
   albumLink,
+  cameraInfo,
 }: PhotoEvidenceBlockProps) {
   if (!imageUrl) {
     return (
@@ -56,6 +59,14 @@ export function PhotoEvidenceBlock({
         <span className="inline-flex items-center gap-1"><CmsIcon value="MapPin" size={14} /> {location}</span>
         <span aria-hidden="true"> – </span>
         <time dateTime={date} className="inline-flex items-center gap-1"><CmsIcon value="CalendarDays" size={14} /> {date}</time>
+        {cameraInfo && (
+          <>
+            <span aria-hidden="true"> – </span>
+            <span className="inline-flex items-center gap-1 font-mono text-[11px] text-stone-600">
+              <CmsIcon value="Camera" size={13} /> {cameraInfo}
+            </span>
+          </>
+        )}
       </div>
       {anecdote && <figcaption className={styles.anecdote}>{anecdote}</figcaption>}
       {albumLink && (

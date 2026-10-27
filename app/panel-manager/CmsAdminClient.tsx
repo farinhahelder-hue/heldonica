@@ -7,8 +7,8 @@ import EnhancedRichContent from '@/components/EnhancedRichContent';
 import MediaLibrary from '@/components/MediaLibrary';
 import EeaatScore from '@/components/EeaatScore';
 import { sanitizeHtml } from '@/lib/sanitize-html';
-import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot, Mail, Map as MapIcon, ChevronLeft, ChevronRight, Palette, Zap, Inbox, MapPin, ListTree, Type } from 'lucide-react';
-import { Film, Clapperboard, Camera, Calendar, MessageSquare, ClipboardList, History, ShieldCheck, Bed, Key, FolderOpen } from 'lucide-react';
+import { Home, FileText, Plus, Sparkles, Folder, Plane, Image, Settings, BarChart3, Search, Save, Package, Car, Eye, EyeOff, Trash2, Send, Download, Upload, RefreshCw, Bot, Mail, Map as MapIcon, ChevronLeft, ChevronRight, Palette, Zap, Inbox, MapPin, ListTree, Type, ExternalLink, Globe } from 'lucide-react';
+import { Film, Clapperboard, Camera, Calendar, MessageSquare, ClipboardList, History, ShieldCheck, Bed, Key, FolderOpen, Leaf, LogOut, Smartphone, Timer, AlertTriangle, Blocks, FileText as FileTextIcon, CheckCircle2, XCircle, Lightbulb, ImageOff, PencilLine } from 'lucide-react';
 import CmsSettingsPanel from '@/components/admin/CmsSettingsPanel';
 import ErrorBoundary from '@/components/admin/ErrorBoundary';
 import CategorySelect from '@/components/admin/CategorySelect';
@@ -26,7 +26,9 @@ import ArticleMigrateToBlocksModal from '@/components/admin/ArticleMigrateToBloc
 import { computeReadingMetrics } from '@/lib/cms-reading-metrics';
 import { VERIFIED_PHOTO_ALBUMS } from '@/lib/cms-photo-albums';
 import { htmlToBlocks, blocksToHtml } from '@/lib/cms-blocks-converter';
-import type { CmsBlock } from '@/types/cms-blocks';
+import type { CmsBlock, VaultSpotBlock } from '@/types/cms-blocks';
+import { createDefaultBlock } from '@/types/cms-blocks';
+import OmnisearchPalette from '@/components/admin/OmnisearchPalette';
 import SerpAndSocialPreview from '@/components/admin/seo/SerpAndSocialPreview';
 import {
   SLOW_SEASONS,
@@ -68,6 +70,11 @@ const AiAnalyticsDashboard = dynamic(() => import('@/components/admin/AiAnalytic
 const AuditLogPanel = dynamic(() => import('./AuditLogPanel'), { ssr: false });
 const HospitalityManager = dynamic(() => import('./HospitalityManager'), { ssr: false });
 const TokensAndReleasesManager = dynamic(() => import('./TokensAndReleasesManager').then(m => m.TokensAndReleasesManager), { ssr: false });
+const CreatorHub = dynamic(() => import('@/components/admin/CreatorHub'), { ssr: false });
+const SeoGeoEngine = dynamic(() => import('@/components/admin/SeoGeoEngine'), { ssr: false });
+const AgentTaskGiver = dynamic(() => import('@/components/admin/AgentTaskGiver'), { ssr: false });
+const LogoGenerator = dynamic(() => import('@/components/admin/LogoGenerator'), { ssr: false });
+const IconPackExplorer = dynamic(() => import('@/components/admin/IconPackExplorer'), { ssr: false });
 
 type Article = {
   id: number;
@@ -109,7 +116,8 @@ type NavSection =
   | 'map' | 'auto-shorts' | 'design' | 'geo' | 'instagram' | 'messages' | 'demandes'
   | 'testimonials' | 'checklists'
   | 'destination-pillars' | 'guides' | 'editable-zones' | 'sub-destinations'
-  | 'seasons' | 'redirects' | 'layouts' | 'audit' | 'hospitality' | 'tokens-releases';
+  | 'seasons' | 'redirects' | 'layouts' | 'audit' | 'hospitality' | 'tokens-releases'
+  | 'hub' | 'task-giver' | 'seo-geo' | 'branding';
 
 // Sections adressables depuis l'URL. Le panneau ne gardait sa section qu'en
 // memoire : impossible d'ouvrir directement « Design » ou « Articles », que ce
@@ -123,6 +131,7 @@ const SECTIONS_URL: readonly NavSection[] = [
   'testimonials', 'checklists',
   'destination-pillars', 'guides', 'editable-zones', 'sub-destinations',
   'seasons', 'redirects', 'layouts', 'audit', 'hospitality', 'tokens-releases',
+  'hub', 'task-giver', 'seo-geo', 'branding',
 ]
 
 function sectionDepuisUrl(valeur: string | null): NavSection | null {
@@ -162,7 +171,10 @@ function CarteAction({
       <div className="font-semibold text-gray-900">{titre}</div>
       <div className="text-sm text-gray-500 mt-1">{detail}</div>
       {aide && (
-        <div className="text-xs text-teal mt-2">✨ {aide}</div>
+        <div className="text-xs text-teal mt-2 flex items-start gap-1.5">
+        <Lightbulb size={12} className="shrink-0 mt-0.5" />
+        <span>{aide}</span>
+        </div>
       )}
     </button>
   )
@@ -217,6 +229,7 @@ function CmsAdminClientInner() {
   const [contentEditorMode, setContentEditorMode] = useState<'blocks' | 'classic'>('blocks');
   const [activeCmsBlocks, setActiveCmsBlocks] = useState<CmsBlock[]>([]);
   const [liveSplitPreview, setLiveSplitPreview] = useState<boolean>(true);
+  const [selectedBlockId, setSelectedBlockId] = useState<string | null>(null);
   const [isRevisionsDrawerOpen, setIsRevisionsDrawerOpen] = useState(false);
   const [isAgentsDrawerOpen, setIsAgentsDrawerOpen] = useState(false);
   const [isExportImportModalOpen, setIsExportImportModalOpen] = useState(false);
@@ -232,6 +245,20 @@ function CmsAdminClientInner() {
       setActiveCmsBlocks([]);
     }
   }, [editingArticle?.id]);
+
+  // Auto-sélection d'un article passé en paramètre d'URL (ex: depuis l'APK mobile ou lien direct)
+  useEffect(() => {
+    const targetId = searchParams.get('articleId') || searchParams.get('edit');
+    if (targetId && articles.length > 0 && !editingArticle) {
+      const found = articles.find(
+        (a) => String(a.id) === String(targetId) || a.slug === targetId
+      );
+      if (found) {
+        setEditingArticle(found);
+        setActiveSection('articles');
+      }
+    }
+  }, [articles, searchParams, editingArticle]);
 
   const handleBlocksChange = (updatedBlocks: CmsBlock[]) => {
     setActiveCmsBlocks(updatedBlocks);
@@ -445,7 +472,7 @@ function CmsAdminClientInner() {
 
   const formatDate = (d: string) => new Date(d).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-function CollapsibleSection({ title, defaultOpen, children }: { title: string; defaultOpen?: boolean; children: React.ReactNode }) {
+function CollapsibleSection({ title, defaultOpen, children }: { title: React.ReactNode; defaultOpen?: boolean; children: React.ReactNode }) {
   const [open, setOpen] = useState(defaultOpen ?? true);
   return (
     <div className="border border-gray-100 rounded-lg overflow-hidden">
@@ -659,7 +686,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
   const handleSaveArticle = async () => {
     if (!editingArticle) return;
     setSaving(true);
-    toast('💾 Sauvegarde en cours…', 'info');
+    toast('Sauvegarde en cours…', 'info');
     try {
       const method = editingArticle.id ? 'PATCH' : 'POST';
       const url = editingArticle.id
@@ -678,14 +705,14 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
         const err = await res.json().catch(() => ({ error: 'Save failed' }));
         throw new Error(err.error || 'Save failed');
       }
-      toast('✅ Article sauvegardé — 14:32', 'success');
+      toast('Article sauvegardé', 'success');
       setIsDirty(false);
       try {
         localStorage.removeItem(`heldonica-draft-${editingArticle.id ?? 'new'}`);
       } catch {}
       loadArticles();
     } catch (e: any) {
-      toast('❌ ' + (e.message || 'Erreur lors de la sauvegarde'), 'error');
+      toast(e.message || 'Erreur lors de la sauvegarde', 'error');
     } finally {
       setSaving(false);
     }
@@ -707,7 +734,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#f5f3ef]">
         <div className="bg-white p-10 rounded-2xl shadow-lg text-center">
-          <div className="text-3xl mb-2 text-[#2D8B7A]">🌿</div>
+          <Leaf size={30} className="mb-2 text-[#2D8B7A] mx-auto" aria-hidden="true" />
           <h1 className="text-xl font-bold text-[#6b2a1a]">Heldonica CMS</h1>
           <p className="text-gray-500 text-sm mt-1">Vérification…</p>
         </div>
@@ -720,7 +747,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
       <div className="min-h-screen flex items-center justify-center bg-[#f5f3ef]">
         <div className="bg-white p-10 rounded-2xl shadow-lg w-full max-w-sm">
           <div className="text-center mb-6">
-            <div className="text-3xl mb-2">🌿</div>
+            <Leaf size={30} className="mb-2 text-[#2D8B7A] mx-auto" aria-hidden="true" />
             <h1 className="text-xl font-bold text-[#6b2a1a]">Heldonica CMS</h1>
             <p className="text-gray-400 text-sm mt-1">Connexion requise</p>
           </div>
@@ -789,6 +816,8 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
     {
       title: 'Marketing & Outils',
       items: [
+        { id: 'hub',           label: 'Hub Outils (Google/Meta)', icon: <ExternalLink size={15} /> },
+        { id: 'task-giver',    label: 'Tâches Jules & IA',   icon: <Bot size={15} /> },
         { id: 'blog-generator',label: 'Générateur blog',  icon: <Bot size={15} /> },
         { id: 'instagram',     label: 'Instagram',           icon: <Camera size={15} /> },
         { id: 'analytics',     label: 'Analytics IA',        icon: <BarChart3 size={15} /> },
@@ -799,6 +828,8 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
     {
       title: 'Configuration & Audit',
       items: [
+        { id: 'branding',      label: 'Logo & Icônes',       icon: <Sparkles size={15} /> },
+        { id: 'seo-geo',       label: 'SEO & Géo Engine',    icon: <Globe size={15} /> },
         { id: 'design',        label: 'Design',             icon: <Palette size={15} /> },
         { id: 'geo',           label: 'GEO',                icon: <Zap size={15} /> },
         { id: 'layouts',       label: 'Templates',          icon: <Type size={15} /> },
@@ -829,7 +860,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
         {/* Sidebar */}
         <aside className="w-full lg:w-60 shrink-0 bg-stone-900 text-stone-300 flex flex-col py-4 lg:py-6 px-4 lg:min-h-screen shadow-xl">
           <div className="px-3 mb-4 lg:mb-6 flex items-center gap-2">
-            <span className="text-2xl">🌿</span>
+            <Leaf size={22} className="text-emerald-400 shrink-0" aria-hidden="true" />
             <div className="flex-1">
               <div className="text-base font-bold text-white tracking-wide">Heldonica</div>
               <div className="flex items-center gap-1.5 mt-0.5">
@@ -837,6 +868,18 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                 <span className="text-[11px] text-stone-400 font-medium">Admin (Fondateur)</span>
               </div>
             </div>
+            {/* Bouton Omnisearch rapide (accessible tactile mobile / APK) */}
+            <button
+              type="button"
+              onClick={() => setShowPalette(true)}
+              className="shrink-0 rounded-lg border border-amber-600/70 bg-amber-950/40 px-2.5 py-1.5 text-xs font-semibold text-amber-200 flex items-center gap-1.5 hover:bg-amber-900/60 transition-colors"
+              title="Recherche universelle Omnisearch (Cmd+K)"
+            >
+              <Search size={14} className="text-amber-400" />
+              <span className="hidden sm:inline">Omnisearch</span>
+              <kbd className="hidden lg:inline text-[9px] bg-amber-900 px-1 py-0.2 rounded font-mono">⌘K</kbd>
+            </button>
+
             {/* Le nom de la section en cours tient lieu d'etiquette : replie, le
                 menu doit dire ou l'on se trouve. */}
             <button
@@ -917,7 +960,8 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
               }}
               className="w-full text-left text-xs text-stone-500 hover:text-stone-300 transition-colors flex items-center gap-2 py-2"
             >
-              🚪 Déconnexion
+              <LogOut size={13} />
+              Déconnexion
             </button>
           </div>
         </aside>
@@ -1167,12 +1211,14 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                                 <span>{article.title}</span>
                                 {(!article.featured_image || article.featured_image.trim() === '' || article.featured_image === '/og-default.jpg') && (
                                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800 border border-amber-200" title="Image de couverture manquante (utilise le fallback par défaut)">
-                                    🖼️ Image manquante
+                                    <ImageOff size={11} />
+                                    Image manquante
                                   </span>
                                 )}
                                 {(!article.og_image || article.og_image.trim() === '' || article.og_image === '/og-default.jpg') && (
                                   <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-orange-100 text-orange-800 border border-orange-200" title="Image OpenGraph (réseaux sociaux) manquante">
-                                    📱 Pas d'OG
+                                    <Smartphone size={11} />
+                                    Pas d'OG
                                   </span>
                                 )}
                               </div>
@@ -1333,7 +1379,8 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                         className="hidden lg:flex items-center gap-2 px-3 py-1.5 bg-stone-100 hover:bg-stone-200/80 rounded-lg text-xs font-medium text-stone-700 transition-colors border border-stone-200"
                         title="Ouvrir l'analyse de lecture slow travel et les options d'export"
                       >
-                        <span className="text-stone-600 font-semibold">⏱ {currentMetrics.readingTimeFormatted}</span>
+                        <Timer size={12} className="text-stone-500" />
+                        {currentMetrics.readingTimeFormatted}
                         <span className="text-stone-300">·</span>
                         <span className="text-stone-500">{currentMetrics.wordCount} mots</span>
                         <span className="text-stone-300">·</span>
@@ -1382,11 +1429,12 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                 {/* Save status bar */}
                 <div className={`mb-4 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                   saving ? 'bg-amber-50 text-amber-700 border border-amber-200' :
-                  saveMsg ? (saveMsg.includes('✅') ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
-                             'bg-red-50 text-red-700 border border-red-200') :
+                  saveMsg ? 'bg-stone-50 text-stone-700 border border-stone-200' :
                   'bg-transparent'
                 }`}>
-                  {saving && '💾 Sauvegarde en cours…'}
+                  {saving && (
+                  <span className="inline-flex items-center gap-1.5"><Save size={13} />Sauvegarde en cours…</span>
+                  )}
                   {!saving && saveMsg && saveMsg}
                   {!saving && lastAutoSave && !saveMsg &&
                     <span className="text-gray-400 text-xs">Auto-sauvegarde {lastAutoSave}</span>}
@@ -1396,7 +1444,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                 {localDraft && (
                   <div className="mb-4 px-4 py-3 bg-amber-50 border border-amber-200 rounded-lg flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-amber-600">💡</span>
+                      <Lightbulb size={14} className="text-amber-600 shrink-0" />
                       <span className="text-sm text-amber-800">
                         Brouillon local détecté : Un brouillon enregistré localement dans votre navigateur le {new Date(localDraft.timestamp).toLocaleString('fr-FR')} contient des modifications non enregistrées.
                       </span>
@@ -1425,7 +1473,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                 <div className="space-y-3">
 
                   {/* ── Content section ── */}
-                  <CollapsibleSection title="📝 Contenu" defaultOpen={true}>
+                  <CollapsibleSection title={<span className="inline-flex items-center gap-2"><FileTextIcon size={14} className="text-stone-500" />Contenu</span>} defaultOpen={true}>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Titre</label>
                       <input
@@ -1495,7 +1543,8 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                                 : 'text-gray-500 hover:text-gray-900'
                             }`}
                           >
-                            🧱 Mode Blocs Visuel
+                            <Blocks size={13} />
+                            Mode Blocs Visuel
                           </button>
                           
                           {/* Bouton de Migration vers Blocs Modulaires si l'article n'est pas encore en blocs */}
@@ -1506,7 +1555,8 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                               className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200 shadow-2xs"
                               title="Migrer cet article classique en blocs modulaires"
                             >
-                              ✨ Migrer en Blocs
+                              <Sparkles size={12} />
+                              Migrer en Blocs
                             </button>
                           )}
 
@@ -1519,7 +1569,8 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                                 : 'text-gray-500 hover:text-gray-900'
                             }`}
                           >
-                            📝 Éditeur Classique
+                            <PencilLine size={13} />
+                            Éditeur Classique
                           </button>
                         </div>
 
@@ -1545,6 +1596,11 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                               <BlockCanvas
                                 blocks={activeCmsBlocks}
                                 onChange={handleBlocksChange}
+                                selectedBlockId={selectedBlockId}
+                                onSelectBlock={setSelectedBlockId}
+                                onOpenAgents={() => setIsAgentsDrawerOpen(true)}
+                                onOpenExport={() => setIsExportImportModalOpen(true)}
+                                articleSlug={editingArticle?.slug}
                               />
                             </div>
 
@@ -1568,7 +1624,12 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                                     {editingArticle.excerpt}
                                   </p>
                                 )}
-                                <BlockRenderer blocks={activeCmsBlocks} />
+                                <BlockRenderer
+                                  blocks={activeCmsBlocks}
+                                  interactivePreview={true}
+                                  selectedBlockId={selectedBlockId}
+                                  onSelectBlock={setSelectedBlockId}
+                                />
                               </div>
                             </div>
                           </div>
@@ -1576,6 +1637,11 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                           <BlockCanvas
                             blocks={activeCmsBlocks}
                             onChange={handleBlocksChange}
+                            selectedBlockId={selectedBlockId}
+                            onSelectBlock={setSelectedBlockId}
+                            onOpenAgents={() => setIsAgentsDrawerOpen(true)}
+                            onOpenExport={() => setIsExportImportModalOpen(true)}
+                            articleSlug={editingArticle?.slug}
                           />
                         )
                       ) : (
@@ -1592,7 +1658,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                   </CollapsibleSection>
 
                   {/* ── Media section ── */}
-                  <CollapsibleSection title="🖼️ Média" defaultOpen={false}>
+                  <CollapsibleSection title={<span className="inline-flex items-center gap-2"><Image size={14} className="text-stone-500" />Média</span>} defaultOpen={false}>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">Image à la une (URL)</label>
                       <input
@@ -1609,7 +1675,8 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                         return (
                           <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
                             <p className="text-xs text-amber-700 font-medium">
-                              ⚠️ {imgs.length} image(s) sans attribut alt dans le contenu
+                              <AlertTriangle size={13} className="text-amber-600 shrink-0" />
+                              <span>{imgs.length} image(s) sans attribut alt dans le contenu</span>
                             </p>
                             <p className="text-[10px] text-amber-600 mt-0.5">Ajoutez des textes alternatifs pour l’accessibilité et le SEO</p>
                           </div>
@@ -1620,7 +1687,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                   </CollapsibleSection>
 
                   {/* ── Preuve visuelle (PhotoEvidenceBlock) ── */}
-                  <CollapsibleSection title="📸 Preuve visuelle" defaultOpen={false}>
+                  <CollapsibleSection title={<span className="inline-flex items-center gap-2"><Camera size={14} className="text-stone-500" />Preuve visuelle</span>} defaultOpen={false}>
                     {/* Sélecteur direct d'albums certifiés */}
                     <div className="mb-4 p-3 bg-stone-50 border border-stone-200 rounded-xl space-y-3">
                       <div className="flex items-center justify-between">
@@ -1694,7 +1761,8 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                                     </div>
                                     <div className="p-2 flex-1 flex flex-col justify-between">
                                       <div className="text-[11px] font-semibold text-gray-800 truncate">
-                                        📍 {photo.location}
+                                        <MapPin size={11} className="shrink-0 text-gray-500" />
+                                        {photo.location}
                                       </div>
                                       <button
                                         type="button"
@@ -1778,7 +1846,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                   </CollapsibleSection>
 
                   {/* ── SEO section ── */}
-                  <CollapsibleSection title="🔍 SEO & Métadonnées" defaultOpen={false}>
+                  <CollapsibleSection title={<span className="inline-flex items-center gap-2"><Search size={14} className="text-stone-500" />SEO & Métadonnées</span>} defaultOpen={false}>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Catégorie</label>
@@ -1874,7 +1942,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                     {/* Taxonomie Slow Travel métier */}
                     <div className="p-4 bg-amber-50/40 rounded-xl border border-amber-200/60 space-y-3 mt-4">
                       <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-900 uppercase tracking-wider">
-                        <span>🌿</span>
+                        <Leaf size={13} className="text-amber-700 shrink-0" />
                         <span>Taxonomie Slow Travel & Immersion</span>
                       </div>
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -1950,7 +2018,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                   </CollapsibleSection>
 
                   {/* ── Publication section ── */}
-                  <CollapsibleSection title="📅 Publication" defaultOpen={false}>
+                  <CollapsibleSection title={<span className="inline-flex items-center gap-2"><Calendar size={14} className="text-stone-500" />Publication</span>} defaultOpen={false}>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-medium text-gray-700 mb-1">Statut</label>
@@ -2003,7 +2071,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
                   </CollapsibleSection>
 
                   {/* ── Revision History section ── */}
-                  <CollapsibleSection title="⏳ Historique des versions" defaultOpen={false}>
+                  <CollapsibleSection title={<span className="inline-flex items-center gap-2"><History size={14} className="text-stone-500" />Historique des versions</span>} defaultOpen={false}>
                     {revisionsLoading ? (
                       <div className="text-sm text-gray-400 py-2">Chargement...</div>
                     ) : revisions.length === 0 ? (
@@ -2330,6 +2398,45 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
             </ErrorBoundary>
           )}
 
+          {/* ── Hub Créateur Externe (Google, Meta, YouTube, Jules) ── */}
+          {activeSection === 'hub' && (
+            <ErrorBoundary>
+              <Suspense fallback={<SkeletonForm />}>
+                <CreatorHub />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Donneur de Tâches Jules & IA ── */}
+          {activeSection === 'task-giver' && (
+            <ErrorBoundary>
+              <Suspense fallback={<SkeletonForm />}>
+                <AgentTaskGiver />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Moteur SEO Géo ── */}
+          {activeSection === 'seo-geo' && (
+            <ErrorBoundary>
+              <Suspense fallback={<SkeletonForm />}>
+                <SeoGeoEngine />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
+          {/* ── Identité, Logo & Icônes ── */}
+          {activeSection === 'branding' && (
+            <ErrorBoundary>
+              <Suspense fallback={<SkeletonForm />}>
+                <div className="space-y-10">
+                  <LogoGenerator />
+                  <IconPackExplorer />
+                </div>
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
         </main>
       </div>
 
@@ -2445,38 +2552,61 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: string; d
           }}
         />
       )}
-      {showPalette && (
-        <div className="fixed inset-0 z-50 bg-black/50 flex items-start justify-center pt-20" onClick={() => setShowPalette(false)}>
-          <div className="bg-white rounded-xl w-full max-w-md mx-4 p-4 shadow-xl" onClick={e => e.stopPropagation()}>
-            <input
-              autoFocus
-              placeholder="Tape 'carrousel'…"
-              value={navSearch}
-              onChange={e => setNavSearch(e.target.value)}
-              className="w-full px-3 py-2 border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal"
-            />
-            <div className="mt-3 max-h-64 overflow-y-auto space-y-1">
-              {navGroups
-                .flatMap(g => g.items)
-                .filter(i => i.label.toLowerCase().includes(navSearch.toLowerCase()))
-                .slice(0, 8)
-                .map(item => (
-                  <button
-                    key={item.id}
-                    onClick={() => {
-                      navigateTo(item.id)
-                      setShowPalette(false)
-                      setNavSearch('')
-                    }}
-                    className="w-full text-left px-3 py-2 hover:bg-stone-100 rounded-lg text-sm flex items-center gap-2"
-                  >
-                    {item.icon} {item.label}
-                  </button>
-                ))}
-            </div>
-          </div>
-        </div>
-      )}
+      <OmnisearchPalette
+        isOpen={showPalette}
+        onClose={() => setShowPalette(false)}
+        articles={articles}
+        activeArticleTitle={editingArticle?.title}
+        navItems={navGroups.flatMap((g) => g.items)}
+        onNavigateSection={(sec) => navigateTo(sec as NavSection)}
+        onSelectArticle={(art) => {
+          const found = articles.find((a) => a.id === art.id);
+          if (found) {
+            setEditingArticle(found);
+            navigateTo('articles');
+          }
+        }}
+        onAddBlock={(blockType) => {
+          if (!editingArticle) {
+            toast('Ouvrez ou créez un article pour insérer un bloc', 'info');
+            return;
+          }
+          const newBlock = createDefaultBlock(blockType);
+          handleBlocksChange([...activeCmsBlocks, newBlock]);
+          setSelectedBlockId(newBlock.id);
+          toast(`Bloc « ${blockType} » inséré dans l'article`, 'success');
+        }}
+        onInsertVaultSpot={(spot) => {
+          if (!editingArticle) {
+            toast('Ouvrez ou créez un article pour insérer une pépite du Coffre', 'info');
+            return;
+          }
+          const newSpotBlock: VaultSpotBlock = {
+            id: `blk_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 6)}`,
+            type: 'vault_spot',
+            spotId: spot.id,
+            title: spot.title,
+            location: spot.location,
+            livedExperience: spot.livedExperience,
+          };
+          handleBlocksChange([...activeCmsBlocks, newSpotBlock]);
+          setSelectedBlockId(newSpotBlock.id);
+          toast(`Pépite RAG « ${spot.title} » insérée`, 'success');
+        }}
+        onOpenRevisions={() => setIsRevisionsDrawerOpen(true)}
+        onOpenAgents={() => setIsAgentsDrawerOpen(true)}
+      />
+
+      {/* Bouton Flottant Omnisearch Mobile (Pixel 8 Pro / APK) */}
+      <button
+        type="button"
+        onClick={() => setShowPalette(true)}
+        className="md:hidden fixed bottom-6 right-5 z-40 w-12 h-12 rounded-full bg-amber-800 text-white shadow-2xl flex items-center justify-center hover:bg-amber-900 active:scale-95 transition-all ring-2 ring-white/80"
+        aria-label="Recherche universelle Omnisearch"
+        title="Omnisearch CMS 3.0"
+      >
+        <Search size={20} />
+      </button>
     </>
   );
 }

@@ -7,7 +7,7 @@ interface Props {
 }
 
 export function ImageBlock({ block, className = '' }: Props) {
-  const { url, alt, caption, layout = 'wide', aspectRatio = '16:9' } = block;
+  const { url, alt, caption, layout = 'wide', aspectRatio = '16:9', hotspot } = block;
 
   if (!url) {
     return (
@@ -30,6 +30,11 @@ export function ImageBlock({ block, className = '' }: Props) {
     'auto': 'h-auto',
   }[aspectRatio] || 'aspect-[16/9]';
 
+  // Point focal / Hotspot intelligent Sanity-style
+  const focalStyle: React.CSSProperties = hotspot
+    ? { objectPosition: `${Math.round(hotspot.x * 100)}% ${Math.round(hotspot.y * 100)}%` }
+    : { objectPosition: '50% 50%' };
+
   return (
     <figure className={`my-8 ${layoutClasses} ${className}`}>
       <div className={`relative overflow-hidden rounded-sm bg-[#EFE9DF] border border-[#E2D9C8] ${aspectClasses}`}>
@@ -37,7 +42,8 @@ export function ImageBlock({ block, className = '' }: Props) {
           src={url}
           alt={alt || 'Photo de voyage'}
           loading="lazy"
-          className="w-full h-full object-cover"
+          style={focalStyle}
+          className="w-full h-full object-cover transition-all duration-300"
         />
       </div>
       {caption && (

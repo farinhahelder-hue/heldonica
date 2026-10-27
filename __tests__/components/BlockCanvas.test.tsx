@@ -10,7 +10,7 @@ describe('BlockCanvas UI & Interactivity (__tests__/components/BlockCanvas.test.
     render(<BlockCanvas blocks={[]} onChange={onChange} />);
 
     expect(screen.getByText('Palette des blocs modulaires')).toBeDefined();
-    expect(screen.getByText('📋 Gabarits Slow Travel')).toBeDefined();
+    expect(screen.getByText('Gabarits Slow Travel')).toBeDefined();
     expect(screen.getByText('Aucun bloc pour le moment')).toBeDefined();
   });
 
@@ -67,10 +67,10 @@ describe('BlockCanvas UI & Interactivity (__tests__/components/BlockCanvas.test.
     const onChange = vi.fn();
     render(<BlockCanvas blocks={[]} onChange={onChange} />);
 
-    const tplBtn = screen.getByText('📋 Gabarits Slow Travel');
+    const tplBtn = screen.getByText('Gabarits Slow Travel');
     fireEvent.click(tplBtn);
 
-    expect(screen.getByText('Gabarits Éditoriaux Slow Travel')).toBeDefined();
+    expect(screen.getByText('Studio des Gabarits 3.0')).toBeDefined();
     expect(screen.getByText('Carnet d\'immersion lente')).toBeDefined();
   });
 
@@ -113,7 +113,7 @@ describe('BlockCanvas UI & Interactivity (__tests__/components/BlockCanvas.test.
     render(<BlockCanvas blocks={imageBlocks} onChange={onChange} />);
 
     // Clic sur le bouton de sélection d'album
-    const pickerBtn = screen.getByText('📸 Choisir depuis un album de terrain');
+    const pickerBtn = screen.getByText('Choisir depuis un album de terrain');
     fireEvent.click(pickerBtn);
 
     // Vérifier l'ouverture du modal
@@ -140,7 +140,7 @@ describe('BlockCanvas UI & Interactivity (__tests__/components/BlockCanvas.test.
     render(<BlockCanvas blocks={galleryBlocks} onChange={onChange} />);
 
     // Clic sur le bouton d'ajout depuis album
-    const albumBtn = screen.getByText('📸 Album de terrain');
+    const albumBtn = screen.getByText('Album de terrain');
     fireEvent.click(albumBtn);
 
     // Vérifier l'ouverture du modal pour la galerie

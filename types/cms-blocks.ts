@@ -18,7 +18,13 @@ export type BlockType =
   | 'hospitality_spot';
 
 export type BlockSpacing = 'compact' | 'normal' | 'relaxed';
-export type BlockTheme = 'default' | 'sand' | 'dark' | 'gold_accent';
+export type BlockTheme = 'default' | 'sand' | 'dark' | 'gold_accent' | 'terracotta' | 'forest_fog' | 'parchment' | 'chalk';
+
+/** Cadrage intelligent et point focal Sanity-style (x: 0..1, y: 0..1) */
+export interface ImageHotspot {
+  x: number; // 0 = bord gauche, 0.5 = centre, 1 = bord droit
+  y: number; // 0 = sommet/ciel, 0.5 = centre, 1 = bas/sol
+}
 
 export interface BaseBlock {
   id: string; // Identifiant unique (ex: blk_xyz123)
@@ -41,7 +47,7 @@ export interface HeadingBlock extends BaseBlock {
   subtitle?: string;
 }
 
-// 3. Bloc Image unique
+// 3. Bloc Image unique avec Hotspot Sanity-style
 export interface ImageBlock extends BaseBlock {
   type: 'image';
   url: string;
@@ -49,6 +55,7 @@ export interface ImageBlock extends BaseBlock {
   caption?: string;
   layout: 'inline' | 'wide' | 'fullwidth';
   aspectRatio?: '16:9' | '4:3' | '1:1' | 'auto';
+  hotspot?: ImageHotspot;
 }
 
 // 4. Bloc Galerie & Carrousel photo
@@ -56,6 +63,7 @@ export interface GalleryImage {
   url: string;
   alt: string;
   caption?: string;
+  hotspot?: ImageHotspot;
 }
 
 export interface GalleryBlock extends BaseBlock {
@@ -108,6 +116,8 @@ export interface PhotoEvidenceBlock extends BaseBlock {
   date: string; // ISO 8601 YYYY-MM-DD
   anecdote: string; // Max 200 caractères, vécue et vérifiable
   albumLink?: string; // URL album Google Photos (optionnel)
+  hotspot?: ImageHotspot;
+  cameraInfo?: string; // Boîtier & Optique réels (ex: Nikon D7200, 35mm f/1.8 DX)
 }
 
 // 10. Bloc Carte Interactive de balade et repères
@@ -172,7 +182,7 @@ export function createDefaultBlock(type: BlockType): CmsBlock {
     case 'text':
       return { id, type: 'text', content: 'Écrivez votre paragraphe ici...' };
     case 'image':
-      return { id, type: 'image', url: '', alt: '', layout: 'wide', aspectRatio: '16:9' };
+      return { id, type: 'image', url: '', alt: '', layout: 'wide', aspectRatio: '16:9', hotspot: { x: 0.5, y: 0.5 } };
     case 'gallery':
       return { id, type: 'gallery', images: [], displayMode: 'carousel' };
     case 'button':
@@ -184,7 +194,7 @@ export function createDefaultBlock(type: BlockType): CmsBlock {
     case 'vault_spot':
       return { id, type: 'vault_spot', title: 'Pépite dénichée', location: 'Lieu authentique', livedExperience: 'Notre vécu sur place...' };
     case 'photo_evidence':
-      return { id, type: 'photo_evidence', imageUrl: '', location: '', date: '', anecdote: '' };
+      return { id, type: 'photo_evidence', imageUrl: '', location: '', date: '', anecdote: '', hotspot: { x: 0.5, y: 0.5 } };
     case 'map':
       return { id, type: 'map', center: { lat: 48.8566, lng: 2.3522 }, zoom: 13, markers: [], mapStyle: 'minimal' };
     case 'table_of_contents':

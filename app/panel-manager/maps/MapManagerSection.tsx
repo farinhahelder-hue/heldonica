@@ -1,6 +1,8 @@
 'use client';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import dynamic from 'next/dynamic';
+import { ChevronUp, ChevronDown, Map as MapIcon } from 'lucide-react';
+import { POI_CATEGORY_LABEL, POI_DIFFICULTY_LABEL, POI_DIFFICULTY_COLOR } from '@/lib/poi-categories';
 
 const MapPreview = dynamic(() => import('./MapPreview'), {
   ssr: false,
@@ -22,16 +24,8 @@ type POI = {
 };
 type Article = { id: number; title: string; slug: string };
 
-const DIFFICULTY_LABELS: Record<string, string> = {
-  famille: '👨‍👩‍👧 Famille', debutant: '🟢 Débutant', intermediaire: '🟡 Intermédiaire',
-  sportif: '🔴 Sportif', libre: '⚪ Libre',
-};
-const CATEGORY_LABELS: Record<string, string> = {
-  depart: '🟢 Départ', arrivee: '🔴 Arrivée', danger: '⚠️ Danger', info: 'ℹ️ Info',
-  parking: '🅿️ Parking', restaurant: '🍽️ Restaurant', baignade: '🏊 Baignade',
-  portage: '🎒 Portage', point_vue: '👁️ Point de vue', transport: '🚌 Transport',
-  logement: '🏠 Logement', activite: '🎯 Activité',
-};
+const DIFFICULTY_LABELS = POI_DIFFICULTY_LABEL;
+const CATEGORY_LABELS = POI_CATEGORY_LABEL;
 const PRESET_COLORS = [
   { label: 'Teal',   value: '#01696f' },
   { label: 'Vert',   value: '#4CAF50' },
@@ -170,7 +164,7 @@ export default function MapManagerSection() {
       if (isNew) setRoutes(prev => [...prev, { ...saved, points: [] }]);
       else setRoutes(prev => prev.map(r => r.id === saved.id ? { ...r, ...saved } : r));
       setEditingRoute(null); setAddingRoute(false);
-      showToast('Parcours sauvegardé ✅');
+      showToast('Parcours sauvegardé');
     } catch { showToast('Erreur lors de la sauvegarde'); }
     setSaving(false);
   };
@@ -195,7 +189,7 @@ export default function MapManagerSection() {
       body: JSON.stringify({ route_id: routeId, points }),
     });
     setRoutes(prev => prev.map(r => r.id === routeId ? { ...r, points } : r));
-    showToast(`${points.length} points sauvegardés ✅`);
+    showToast(`${points.length} points sauvegardés`);
     setSaving(false);
   };
 
@@ -219,7 +213,7 @@ export default function MapManagerSection() {
       if (isNew) setPois(prev => [...prev, saved]);
       else setPois(prev => prev.map(p => p.id === saved.id ? saved : p));
       setEditingPoi(null); setAddingPoi(null);
-      showToast('POI sauvegardé ✅');
+      showToast('POI sauvegardé');
     } catch { showToast('Erreur lors de la sauvegarde'); }
     setSaving(false);
   };
@@ -418,9 +412,15 @@ export default function MapManagerSection() {
                   >
                     <div style={{ width: 12, height: 12, borderRadius: '50%', background: r.color || '#01696f', flexShrink: 0 }} />
                     <span style={{ fontWeight: 600, fontSize: 13, flex: 1 }}>{r.name}</span>
-                    {r.difficulty && <span style={{ fontSize: 11, background: '#f3f0ec', padding: '2px 7px', borderRadius: 10 }}>{DIFFICULTY_LABELS[r.difficulty] ?? r.difficulty}</span>}
+                    {r.difficulty && (
+                      <span style={{ fontSize: 11, background: '#f3f0ec', padding: '2px 7px', borderRadius: 10, color: POI_DIFFICULTY_COLOR[r.difficulty] ?? '#28251d' }}>
+                        {DIFFICULTY_LABELS[r.difficulty] ?? r.difficulty}
+                      </span>
+                    )}
                     {r.duration_min && <span style={{ fontSize: 11, color: '#7a7974' }}>{r.duration_min} min</span>}
-                    <span style={{ fontSize: 18, color: '#bab9b4' }}>{expandedRouteId === r.id ? '▲' : '▼'}</span>
+                    <span style={{ color: '#bab9b4', display: 'inline-flex' }}>
+                      {expandedRouteId === r.id ? <ChevronUp size={18} aria-hidden /> : <ChevronDown size={18} aria-hidden />}
+                    </span>
                   </div>
 
                   {expandedRouteId === r.id && editingRoute && (
@@ -522,7 +522,7 @@ export default function MapManagerSection() {
           <MapPreview routes={previewRoutes} pois={pois} />
         ) : (
           <div style={{ width: '100%', height: 400, background: '#f3f0ec', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#bab9b4', flexDirection: 'column', gap: 8 }}>
-            <span style={{ fontSize: 32 }}>🗺️</span>
+            <MapIcon size={32} aria-hidden />
             <span style={{ fontSize: 14 }}>Sélectionnez un article pour voir la carte</span>
           </div>
         )}

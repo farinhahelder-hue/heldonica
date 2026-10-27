@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { openBufferComposer } from '@/lib/buffer';
 import { openPerplexityForCaption } from '@/lib/perplexity-caption';
 import { searchUnsplash, getCredit, type UnsplashPhoto } from '@/lib/unsplash';
+import { Share2, Search, Camera, Bot, Smartphone } from 'lucide-react';
 
 interface InstagramPostFormProps {
   onSuccess?: () => void;
@@ -21,7 +22,7 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
 
   const handleBufferShare = () => {
     openBufferComposer();
-    setSuccess('✅ Buffer opened! Add your image, write caption, and click Publish.');
+    setSuccess('Buffer ouvert. Ajoutez votre image, la légende, puis publiez.');
   };
 
   const handleSearchUnsplash = async () => {
@@ -42,14 +43,14 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
 
   const handleSelectPhoto = (photo: UnsplashPhoto) => {
     setImageUrl(photo.urls.regular);
-    const credit = `\n\n📸 ${getCredit(photo)}`;
+    const credit = `\n\n${getCredit(photo)}`;
     setCaption(caption + credit);
-    setSuccess('✅ Photo selected! Add your caption and publish.');
+    setSuccess('Photo sélectionnée. Ajoutez la légende puis publiez.');
   };
 
   const handleGenerateCaption = () => {
     openPerplexityForCaption({ topic: caption || undefined });
-    setSuccess('✅ Perplexity opened! Copy the generated caption and paste it above.');
+    setSuccess('Perplexity ouvert. Copiez la légende générée et collez-la ci-dessus.');
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -81,11 +82,15 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
 
   return (
     <div className="p-4 bg-white rounded-lg shadow">
-      <h2 className="text-xl font-bold mb-4">📸 Publish to Instagram</h2>
+      <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+        <Share2 className="w-5 h-5" aria-hidden /> Publier sur Instagram
+      </h2>
 
       {/* Unsplash Search */}
       <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-        <h3 className="font-medium mb-2">🔍 Search Free Photos on Unsplash</h3>
+        <h3 className="font-medium mb-2 flex items-center gap-2">
+          <Search className="w-4 h-4" aria-hidden /> Rechercher une photo libre sur Unsplash
+        </h3>
         <div className="flex gap-2">
           <input
             type="text"
@@ -171,7 +176,8 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
           disabled={isLoading || !imageUrl || !caption}
           className="w-full px-4 py-2 bg-eucalyptus text-white rounded-full hover:bg-eucalyptus/90 disabled:opacity-50 disabled:cursor-not-allowed transition font-semibold"
         >
-          {isLoading ? 'Publishing...' : '📸 Publish to Instagram'}
+          <Camera className="w-4 h-4" aria-hidden />
+          {isLoading ? 'Publication...' : 'Publier sur Instagram'}
         </button>
 
         <button
@@ -179,7 +185,7 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
           onClick={handleGenerateCaption}
           className="w-full px-4 py-2 bg-teal text-white rounded-full hover:bg-teal/90 flex items-center justify-center gap-2 font-semibold transition"
         >
-          <span>🤖</span>
+          <Bot className="w-4 h-4" aria-hidden />
           <span>Generate caption with Perplexity</span>
         </button>
 
@@ -188,7 +194,7 @@ export default function InstagramPublisher({ onSuccess }: InstagramPostFormProps
           onClick={handleBufferShare}
           className="w-full px-4 py-2 bg-charcoal text-white rounded-full hover:bg-charcoal/80 flex items-center justify-center gap-2 font-semibold transition"
         >
-          <span>📱</span>
+          <Smartphone className="w-4 h-4" aria-hidden />
           <span>Prepare on Buffer (easier)</span>
         </button>
       </form>

@@ -1,12 +1,14 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { renderToStaticMarkup } from 'react-dom/server';
+import { Clock, Ruler, MapPin, Map as MapIcon, Info } from 'lucide-react';
 import {
-  Circle, Flag, AlertTriangle, Info, SquareParking, UtensilsCrossed,
-  Waves, Backpack, Eye, Bus, Home, Target, Clock, Ruler, MapPin,
-  Map as MapIcon,
-  type LucideIcon,
-} from 'lucide-react';
+  POI_CATEGORY_ICON,
+  POI_CATEGORY_COLOR,
+  POI_CATEGORY_LABEL,
+  POI_DIFFICULTY_LABEL,
+  POI_DIFFICULTY_COLOR,
+  iconSvg,
+} from '@/lib/poi-categories';
 
 type RoutePoint = { lat: number; lng: number; seq: number };
 type Route = {
@@ -30,42 +32,16 @@ type POI = {
   maps_url?: string;
 };
 
-const CATEGORY_ICON: Record<string, LucideIcon> = {
-  depart: Circle, arrivee: Flag, danger: AlertTriangle, info: Info,
-  parking: SquareParking, restaurant: UtensilsCrossed, baignade: Waves, portage: Backpack,
-  point_vue: Eye, transport: Bus, logement: Home, activite: Target,
-};
-
-const CATEGORY_COLOR: Record<string, string> = {
-  depart: '#4CAF50', arrivee: '#f44336', danger: '#f44336', info: '#1976d2',
-  parking: '#1976d2', restaurant: '#FF9800', baignade: '#0288d1', portage: '#7B1FA2',
-  point_vue: '#01696f', transport: '#1976d2', logement: '#4CAF50', activite: '#FF9800',
-};
-
-/**
- * Leaflet attend des chaînes HTML : impossible d'y insérer du JSX. On rend donc
- * l'icône lucide en balisage statique, pour ne pas recopier les tracés en dur.
- */
-function iconSvg(Icon: LucideIcon, size: number, color: string): string {
-  return renderToStaticMarkup(
-    <Icon size={size} color={color} strokeWidth={1.25} style={{ verticalAlign: '-0.15em' }} />
+const CATEGORY_ICON = POI_CATEGORY_ICON;
+const CATEGORY_COLOR = POI_CATEGORY_COLOR;
+const CATEGORY_LABEL = POI_CATEGORY_LABEL;
+const DIFFICULTY_CONFIG: Record<string, { label: string; color: string }> =
+  Object.fromEntries(
+    Object.keys(POI_DIFFICULTY_LABEL).map((k) => [
+      k,
+      { label: POI_DIFFICULTY_LABEL[k], color: POI_DIFFICULTY_COLOR[k] },
+    ])
   );
-}
-
-const CATEGORY_LABEL: Record<string, string> = {
-  depart: 'Départ', arrivee: 'Arrivée', danger: 'Danger', info: 'Info',
-  parking: 'Parking', restaurant: 'Restaurant', baignade: 'Baignade',
-  portage: 'Portage', point_vue: 'Point de vue', transport: 'Transport',
-  logement: 'Logement', activite: 'Activité',
-};
-
-const DIFFICULTY_CONFIG: Record<string, { label: string; color: string }> = {
-  famille:       { label: 'Famille',      color: '#4CAF50' },
-  debutant:      { label: 'Débutant',     color: '#1976d2' },
-  intermediaire: { label: 'Intermédiaire',color: '#FF9800' },
-  sportif:       { label: 'Sportif',      color: '#f44336' },
-  libre:         { label: 'Libre',        color: '#7B1FA2' },
-};
 
 function DifficultyBadge({ difficulty }: { difficulty?: string }) {
   if (!difficulty) return null;

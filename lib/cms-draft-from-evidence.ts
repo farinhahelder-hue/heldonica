@@ -87,6 +87,7 @@ export function generateBlocksFromAlbum(album: PhotoEvidenceAlbum, customTitle?:
       date: photo.date,
       anecdote: photo.suggestedAnecdote || `Étape documentée à ${photo.location}.`,
       albumLink: photo.albumLink || album.albumLink,
+      cameraInfo: photo.cameraInfo,
     };
     blocks.push(photoBlock);
   });
@@ -121,7 +122,9 @@ export function generateBlocksFromAlbum(album: PhotoEvidenceAlbum, customTitle?:
     type: 'heading',
     level: 2,
     text: 'Notre verdict sans complaisance',
-    subtitle: `Note de terrain : ${faqVerdict.verdict.verdictScore}/10`,
+    ...(faqVerdict.verdict.verdictScore !== null
+      ? { subtitle: `Note de terrain : ${faqVerdict.verdict.verdictScore}/10` }
+      : {}),
   };
   blocks.push(verdictHeading);
 

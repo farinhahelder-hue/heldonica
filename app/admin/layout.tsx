@@ -2,6 +2,8 @@ import Link from 'next/link'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { getCmsAuthStatus, CMS_SESSION_COOKIE } from '@/lib/cms-auth'
+import { CreatorQuickDock } from '@/components/admin/CreatorQuickDock'
+import { Wrench, Rocket, Globe, Zap } from 'lucide-react'
 
 export default async function AdminLayout({
   children,
@@ -32,7 +34,8 @@ export default async function AdminLayout({
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-2xl font-serif font-semibold text-mahogany">
-                🛠️ Admin Heldonica
+                <Wrench size={22} className="inline shrink-0 align-text-bottom mr-1.5" />
+                Admin Heldonica
               </h1>
               <p className="text-charcoal/60 text-sm mt-1">
                 Gestion des paramètres du site
@@ -83,6 +86,39 @@ export default async function AdminLayout({
                 Redirections
               </Link>
               <Link 
+                href="/admin/hub" 
+                className="text-indigo-700 font-semibold hover:underline"
+              >
+                <Rocket size={13} className="inline shrink-0 mr-1" />
+                Hub Outils
+              </Link>
+              <Link 
+                href="/admin/seo-geo" 
+                className="text-emerald-700 font-semibold hover:underline"
+              >
+                <Globe size={13} className="inline shrink-0 mr-1" />
+                SEO Géo
+              </Link>
+              <Link 
+                href="/admin/task-giver" 
+                className="text-amber-800 font-semibold hover:underline"
+              >
+                <Zap size={13} className="inline shrink-0 mr-1" />
+                Tâches Jules
+              </Link>
+              <Link 
+                href="/admin/branding" 
+                className="text-eucalyptus font-medium hover:underline"
+              >
+                Identité & Logo
+              </Link>
+              <Link 
+                href="/admin/settings" 
+                className="text-charcoal/70 hover:text-charcoal hover:underline"
+              >
+                Paramètres
+              </Link>
+              <Link 
                 href="/admin/analytics" 
                 className="text-charcoal/70 hover:text-charcoal hover:underline"
               >
@@ -99,6 +135,7 @@ export default async function AdminLayout({
           </div>
         </header>
         {children}
+        <CreatorQuickDock />
       </div>
     </div>
   )

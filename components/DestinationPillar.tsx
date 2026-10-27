@@ -46,6 +46,14 @@ export default function DestinationPillar({
         description={data.tagline}
         url={`${SITE_URL}/destinations/${data.slug}`}
         country={data.country}
+        imageUrl={data.hero}
+        touristType={['Slow Travel', 'Couple', 'Eco-tourism']}
+        itinerary={data.itinerary}
+        offers={{
+          price: 250,
+          priceCurrency: 'EUR',
+          name: `Conception de carnet slow travel ${data.name} en couple`,
+        }}
       />
       <Script id="pillar-faq" type="application/ld+json" dangerouslySetInnerHTML={{
         __html: JSON.stringify({

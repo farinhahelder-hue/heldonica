@@ -9,6 +9,7 @@ import {
   Calendar,
   Check,
   FolderOpen,
+  AlertTriangle,
   Image as ImageIcon,
   HardDrive,
   Upload,
@@ -52,10 +53,10 @@ interface StorageMediaFile {
 }
 
 const STORAGE_FOLDERS = [
-  { value: 'articles', label: '📁 articles/' },
-  { value: 'destinations', label: '📁 destinations/' },
-  { value: 'blog', label: '📁 blog/' },
-  { value: 'coulisses', label: '📁 coulisses/' },
+  { value: 'articles', label: 'articles/' },
+  { value: 'destinations', label: 'destinations/' },
+  { value: 'blog', label: 'blog/' },
+  { value: 'coulisses', label: 'coulisses/' },
 ];
 
 function fmtSize(b?: number): string {
@@ -159,13 +160,13 @@ export default function PhotoPickerModal({
         if (data.isStockCandidate) {
           setUploadFeedback({
             type: 'warning',
-            message: `⚠️ Photo importée mais suspectée d'être issue d'une banque d'images (${data.stockReasons?.join(', ')}). Règle n°1 : 100% réel.`,
+            message: `Photo importée mais suspectée d'être issue d'une banque d'images (${data.stockReasons?.join(', ')}). Règle n°1 : 100% réel.`,
           });
         } else if (data.exif?.date || data.exif?.device) {
           const deviceName = [data.exif.device?.make, data.exif.device?.model].filter(Boolean).join(' ');
           setUploadFeedback({
             type: 'success',
-            message: `✅ Métadonnées réelles extraites : Date ${data.exif.date || 'présente'}${deviceName ? ` · Matériel : ${deviceName}` : ''}.`,
+            message: `Métadonnées réelles extraites : Date ${data.exif.date || 'présente'}${deviceName ? ` · Matériel : ${deviceName}` : ''}.`,
           });
         }
         loadStorageFiles();
@@ -332,7 +333,7 @@ export default function PhotoPickerModal({
 
                 {!searchQuery && (
                   <div className="text-[11px] text-teal-800 bg-teal-50 px-3 py-1.5 rounded-lg border border-teal-200 font-medium shrink-0">
-                    📍 {currentAlbum?.period || 'Prises de vue réelles'}
+                    <MapPin className="w-3 h-3 inline-block mr-1" aria-hidden /> {currentAlbum?.period || 'Prises de vue réelles'}
                   </div>
                 )}
               </div>
@@ -539,7 +540,7 @@ export default function PhotoPickerModal({
                 />
                 {manualStockCheck?.isStockCandidate && (
                   <div className="p-3 bg-amber-50 border border-amber-300 rounded-xl text-xs text-amber-900 flex items-start gap-2 animate-in fade-in">
-                    <span className="text-sm leading-none mt-0.5" role="img" aria-label="Avertissement">⚠️</span>
+                    <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" aria-hidden />
                     <div>
                       <p className="font-semibold">Alerte banque d’images / stock détectée</p>
                       <p className="text-[11px] text-amber-800 mt-0.5">

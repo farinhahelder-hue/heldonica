@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { HELDONICA_TOKENS, HELDONICA_BRAND, BrandConfig, SlideData } from './tokens'
+import { Palette, Sparkles, Hash, Settings, Tag, Check } from 'lucide-react'
 
 const STORAGE_KEY = 'heldonica_brand_config'
 
@@ -54,17 +55,17 @@ export default function BrandConfigPanel({ slides, onApplyConfig, onApplyPalette
   }
 
   const tabs = [
-    { id: 'colors', label: '🎨', title: 'Couleurs' },
-    { id: 'palettes', label: '✨', title: 'Palettes' },
-    { id: 'keywords', label: '#️⃣', title: 'Keywords' },
-    { id: 'options', label: '⚙️', title: 'Options' },
+    { id: 'colors', Icon: Palette, title: 'Couleurs' },
+    { id: 'palettes', Icon: Sparkles, title: 'Palettes' },
+    { id: 'keywords', Icon: Hash, title: 'Keywords' },
+    { id: 'options', Icon: Settings, title: 'Options' },
   ] as const
 
   return (
     <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
       {/* Header */}
       <div className="px-4 py-3 border-b border-stone-200 bg-gradient-to-r from-[#6b2a1a] to-[#4a7c59]">
-        <h3 className="font-semibold text-white text-sm">🏷️ Config Marque Heldonica</h3>
+        <h3 className="font-semibold text-white text-sm inline-flex items-center gap-2"><Tag className="w-4 h-4" aria-hidden /> Config Marque Heldonica</h3>
         <p className="text-xs text-white/80">Personnalisation et styles</p>
       </div>
 
@@ -81,7 +82,8 @@ export default function BrandConfigPanel({ slides, onApplyConfig, onApplyPalette
             }`}
             title={tab.title}
           >
-            {tab.label}
+            <tab.Icon className="w-4 h-4 mx-auto" aria-hidden />
+            <span className="sr-only">{tab.title}</span>
           </button>
         ))}
       </div>
@@ -292,7 +294,7 @@ export default function BrandConfigPanel({ slides, onApplyConfig, onApplyPalette
           onClick={handleApply}
           className="w-full px-4 py-2 text-sm bg-[#6b2a1a] text-white rounded-xl hover:bg-[#6b2a1a]/90 transition-colors"
         >
-          ✓ Appliquer la config
+          <Check className="w-4 h-4 inline-block mr-1" aria-hidden /> Appliquer la config
         </button>
       </div>
     </div>

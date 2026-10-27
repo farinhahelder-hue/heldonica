@@ -13,6 +13,8 @@
  */
 export const GROQ_MODEL = 'openai/gpt-oss-120b';
 export const GEMINI_MODEL = 'gemini-2.5-flash';
+export const JULES_MODEL = 'jules-v1alpha';
+export const BRAIN_MODEL = 'heldonica-brain-rag';
 
 export interface AiMessage {
   role: 'system' | 'user' | 'assistant';

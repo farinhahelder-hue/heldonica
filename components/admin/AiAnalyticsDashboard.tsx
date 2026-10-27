@@ -19,6 +19,10 @@ import {
   Zap,
   ChevronDown,
   ChevronUp,
+  Brain,
+  PenLine,
+  Smartphone,
+  User,
 } from 'lucide-react';
 
 interface AgentStat {
@@ -87,17 +91,17 @@ function formatRelativeTime(dateStr: string | null): string {
 function badgeAgent(agentName: string) {
   switch (agentName?.toLowerCase()) {
     case 'antigravity':
-      return { bg: 'bg-emerald-50 text-emerald-800 border-emerald-200', icon: '⚡' };
+      return { bg: 'bg-emerald-50 text-emerald-800 border-emerald-200', icon: <Zap className="w-3 h-3" aria-hidden /> };
     case 'claude':
-      return { bg: 'bg-amber-50 text-amber-800 border-amber-200', icon: '🧠' };
+      return { bg: 'bg-amber-50 text-amber-800 border-amber-200', icon: <Brain className="w-3 h-3" aria-hidden /> };
     case 'pencode':
-      return { bg: 'bg-purple-50 text-purple-800 border-purple-200', icon: '✍️' };
+      return { bg: 'bg-purple-50 text-purple-800 border-purple-200', icon: <PenLine className="w-3 h-3" aria-hidden /> };
     case 'mobile_apk':
-      return { bg: 'bg-sky-50 text-sky-800 border-sky-200', icon: '📱' };
+      return { bg: 'bg-sky-50 text-sky-800 border-sky-200', icon: <Smartphone className="w-3 h-3" aria-hidden /> };
     case 'cms_session':
-      return { bg: 'bg-stone-100 text-stone-700 border-stone-300', icon: '👤' };
+      return { bg: 'bg-stone-100 text-stone-700 border-stone-300', icon: <User className="w-3 h-3" aria-hidden /> };
     default:
-      return { bg: 'bg-stone-50 text-stone-600 border-stone-200', icon: '🤖' };
+      return { bg: 'bg-stone-50 text-stone-600 border-stone-200', icon: <Bot className="w-3 h-3" aria-hidden /> };
   }
 }
 
@@ -475,8 +479,8 @@ export default function AiAnalyticsDashboard({ embedded = false }: { embedded?: 
               className="text-xs px-2.5 py-1.5 border border-stone-300 rounded-lg bg-white text-stone-700 focus:outline-none focus:ring-1 focus:ring-[#2D8B7A]"
             >
               <option value="all">Tous statuts</option>
-              <option value="success">✓ Succès (2xx)</option>
-              <option value="error">✗ Erreurs (4xx / 5xx)</option>
+              <option value="success">Succès (2xx)</option>
+              <option value="error">Erreurs (4xx / 5xx)</option>
             </select>
           </div>
         </div>

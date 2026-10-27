@@ -18,9 +18,46 @@ export default async function AdminSettingsPage() {
   const sections = [
     {
       id: 'identity',
-      label: '🎨 Identité visuelle',
+      label: 'Identité visuelle',
       fields: [
         { key: 'logo_url', label: 'Logo URL', type: 'image', description: 'URL publique ou chemin local' },
+        {
+          key: 'header_logo_display',
+          label: 'Affichage du logo en en-tête',
+          type: 'select',
+          description: 'Sceau, nom ou combinaison',
+          options: [
+            { value: 'both', label: 'Sceau emblème + Nom (par défaut)' },
+            { value: 'icon', label: 'Sceau seul' },
+            { value: 'text', label: 'Nom seul' },
+          ],
+        },
+        { key: 'header_logo_height', label: 'Hauteur logo en pixels', type: 'text', placeholder: '32', description: 'Nombre entier (ex: 32, 36, 40)' },
+        {
+          key: 'font_heading',
+          label: 'Police des titres (Heading)',
+          type: 'select',
+          description: 'Typographie serif des titres',
+          options: [
+            { value: 'Playfair Display', label: 'Playfair Display (Marque par défaut)' },
+            { value: 'Fraunces', label: 'Fraunces (Littéraire & Organique)' },
+            { value: 'Cormorant Garamond', label: 'Cormorant Garamond (Poétique & Singulier)' },
+            { value: 'Cinzel', label: 'Cinzel (Romain & Minéral)' },
+            { value: 'Lora', label: 'Lora (Carnet de route slow travel)' },
+          ],
+        },
+        {
+          key: 'font_body',
+          label: 'Police du corps de texte (Body)',
+          type: 'select',
+          description: 'Typographie sans-serif de lecture',
+          options: [
+            { value: 'DM Sans', label: 'DM Sans (Marque par défaut)' },
+            { value: 'Inter', label: 'Inter (Clair & Contemporain)' },
+            { value: 'Plus Jakarta Sans', label: 'Plus Jakarta Sans (Harmonieux)' },
+            { value: 'Source Sans 3', label: 'Source Sans 3 (Épuré)' },
+          ],
+        },
         { key: 'favicon_url', label: 'Favicon URL', type: 'image', description: 'Format .ico ou .png 32x32' },
         { key: 'og_image', label: 'Image OG (partage réseaux)', type: 'image' },
         { key: 'primary_color', label: 'Couleur principale', type: 'color', description: 'Couleur de marque' },
@@ -32,7 +69,7 @@ export default async function AdminSettingsPage() {
     },
     {
       id: 'hero',
-      label: '🏠 Hero section',
+      label: 'Hero section',
       fields: [
         { key: 'hero_title', label: 'Titre hero', type: 'text' },
         { key: 'hero_subtitle', label: 'Sous-titre hero', type: 'textarea' },
@@ -42,7 +79,7 @@ export default async function AdminSettingsPage() {
     },
     {
       id: 'seo',
-      label: '🔍 SEO global',
+      label: 'SEO global',
       fields: [
         { key: 'seo_meta_description', label: 'Meta description', type: 'textarea', description: '120-160 caractères recommandés' },
         { key: 'seo_og_image', label: 'Image Open Graph', type: 'image' },
@@ -52,7 +89,7 @@ export default async function AdminSettingsPage() {
     },
     {
       id: 'contact',
-      label: '📞 Contact & Réseaux',
+      label: 'Contact & Réseaux',
       fields: [
         { key: 'contact_email', label: 'Email contact principal', type: 'email', placeholder: 'contact@heldonica.fr' },
         { key: 'footer_contact_email', label: 'Email affiché dans le footer', type: 'email' },
@@ -65,7 +102,7 @@ export default async function AdminSettingsPage() {
     },
     {
       id: 'footer',
-      label: '📄 Footer',
+      label: 'Footer',
       fields: [
         { key: 'footer_text', label: 'Texte descriptif footer', type: 'textarea' },
         { key: 'footer_copyright', label: 'Texte copyright', type: 'text', placeholder: '© 2025 Heldonica. Tous droits réservés.' },
@@ -73,7 +110,7 @@ export default async function AdminSettingsPage() {
     },
     {
       id: 'system',
-      label: '⚙️ Système',
+      label: 'Système',
       fields: [
         { key: 'maintenance_mode', label: 'Mode maintenance', type: 'toggle', description: 'Affiche la page de maintenance' },
         { key: 'covered_countries', label: 'Nombre de pays couverts', type: 'number', description: 'Pour affichage statistiques' },
