@@ -117,7 +117,13 @@ async function main() {
 
   try {
     const session = await createJulesSession(apiKey, { title, prompt, repo, branch });
-    const sessionId = (session.name || '').split('/').pop() || session.id || 'inconnu';
+    // L'identifiant vient de la reponse de l'API, et il repart dans
+    // $GITHUB_OUTPUT puis dans un commentaire d'issue : on le restreint aux
+    // caracteres qu'un identifiant peut avoir. Un retour a la ligne dedans
+    // injecterait des sorties d'etape arbitraires.
+    const sessionIdBrut = (session.name || '').split('/').pop() || session.id || 'inconnu';
+    const sessionId =
+      String(sessionIdBrut).replace(/[^A-Za-z0-9_-]/g, '').slice(0, 128) || 'inconnu';
     const sessionUrl = `https://jules.google.com/session/${sessionId}`;
 
     console.log('\n✅ Session Jules créée avec succès !');
