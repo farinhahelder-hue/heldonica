@@ -4,6 +4,12 @@ on:
   issues:
     types: [labeled]
 
+# Seul le droit d'écrire un commentaire est nécessaire : aucun de ces jobs ne
+# pousse de code. Sans ce bloc, le jeton héritait des droits par défaut du dépôt.
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   # ───────────────────────────────────────────
   # AllHands (OpenHands)
@@ -12,17 +18,27 @@ jobs:
     if: contains(github.event.issue.labels.*.name, 'allhands')
     runs-on: ubuntu-latest
     steps:
+      # Le titre et le corps de l'issue sont écrits par un inconnu : ils passent
+      # par l'environnement, jamais par `${{ }}` dans le script. Interpolés dans
+      # le shell, un `$(…)` dans le titre s'exécuterait avec la clé en mémoire.
       - name: Send task to AllHands
+        env:
+          ALLHANDS_API_KEY: ${{ secrets.ALLHANDS_API_KEY }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
+          REPO: ${{ github.repository }}
         run: |
+          PAYLOAD=$(jq -n \
+            --arg title "$ISSUE_TITLE" \
+            --arg body "$ISSUE_BODY" \
+            --arg repo "$REPO" \
+            --arg branch "main" \
+            '{initial_message: {content: [{type: "text", text: ($title + "\n\n" + $body)}]}, selected_repository: $repo, selected_branch: $branch}')
           RESPONSE=$(curl -s -o /tmp/ah_response.json -w "%{http_code}" \
             -X POST https://app.all-hands.dev/api/v1/app-conversations \
-            -H "Authorization: Bearer ${{ secrets.ALLHANDS_API_KEY }}" \
+            -H "Authorization: Bearer $ALLHANDS_API_KEY" \
             -H "Content-Type: application/json" \
-            -d "$(jq -n \
-              --arg task "${{ github.event.issue.title }}\n\n${{ github.event.issue.body }}" \
-              --arg repo "${{ github.repository }}" \
-              --arg branch "main" \
-              '{initial_message: {content: [{type: "text", text: $task}]}, selected_repository: $repo, selected_branch: $branch}')")
+            -d "$PAYLOAD")
           echo "HTTP Status: $RESPONSE"
           cat /tmp/ah_response.json
 
@@ -33,7 +49,7 @@ jobs:
             const response = JSON.parse(require('fs').readFileSync('/tmp/ah_response.json', 'utf8'));
             const conversationId = response.app_conversation_id || response.id;
             const status = response.status || 'STARTED';
-            github.rest.issues.createComment({
+            await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
@@ -49,24 +65,42 @@ jobs:
     steps:
       - name: Call Gemini API
         id: gemini
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          ISSUE_TITLE: ${{ github.event.issue.title }}
+          ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
-          TASK="${{ github.event.issue.title }}: ${{ github.event.issue.body }}"
+          PAYLOAD=$(jq -n \
+            --arg title "$ISSUE_TITLE" \
+            --arg body "$ISSUE_BODY" \
+            '{contents: [{parts: [{text: ($title + ": " + $body)}]}]}')
+          # Clé dans un en-tête, pas dans l'URL : une URL part dans les journaux.
           RESPONSE=$(curl -s \
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${{ secrets.GEMINI_API_KEY }}" \
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent" \
+            -H "x-goog-api-key: $GEMINI_API_KEY" \
             -H "Content-Type: application/json" \
-            -d "$(jq -n --arg text "$TASK" '{contents: [{parts: [{text: $text}]}]}')"
-          )
-          ANSWER=$(echo $RESPONSE | jq -r '.candidates[0].content.parts[0].text // "Pas de réponse"')
-          echo "answer<<EOF" >> $GITHUB_OUTPUT
-          echo "$ANSWER" >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+            -d "$PAYLOAD")
+          ANSWER=$(printf '%s' "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text // "Pas de réponse"')
+          # Délimiteur tiré au hasard : avec « EOF » en dur, une réponse
+          # contenant une ligne « EOF » injecte ce qu'elle veut dans les sorties.
+          DELIM="EOF_$(openssl rand -hex 16)"
+          {
+            printf 'answer<<%s\n' "$DELIM"
+            printf '%s\n' "$ANSWER"
+            printf '%s\n' "$DELIM"
+          } >> "$GITHUB_OUTPUT"
 
+      # La réponse du modèle reprend le texte de l'issue. Interpolée dans le
+      # script avec `${{ }}`, un accent grave ou un `${` dedans sortait de la
+      # chaîne et exécutait du JavaScript avec le jeton GitHub du job.
       - name: Post Gemini answer as comment
         uses: actions/github-script@v7
+        env:
+          GEMINI_ANSWER: ${{ steps.gemini.outputs.answer }}
         with:
           script: |
-            const answer = `${{ steps.gemini.outputs.answer }}`;
-            github.rest.issues.createComment({
+            const answer = process.env.GEMINI_ANSWER || 'Pas de réponse';
+            await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
@@ -84,7 +118,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            github.rest.issues.createComment({
+            await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
