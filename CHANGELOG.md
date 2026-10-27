@@ -2,6 +2,33 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-27 ter] — Lot 3 : purge des emojis des brouillons d'articles (migration à appliquer)
+
+La décision #682 avait été appliquée au code (lots 1 et 2) et aux zones CMS, mais
+jamais à `cms_blog_posts`. Le garde-fou `check-cms-emojis` ne regarde que les
+articles **publiés** : les brouillons échappaient à la CI, et publier l'un d'eux
+aurait fait apparaître ses emojis en ligne.
+
+Mesure en lecture seule (regex officielle `DECORATIVE_EMOJI_RE`) : 55 articles,
+8 publiés (0 emoji décoratif), 47 brouillons dont **18 porteurs** de **71
+occurrences** — `content` 65, `excerpt` 4, `meta_description` 2.
+
+- **Migration `20261027220000_purge_emojis_articles_brouillons.sql`** — purge les
+  brouillons seuls (`published = false`) sur les 3 colonnes où un emoji a été
+  mesuré. La classe de retrait reprend la plage complète du détecteur, découpée
+  pour exclure nommément `✓ ✗ ⚠ ➔ ✦` et les drapeaux.
+- **15 occurrences conservées** par la politique : les 10 `✦` du libellé de marque
+  « Verdict Heldonica » (`✦` est une icône CMS, cf. `lib/cms-icons.ts`), 4 `➔`
+  et 1 `⚠`. Le retrait porte donc sur **56**.
+- **Test dédié** `__tests__/scripts/purge-emojis-articles.test.ts` : le test de
+  parité existant ne voit que les migrations touchant `cms_editable_zones` et
+  exigerait la couverture totale — il fallait verrouiller la parité propre à
+  cette purge (aucun glyphe de marque, aucun drapeau, aucune lettre).
+- **Simulation sur les données réelles** : 56 → 0, glyphes de marque 15 → 15,
+  drapeaux 0 → 0, aucune fuite. Garde-fous 20/20, vitest 13/13.
+- **La migration n'est PAS appliquée** (règle #2) : elle attend la fusion de la
+  PR #758 puis un `db push` par le propriétaire.
+
 ## [2026-10-27 bis] — Lot emoji, périmètre administration : 70 emojis retirés de 32 fichiers
 
 La décision #682 (« supprimer TOUS les emojis ») tranche ce que l'audit du 21/10
