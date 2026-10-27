@@ -70,7 +70,7 @@ describe('BlockCanvas UI & Interactivity (__tests__/components/BlockCanvas.test.
     const tplBtn = screen.getByText('📋 Gabarits Slow Travel');
     fireEvent.click(tplBtn);
 
-    expect(screen.getByText('Gabarits Éditoriaux Slow Travel')).toBeDefined();
+    expect(screen.getByText('Studio des Gabarits 3.0')).toBeDefined();
     expect(screen.getByText('Carnet d\'immersion lente')).toBeDefined();
   });
 

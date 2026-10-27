@@ -87,6 +87,7 @@ export function generateBlocksFromAlbum(album: PhotoEvidenceAlbum, customTitle?:
       date: photo.date,
       anecdote: photo.suggestedAnecdote || `Étape documentée à ${photo.location}.`,
       albumLink: photo.albumLink || album.albumLink,
+      cameraInfo: photo.cameraInfo,
     };
     blocks.push(photoBlock);
   });

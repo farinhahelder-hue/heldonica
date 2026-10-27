@@ -21,6 +21,43 @@ export default async function AdminSettingsPage() {
       label: '🎨 Identité visuelle',
       fields: [
         { key: 'logo_url', label: 'Logo URL', type: 'image', description: 'URL publique ou chemin local' },
+        {
+          key: 'header_logo_display',
+          label: 'Affichage du logo en en-tête',
+          type: 'select',
+          description: 'Sceau, nom ou combinaison',
+          options: [
+            { value: 'both', label: 'Sceau emblème + Nom (par défaut)' },
+            { value: 'icon', label: 'Sceau seul' },
+            { value: 'text', label: 'Nom seul' },
+          ],
+        },
+        { key: 'header_logo_height', label: 'Hauteur logo en pixels', type: 'text', placeholder: '32', description: 'Nombre entier (ex: 32, 36, 40)' },
+        {
+          key: 'font_heading',
+          label: 'Police des titres (Heading)',
+          type: 'select',
+          description: 'Typographie serif des titres',
+          options: [
+            { value: 'Playfair Display', label: 'Playfair Display (Marque par défaut)' },
+            { value: 'Fraunces', label: 'Fraunces (Littéraire & Organique)' },
+            { value: 'Cormorant Garamond', label: 'Cormorant Garamond (Poétique & Singulier)' },
+            { value: 'Cinzel', label: 'Cinzel (Romain & Minéral)' },
+            { value: 'Lora', label: 'Lora (Carnet de route slow travel)' },
+          ],
+        },
+        {
+          key: 'font_body',
+          label: 'Police du corps de texte (Body)',
+          type: 'select',
+          description: 'Typographie sans-serif de lecture',
+          options: [
+            { value: 'DM Sans', label: 'DM Sans (Marque par défaut)' },
+            { value: 'Inter', label: 'Inter (Clair & Contemporain)' },
+            { value: 'Plus Jakarta Sans', label: 'Plus Jakarta Sans (Harmonieux)' },
+            { value: 'Source Sans 3', label: 'Source Sans 3 (Épuré)' },
+          ],
+        },
         { key: 'favicon_url', label: 'Favicon URL', type: 'image', description: 'Format .ico ou .png 32x32' },
         { key: 'og_image', label: 'Image OG (partage réseaux)', type: 'image' },
         { key: 'primary_color', label: 'Couleur principale', type: 'color', description: 'Couleur de marque' },

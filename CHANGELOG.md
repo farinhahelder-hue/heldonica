@@ -2,6 +2,19 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+  ## [2026-10-27] — Heldonica CMS 3.0 (in-house) : le back-office passe au niveau d'un vrai éditeur de blocs
+
+  Périmètre volontairement limité au **back-office CMS**. Cette entrée ne documente que ce que la branche `agent/freebuff/cms-inhouse` contient réellement ; le reste de la branche Gemini d'origine (APK Kotlin, studio musique et vidéo, dispatcher Jules, Instagram, hub SEO, pages publiques) est écarté et reste à traiter séparément.
+
+  - **`BlockCanvas.tsx`** : simulateur de viewport (bureau, tablette 768, mobile 390 dans une coque), pile undo-redo de 30 états avec `Ctrl+Z` / `Ctrl+Y`, compteur de mots et temps de lecture, tiroir de réglages avancés.
+  - **Studio des gabarits (`lib/cms-templates.ts`)** : 7 gabarits Slow Travel, filtres thématiques, prévisualisation en direct via `BlockRenderer`, insertion « remplacer tout » ou « ajouter à la suite », export et import JSON, gabarits personnels en `localStorage` (`heldonica_user_templates_v1`).
+  - **Les cinq verrous de l'éditeur** : `OmnisearchPalette` (`Ctrl+K`), `BubbleToolbar` contextuelle, `AstJsonInspectorModal` (inspecteur du JSON du bloc), `EeatScorecardHud` (score E-E-A-T recalculé en direct) et `AgentPresenceBadge` (coordination multi-agents sur `agent_tasks`).
+  - **`HotspotPicker`** : point focal de l'image choisi à la souris, repris par `ImageBlock` et `BlockRenderer`.
+  - **Thèmes de bloc (`types/cms-blocks.ts`)** : `sand`, `parchment`, `terracotta`, `forest_fog`, `chalk`, `gold_accent`, `dark`, `default` — rendus papier, sans carte SaaS ni ombre.
+  - **Cartouche de terrain** : champ `cameraInfo` porté par `PhotoEvidenceBlock` et par le convertisseur `lib/cms-blocks-converter.ts`.
+  - **Onglets d'administration** : `hub`, `seo-geo`, `task-giver` et `branding` dans `CmsAdminClient`, plus le dock `CreatorQuickDock` monté dans `app/admin/layout.tsx` ; nouvelle route `app/api/admin/agent-task-giver/route.ts`.
+  - **Hors périmètre assumé** : `.github/workflows/dispatch-jules.yml` n'est **pas** dans cette PR. Ce workflow n'existe que sur la branche Gemini, il lit `JULES_API_KEY` et `SUPABASE_SERVICE_ROLE_KEY`, et le correctif d'autorisation de `agent/claude/securite-dispatch-jules` ne lui est pas encore appliqué. Le laisser dehors évite de publier la faille ; il fera l'objet d'une PR dédiée.
+
   ## [2026-10-26] — Lot 2 (A/B/C/I/F) : entrées sous maintenance, og:image:alt, JSON-LD, compte de carnets
 
   - **A — matcher du middleware** : il n'excluait pas les fichiers de `public/`. Pendant la maintenance, `og:image` et les favicons renvoyaient **307 -> /maintenance**. Le matcher exclut désormais tout chemin à extension ; `llms.txt` (seule route dont un segment contient un point) reste exclu aussi. Mesuré : `/og-default.jpg` **200**, `/favicon.ico` **200**, `/site.webmanifest` **200**, page `/` toujours **307** (protection intacte).

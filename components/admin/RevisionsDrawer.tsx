@@ -13,8 +13,12 @@ import {
   Layers,
   ChevronDown,
   ChevronUp,
+  Eye,
+  Monitor,
+  Smartphone,
 } from 'lucide-react';
 import { useToast } from './Toast';
+import BlockRenderer from '@/components/blocks/BlockRenderer';
 import type { CmsBlock } from '@/types/cms-blocks';
 import { htmlToBlocks } from '@/lib/cms-blocks-converter';
 import { computeBlockDiff, type BlockDiffSummary } from '@/lib/cms-revisions-diff';
@@ -49,6 +53,8 @@ export default function RevisionsDrawer({
   const [restoringId, setRestoringId] = useState<string | null>(null);
   const [selectedRevision, setSelectedRevision] = useState<RevisionItem | null>(null);
   const [showDetailedDiff, setShowDetailedDiff] = useState(true);
+  const [viewMode, setViewMode] = useState<'diff' | 'preview'>('diff');
+  const [previewDevice, setPreviewDevice] = useState<'desktop' | 'mobile'>('desktop');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -84,6 +90,11 @@ export default function RevisionsDrawer({
   }, [isOpen, articleId, toast]);
 
   // Diff des blocs de la révision sélectionnée par rapport aux blocs actuels
+  const selectedRevisionBlocks: CmsBlock[] = useMemo(() => {
+    if (!selectedRevision?.snapshot?.content) return [];
+    return htmlToBlocks(selectedRevision.snapshot.content);
+  }, [selectedRevision]);
+
   const diffSummary: BlockDiffSummary | null = useMemo(() => {
     if (!selectedRevision?.snapshot?.content) return null;
     const revBlocks = htmlToBlocks(selectedRevision.snapshot.content);
@@ -123,7 +134,7 @@ export default function RevisionsDrawer({
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden bg-black/40 backdrop-blur-xs flex justify-end animate-in fade-in duration-200">
-      <div className="w-full max-w-xl bg-white h-full shadow-2xl flex flex-col border-l border-stone-200">
+      <div className={`w-full bg-white h-full shadow-2xl flex flex-col border-l border-stone-200 transition-all duration-200 ${viewMode === 'preview' ? 'max-w-3xl' : 'max-w-xl'}`}>
         {/* En-tête */}
         <div className="p-4 px-6 border-b border-stone-200 flex items-center justify-between bg-stone-50/70">
           <div className="flex items-center gap-2.5">
@@ -217,6 +228,103 @@ export default function RevisionsDrawer({
                     {/* Diff Visuel de Blocs si cette révision est sélectionnée */}
                     {isSelected && diffSummary && (
                       <div className="mt-3 pt-3 border-t border-amber-200/60 space-y-2.5">
+                        {/* Sélecteur de mode Diff vs Aperçu visuel en direct */}
+                        <div className="flex items-center justify-between pb-1.5 border-b border-amber-100/60">
+                          <div className="flex items-center gap-1.5 bg-stone-100 p-0.5 rounded-lg text-xs">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setViewMode('diff');
+                              }}
+                              className={`px-2 py-0.5 rounded-md font-semibold transition-all flex items-center gap-1 ${
+                                viewMode === 'diff'
+                                  ? 'bg-white text-stone-900 shadow-2xs'
+                                  : 'text-stone-500 hover:text-stone-800'
+                              }`}
+                            >
+                              <Layers size={12} />
+                              <span>Diff blocs</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setViewMode('preview');
+                              }}
+                              className={`px-2 py-0.5 rounded-md font-semibold transition-all flex items-center gap-1 ${
+                                viewMode === 'preview'
+                                  ? 'bg-white text-stone-900 shadow-2xs'
+                                  : 'text-stone-500 hover:text-stone-800'
+                              }`}
+                            >
+                              <Eye size={12} className="text-amber-700" />
+                              <span>Aperçu visuel</span>
+                            </button>
+                          </div>
+
+                          {viewMode === 'preview' && (
+                            <div className="flex items-center gap-1 text-[11px] font-medium text-stone-500">
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setPreviewDevice('desktop');
+                                }}
+                                className={`p-1 rounded ${
+                                  previewDevice === 'desktop' ? 'bg-amber-100 text-amber-900' : 'hover:bg-stone-100'
+                                }`}
+                                title="Vue Bureau"
+                              >
+                                <Monitor size={13} />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setPreviewDevice('mobile');
+                                }}
+                                className={`p-1 rounded ${
+                                  previewDevice === 'mobile' ? 'bg-amber-100 text-amber-900' : 'hover:bg-stone-100'
+                                }`}
+                                title="Vue Mobile"
+                              >
+                                <Smartphone size={13} />
+                              </button>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Mode 2 : Aperçu visuel en direct (Visual Time Machine) */}
+                        {viewMode === 'preview' && (
+                          <div
+                            className="space-y-3 pt-1 animate-in fade-in duration-150"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <div
+                              className={`mx-auto bg-stone-50 rounded-xl border border-stone-200 p-4 transition-all shadow-inner overflow-hidden ${
+                                previewDevice === 'mobile' ? 'max-w-[360px]' : 'w-full'
+                              }`}
+                            >
+                              <div className="mb-3 pb-2 border-b border-stone-200">
+                                <span className="text-[10px] font-mono uppercase tracking-wider text-stone-400">
+                                  Instantané v{rev.revision_number} — {selectedRevisionBlocks.length} bloc(s)
+                                </span>
+                                <h3 className="font-serif font-bold text-lg text-stone-900 mt-0.5">
+                                  {rev.snapshot?.title || 'Carnet sans titre'}
+                                </h3>
+                              </div>
+
+                              <div className="max-h-80 overflow-y-auto pr-1">
+                                <BlockRenderer blocks={selectedRevisionBlocks} />
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Mode 1 : Diff détaillé */}
+                        {viewMode === 'diff' && (
+                          <>
                         {/* Synthèse des modifications de blocs */}
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] font-bold text-stone-700 uppercase tracking-wider flex items-center gap-1">
@@ -311,6 +419,8 @@ export default function RevisionsDrawer({
                             ))}
                           </div>
                         )}
+                        </>
+                      )}
                       </div>
                     )}
                   </div>
