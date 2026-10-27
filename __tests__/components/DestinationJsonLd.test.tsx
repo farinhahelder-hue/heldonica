@@ -85,4 +85,36 @@ describe('DestinationJsonLd', () => {
     // Test that the raw HTML contains the escaped less-than character, preventing XSS breakouts
     expect(script!.innerHTML).toContain('\\u003cscript>alert(\\"XSS\\")\\u003c/script>')
   })
+
+  it('includes itinerary and commercial offer for Google SGE rich results', () => {
+    const { container } = render(
+      <DestinationJsonLd
+        name="Madère"
+        description="L'île aux fleurs."
+        url="https://www.heldonica.fr/destinations/madere"
+        itinerary={[
+          { day: 1, title: 'Funchal et marché dos Lavradores', activities: ['Balade', 'Dégustation'] },
+          { day: 2, title: 'Pico do Arieiro au lever du soleil', activities: ['Randonnée'] },
+        ]}
+        offers={{
+          price: 250,
+          priceCurrency: 'EUR',
+          name: 'Carnet de route sur-mesure Madère',
+        }}
+      />
+    )
+
+    const script = container.querySelector('script[type="application/ld+json"]')
+    const json = JSON.parse(script!.innerHTML)
+
+    expect(json.itinerary).toBeDefined()
+    expect(json.itinerary['@type']).toBe('ItemList')
+    expect(json.itinerary.numberOfItems).toBe(2)
+    expect(json.itinerary.itemListElement[0].item.name).toBe('Jour 1: Funchal et marché dos Lavradores')
+
+    expect(json.offers).toBeDefined()
+    expect(json.offers['@type']).toBe('Offer')
+    expect(json.offers.price).toBe('250')
+    expect(json.offers.priceCurrency).toBe('EUR')
+  })
 })

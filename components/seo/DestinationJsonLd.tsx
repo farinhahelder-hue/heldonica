@@ -29,6 +29,15 @@ export interface DestinationJsonLdProps {
   touristType?: string[];
   /** Lien vers la carte interactive */
   mapUrl?: string;
+  /** Étapes d'itinéraire pour le balisage TouristTrip */
+  itinerary?: { day: number; title: string; activities?: string[]; tip?: string }[];
+  /** Offre commerciale / prix d'appel du carnet */
+  offers?: {
+    price: number | string;
+    priceCurrency?: string;
+    name?: string;
+    description?: string;
+  };
 }
 
 export default function DestinationJsonLd({
@@ -43,6 +52,8 @@ export default function DestinationJsonLd({
   imageUrl,
   touristType,
   mapUrl,
+  itinerary,
+  offers,
 }: DestinationJsonLdProps) {
   const schema: Record<string, unknown> = {
     '@context': 'https://schema.org',
@@ -88,6 +99,33 @@ export default function DestinationJsonLd({
 
   if (touristType && touristType.length > 0) {
     schema.touristType = touristType;
+  }
+
+  if (itinerary && itinerary.length > 0) {
+    schema.itinerary = {
+      '@type': 'ItemList',
+      numberOfItems: itinerary.length,
+      itemListElement: itinerary.map((item, idx) => ({
+        '@type': 'ListItem',
+        position: idx + 1,
+        item: {
+          '@type': 'TouristTrip',
+          name: `Jour ${item.day}: ${item.title}`,
+          description: item.activities?.join(' · ') || item.title,
+        },
+      })),
+    };
+  }
+
+  if (offers) {
+    schema.offers = {
+      '@type': 'Offer',
+      price: String(offers.price),
+      priceCurrency: offers.priceCurrency || 'EUR',
+      name: offers.name || `Carnet de voyage slow travel ${name}`,
+      availability: 'https://schema.org/InStock',
+      url: `${url}#travel-planning`,
+    };
   }
 
   // Échappe < pour la sécurité anti-XSS
