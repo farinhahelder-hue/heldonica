@@ -34,6 +34,7 @@ Usage :
 """
 
 import argparse
+import bisect
 import json
 import re
 import sys
@@ -335,12 +336,18 @@ def rattacher_photos(photos, visites, positions):
     RAYON_PHOTO_KM — et si aucun ne l'est, la photo reste sans lieu (le GPS
     contredit la Timeline, on ne force pas). Sans GPS : au lieu ou l'on etait
     a cette heure-la."""
+    # ⚡ Bolt: Optimisation de la recherche de trace avec bisect.
+    # Les visites (intervalles potentiellement longs) restent parcourues integralement.
+    # Les positions (points instantanes) sont cibles via dichotomie (+/- 24h).
+    temps_positions = [p[0] for p in positions]
+
     for ph in photos:
         ph["lieu_index"] = None
         ph["rattachement"] = None
         prise = ph["prise_dt"]
         if prise is None:
             continue
+
         if ph["gps"]:
             meilleur, ecart = None, None
             for idx, v in enumerate(visites):
@@ -353,26 +360,36 @@ def rattacher_photos(photos, visites, positions):
                 ph["lieu_index"] = meilleur
                 ph["rattachement"] = f"gps ({ecart:.2f} km)"
                 continue
-            # Loin de tout arret, mais sur la trace du jour ? (photo en chemin)
+
             jour = jour_local(prise)
             d_trace = None
-            for t, la, lo in positions:
+
+            # Recherche dichotomique sur la trace pour eviter une boucle entiere (10 000+ items)
+            min_dt = prise - timedelta(hours=24)
+            max_dt = prise + timedelta(hours=24)
+            pos_start = bisect.bisect_left(temps_positions, min_dt)
+            pos_end = bisect.bisect_right(temps_positions, max_dt)
+
+            for i in range(pos_start, pos_end):
+                t, la, lo = positions[i]
                 if jour_local(t) != jour:
                     continue
                 d = distance_km(ph["gps"]["lat"], ph["gps"]["lon"], la, lo)
                 if d_trace is None or d < d_trace:
                     d_trace = d
+
             if d_trace is not None and d_trace <= RAYON_TRACE_KM:
                 for idx, v in enumerate(visites):
                     if v["debut"] <= prise <= v["fin"]:
                         ph["lieu_index"] = idx
-                        ph["rattachement"] = f"gps sur la trace du jour ({d_trace:.2f} km de la trace, {ecart:.1f} km de l'arret)"
+                        ph["rattachement"] = f"gps sur la trace du jour ({d_trace:.2f} km de la trace, {ecart:.1f} km de l'arret)" if ecart is not None else f"gps sur la trace du jour ({d_trace:.2f} km de la trace)"
                         break
                 if ph["lieu_index"] is None:
                     ph["rattachement"] = f"gps sur la trace du jour ({d_trace:.2f} km) mais aucun arret a cette heure"
             elif ecart is not None:
                 ph["rattachement"] = f"gps a {ecart:.1f} km du lieu le plus proche"
             continue
+
         for idx, v in enumerate(visites):
             if v["debut"] <= prise <= v["fin"]:
                 ph["lieu_index"] = idx
