@@ -1,0 +1,10 @@
+## 💡 What
+Added `aria-label` and `title` attributes to the "Modifier" (Edit) and "Supprimer" (Delete) icon-only buttons in the `SubDestinationsManager` component table.
+
+## 🎯 Why
+Icon-only buttons without accessible names are invisible to screen readers, making it impossible for visually impaired users to know what action the button performs. Additionally, a `title` provides a helpful tooltip for mouse users who might not immediately recognize the icons.
+
+## ♿ Accessibility
+- Added `aria-label="Modifier"` and `title="Modifier"` to the edit button.
+- Added `aria-label="Supprimer"` and `title="Supprimer"` to the delete button.
+This ensures compliance with WCAG guidelines for interactive elements and provides a smoother experience for all users.
