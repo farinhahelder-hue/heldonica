@@ -66,26 +66,25 @@ jobs:
           cd heldonica-mobile
           gradle testDebugUnitTest --stacktrace
 
-      # Keystore de release optionnel. S'il n'est pas fourni, le build signe avec le
-      # keystore de debug versionne (repli implemente dans app/build.gradle.kts).
-      # Fournir RELEASE_KEYSTORE_BASE64 (keystore encode base64) + les mots de passe
-      # en secrets pour basculer sur une vraie identite de release.
-      - name: Poser le keystore de release (si fourni)
+      # Keystore de release OBLIGATOIRE. Le repli sur le keystore de debug versionne
+      # a ete retire le 2026-10-20 : ce fichier est public, donc un APK signe avec
+      # lui est falsifiable par n'importe qui (voir app/build.gradle.kts). Sans ce
+      # keystore, le build echoue - c'est voulu.
+      - name: Poser le keystore de release (obligatoire)
         env:
           RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
         run: |
-          if [ -n "$RELEASE_KEYSTORE_BASE64" ]; then
-            mkdir -p heldonica-mobile/keystore
-            printf '%s' "$RELEASE_KEYSTORE_BASE64" | base64 -d > heldonica-mobile/keystore/heldonica-release.keystore
-            echo "keystore de release pose."
-          else
-            echo "aucun keystore de release fourni : repli sur le keystore de debug."
+          if [ -z "$RELEASE_KEYSTORE_BASE64" ]; then
+            echo "::error::Secret RELEASE_KEYSTORE_BASE64 absent. Une release ne se signe plus avec le keystore de debug public (constat du 2026-10-20)."
+            exit 1
           fi
+          mkdir -p heldonica-mobile/keystore
+          printf '%s' "$RELEASE_KEYSTORE_BASE64" | base64 -d > heldonica-mobile/keystore/heldonica-release.keystore
+          echo "keystore de release pose."
 
       # Build RELEASE (non debogable, R8 actif, ressources reduites), signe.
       # Le mot de passe CMS reste vide : aucun secret n'est compile dans le dex.
-      # La signature utilise un vrai keystore si les secrets RELEASE_* sont poses,
-      # sinon le keystore de debug versionne (mises a jour installables).
+      # La signature exige le keystore de release (plus de repli sur le debug).
       - name: Build Release APK
         env:
           RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}

@@ -10,6 +10,13 @@ val cmsProps = Properties().apply {
     if (f.exists()) f.inputStream().use { load(it) }
 }
 
+// Taches demandees sur la ligne de commande. Capture ici, au niveau du script
+// (receveur = Project), car `gradle` ne se resout pas de facon fiable depuis un
+// lambda imbrique comme `create("release") { }`. Sert a n'exiger le keystore de
+// release que lorsqu'on construit reellement une release : `testDebugUnitTest`
+// configure ce bloc sans avoir besoin du keystore.
+val tachesDemandees: List<String> = gradle.startParameter.taskNames
+
 android {
     namespace = "fr.heldonica.mobile"
     compileSdk = 34
@@ -31,12 +38,16 @@ android {
             }
         }
 
-        // Signature de release. Un vrai keystore si fourni — en CI par les
-        // variables RELEASE_STORE_PASSWORD / RELEASE_KEY_ALIAS / RELEASE_KEY_PASSWORD,
-        // en local par local.properties (release.*). Sinon repli sur le keystore de
-        // debug versionne : la CI continue alors de produire un APK installable
-        // par-dessus les precedents, sans secret supplementaire a configurer.
-        // Le fichier attendu est keystore/heldonica-release.keystore (non versionne).
+        // Signature de release. Le keystore vient de la CI (secrets RELEASE_*) ou de
+        // local.properties (release.*). Fichier attendu : keystore/heldonica-release.keystore,
+        // non versionne.
+        //
+        // Il n'y a PLUS de repli sur le keystore de debug versionne. Ce fichier est
+        // public (depot ouvert) : un APK de release signe avec lui peut etre imite par
+        // n'importe qui, et Android accepterait la mise a jour forgee comme legitime.
+        // Constat du 2026-10-20 : les 7 APK publies l'etaient (empreinte SHA-256 du
+        // certificat 15:71:BD:5C:...). Sans keystore de release, on echoue (ferme)
+        // plutot que de produire un APK falsifiable.
         create("release") {
             val cleRelease = rootProject.file("keystore/heldonica-release.keystore")
             val mdpStore = cmsProps.getProperty("release.storePassword")
@@ -47,19 +58,20 @@ android {
             val mdpCle = cmsProps.getProperty("release.keyPassword")
                 ?: System.getenv("RELEASE_KEY_PASSWORD")
                 ?: mdpStore
+
+            val viseRelease = tachesDemandees.any { it.lowercase().contains("release") }
+            if (viseRelease && (!cleRelease.exists() || mdpStore.isNullOrBlank())) {
+                throw GradleException(
+                    "Aucun keystore de release. Poser keystore/heldonica-release.keystore " +
+                        "et RELEASE_STORE_PASSWORD (voir .github/workflows/build-apk.yml). " +
+                        "Refus de signer une release avec le keystore de debug public."
+                )
+            }
             if (cleRelease.exists() && !mdpStore.isNullOrBlank()) {
                 storeFile = cleRelease
                 storePassword = mdpStore
                 keyAlias = alias
                 keyPassword = mdpCle
-            } else {
-                val cle = rootProject.file("keystore/heldonica-debug.keystore")
-                if (cle.exists()) {
-                    storeFile = cle
-                    storePassword = "heldonica"
-                    keyAlias = "heldonica"
-                    keyPassword = "heldonica"
-                }
             }
         }
     }

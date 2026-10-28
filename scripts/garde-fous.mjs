@@ -40,6 +40,7 @@ export const CHECKS = [
   { key: 'cms-emojis', label: 'Emojis décoratifs en base (zones CMS)', script: 'check:cms-emojis', preflight: false, needsDb: true },
   { key: 'content-html-escapes', label: 'Guillemets échappés dans les balises (SQL)', script: 'check:content-html-escapes', preflight: true },
   { key: 'cms-hardcode', label: 'Texte en dur hors CMS (cliquet)', script: 'check:cms-hardcode', preflight: true },
+  { key: 'apk-signature', label: 'Signature APK (pas de clé de debug publique)', script: 'check:apk-signature', preflight: true },
   { key: 'content-evidence', label: 'Vécu adossé aux photos', script: 'check:content-evidence', preflight: false },
   { key: 'typecheck', label: 'TypeScript (tsc)', cmd: ['npx', 'tsc', '--noEmit'], preflight: false },
   { key: 'tests', label: 'Tests (vitest)', cmd: ['npx', 'vitest', 'run'], preflight: false },

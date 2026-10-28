@@ -207,3 +207,9 @@ jobs:
       # Statique, comme le précédent : il ne peut pas sauter faute de secret.
       - name: Texte en dur hors CMS (cliquet)
         run: npm run check:cms-hardcode
+
+      # Une release Android ne se signe jamais avec le keystore de debug public
+      # du depot (constat du 2026-10-20 : les 7 APK publies l'etaient). Statique,
+      # il ne peut pas sauter faute de secret.
+      - name: Signature APK (pas de cle de debug publique)
+        run: npm run check:apk-signature

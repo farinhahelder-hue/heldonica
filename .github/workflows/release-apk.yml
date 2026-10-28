@@ -28,14 +28,16 @@ name: Release APK
 # Pour publier, il faut saisir le mot de passe dans l'application (bouton 🔑) ou
 # faire un build local avec `local.properties`.
 #
-# Signature : par défaut, l'APK est signé avec le keystore de debug VERSIONNÉ du
-# dépôt — deux releases s'installent donc l'une sur l'autre, sans désinstaller ni
-# perdre les réglages. Ce keystore de debug est public : il identifie la série, il
-# ne protège rien. Pour une vraie identité de release, poser les secrets
-# RELEASE_STORE_PASSWORD / RELEASE_KEY_ALIAS / RELEASE_KEY_PASSWORD et fournir
+# Signature : OBLIGATOIREMENT un keystore de release, jamais celui de debug. Le
+# repli sur le keystore de debug VERSIONNÉ a été retiré le 2026-10-20 : ce fichier
+# étant public, un APK signé avec lui est falsifiable par n'importe qui (constat
+# mesuré : les 7 APK publiés portaient l'empreinte du keystore public, SHA-256
+# 15:71:BD:5C:...). Poser les secrets RELEASE_KEYSTORE_BASE64,
+# RELEASE_STORE_PASSWORD / RELEASE_KEY_ALIAS / RELEASE_KEY_PASSWORD, et fournir
 # keystore/heldonica-release.keystore (voir heldonica-mobile/app/build.gradle.kts).
-# Attention alors : un changement de clé impose UNE réinstallation manuelle des
-# versions déjà installées (Android refuse une mise à jour signée d'une autre clé).
+# Sans eux, le build échoue (verrou dur) au lieu de produire un APK falsifiable.
+# Attention : un changement de clé impose UNE réinstallation manuelle des versions
+# déjà installées (Android refuse une mise à jour signée d'une autre clé).
 # ============================================================
 
 on:
