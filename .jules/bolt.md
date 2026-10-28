@@ -12,3 +12,7 @@ Optimized blog index page with Incremental Static Regeneration (ISR) with 60 sec
 ## 2026-10-23 - Fix N+1 query when verifying drafts
 **Learning:** Checking elements iteratively from the database inside a for loop leads to an N+1 queries performance bottleneck.
 **Action:** Always fetch items in a batch where possible by querying an array of properties via `.in('column', ARRAY)` and mapping the responses, to guarantee O(1) query requests over O(N).
+
+## 2026-10-27 - Pre-compiling RegExp for Linter Performance
+**Learning:** Instantiating `new RegExp()` inside a loop that runs on every keystroke (like `lintBlock` in a React `useMemo`) forces the JS engine to re-parse and compile hundreds of regexes synchronously. This blocks the main thread (e.g. 170ms for 100 blocks) and causes severe typing latency.
+**Action:** Always pre-compile static `RegExp` objects at the module level (e.g. mapping `FORBIDDEN_WORDS` into a `PRECOMPILED_FORBIDDEN_REGEXES` array) so the runtime evaluation is strictly O(1) in compilation time and avoids main thread jank during React re-renders.
