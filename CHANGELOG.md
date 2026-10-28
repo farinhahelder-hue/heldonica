@@ -2,6 +2,28 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-28] — Contrôle CMS : la lecture des zones survit à une panne passerelle
+
+Le 2026-10-15, « Zones et tables CMS » a échoué sur les PR **#596, #597 et #599**
+avec `Lecture de cms_editable_zones impossible (HTTP 504)`. Ce n'était pas un défaut
+de code : une panne passerelle Supabase passagère. La même lecture passe localement
+en 2,5 s.
+
+- **La fenêtre de reprise était trop courte** : 3 essais espacés de 400 puis 800 ms,
+  soit **1,2 s** au total. Un 504 de quelques secondes suffisait à faire échouer le
+  contrôle — et trois PR sont restées bloquées dessus.
+- **Corrigé** : 5 essais espacés de 1,5 s à 6 s (~15 s cumulées) dans les trois
+  scripts qui interrogent `cms_editable_zones` en pagination (`check-cms-zones`,
+  `check-cms-emojis`, `check-cms-drift`). La sémantique ne change pas : au-delà, la
+  panne est réelle et l'échec reste un échec.
+- **Vérifié** : `node --check` sur les trois fichiers ; garde-fous 21/21 ; relance du
+  job sur les trois PR (HTTP 201).
+
+À noter : après relance, ces trois PR échouent de nouveau, mais **pour une autre
+raison** — leur code date du 15/10 et ne consomme pas les zones CMS ajoutées depuis
+(`contact_form_*`, `newsletter_*`, `destinations-*`). Le remède est un rebasage sur
+`main`, pas une modification du contrôle.
+
 ## [2026-10-28] — Revue des PR : le filtrage par auteur est retiré (fin du goulot)
 
 Le seul moteur qui fusionne, `scripts/revue-jules.mjs`, ne voyait que les PR de Jules
