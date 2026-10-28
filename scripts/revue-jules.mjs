@@ -166,27 +166,50 @@ async function traiterLesDecisions(propositions) {
         console.log(`[essai] fusionnerait #${p.pr}`)
         continue
       }
-      const r = await gh(`/pulls/${p.pr}/merge`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          sha: p.head_sha,
-          commit_title: `Merge PR #${p.pr} — validée depuis le Cerveau`,
-        }),
-      })
-      console.log(`✓ #${p.pr} fusionnée (${r.sha})`)
-      await clore(t, 'fusionnee', [`PR #${p.pr} fusionnée sur main, commit ${r.sha}`])
+      try {
+        const r = await gh(`/pulls/${p.pr}/merge`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            sha: p.head_sha,
+            commit_title: `Merge PR #${p.pr} — validée depuis le Cerveau`,
+          }),
+        })
+        console.log(`✓ #${p.pr} fusionnée (${r.sha})`)
+        await clore(t, 'fusionnee', [`PR #${p.pr} fusionnée sur main, commit ${r.sha}`])
+      } catch (e) {
+        // GitHub peut refuser une fusion que son propre `mergeable` annoncait possible
+        // (etat en cache, ou conflit apparu entre-temps). Sans ce garde, le throw
+        // remontait jusqu'au script : la tache restait `done` sans `executee`, donc
+        // rejouee a chaque passage, et la phase de proposition plus bas ne
+        // s'executait jamais. Un echec isole bloquait tout l'entonnoir.
+        console.error(`✗ fusion de #${p.pr} refusee : ${e.message}`)
+        await majTache(t.id, {
+          status: 'blocked',
+          payload: { ...t.payload, executee: { at: new Date().toISOString(), resultat: 'echec_fusion', erreur: e.message } },
+          actions_done: { non_verifie: [`fusion de #${p.pr} refusee par GitHub : ${e.message}`] },
+        })
+      }
     } else if (p.action === 'fermer') {
       if (ESSAI) {
         console.log(`[essai] fermerait #${p.pr}`)
         continue
       }
-      await gh(`/issues/${p.pr}/comments`, {
-        method: 'POST',
-        body: JSON.stringify({ body: `Fermée par le Cerveau Heldonica, sur validation du fondateur : ${p.raison}.` }),
-      })
-      await gh(`/pulls/${p.pr}`, { method: 'PATCH', body: JSON.stringify({ state: 'closed' }) })
-      console.log(`✓ #${p.pr} fermée (${p.raison})`)
-      await clore(t, 'fermee', [`PR #${p.pr} fermée : ${p.raison}`])
+      try {
+        await gh(`/issues/${p.pr}/comments`, {
+          method: 'POST',
+          body: JSON.stringify({ body: `Fermée par le Cerveau Heldonica, sur validation du fondateur : ${p.raison}.` }),
+        })
+        await gh(`/pulls/${p.pr}`, { method: 'PATCH', body: JSON.stringify({ state: 'closed' }) })
+        console.log(`✓ #${p.pr} fermée (${p.raison})`)
+        await clore(t, 'fermee', [`PR #${p.pr} fermée : ${p.raison}`])
+      } catch (e) {
+        console.error(`✗ fermeture de #${p.pr} refusee : ${e.message}`)
+        await majTache(t.id, {
+          status: 'blocked',
+          payload: { ...t.payload, executee: { at: new Date().toISOString(), resultat: 'echec_fermeture', erreur: e.message } },
+          actions_done: { non_verifie: [`fermeture de #${p.pr} refusee par GitHub : ${e.message}`] },
+        })
+      }
     } else {
       await clore(t, 'rien_a_faire', ['proposition sans action : rien fait'])
     }
