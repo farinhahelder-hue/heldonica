@@ -18,6 +18,10 @@ en 2,5 s.
   panne est réelle et l'échec reste un échec.
 - **Vérifié** : `node --check` sur les trois fichiers ; garde-fous 21/21 ; relance du
   job sur les trois PR (HTTP 201).
+- **Complément** : `check-cms-drift.mjs` ne reprenait que sur une **exception réseau**, pas sur un
+  statut 5xx — or un 504 passerelle arrive comme **réponse**. Ce cas précis tombait donc dans le
+  `?(HTTP 504)` final sans aucune reprise. Corrigé en alignant `tableExists` sur les deux autres
+  scripts (test du 5xx, 5 essais).
 
 À noter : après relance, ces trois PR échouent de nouveau, mais **pour une autre
 raison** — leur code date du 15/10 et ne consomme pas les zones CMS ajoutées depuis
