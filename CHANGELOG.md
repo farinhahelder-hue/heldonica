@@ -2,6 +2,40 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-28] — Signature APK : plus de release signée avec le keystore de debug public
+
+Constat mesuré, pas supposé. `keystore/heldonica-debug.keystore` est versionné dans un
+dépôt **public**, et son mot de passe (`heldonica`) était écrit en clair dans
+`app/build.gradle.kts`. Le repli de signature de release y retombait quand les secrets
+`RELEASE_*` manquaient. Résultat : **les 7 APK publiés** (le plus récent
+`apk-2026.10.20-poco-ia`) sont signés avec cette clé publique.
+
+- **Preuve** : l'APK publié extrait, son certificat de signature porte l'empreinte
+  SHA-256 `15:71:BD:5C:CE:90:FF:94:32:79:C7:D2:D6:80:88:5B…`, `CN=Heldonica Mobile
+  Debug` — identique à celle du keystore du dépôt. Le journal du build de release le
+  dit lui-même : « aucun keystore de release fourni : repli sur le keystore de debug. »
+- **Conséquence** : n'importe qui peut signer un APK de la même identité, qu'Android
+  acceptera comme mise à jour légitime. La vérification du certificat Google Sign-In
+  s'appuie sur le SHA-1 de cette même clé publique : elle ne prouve donc rien.
+- **Corrigé** : le repli est **retiré** (`app/build.gradle.kts`). Sans keystore de
+  release, la construction d'une release **échoue** (`GradleException`) au lieu de
+  produire un APK falsifiable — sauf en validation de CI, qui construit une variante
+  release **non signée** (`-PallowUnsignedRelease=true`) pour vérifier R8 et proguard
+  sans engager de clé. Le verrou de publication vit dans `build-apk.yml` : l'appel de
+  `release-apk.yml` pose `publier: true`, et sans `RELEASE_KEYSTORE_BASE64` le build
+  de publication est refusé. Un build de validation (PR, push) n'est pas concerné —
+  sans quoi tout PR touchant `heldonica-mobile/` serait rouge en permanence.
+- **Garde-fou** : `scripts/check-apk-signature.mjs`, câblé dans `garde-fous` et la CI
+  (21e contrôle). Il refuse toute référence au keystore de debug dans
+  `signingConfigs.release`, tout mot de passe en dur, et tout repli silencieux.
+- **Reste à faire (action humaine)** : poser les secrets `RELEASE_KEYSTORE_BASE64`,
+  `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS`, `RELEASE_KEY_PASSWORD` (une vraie
+  identité de release) ; puis **régénérer l'identité Google Sign-In** — le SHA-1
+  actuellement déclaré est celui du keystore de debug public, donc reproductible par
+  un tiers. Un changement de clé impose une réinstallation manuelle des versions déjà
+  installées. Le keystore de debug peut rester versionné : il ne signe plus aucune
+  release (garde-fou), et un keystore de debug n'est pas un secret par nature.
+
 ## [2026-10-27 ter] — Briques « photo → contenu » : trois inventions retirées
 
 Constat de départ : le propriétaire a des années de photos (Google Photos) et veut

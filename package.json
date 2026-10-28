@@ -31,6 +31,7 @@
     "check:cms-emojis": "node scripts/check-cms-emojis.mjs",
     "check:content-html-escapes": "node scripts/check-content-html-escapes.mjs",
     "check:cms-hardcode": "node scripts/check-cms-hardcode.mjs",
+    "check:apk-signature": "node scripts/check-apk-signature.mjs",
     "media": "node scripts/media_auto.mjs",
     "media:watch": "node scripts/media_auto.mjs --watch",
     "media:evidence": "python scripts/photos_evidence.py --geocode",

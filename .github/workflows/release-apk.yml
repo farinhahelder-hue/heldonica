@@ -28,14 +28,16 @@ name: Release APK
 # Pour publier, il faut saisir le mot de passe dans l'application (bouton 🔑) ou
 # faire un build local avec `local.properties`.
 #
-# Signature : par défaut, l'APK est signé avec le keystore de debug VERSIONNÉ du
-# dépôt — deux releases s'installent donc l'une sur l'autre, sans désinstaller ni
-# perdre les réglages. Ce keystore de debug est public : il identifie la série, il
-# ne protège rien. Pour une vraie identité de release, poser les secrets
-# RELEASE_STORE_PASSWORD / RELEASE_KEY_ALIAS / RELEASE_KEY_PASSWORD et fournir
+# Signature : OBLIGATOIREMENT un keystore de release, jamais celui de debug. Le
+# repli sur le keystore de debug VERSIONNÉ a été retiré le 2026-10-20 : ce fichier
+# étant public, un APK signé avec lui est falsifiable par n'importe qui (constat
+# mesuré : les 7 APK publiés portaient l'empreinte du keystore public, SHA-256
+# 15:71:BD:5C:...). Poser les secrets RELEASE_KEYSTORE_BASE64,
+# RELEASE_STORE_PASSWORD / RELEASE_KEY_ALIAS / RELEASE_KEY_PASSWORD, et fournir
 # keystore/heldonica-release.keystore (voir heldonica-mobile/app/build.gradle.kts).
-# Attention alors : un changement de clé impose UNE réinstallation manuelle des
-# versions déjà installées (Android refuse une mise à jour signée d'une autre clé).
+# Sans eux, le build échoue (verrou dur) au lieu de produire un APK falsifiable.
+# Attention : un changement de clé impose UNE réinstallation manuelle des versions
+# déjà installées (Android refuse une mise à jour signée d'une autre clé).
 # ============================================================
 
 on:
@@ -50,6 +52,11 @@ permissions:
 jobs:
   construire:
     uses: ./.github/workflows/build-apk.yml
+    # Ce workflow PUBLIE : il exige donc le keystore de release (verrou dur dans
+    # build-apk.yml). Un appel de validation laisse `publier` a false et construit
+    # une variante release non signee.
+    with:
+      publier: true
     secrets: inherit
 
   publier:
@@ -88,7 +95,22 @@ jobs:
             exit 1
           fi
           SORTIE="heldonica-${TAG}.apk"
-          mv apk/app-release.apk "$SORTIE"
+          # Nom exact, jamais un motif : `app-release-unsigned.apk` trie AVANT
+          # `app-release.apk` (le tiret precede le point), donc un `head -1` sur un
+          # joker choisirait l'APK NON SIGNE si les deux coexistaient.
+          APK="apk/app-release.apk"
+          if [ ! -f "$APK" ]; then
+            echo "::error::APK signe absent (apk/app-release.apk). L'artefact ne contient qu'un APK non signe — publication refusee."
+            ls -la apk/ || true
+            exit 1
+          fi
+          # Second verrou : un APK non signe ne se publie pas, meme s'il avait
+          # survecu au verrou de build-apk.yml.
+          if [ -f apk/app-release-unsigned.apk ]; then
+            echo "::error::APK non signe present dans l'artefact — publication refusee."
+            exit 1
+          fi
+          mv "$APK" "$SORTIE"
           # Le même APK dans un ZIP : sur certains téléphones, le téléchargement direct
           # d'un .apk depuis le navigateur arrive abîmé (« package doesn't appear to be
           # valid ») alors que le ZIP, lui, passe et s'ouvre dans le gestionnaire de fichiers.
