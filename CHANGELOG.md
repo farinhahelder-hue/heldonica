@@ -19,8 +19,12 @@ dépôt **public**, et son mot de passe (`heldonica`) était écrit en clair dan
   s'appuie sur le SHA-1 de cette même clé publique : elle ne prouve donc rien.
 - **Corrigé** : le repli est **retiré** (`app/build.gradle.kts`). Sans keystore de
   release, la construction d'une release **échoue** (`GradleException`) au lieu de
-  produire un APK falsifiable. Le workflow `build-apk.yml` refuse de continuer si
-  `RELEASE_KEYSTORE_BASE64` est absent.
+  produire un APK falsifiable — sauf en validation de CI, qui construit une variante
+  release **non signée** (`-PallowUnsignedRelease=true`) pour vérifier R8 et proguard
+  sans engager de clé. Le verrou de publication vit dans `build-apk.yml` : l'appel de
+  `release-apk.yml` pose `publier: true`, et sans `RELEASE_KEYSTORE_BASE64` le build
+  de publication est refusé. Un build de validation (PR, push) n'est pas concerné —
+  sans quoi tout PR touchant `heldonica-mobile/` serait rouge en permanence.
 - **Garde-fou** : `scripts/check-apk-signature.mjs`, câblé dans `garde-fous` et la CI
   (21e contrôle). Il refuse toute référence au keystore de debug dans
   `signingConfigs.release`, tout mot de passe en dur, et tout repli silencieux.

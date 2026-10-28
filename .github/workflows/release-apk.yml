@@ -52,6 +52,11 @@ permissions:
 jobs:
   construire:
     uses: ./.github/workflows/build-apk.yml
+    # Ce workflow PUBLIE : il exige donc le keystore de release (verrou dur dans
+    # build-apk.yml). Un appel de validation laisse `publier` a false et construit
+    # une variante release non signee.
+    with:
+      publier: true
     secrets: inherit
 
   publier:
@@ -90,7 +95,15 @@ jobs:
             exit 1
           fi
           SORTIE="heldonica-${TAG}.apk"
-          mv apk/app-release.apk "$SORTIE"
+          # Le nom depend de la signature : app-release.apk si le keystore de
+          # release est pose, app-release-unsigned.apk sinon (jamais publie ici,
+          # le verrou dur de build-apk.yml l'a deja refuse).
+          APK=$(ls apk/app-release*.apk 2>/dev/null | head -1)
+          if [ -z "$APK" ]; then
+            echo "::error::Aucun APK dans l'artefact — rien ne sera publie."
+            exit 1
+          fi
+          mv "$APK" "$SORTIE"
           # Le même APK dans un ZIP : sur certains téléphones, le téléchargement direct
           # d'un .apk depuis le navigateur arrive abîmé (« package doesn't appear to be
           # valid ») alors que le ZIP, lui, passe et s'ouvre dans le gestionnaire de fichiers.

@@ -17,6 +17,11 @@ val cmsProps = Properties().apply {
 // configure ce bloc sans avoir besoin du keystore.
 val tachesDemandees: List<String> = gradle.startParameter.taskNames
 
+// Validation de CI (PR, push) : on construit la variante release SANS signature,
+// pour verifier R8, proguard et lint sans engager de cle de publication. Sans ce
+// drapeau, une release exige un keystore dedie et echoue si elle n'en a pas.
+val autoriserNonSigne: Boolean = providers.gradleProperty("allowUnsignedRelease").isPresent
+
 android {
     namespace = "fr.heldonica.mobile"
     compileSdk = 34
@@ -60,14 +65,15 @@ android {
                 ?: mdpStore
 
             val viseRelease = tachesDemandees.any { it.lowercase().contains("release") }
-            if (viseRelease && (!cleRelease.exists() || mdpStore.isNullOrBlank())) {
+            val signable = cleRelease.exists() && !mdpStore.isNullOrBlank()
+            if (viseRelease && !signable && !autoriserNonSigne) {
                 throw GradleException(
                     "Aucun keystore de release. Poser keystore/heldonica-release.keystore " +
                         "et RELEASE_STORE_PASSWORD (voir .github/workflows/build-apk.yml). " +
                         "Refus de signer une release avec le keystore de debug public."
                 )
             }
-            if (cleRelease.exists() && !mdpStore.isNullOrBlank()) {
+            if (signable) {
                 storeFile = cleRelease
                 storePassword = mdpStore
                 keyAlias = alias
@@ -141,8 +147,9 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // Un vrai keystore de release si fourni, sinon le keystore de debug
-            // versionne (mises a jour installables par-dessus les precedentes).
+            // Un vrai keystore de release si fourni. Sans lui, la variante release
+            // n'est pas signee (validation de CI) : plus jamais le keystore de
+            // debug versionne, qui est public.
             signingConfig = signingConfigs.getByName("release")
         }
     }

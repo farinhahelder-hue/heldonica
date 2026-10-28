@@ -7,6 +7,15 @@ on:
   # dans le dex. `mot_de_passe_vide` est publié en sortie pour que le workflow
   # appelant puisse refuser de publier un APK qui aurait embarqué un identifiant.
   workflow_call:
+    # `publier` distingue l'appel de release-apk.yml (qui publie) d'un appel de
+    # validation. On ne se fie pas a `github.event_name` : dans un workflow
+    # reutilisable appele, il reflete l'evenement de l'appelant, pas
+    # `workflow_call`. Un drapeau explicite ne depend d'aucune subtilite.
+    inputs:
+      publier:
+        description: "true pour l'appel de release-apk.yml, qui publie l'APK"
+        type: boolean
+        default: false
     outputs:
       mot_de_passe_vide:
         description: "'true' si aucun mot de passe n'a été compilé dans l'APK"
@@ -66,25 +75,40 @@ jobs:
           cd heldonica-mobile
           gradle testDebugUnitTest --stacktrace
 
-      # Keystore de release OBLIGATOIRE. Le repli sur le keystore de debug versionne
-      # a ete retire le 2026-10-20 : ce fichier est public, donc un APK signe avec
-      # lui est falsifiable par n'importe qui (voir app/build.gradle.kts). Sans ce
-      # keystore, le build echoue - c'est voulu.
-      - name: Poser le keystore de release (obligatoire)
+      # Keystore de release. Il est OBLIGATOIRE pour publier : une release ne se
+      # signe plus avec le keystore de debug versionne, qui est public (constat du
+      # 2026-10-20 : les 7 APK publies l'etaient, voir app/build.gradle.kts).
+      #
+      # En validation (pull_request / push), il est normalement absent : on
+      # construit alors la variante release NON signee, uniquement pour verifier
+      # que R8, proguard et lint compilent. Le verrou de publication est plus bas.
+      - name: Poser le keystore de release (si fourni)
+        id: keystore
         env:
           RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
         run: |
-          if [ -z "$RELEASE_KEYSTORE_BASE64" ]; then
-            echo "::error::Secret RELEASE_KEYSTORE_BASE64 absent. Une release ne se signe plus avec le keystore de debug public (constat du 2026-10-20)."
-            exit 1
+          if [ -n "$RELEASE_KEYSTORE_BASE64" ]; then
+            mkdir -p heldonica-mobile/keystore
+            printf '%s' "$RELEASE_KEYSTORE_BASE64" | base64 -d > heldonica-mobile/keystore/heldonica-release.keystore
+            echo "keystore de release pose."
+            echo "signe=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "aucun keystore de release fourni : build de validation non signe."
+            echo "signe=false" >> "$GITHUB_OUTPUT"
           fi
-          mkdir -p heldonica-mobile/keystore
-          printf '%s' "$RELEASE_KEYSTORE_BASE64" | base64 -d > heldonica-mobile/keystore/heldonica-release.keystore
-          echo "keystore de release pose."
 
-      # Build RELEASE (non debogable, R8 actif, ressources reduites), signe.
+      # Verrou DUR : on refuse de produire l'APK destine a la publication sans
+      # keystore de release. Seul l'appel de release-apk.yml pose `publier=true` ;
+      # un build de validation (PR, push) reste non signe.
+      - name: Refuser de publier sans keystore de release
+        if: ${{ inputs.publier && steps.keystore.outputs.signe != 'true' }}
+        run: |
+          echo "::error::Publication refusee : RELEASE_KEYSTORE_BASE64 absent. Une release ne se signe plus avec le keystore de debug public (constat du 2026-10-20)."
+          exit 1
+
+      # Build RELEASE (non debogable, R8 actif, ressources reduites).
       # Le mot de passe CMS reste vide : aucun secret n'est compile dans le dex.
-      # La signature exige le keystore de release (plus de repli sur le debug).
+      # Signe si le keystore est pose ; sinon non signe (validation de CI).
       - name: Build Release APK
         env:
           RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
@@ -92,9 +116,13 @@ jobs:
           RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
         run: |
           cd heldonica-mobile
-          gradle assembleRelease --stacktrace
+          if [ "${{ steps.keystore.outputs.signe }}" = "true" ]; then
+            gradle assembleRelease --stacktrace
+          else
+            gradle assembleRelease -PallowUnsignedRelease=true --stacktrace
+          fi
 
       - uses: actions/upload-artifact@v4
         with:
           name: heldonica-mobile-release
-          path: heldonica-mobile/app/build/outputs/apk/release/app-release.apk
+          path: heldonica-mobile/app/build/outputs/apk/release/*.apk
