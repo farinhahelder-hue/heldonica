@@ -38,7 +38,11 @@ describe('CMS Photo Interview Module (lib/cms-photo-interview.ts)', () => {
 
     expect(synthesis.anecdote).toContain('silence d\'alpage');
     expect(synthesis.anecdote.length).toBeLessThanOrEqual(200);
-    expect(synthesis.richParagraph).toContain('Crête de Stoos');
+    // Le récit ne contient que les réponses du duo : aucune phrase d'ambiance
+    // ajoutée par le moteur (« À Crête de Stoos, on s'est posés un moment… »).
+    expect(synthesis.richParagraph).toContain('silence d\'alpage');
+    expect(synthesis.richParagraph).toContain('Funiculaire à 22 CHF');
+    expect(synthesis.richParagraph).not.toContain('on s\'est posés');
     expect(synthesis.counterpointNote).toContain('chaleur étouffante');
     expect(synthesis.isBrandConform).toBe(true);
     expect(synthesis.forbiddenWordsDetected).toEqual([]);
