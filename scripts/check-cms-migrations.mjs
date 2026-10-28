@@ -33,23 +33,19 @@ const EXTS = new Set(['.ts', '.tsx']);
 /**
  * Tables présentes en production mais sans migration versionnée dans le dépôt.
  *
- * Ce ne sont pas des tables fantômes : elles existent en base (vérifié par
- * check:cms-drift, 40 tables présentes sur 49 référencées) mais ont été créées
- * hors migration — le motif « script jetable » que l'AGENTS.md interdit. Les
- * retirer d'ici suppose de produire leur migration de rattachement (baseline),
- * ce qui demande de lire le schéma réel : à faire dans une tâche dédiée.
+ * VIDE depuis le 2026-10-28 : les 5 tables qui figuraient ici ont reçu leur
+ * migration de rattachement (20261028120000_rattachement_tables_legacy.sql),
+ * écrite depuis le schéma réel relevé en production (colonnes, contraintes,
+ * index, politiques RLS). La 6e entrée, `destinations_public`, n'était pas une
+ * table mais une VUE — déjà migrée (4 fichiers) ; c'était un faux positif, la
+ * cause est corrigée dans collectMigratedTables (voir plus bas).
  *
- * Tant qu'une table figure ici, toute NOUVELLE table non migrée fera échouer le
- * contrôle — c'est tout l'objet de la liste.
+ * La liste reste en place, vide, comme garde-fou : toute NOUVELLE table
+ * référencée par le code sans migration fera échouer le contrôle. Une table
+ * n'a rien à y faire si elle peut recevoir sa migration — cette liste ne sert
+ * qu'à débloquer un cas qu'on ne peut pas encore migrer.
  */
-const LEGACY_UNMIGRATED = new Set([
-  'cms_home_destinations',   // app/api/cms/home-destinations/route.ts, lib/home-data.ts
-  'cms_seasons',             // app/api/cms/seasons/route.ts, lib/pillar-data.ts
-  'destinations_public',     // app/api/destinations/route.ts, app/destinations/**
-  'newsletter_subscribers',  // app/api/newsletter/route.ts
-  'site_content',            // app/api/cms/content/route.ts, lib/blog-supabase.ts
-  'travel_requests',         // app/dashboard/page.tsx, app/api/travel-planning
-]);
+const LEGACY_UNMIGRATED = new Set([]);
 
 function walk(dir, out = []) {
   let entries;
@@ -86,16 +82,23 @@ export function collectReferencedTables(dirs = SCAN_DIRS, walker = walk) {
 
 /**
  * Tables créées par au moins une migration, lues par expression régulière sur le
- * SQL. On ne parse pas le SQL en entier : on cherche la seule forme qui compte,
- * `CREATE TABLE [IF NOT EXISTS] [public.]nom`.
+ * SQL. On ne parse pas le SQL en entier : on cherche les deux seules formes qui
+ * comptent, `CREATE TABLE [IF NOT EXISTS] [public.]nom` et
+ * `CREATE [OR REPLACE] VIEW [public.]nom`.
+ *
+ * Les vues sont comptées comme des « objets lisibles par `.from()` » : le code
+ * lit `destinations_public` exactement comme une table, et une vue a sa
+ * migration. Sans cette seconde expression, toute vue référencée par le code
+ * était signalée à tort comme table non migrée — c'est ce qui a maintenu
+ * `destinations_public` dans LEGACY_UNMIGRATED des mois durant.
  */
 export function collectMigratedTables(dir = MIGRATIONS_DIR) {
   const tables = new Set();
   let files;
   try { files = readdirSync(dir).filter((f) => f.endsWith('.sql')); } catch { return tables; }
+  const re = /CREATE\s+(?:TABLE|(?:OR\s+REPLACE\s+)?VIEW)\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:public\.)?["`]?([a-zA-Z_][a-zA-Z0-9_]*)["`]?/gi;
   for (const f of files) {
     const sql = readFileSync(join(dir, f), 'utf8');
-    const re = /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?(?:public\.)?["`]?([a-zA-Z_][a-zA-Z0-9_]*)["`]?/gi;
     for (const m of sql.matchAll(re)) tables.add(m[1].toLowerCase());
   }
   return tables;

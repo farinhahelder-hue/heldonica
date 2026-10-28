@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // ============================================================
-// Revue des PR de Jules — le Cerveau trie, le fondateur valide d'un geste.
+// Revue des PR — le Cerveau trie, le fondateur valide d'un geste.
 //
 // Lance toutes les 15 min par .github/workflows/revue-jules.yml, ou a la main :
 //   node scripts/revue-jules.mjs --essai   # n'ecrit rien : affiche le tri
@@ -11,8 +11,12 @@
 //      proposition (meme commit, toujours fusionnable, CI toujours verte).
 //   2. Classer ce qu'il a renvoye, et ce qui est devenu obsolete (PR fermee ou
 //      nouveau commit) : rien n'est fait, la trace reste.
-//   3. Proposer pour chaque PR ouverte de Jules qui n'a pas encore de
-//      proposition pour son commit courant.
+//   3. Proposer pour chaque PR ouverte, quel que soit l'agent, qui n'a pas encore
+//      de proposition pour son commit courant. Le filtrage par auteur (PR de
+//      Jules uniquement) etait le goulot : le 28/10, 45 PR ouvertes dont 33 de
+//      plus de 7 jours, invisibles pour le seul moteur qui fusionne. Ce qui
+//      merite relecture, c'est le contenu (brouillon, CI, conflit, fichiers
+//      sensibles), pas l'auteur — voir `recommander` dans revue-jules-regles.mjs.
 //
 // Les propositions sont des taches `agent_tasks` adressees a `fondateur`,
 // scope `revue-jules`, payload { source, pr, head_sha, action }. Le Cerveau du
@@ -23,7 +27,7 @@
 // NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY.
 // ============================================================
 
-import { estPrDeJules, doublons, etatCi, recommander, libelle } from './revue-jules-regles.mjs'
+import { proposable, doublons, etatCi, recommander, libelle } from './revue-jules-regles.mjs'
 
 const ESSAI = process.argv.includes('--essai')
 const REPO = process.env.GITHUB_REPOSITORY || 'farinhahelder-hue/heldonica'
@@ -149,7 +153,7 @@ async function traiterLesDecisions(propositions) {
       continue
     }
     if (pr.head_sha !== p.head_sha) {
-      // Jules a pousse depuis la proposition : on ne fusionne pas un code que personne n'a vu.
+      // La branche a bouge depuis la proposition : on ne fusionne pas un code que personne n'a vu.
       await clore(t, 'obsolete', [`nouveau commit sur #${p.pr} depuis la proposition : rien fait, une nouvelle proposition suivra`])
       continue
     }
@@ -162,27 +166,50 @@ async function traiterLesDecisions(propositions) {
         console.log(`[essai] fusionnerait #${p.pr}`)
         continue
       }
-      const r = await gh(`/pulls/${p.pr}/merge`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          sha: p.head_sha,
-          commit_title: `Merge PR #${p.pr} (Jules) — validée depuis le Cerveau`,
-        }),
-      })
-      console.log(`✓ #${p.pr} fusionnée (${r.sha})`)
-      await clore(t, 'fusionnee', [`PR #${p.pr} fusionnée sur main, commit ${r.sha}`])
+      try {
+        const r = await gh(`/pulls/${p.pr}/merge`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            sha: p.head_sha,
+            commit_title: `Merge PR #${p.pr} — validée depuis le Cerveau`,
+          }),
+        })
+        console.log(`✓ #${p.pr} fusionnée (${r.sha})`)
+        await clore(t, 'fusionnee', [`PR #${p.pr} fusionnée sur main, commit ${r.sha}`])
+      } catch (e) {
+        // GitHub peut refuser une fusion que son propre `mergeable` annoncait possible
+        // (etat en cache, ou conflit apparu entre-temps). Sans ce garde, le throw
+        // remontait jusqu'au script : la tache restait `done` sans `executee`, donc
+        // rejouee a chaque passage, et la phase de proposition plus bas ne
+        // s'executait jamais. Un echec isole bloquait tout l'entonnoir.
+        console.error(`✗ fusion de #${p.pr} refusee : ${e.message}`)
+        await majTache(t.id, {
+          status: 'blocked',
+          payload: { ...t.payload, executee: { at: new Date().toISOString(), resultat: 'echec_fusion', erreur: e.message } },
+          actions_done: { non_verifie: [`fusion de #${p.pr} refusee par GitHub : ${e.message}`] },
+        })
+      }
     } else if (p.action === 'fermer') {
       if (ESSAI) {
         console.log(`[essai] fermerait #${p.pr}`)
         continue
       }
-      await gh(`/issues/${p.pr}/comments`, {
-        method: 'POST',
-        body: JSON.stringify({ body: `Fermée par le Cerveau Heldonica, sur validation du fondateur : ${p.raison}.` }),
-      })
-      await gh(`/pulls/${p.pr}`, { method: 'PATCH', body: JSON.stringify({ state: 'closed' }) })
-      console.log(`✓ #${p.pr} fermée (${p.raison})`)
-      await clore(t, 'fermee', [`PR #${p.pr} fermée : ${p.raison}`])
+      try {
+        await gh(`/issues/${p.pr}/comments`, {
+          method: 'POST',
+          body: JSON.stringify({ body: `Fermée par le Cerveau Heldonica, sur validation du fondateur : ${p.raison}.` }),
+        })
+        await gh(`/pulls/${p.pr}`, { method: 'PATCH', body: JSON.stringify({ state: 'closed' }) })
+        console.log(`✓ #${p.pr} fermée (${p.raison})`)
+        await clore(t, 'fermee', [`PR #${p.pr} fermée : ${p.raison}`])
+      } catch (e) {
+        console.error(`✗ fermeture de #${p.pr} refusee : ${e.message}`)
+        await majTache(t.id, {
+          status: 'blocked',
+          payload: { ...t.payload, executee: { at: new Date().toISOString(), resultat: 'echec_fermeture', erreur: e.message } },
+          actions_done: { non_verifie: [`fermeture de #${p.pr} refusee par GitHub : ${e.message}`] },
+        })
+      }
     } else {
       await clore(t, 'rien_a_faire', ['proposition sans action : rien fait'])
     }
@@ -191,9 +218,9 @@ async function traiterLesDecisions(propositions) {
 
 // --- 3 : proposer -------------------------------------------------------------
 async function proposer(propositions) {
-  const ouvertes = (await toutesLesPages('/pulls?state=open')).filter(estPrDeJules)
+  const ouvertes = (await toutesLesPages('/pulls?state=open')).filter(proposable)
   const dejaVues = new Set(propositions.map((t) => `${t.payload?.pr}@${t.payload?.head_sha}`))
-  console.log(`${ouvertes.length} PR de Jules ouvertes`)
+  console.log(`${ouvertes.length} PR ouvertes`)
 
   // Une proposition en attente devient obsolete si la PR est fermee ou a bouge.
   const shaCourant = new Map(ouvertes.map((p) => [p.number, p.head.sha]))
@@ -225,7 +252,7 @@ async function proposer(propositions) {
       scope: SCOPE,
       risk_level: reco.action === 'fusionner' ? 'medium' : 'low', // agent_tasks_risk_check
       description: `${pr.url}\n${reco.raison}`,
-      notes: `proposee par la revue des PR de Jules le ${new Date().toISOString().slice(0, 16)}`,
+      notes: `proposee par la revue des PR le ${new Date().toISOString().slice(0, 16)}`,
       payload: { source: SCOPE, pr: pr.number, head_sha: pr.head_sha, action: reco.action, raison: reco.raison, url: pr.url },
     })
   }

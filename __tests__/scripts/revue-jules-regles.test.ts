@@ -1,9 +1,9 @@
 import { describe, it, expect } from 'vitest'
 // @ts-expect-error module .mjs sans declaration de types
-import { estPrDeJules, fichiersSensibles, doublons, etatCi, recommander, libelle } from '../../scripts/revue-jules-regles.mjs'
+import { proposable, fichiersSensibles, doublons, etatCi, recommander, libelle } from '../../scripts/revue-jules-regles.mjs'
 
 /**
- * Tri des PR de Jules : ces regles decident de ce qui est PROPOSE au fondateur
+ * Tri des PR : ces regles decident de ce qui est PROPOSE au fondateur
  * (fusionner, fermer, a revoir). Une erreur ici ne fusionne rien seule — le
  * fondateur valide chaque proposition — mais elle lui ferait valider une
  * recommandation fausse.
@@ -20,11 +20,17 @@ const pr = (over: Record<string, unknown> = {}) => ({
   ...over,
 })
 
-describe('estPrDeJules', () => {
-  it('reconnait le lien de tache Jules, pas une simple mention', () => {
-    expect(estPrDeJules({ body: 'PR created by Jules for https://jules.google.com/task/123' })).toBe(true)
-    expect(estPrDeJules({ body: 'destinataire jules ajoute au registre' })).toBe(false)
-    expect(estPrDeJules({ body: null })).toBe(false)
+describe('proposable', () => {
+  it('propose toute PR ouverte, quel que soit son auteur', () => {
+    // Le filtrage par auteur etait le goulot : seules les PR de Jules etaient
+    // proposees. Une PR sans lien de tache Jules doit desormais l'etre aussi.
+    expect(proposable({ state: 'open', body: 'aucune mention d agent' })).toBe(true)
+    expect(proposable({ state: 'open', body: 'PR created by Jules for https://jules.google.com/task/123' })).toBe(true)
+    expect(proposable({ state: 'open', body: null })).toBe(true)
+  })
+  it('ecarte ce qui est ferme ou fusionne', () => {
+    expect(proposable({ state: 'closed' })).toBe(false)
+    expect(proposable({ state: 'merged' })).toBe(false)
   })
 })
 
@@ -132,6 +138,6 @@ describe('recommander', () => {
     expect(recommander(pr()).action).toBe('fusionner')
   })
   it('libelle commence par l’action et le numero, lisibles meme tronques', () => {
-    expect(libelle(pr({ number: 612 }), recommander(pr({ number: 612 })))).toMatch(/^Fusionner PR #612 \(Jules\) — CI verte/)
+    expect(libelle(pr({ number: 612 }), recommander(pr({ number: 612 })))).toMatch(/^Fusionner PR #612 — CI verte/)
   })
 })

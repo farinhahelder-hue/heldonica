@@ -2,6 +2,114 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-28] — Dérive de schéma : 5 tables legacy rattachées à une migration
+
+Cinq tables étaient lues par le code (`.from('…')`) mais n'avaient **aucun** `CREATE TABLE`
+dans `supabase/migrations/` : `cms_home_destinations`, `cms_seasons`, `site_content`,
+`newsletter_subscribers`, `travel_requests`. Créées à la main — le motif « script jetable »
+que `AGENTS.md` interdit. Une base reconstruite depuis le dépôt les aurait perdues, dont
+**deux qui portent des données personnelles** (inscriptions, demandes de Travel Planning).
+
+- **Migration `20261028120000_rattachement_tables_legacy.sql`** : le schéma n'est pas déduit
+  du code, il est **relevé à l'identique en production** (`information_schema.columns`,
+  `pg_constraint`, `pg_indexes`, `pg_policies`). Colonnes, types, valeurs par défaut,
+  contraintes, index et **politiques RLS** reproduits — y compris le refus de lecture `anon`
+  sur `travel_requests` et `newsletter_subscribers`.
+- **Sans effet sur la base vivante** : `IF NOT EXISTS` partout. Vérifié en **transaction
+  annulée** (`BEGIN … ROLLBACK`) : empreinte md5 des colonnes et des politiques **identique
+  avant/après** pour les 5 tables. Et le DDL, rejoué dans un schéma jetable (base vide, où
+  `IF NOT EXISTS` ne masque plus rien), reproduit exactement les **9 / 14 / 5 / 7 / 16**
+  colonnes, **11 index**, **10 contraintes** et **8 politiques** de la production.
+- **`LEGACY_UNMIGRATED` est vide.** La 6ᵉ entrée, `destinations_public`, était un **faux
+  positif** : ce n'est pas une table mais une **vue**, déjà migrée (4 fichiers, le dernier
+  `20261022200000`). La cause est corrigée : `collectMigratedTables` reconnaît désormais
+  `CREATE VIEW`, avec un test unitaire dédié.
+
+### Piège désamorcé : `db push --include-all` aurait levé le mode maintenance
+
+`supabase db push` **échouait** avant ce lot, et pour une raison qui n'a rien à voir avec le
+code : `supabase/migrations/20261026140000_levee_mode_maintenance.sql` — un fichier **rédigé
+mais volontairement non appliqué** (règle n°4) — est horodaté *avant* des migrations déjà
+appliquées. Le CLI refuse alors tout `db push` (« Found local migration files to be inserted
+before the last migration on remote database ») et **suggère `--include-all`**.
+
+Or `--include-all` **pousse ce fichier aussi** : vérifié en dry-run, il aurait appliqué
+`20261026140000_levee_mode_maintenance.sql`, c'est-à-dire `maintenance_mode = 'false'`.
+**La suggestion du CLI était le piège.** Suivre l'indication aurait levé la maintenance sans
+décision du propriétaire.
+
+Le fichier de levée a été **parqué dans `supabase/archive/`** dans cet espace de travail — la
+convention de `EMERGENCY_FIX_20260602.sql`, dont le rôle est précisément de ne jamais être
+rejoué. Le CLI **ignore** `supabase/archive/` : `db push` ne voit plus que la migration de
+rattachement. **Contenu inchangé** (md5 `5d05d6677c2e54c2791cf0784129b936`, identique avant et
+après le déplacement).
+
+Ce déplacement n'est **pas committé** : le fichier porte la consigne explicite de rester hors de
+`main`, et il touche la règle n°4 (le mode maintenance est piloté par le propriétaire). Le
+committer est sa décision. Le jour de la levée, il suffira de le remettre dans
+`supabase/migrations/` avec un horodatage postérieur — la consigne de son propre en-tête.
+
+**État : APPLIQUÉE le 2026-10-28.** `supabase db push --linked` a exécuté
+`20261028120000_rattachement_tables_legacy.sql` et l'a journalisée. Écart dépôt ↔ base :
+**0** (`migration list` : 209 appliquées des deux côtés, aucune orpheline).
+
+Contrôle après application, comparé à un relevé pris **avant** le push :
+
+| | avant | après |
+|---|---|---|
+| Colonnes (5 tables) | 9 / 14 / 5 / 7 / 16 | **9 / 14 / 5 / 7 / 16** |
+| Politiques RLS | 8 | **8** |
+| Lignes (`site_content`, `cms_seasons`, `cms_home_destinations`, `newsletter_subscribers`, `travel_requests`) | 55 / 14 / 4 / 2 / 2 | **55 / 14 / 4 / 2 / 2** |
+| `maintenance_mode` | `true` | **`true`** |
+
+Rien n'a bougé : la migration était bien un no-op sur la base vivante, elle n'a fait que
+**journaliser** la version. `check:cms-drift` : aucune dérive. Règle n°4 intacte —
+`/destinations/paris` → 307 → `/maintenance` → HTTP 200.
+
+## [2026-10-28] — Contrôle CMS : la lecture des zones survit à une panne passerelle
+
+Le 2026-10-15, « Zones et tables CMS » a échoué sur les PR **#596, #597 et #599**
+avec `Lecture de cms_editable_zones impossible (HTTP 504)`. Ce n'était pas un défaut
+de code : une panne passerelle Supabase passagère. La même lecture passe localement
+en 2,5 s.
+
+- **La fenêtre de reprise était trop courte** : 3 essais espacés de 400 puis 800 ms,
+  soit **1,2 s** au total. Un 504 de quelques secondes suffisait à faire échouer le
+  contrôle — et trois PR sont restées bloquées dessus.
+- **Corrigé** : 5 essais espacés de 1,5 s à 6 s (~15 s cumulées) dans les trois
+  scripts qui interrogent `cms_editable_zones` en pagination (`check-cms-zones`,
+  `check-cms-emojis`, `check-cms-drift`). La sémantique ne change pas : au-delà, la
+  panne est réelle et l'échec reste un échec.
+- **Vérifié** : `node --check` sur les trois fichiers ; garde-fous 21/21 ; relance du
+  job sur les trois PR (HTTP 201).
+- **Complément** : `check-cms-drift.mjs` ne reprenait que sur une **exception réseau**, pas sur un
+  statut 5xx — or un 504 passerelle arrive comme **réponse**. Ce cas précis tombait donc dans le
+  `?(HTTP 504)` final sans aucune reprise. Corrigé en alignant `tableExists` sur les deux autres
+  scripts (test du 5xx, 5 essais).
+
+À noter : après relance, ces trois PR échouent de nouveau, mais **pour une autre
+raison** — leur code date du 15/10 et ne consomme pas les zones CMS ajoutées depuis
+(`contact_form_*`, `newsletter_*`, `destinations-*`). Le remède est un rebasage sur
+`main`, pas une modification du contrôle.
+
+## [2026-10-28] — Revue des PR : le filtrage par auteur est retiré (fin du goulot)
+
+Le seul moteur qui fusionne, `scripts/revue-jules.mjs`, ne voyait que les PR de Jules
+(`estPrDeJules` testait `/jules\.google\.com\/task/` dans le corps). Les PR des autres
+agents lui étaient **invisibles** : elles s'accumulaient sans jamais être proposées.
+
+- **Constat mesuré** : 45 PR ouvertes le 28/10, dont **33 de plus de 7 jours**.
+- **Corrigé** : `estPrDeJules` est remplacé par `proposable`, qui ne regarde plus
+  l'auteur mais l'état (`open`). Ce qui mérite une relecture humaine, c'est le
+  **contenu** — brouillon, CI rouge, conflit, fichiers sensibles — et ces règles
+  restent inchangées dans `recommander`. Les libellés ne mentionnent plus « Jules ».
+- **Sûreté préservée** : le script ne fusionne rien seul. Il propose (tâche
+  `agent_tasks`, `waiting_validation`), le fondateur valide dans le Poco, et
+  l'exécution **re-vérifie** au passage suivant que la PR n'a pas bougé (même commit,
+  toujours fusionnable, CI toujours verte). `--essai` n'écrit rien.
+- **Vérifié** : `--essai` sur les données réelles voit les 38 PR ouvertes (contre 1
+  seule PR de Jules auparavant) ; `vitest` 18/18 sur les règles ; `garde-fous` 21/21.
+
 ## [2026-10-28] — Signature APK : plus de release signée avec le keystore de debug public
 
 Constat mesuré, pas supposé. `keystore/heldonica-debug.keystore` est versionné dans un

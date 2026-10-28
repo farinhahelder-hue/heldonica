@@ -238,11 +238,18 @@ async function tableExists(url, key, table, essai = 1) {
     // Une coupure passagère faisait planter tout le contrôle sur une trace
     // brute : en CI, cela ressemblait à une dérive détectée alors que rien
     // n'avait été verifié. On réessaie, puis on l'annonce comme indéterminé.
-    if (essai < 3) {
-      await new Promise(r => setTimeout(r, 400 * essai));
+    if (essai < 5) {
+      await new Promise(r => setTimeout(r, 1500 * essai));
       return tableExists(url, key, table, essai + 1);
     }
     return { exists: true, rows: `?(réseau : ${e.cause?.code ?? 'échec'})` };
+  }
+  // Un 5xx (504 passerelle, surtout) arrive comme reponse, pas comme exception :
+  // sans ce test il tombait dans le `?(HTTP 504)` plus bas sans aucune reprise.
+  // C'est ce qui a fait echouer la CI le 2026-10-15.
+  if (r.status >= 500 && essai < 5) {
+    await new Promise(r => setTimeout(r, 1500 * essai));
+    return tableExists(url, key, table, essai + 1);
   }
   if (r.status === 200 || r.status === 206) {
     const cr = r.headers.get('content-range');
