@@ -59,14 +59,33 @@ export function BubbleToolbar({ onInsertVaultSpot }: BubbleToolbarProps) {
   }, [showLinkPrompt]);
 
   useEffect(() => {
+    let ticking = false;
+    let rafId: number | null = null;
+
+    // ⚡ Bolt Performance Optimization:
+    // What: Throttled scroll event listener using requestAnimationFrame.
+    // Why: Scroll events fire rapidly. Computing DOM calculations directly
+    //      blocks the main thread. rAF synchronizes updates with the render cycle.
+    // Impact: Reduces main thread blocking during fast scrolling in the admin panel.
+    const handleScroll = () => {
+      if (!ticking) {
+        rafId = window.requestAnimationFrame(() => {
+          updatePosition();
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+
     document.addEventListener('selectionchange', updatePosition);
     window.addEventListener('resize', updatePosition);
-    window.addEventListener('scroll', updatePosition, true);
+    window.addEventListener('scroll', handleScroll, true);
 
     return () => {
       document.removeEventListener('selectionchange', updatePosition);
       window.removeEventListener('resize', updatePosition);
-      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('scroll', handleScroll, true);
+      if (rafId) window.cancelAnimationFrame(rafId);
     };
   }, [updatePosition]);
 
