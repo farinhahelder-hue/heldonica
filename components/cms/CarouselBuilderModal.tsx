@@ -167,6 +167,7 @@ export default function CarouselBuilderModal({
             type="button"
             onClick={onClose}
             disabled={uploading}
+            aria-label="Fermer le générateur de carrousel"
             style={{
               border: 'none',
               background: 'none',
@@ -347,6 +348,7 @@ export default function CarouselBuilderModal({
                         type="button"
                         onClick={() => moveImage(index, -1)}
                         disabled={index === 0}
+                        aria-label="Monter l'image"
                         style={actionButton(index === 0)}
                       >
                         ↑
@@ -355,6 +357,7 @@ export default function CarouselBuilderModal({
                         type="button"
                         onClick={() => moveImage(index, 1)}
                         disabled={index === images.length - 1}
+                        aria-label="Descendre l'image"
                         style={actionButton(index === images.length - 1)}
                       >
                         ↓
