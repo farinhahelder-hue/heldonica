@@ -49,9 +49,22 @@ Ce déplacement n'est **pas committé** : le fichier porte la consigne explicite
 committer est sa décision. Le jour de la levée, il suffira de le remettre dans
 `supabase/migrations/` avec un horodatage postérieur — la consigne de son propre en-tête.
 
-**État** : `db push --dry-run` ne pousse plus que `20261028120000_rattachement_tables_legacy.sql`.
-L'application en base reste une **action humaine** (règle n°2) — à faire sur accord du
-propriétaire.
+**État : APPLIQUÉE le 2026-10-28.** `supabase db push --linked` a exécuté
+`20261028120000_rattachement_tables_legacy.sql` et l'a journalisée. Écart dépôt ↔ base :
+**0** (`migration list` : 209 appliquées des deux côtés, aucune orpheline).
+
+Contrôle après application, comparé à un relevé pris **avant** le push :
+
+| | avant | après |
+|---|---|---|
+| Colonnes (5 tables) | 9 / 14 / 5 / 7 / 16 | **9 / 14 / 5 / 7 / 16** |
+| Politiques RLS | 8 | **8** |
+| Lignes (`site_content`, `cms_seasons`, `cms_home_destinations`, `newsletter_subscribers`, `travel_requests`) | 55 / 14 / 4 / 2 / 2 | **55 / 14 / 4 / 2 / 2** |
+| `maintenance_mode` | `true` | **`true`** |
+
+Rien n'a bougé : la migration était bien un no-op sur la base vivante, elle n'a fait que
+**journaliser** la version. `check:cms-drift` : aucune dérive. Règle n°4 intacte —
+`/destinations/paris` → 307 → `/maintenance` → HTTP 200.
 
 ## [2026-10-28] — Contrôle CMS : la lecture des zones survit à une panne passerelle
 
