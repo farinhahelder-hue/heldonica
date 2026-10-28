@@ -2,6 +2,53 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-27 ter] — Briques « photo → contenu » : trois inventions retirées
+
+Constat de départ : le propriétaire a des années de photos (Google Photos) et veut
+en faire du contenu. En vérifiant le chemin existant avant de le brancher, trois
+endroits se sont révélés **inventer** — contraires à la règle n°1.
+
+- **`lib/cms-photo-interview.ts` — les « indices visuels » n'étaient pas vus.**
+  `generatePhotoInterviewQuestions` est une fonction **pure, sans appel vision** :
+  elle poussait pourtant `'Lumière naturelle & cadrage de terrain'` en dur, donc
+  affirmait une observation sur une image jamais regardée. Sans analyse, la liste
+  est désormais **vide** ; les observations réelles arrivent par le paramètre
+  `visualClues`. La synthèse fabriquait aussi des phrases d'ambiance
+  (« À `<lieu>`, on s'est posés un moment pour absorber le lieu. ») : le duo se
+  voyait attribuer une action absente de ses réponses. Retirées — le paragraphe ne
+  contient plus que ses réponses, dans leur ordre. Idem pour l'anecdote de repli
+  (« Halte vécue à … ») et le lieu « Lieu vérifié ». La **date** des blocs suggérés
+  venait de `new Date()` : elle datait du jour de rédaction une photo prise deux ans
+  plus tôt — un faux qui a la forme d'une preuve. Elle n'est posée que si elle est
+  connue (EXIF ou saisie).
+- **`app/api/cms/import-trip/route.ts` — le bouton « Reconstituer Carnet » rédigeait
+  sans matière.** La route demandait « un carnet de 1000 à 1200 mots » sans lui
+  fournir **aucune photo ni aucun fait vérifié** : seulement la destination, des
+  noms d'étapes et le **nombre** de photos. Elle inventait donc le récit, et
+  produisait un brouillon d'apparence finie impossible à trier ensuite. Sans notes
+  vécues, elle prépare maintenant un **squelette** (titre de travail, structure,
+  balises `[À TOI : …]` qui disent quoi raconter) ; avec des notes, elle ne rédige
+  qu'à partir d'elles et laisse des balises pour ce qui manque. La réponse porte
+  `squelette: true` pour que l'écran le dise. `photosCount` est retiré : il n'a
+  jamais servi qu'à habiller le prompt.
+- **`app/panel-manager/photos/page.tsx`** passait
+  `notes: 'Photos importées depuis Google Photos'` — un texte de remplissage
+  présenté comme du vécu. Retiré ; le message de fin distingue « squelette à
+  remplir » de « carnet ».
+- **`app/api/cms/photos/interview/route.ts`** accepte et transmet `visualClues`,
+  pour que l'analyse réelle (ex. `/api/cms/ai-vision`, qui envoie vraiment l'image
+  à Gemini) puisse nourrir l'interview.
+
+**Vérifié** : 1118 tests verts (136 fichiers), `tsc --noEmit` propre, ESLint propre,
+garde-fous `check:erreurs-avalees`, `check:content-coherence`, `check:brand-sync`,
+`check:api-auth` OK. 8 tests ajoutés
+(`__tests__/lib/cms-photo-interview-sans-invention.test.ts`) ; l'ancien test
+exigeait la phrase d'ambiance fabriquée (« Crête de Stoos »), il est mis à jour.
+
+**Reste à faire (non fait ici)** : brancher `/api/cms/ai-vision` sur l'interview
+pour que les questions parlent de la photo réelle ; configurer les 3 variables
+Google Photos Picker ; porte web `/ajouter` ; porte Android.
+
 ## [2026-10-27 bis] — Lot emoji, périmètre administration : 70 emojis retirés de 32 fichiers
 
 La décision #682 (« supprimer TOUS les emojis ») tranche ce que l'audit du 21/10
