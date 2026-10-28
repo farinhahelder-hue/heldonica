@@ -54,11 +54,13 @@ if (iSigning !== -1) {
     }
     const bloc = src.slice(iRelease, k + 1)
 
-    // 1. Aucune mention du keystore de debug dans la signature de release.
-    if (/heldonica-debug\.keystore/.test(bloc)) {
+    // 1. Aucun repli sur le keystore de debug dans la signature de release —
+    //    ni par le fichier, ni par le nom de configuration Gradle.
+    if (/heldonica-debug\.keystore|getByName\(\s*"debug"\s*\)/.test(bloc)) {
       erreurs.push(
-        'signingConfigs.release référence heldonica-debug.keystore : une release ' +
-          'signée avec le keystore de debug public est falsifiable.'
+        'signingConfigs.release référence le keystore de debug (fichier ou ' +
+          'getByName("debug")) : une release signée avec la clé publique du dépôt ' +
+          'est falsifiable.'
       )
     }
 
@@ -70,17 +72,34 @@ if (iSigning !== -1) {
       )
     }
 
-    // 3. Le keystore de release doit être exigé, pas optionnel : un repli silencieux
-    //    est ce qui a produit les 7 APK falsifiables. On attend une garde explicite.
-    const garde =
-      /throw\s+GradleException|GradleException\(|error\(|check\(/.test(bloc)
-    if (!garde) {
+    // 3. La signature de release doit être conditionnelle, jamais assignée
+    //    inconditionnellement : une config vide ferait échouer packageRelease
+    //    plutôt que de produire un APK non signé.
+    if (!/signingConfig\s*=\s*if\s*\(/.test(src)) {
       erreurs.push(
-        'signingConfigs.release n\'échoue pas quand le keystore de release manque : ' +
-          'un repli silencieux peut réintroduire la signature par le keystore de debug.'
+        'buildTypes.release assigne signingConfig sans condition : une config de ' +
+          'release vide fait échouer :app:packageRelease au lieu de produire un APK ' +
+          'non signé en validation.'
       )
     }
   }
+}
+
+// 4. Le fichier doit porter une garde FERMÉE : construire une release sans
+//    keystore dédié échoue, sauf échappatoire explicite et nommée.
+const aGarde = /GradleException/.test(src)
+const aEchappatoire = /allowUnsignedRelease/.test(src)
+if (!aGarde) {
+  erreurs.push(
+    'Aucune garde fermée (GradleException) : un repli silencieux peut réintroduire ' +
+      'la signature par le keystore de debug.'
+  )
+}
+if (!aEchappatoire) {
+  erreurs.push(
+    'Aucune échappatoire explicite (allowUnsignedRelease) : le build de validation ' +
+      'de CI ne peut pas produire un APK non signé.'
+  )
 }
 
 if (erreurs.length) {
