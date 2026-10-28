@@ -565,6 +565,32 @@ ext build compile désormais 163/163 pages statiques avec succès.
   sections papier sans variante sombre, et `ThemeToggle` n'est rendu nulle part
   côté public. On suit la référence plutôt que d'inventer un traitement isolé.
 
+## [2026-10-20] — Connexion au CMS par compte Google (propriétaire uniquement)
+
+Première brique du remplacement du mot de passe partagé sur le téléphone : au lieu
+d'un secret unique recopié sur chaque appareil, l'identité devient le **compte Google
+du propriétaire**. Le mot de passe reste en place comme voie de secours — refuser une
+connexion Google ne doit jamais enfermer le propriétaire hors de son site.
+
+- **Nouveau** `lib/cms-google-signin.ts` : vérifie un jeton d'identité Google
+  (signature, audience, expiration via `google-auth-library`, déjà présent) **et**
+  l'adresse autorisée. Sans ce second contrôle, n'importe quel compte Google entrerait.
+- **Nouvelle route** `POST /api/cms/auth/google` : reçoit `{ idToken }`, vérifie,
+  puis émet la session CMS habituelle (cookie 8 h). Bornée à 10 tentatives/minute
+  par IP ; le middleware la laisse passer, c'est le jeton qui fait office de preuve.
+- **2FA** : celle du compte Google, appliquée en amont à l'émission du jeton. On ne
+  la refait pas ici.
+- **Configuration** : `GOOGLE_SIGNIN_CLIENT_ID` (repli sur `GOOGLE_PHOTOS_CLIENT_ID`)
+  et `CMS_ALLOWED_EMAIL` (une seule adresse). Sans les deux, la route répond 503.
+- **Refus générique** : un échec ne dit jamais au visiteur quelle adresse est attendue.
+- **Tests** : 10 cas sur le vrai module (seul l'appel réseau à Google est simulé) —
+  mutation vérifiée, désactiver le contrôle d'adresse fait bien échouer la suite.
+- **Reste à faire (action humaine)** : `keystore/heldonica-debug.keystore` est
+  versionné et son mot de passe est en clair dans `build.gradle.kts` (dépôt public) :
+  les APK de release sont donc signés par une clé publique. Un keystore de release
+  privé est requis **avant** d'enregistrer l'empreinte du client OAuth Android.
+
+
 ## [2026-10-20] — Direction artistique « Carnet de route imprimé » (branche `agent/gemini/design-organique-humain`)
 
 - **Papier coton chaud & grain analogique (`app/globals.css`)** : abandon des fonds blancs cliniques (`#FFFFFF`) et gris froids (`stone-50`) au profit d'un papier coton ivoire chaud (`#F7F3EC`) et sable (`#EFE9DF`), d'une encre chaude (`#2A2522`), d'un grain papier SVG subtil (`feTurbulence` à `opacity: 0.024`) et de titres `Playfair Display` en graisse régulière (`font-weight: 400`) façon revue imprimée (*Kinfolk* / *Cereal* / *Bouts du Monde*).
