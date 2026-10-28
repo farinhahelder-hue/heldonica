@@ -2,6 +2,24 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-28] — Revue des PR : le filtrage par auteur est retiré (fin du goulot)
+
+Le seul moteur qui fusionne, `scripts/revue-jules.mjs`, ne voyait que les PR de Jules
+(`estPrDeJules` testait `/jules\.google\.com\/task/` dans le corps). Les PR des autres
+agents lui étaient **invisibles** : elles s'accumulaient sans jamais être proposées.
+
+- **Constat mesuré** : 45 PR ouvertes le 28/10, dont **33 de plus de 7 jours**.
+- **Corrigé** : `estPrDeJules` est remplacé par `proposable`, qui ne regarde plus
+  l'auteur mais l'état (`open`). Ce qui mérite une relecture humaine, c'est le
+  **contenu** — brouillon, CI rouge, conflit, fichiers sensibles — et ces règles
+  restent inchangées dans `recommander`. Les libellés ne mentionnent plus « Jules ».
+- **Sûreté préservée** : le script ne fusionne rien seul. Il propose (tâche
+  `agent_tasks`, `waiting_validation`), le fondateur valide dans le Poco, et
+  l'exécution **re-vérifie** au passage suivant que la PR n'a pas bougé (même commit,
+  toujours fusionnable, CI toujours verte). `--essai` n'écrit rien.
+- **Vérifié** : `--essai` sur les données réelles voit les 38 PR ouvertes (contre 1
+  seule PR de Jules auparavant) ; `vitest` 18/18 sur les règles ; `garde-fous` 21/21.
+
 ## [2026-10-28] — Signature APK : plus de release signée avec le keystore de debug public
 
 Constat mesuré, pas supposé. `keystore/heldonica-debug.keystore` est versionné dans un
