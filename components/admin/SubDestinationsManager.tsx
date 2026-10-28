@@ -194,10 +194,20 @@ export default function SubDestinationsManager() {
                   <td className="p-4 text-sm text-stone-600 max-w-xs truncate">{item.teaser}</td>
                   <td className="p-4">
                     <div className="flex items-center gap-2">
-                      <button onClick={() => { setIsCreating(false); setEditingItem(item); }} className="p-2 text-blue-600 hover:bg-blue-50 rounded-md">
+                      <button
+                        onClick={() => { setIsCreating(false); setEditingItem(item); }}
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-md"
+                        title="Edit"
+                        aria-label="Edit"
+                      >
                         <Edit2 size={16} />
                       </button>
-                      <button onClick={() => handleDelete(item.id!)} className="p-2 text-red-600 hover:bg-red-50 rounded-md">
+                      <button
+                        onClick={() => handleDelete(item.id!)}
+                        className="p-2 text-red-600 hover:bg-red-50 rounded-md"
+                        title="Delete"
+                        aria-label="Delete"
+                      >
                         <Trash2 size={16} />
                       </button>
                     </div>

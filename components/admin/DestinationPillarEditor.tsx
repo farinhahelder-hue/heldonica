@@ -222,6 +222,8 @@ export default function DestinationPillarEditor() {
                                 setFormData({...formData, intro: newIntro});
                               }}
                               className="p-2 text-red-500 hover:bg-red-50 rounded-lg self-start"
+                              title="Delete"
+                              aria-label="Delete"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -249,6 +251,8 @@ export default function DestinationPillarEditor() {
                                 setFormData({...formData, itinerary: newItin});
                               }}
                               className="absolute top-4 right-4 p-1.5 text-red-500 hover:bg-red-100 rounded-md"
+                              title="Delete"
+                              aria-label="Delete"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
@@ -332,6 +336,8 @@ export default function DestinationPillarEditor() {
                                 setFormData({...formData, faq: newFaq});
                               }}
                               className="p-2 text-red-500 hover:bg-red-100 rounded-lg mt-1"
+                              title="Delete"
+                              aria-label="Delete"
                             >
                               <Trash2 className="w-4 h-4" />
                             </button>
