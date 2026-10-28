@@ -93,6 +93,22 @@ describe('check-cms-migrations — toute table référencée doit être migrée'
     expect([...migrated].sort()).toEqual(['a_table', 'b_table', 'c_table']);
   });
 
+  it('compte les vues comme des objets migrés (destinations_public)', () => {
+    // Une vue se lit par .from() comme une table et a sa migration : sans cette
+    // reconnaissance, toute vue référencée passait pour une table non migrée.
+    const dir = join(root, 'cas-6');
+    mkdirSync(join(dir, 'migrations'), { recursive: true });
+    writeFileSync(
+      join(dir, 'migrations', '0002.sql'),
+      [
+        'CREATE OR REPLACE VIEW d_public AS SELECT 1;',
+        'CREATE VIEW public.e_public AS SELECT 1;',
+      ].join('\n')
+    );
+    const migrated = collectMigratedTables(join(dir, 'migrations'));
+    expect([...migrated].sort()).toEqual(['d_public', 'e_public']);
+  });
+
   it('protège le dépôt : aucune table référencée sans migration', () => {
     const referenced = collectReferencedTables();
     const migrated = collectMigratedTables();
