@@ -28,22 +28,58 @@ export async function POST(req: NextRequest) {
 
   try {
     const body: ImportTripRequest = await req.json();
-    const { destination, stages = [], photosCount = 50, mapsUrl, notes, coordinates = [] } = body;
+    const { destination, stages = [], mapsUrl, notes, coordinates = [] } = body;
 
     if (!destination) {
       return NextResponse.json({ error: 'Destination requise' }, { status: 400 });
     }
 
-    const stageList = stages.length > 0 ? stages.join(', ') : 'Itinéraire complet sur les routes secondaires';
+    // Ce que la route sait réellement du voyage : les faits fournis. Tout le
+    // reste est inconnu, et un carnet rédigé sur un lieu sans le vécu qui va
+    // avec est une fiction — elle a la forme d'un article fini, ce qui la rend
+    // indétectable ensuite. La route ne rédige donc que ce qu'on lui donne :
+    // des notes vécues. Sans elles, elle prépare un squelette à remplir.
+    const notesVecues = (notes || '').trim();
+    const stagesFournis = stages.map((s) => s.trim()).filter(Boolean);
+    const aDesNotes = notesVecues.length > 0;
+    const aDesEtapes = stagesFournis.length > 0;
+    const aDeLaMatiere = aDesNotes || aDesEtapes;
+
+    const stageList = aDesEtapes
+      ? stagesFournis.join(', ')
+      : 'Étapes non renseignées';
+
+    // Les étapes et coordonnées transmises sont des faits : on les reprend pour
+    // ancrer le texte, sans rien y ajouter. Un point sans description n'en reçoit
+    // pas : la route se tait plutôt que de nommer un lieu qu'elle ne connaît pas.
+    const faitsGeographiques = coordinates
+      .map((c) => (c.description ? `- ${c.name} : ${c.description}` : `- ${c.name}`))
+      .join('\n');
 
     const prompt = `${HELDONICA_B2C_PROMPT}
 
-Rédige un carnet de route complet (1000 à 1200 mots) basé sur les données réelles de notre voyage en ${destination}.
-Étapes GPS identifiées : ${stageList}.
-${notes ? `Notes vécues du terrain : ${notes}` : ''}
-${mapsUrl ? `Lien de la carte Google Maps : ${mapsUrl}` : ''}
-Nombre de clichés et vidéos capturés : ${photosCount}.
-Période : voyages vécus en 2025 et 2026.
+${aDeLaMatiere
+  ? `Rédige un carnet de route à partir des faits ci-dessous, et SEULEMENT d'eux.
+Destination : ${destination}.
+Étapes : ${stageList}.
+${aDesNotes ? `Notes vécues du terrain (la seule source du récit) :\n---\n${notesVecues}\n---` : ''}
+${faitsGeographiques ? `Points identifiés :\n${faitsGeographiques}` : ''}
+${mapsUrl ? `Carte : ${mapsUrl}` : ''}
+
+Tout ce qui n'est pas dans ces faits est inconnu : ne l'écris pas. Si le récit
+manque d'un élément (une odeur, un prix, une rencontre, une difficulté), laisse
+une balise [À TOI : ce qu'il faut préciser] à l'endroit exact où il manque —
+c'est le duo fondateur qui la remplira. N'invente aucun prix, aucune durée,
+aucune heure, aucun nom de lieu, aucune sensation.`
+  : `Tu prépares un SQUELETTE de carnet de route, pas un carnet.
+Destination : ${destination}.
+Étapes : ${stageList}.
+AUCUNE note vécue n'a été fournie : tu ne sais rien de ce voyage. Tu ne rédiges
+donc AUCUN paragraphe de récit, aucune description de paysage, aucune anecdote.
+Tu produis seulement la structure à remplir : un titre de travail, un slug, un
+résumé à trous, et une liste de sections avec, sous chacune, une balise
+[À TOI : …] qui dit précisément ce que le duo doit raconter à cet endroit.
+La balise dit quoi écrire, jamais quoi ressentir.`}
 
 RÈGLE D'OR : "On n'invente rien. On raconte ce qu'on a vécu."
 PRONOMS OBLIGATOIRES : "on" (duo), "tu" (lecteur). Interdiction absolue de "je", "nous", "les voyageurs", "les touristes".
@@ -157,6 +193,10 @@ Retourne UNIQUEMENT un objet JSON strict :
           meta_description: article.meta_description,
           instagram_caption: article.instagram_caption,
         },
+        // `squelette` : aucune note vécue n'a été fournie, le contenu est une
+        // structure à remplir, pas un carnet. L'appelant doit le dire à l'écran,
+        // sinon un squelette passe pour un article fini.
+        squelette: !aDeLaMatiere,
         auditScore: audit.score,
         auditPassed: audit.passed,
         provider: aiRes.provider,

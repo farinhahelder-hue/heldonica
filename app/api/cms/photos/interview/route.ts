@@ -35,6 +35,9 @@ export async function POST(req: Request) {
       imageUrl,
       location: body.location,
       date: body.date,
+      // Indices issus d'une analyse visuelle réelle (ex. /api/cms/ai-vision).
+      // Absents, aucune observation n'est affirmée sur la photo.
+      visualClues: Array.isArray(body.visualClues) ? body.visualClues : undefined,
     });
 
     return NextResponse.json({ success: true, ...questions });

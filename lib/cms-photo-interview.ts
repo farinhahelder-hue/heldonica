@@ -45,28 +45,39 @@ export interface PhotoInterviewSynthesis {
 
 /**
  * Génère 3 questions d'interview ciblées à partir d'une photo et de son contexte.
+ *
+ * Le lieu et la date sont des faits fournis (EXIF, formulaire) : ils servent de
+ * contexte. Les indices visuels, eux, ne peuvent venir que d'une analyse réelle
+ * de l'image (cf. /api/cms/ai-vision) — sans elle, la liste reste vide, car
+ * affirmer quoi que ce soit sur une photo qu'on n'a pas regardée est une invention.
  */
 export function generatePhotoInterviewQuestions(input: {
   imageUrl: string;
   location?: string;
   date?: string;
+  /** Ce que l'analyse visuelle a réellement observé. Absent = rien n'est affirmé. */
+  visualClues?: string[];
 }): PhotoInterviewQuestions {
-  const loc = input.location?.trim() || 'ce lieu';
-  const hasDate = Boolean(input.date?.trim());
+  const loc = input.location?.trim() || '';
+  const date = input.date?.trim() || '';
+  const hasDate = Boolean(date);
 
-  // Indices visuels contextuels déduits ou par défaut
   const visualClues: string[] = [];
-  if (input.location) visualClues.push(`Localisation repérée : ${input.location}`);
-  if (input.date) visualClues.push(`Date horodatée : ${input.date}`);
-  visualClues.push('Lumière naturelle & cadrage de terrain');
+  if (loc) visualClues.push(`Localisation repérée : ${loc}`);
+  if (hasDate) visualClues.push(`Date horodatée : ${date}`);
+  if (input.visualClues?.length) {
+    visualClues.push(...input.visualClues.map((c) => c.trim()).filter(Boolean));
+  }
+
+  const ou = loc ? `À ${loc}` : 'Ici';
 
   return {
     imageUrl: input.imageUrl,
-    location: input.location,
-    date: input.date,
+    location: loc || undefined,
+    date: date || undefined,
     visualClues,
     questions: {
-      sensory: `À ${loc}${hasDate ? ` (${input.date})` : ''}, quel son ou quelle odeur dominait à cet instant précis (brise marine, cloches d'alpage, café noir, bois mouillé) ?`,
+      sensory: `${ou}${hasDate ? ` (${date})` : ''}, quel son ou quelle odeur dominait à cet instant précis (brise marine, cloches d'alpage, café noir, bois mouillé) ?`,
       concrete: `Quel détail pratique avez-vous constaté sur place (prix du café/billet en €, état du sentier, foule ou solitude) ?`,
       counterpoint: `Qu'avez-vous moins aimé ou trouvé rude à cet endroit (chaleur de la vallée, vent froid, attente, accès raide) ?`,
     },
@@ -99,7 +110,9 @@ export function synthesizePhotoInterview(
 
   const loc = meta?.location ? meta.location.trim() : '';
 
-  // 1. Synthèse de l'anecdote pour PhotoEvidenceBlock (max 200 caractères)
+  // 1. Synthèse de l'anecdote pour PhotoEvidenceBlock (max 200 caractères).
+  // Rien n'est ajouté : sans réponse du duo, l'anecdote reste vide. Une phrase
+  // de repli (« Halte vécue à … ») raconterait un vécu que personne n'a eu.
   let anecdote = '';
   if (rawSensory && rawConcrete) {
     anecdote = `${rawSensory.replace(/\.$/, '')}. ${rawConcrete}`;
@@ -107,27 +120,22 @@ export function synthesizePhotoInterview(
     anecdote = rawSensory;
   } else if (rawConcrete) {
     anecdote = rawConcrete;
-  } else {
-    anecdote = loc ? `Halte vécue à ${loc}.` : 'Halte vécue sur le terrain.';
   }
 
-  // Tronquer proprement à 200 caractères max
-  if (anecdote.length > 195) {
-    anecdote = anecdote.slice(0, 192).trim() + '...';
+  // Tronquer à la limite de la carte, sans couper un mot en deux.
+  if (anecdote.length > 200) {
+    const coupe = anecdote.slice(0, 197);
+    const dernierEspace = coupe.lastIndexOf(' ');
+    anecdote = `${(dernierEspace > 120 ? coupe.slice(0, dernierEspace) : coupe).trim()}…`;
   }
 
-  // 2. Synthèse du paragraphe immersif pour TextBlock
+  // 2. Paragraphe immersif : uniquement les réponses du duo, dans leur ordre.
+  // Aucune phrase de liaison inventée (« on s'est posés un moment ») : elle
+  // attribuerait au duo une action que ses réponses ne contiennent pas.
   const phrases: string[] = [];
-  if (loc) {
-    phrases.push(`À ${loc}, on s'est posés un moment pour absorber le lieu.`);
-  } else {
-    phrases.push(`On a pris le temps d'observer sans rien presser.`);
-  }
-
   if (rawSensory) {
     phrases.push(rawSensory.endsWith('.') ? rawSensory : `${rawSensory}.`);
   }
-
   if (rawConcrete) {
     phrases.push(rawConcrete.endsWith('.') ? rawConcrete : `${rawConcrete}.`);
   }
@@ -150,15 +158,17 @@ export function synthesizePhotoInterview(
   const brandScore = lint.score;
   const isBrandConform = lint.passed && forbiddenDetected.length === 0;
 
-  // 5. Blocs suggérés prêts pour BlockCanvas
+  // 5. Blocs suggérés prêts pour BlockCanvas. La date n'est posée que si elle est
+  // connue (EXIF ou saisie) : `new Date()` daterait du jour de la rédaction une
+  // photo prise deux ans plus tôt — un faux qui a la forme d'une preuve.
   const suggestedBlocks: PhotoInterviewSynthesis['suggestedBlocks'] = [
     {
       type: 'photo_evidence',
       data: {
         imageUrl: meta?.imageUrl || '',
-        location: loc || 'Lieu vérifié',
-        date: meta?.date || new Date().toISOString().split('T')[0],
-        anecdote: anecdote,
+        location: loc,
+        date: meta?.date || '',
+        anecdote,
       },
     },
     {
