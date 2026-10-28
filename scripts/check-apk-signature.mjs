@@ -102,6 +102,32 @@ if (!aEchappatoire) {
   )
 }
 
+// 5. Le verrou de publication doit exister dans le workflow, et ne pas être
+//    confondu avec le build de validation (qui, lui, reste non signé).
+const WF_BUILD = '.github/workflows/build-apk.yml'
+const WF_RELEASE = '.github/workflows/release-apk.yml'
+if (fs.existsSync(WF_BUILD)) {
+  const wf = fs.readFileSync(WF_BUILD, 'utf8')
+  if (!/inputs\.publier/.test(wf)) {
+    erreurs.push(
+      `${WF_BUILD} : le verrou de publication ne dépend plus de l'entrée ` +
+        '`publier`. Rien n\'empêche alors de publier un APK non signé.'
+    )
+  }
+  if (!/RELEASE_KEYSTORE_BASE64/.test(wf)) {
+    erreurs.push(`${WF_BUILD} : le secret RELEASE_KEYSTORE_BASE64 n'est plus requis.`)
+  }
+}
+if (fs.existsSync(WF_RELEASE)) {
+  const wf = fs.readFileSync(WF_RELEASE, 'utf8')
+  if (!/publier:\s*true/.test(wf)) {
+    erreurs.push(
+      `${WF_RELEASE} : l'appel de build ne pose plus \`publier: true\` — le verrou ` +
+        'de publication de build-apk.yml ne se déclencherait jamais.'
+    )
+  }
+}
+
 if (erreurs.length) {
   console.log('\n  Signature de release non sûre :\n')
   for (const e of erreurs) console.log(`    ✗ ${e}`)

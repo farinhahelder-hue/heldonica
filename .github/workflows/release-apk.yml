@@ -95,12 +95,19 @@ jobs:
             exit 1
           fi
           SORTIE="heldonica-${TAG}.apk"
-          # Le nom depend de la signature : app-release.apk si le keystore de
-          # release est pose, app-release-unsigned.apk sinon (jamais publie ici,
-          # le verrou dur de build-apk.yml l'a deja refuse).
-          APK=$(ls apk/app-release*.apk 2>/dev/null | head -1)
-          if [ -z "$APK" ]; then
-            echo "::error::Aucun APK dans l'artefact — rien ne sera publie."
+          # Nom exact, jamais un motif : `app-release-unsigned.apk` trie AVANT
+          # `app-release.apk` (le tiret precede le point), donc un `head -1` sur un
+          # joker choisirait l'APK NON SIGNE si les deux coexistaient.
+          APK="apk/app-release.apk"
+          if [ ! -f "$APK" ]; then
+            echo "::error::APK signe absent (apk/app-release.apk). L'artefact ne contient qu'un APK non signe — publication refusee."
+            ls -la apk/ || true
+            exit 1
+          fi
+          # Second verrou : un APK non signe ne se publie pas, meme s'il avait
+          # survecu au verrou de build-apk.yml.
+          if [ -f apk/app-release-unsigned.apk ]; then
+            echo "::error::APK non signe present dans l'artefact — publication refusee."
             exit 1
           fi
           mv "$APK" "$SORTIE"
