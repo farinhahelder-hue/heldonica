@@ -2,6 +2,57 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-28] — Dérive de schéma : 5 tables legacy rattachées à une migration
+
+Cinq tables étaient lues par le code (`.from('…')`) mais n'avaient **aucun** `CREATE TABLE`
+dans `supabase/migrations/` : `cms_home_destinations`, `cms_seasons`, `site_content`,
+`newsletter_subscribers`, `travel_requests`. Créées à la main — le motif « script jetable »
+que `AGENTS.md` interdit. Une base reconstruite depuis le dépôt les aurait perdues, dont
+**deux qui portent des données personnelles** (inscriptions, demandes de Travel Planning).
+
+- **Migration `20261028120000_rattachement_tables_legacy.sql`** : le schéma n'est pas déduit
+  du code, il est **relevé à l'identique en production** (`information_schema.columns`,
+  `pg_constraint`, `pg_indexes`, `pg_policies`). Colonnes, types, valeurs par défaut,
+  contraintes, index et **politiques RLS** reproduits — y compris le refus de lecture `anon`
+  sur `travel_requests` et `newsletter_subscribers`.
+- **Sans effet sur la base vivante** : `IF NOT EXISTS` partout. Vérifié en **transaction
+  annulée** (`BEGIN … ROLLBACK`) : empreinte md5 des colonnes et des politiques **identique
+  avant/après** pour les 5 tables. Et le DDL, rejoué dans un schéma jetable (base vide, où
+  `IF NOT EXISTS` ne masque plus rien), reproduit exactement les **9 / 14 / 5 / 7 / 16**
+  colonnes, **11 index**, **10 contraintes** et **8 politiques** de la production.
+- **`LEGACY_UNMIGRATED` est vide.** La 6ᵉ entrée, `destinations_public`, était un **faux
+  positif** : ce n'est pas une table mais une **vue**, déjà migrée (4 fichiers, le dernier
+  `20261022200000`). La cause est corrigée : `collectMigratedTables` reconnaît désormais
+  `CREATE VIEW`, avec un test unitaire dédié.
+
+### Piège désamorcé : `db push --include-all` aurait levé le mode maintenance
+
+`supabase db push` **échouait** avant ce lot, et pour une raison qui n'a rien à voir avec le
+code : `supabase/migrations/20261026140000_levee_mode_maintenance.sql` — un fichier **rédigé
+mais volontairement non appliqué** (règle n°4) — est horodaté *avant* des migrations déjà
+appliquées. Le CLI refuse alors tout `db push` (« Found local migration files to be inserted
+before the last migration on remote database ») et **suggère `--include-all`**.
+
+Or `--include-all` **pousse ce fichier aussi** : vérifié en dry-run, il aurait appliqué
+`20261026140000_levee_mode_maintenance.sql`, c'est-à-dire `maintenance_mode = 'false'`.
+**La suggestion du CLI était le piège.** Suivre l'indication aurait levé la maintenance sans
+décision du propriétaire.
+
+Le fichier de levée a été **parqué dans `supabase/archive/`** dans cet espace de travail — la
+convention de `EMERGENCY_FIX_20260602.sql`, dont le rôle est précisément de ne jamais être
+rejoué. Le CLI **ignore** `supabase/archive/` : `db push` ne voit plus que la migration de
+rattachement. **Contenu inchangé** (md5 `5d05d6677c2e54c2791cf0784129b936`, identique avant et
+après le déplacement).
+
+Ce déplacement n'est **pas committé** : le fichier porte la consigne explicite de rester hors de
+`main`, et il touche la règle n°4 (le mode maintenance est piloté par le propriétaire). Le
+committer est sa décision. Le jour de la levée, il suffira de le remettre dans
+`supabase/migrations/` avec un horodatage postérieur — la consigne de son propre en-tête.
+
+**État** : `db push --dry-run` ne pousse plus que `20261028120000_rattachement_tables_legacy.sql`.
+L'application en base reste une **action humaine** (règle n°2) — à faire sur accord du
+propriétaire.
+
 ## [2026-10-28] — Contrôle CMS : la lecture des zones survit à une panne passerelle
 
 Le 2026-10-15, « Zones et tables CMS » a échoué sur les PR **#596, #597 et #599**
