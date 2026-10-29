@@ -48,11 +48,30 @@ export interface LinkMarkDef {
   href: string;
 }
 
-export interface RichTextBlock {
-  _type: 'block';
-  children: TextSpan[];
-  markDefs?: LinkMarkDef[];
-}
+export type RichTextBlock =
+  | {
+      _type: 'block';
+      children: TextSpan[];
+      markDefs?: LinkMarkDef[];
+      style?: 'normal' | 'h1' | 'h2' | 'h3' | 'h4' | 'blockquote';
+    }
+  | {
+      _type: 'image';
+      url: string;
+      alt?: string;
+      caption?: string;
+      hotspot?: ImageHotspot;
+    }
+  | {
+      _type: 'code';
+      language?: string;
+      code: string;
+    }
+  | {
+      _type: 'list';
+      style: 'bullet' | 'number';
+      items: TextSpan[][];
+    };
 
 // 1. Bloc Texte libre & paragraphe (rich text Portable Text + fallback legacy)
 export interface TextBlock extends BaseBlock {

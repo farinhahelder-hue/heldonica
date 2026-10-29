@@ -2256,11 +2256,11 @@ function HeadingEditor({ block, onUpdate }: { block: HeadingBlock; onUpdate: (p:
 /* Rich Text Editor "Portable Text" à la Sanity pour les blocs texte  */
 /* ------------------------------------------------------------------ */
 
-const plainToRich = (text: string): RichTextBlock[] =>
+const plainToRich = (text: string): TextRichBlock[] =>
   text.split('\n').map((t) => ({ _type: 'block', children: [{ text: t, marks: [] }] }));
 
 const richToPlain = (rt: RichTextBlock[]): string =>
-  rt.map((b) => b.children.map((c) => c.text).join('')).join('\n');
+  rt.filter((b): b is Extract<RichTextBlock, { _type: 'block' }> => b._type === 'block').map((b) => b.children.map((c) => c.text).join('')).join('\n');
 
 const markLabel: Record<TextMark, string> = {
   strong: 'Gras',
@@ -2282,9 +2282,11 @@ const markClasses = (c: TextSpan): string => {
   return cls.join(' ');
 };
 
+type TextRichBlock = Extract<RichTextBlock, { _type: "block" }>;
+
 function RichTextEditor({ block, onUpdate }: { block: TextBlock; onUpdate: (p: Partial<TextBlock>) => void }) {
-  const initial = block.richText ?? (block.content ? plainToRich(block.content) : [{ _type: 'block', children: [{ text: '', marks: [] }] }]);
-  const [rt, setRt] = useState<RichTextBlock[]>(initial);
+  const initial = (block.richText?.filter((b): b is TextRichBlock => b._type === 'block') ?? (block.content ? plainToRich(block.content) : [{ _type: 'block', children: [{ text: '', marks: [] }] }]));
+  const [rt, setRt] = useState<Array<Extract<RichTextBlock, { _type: "block" }>>>(initial);
   const [active, setActive] = useState<{ bi: number; si: number } | null>(null);
   const [editing, setEditing] = useState<{ bi: number; si: number } | null>(null);
   const [editValue, setEditValue] = useState('');

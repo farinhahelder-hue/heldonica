@@ -99,7 +99,7 @@ export function computeReadingMetrics(input: ReadingMetricsInput): ReadingMetric
           break;
         case 'text': {
           const richPlain = (block.richText || [])
-            .map((b) => b.children.map((c) => c.text).join(''))
+            .map((b) => (b as { children: { text: string }[] }).children.map((c) => c.text).join(''))
             .join('\n');
           const plain = block.content || richPlain || '';
           paragraphCount += plain.split(/\n\s*\n/).filter(Boolean).length;

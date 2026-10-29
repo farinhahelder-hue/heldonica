@@ -14,6 +14,7 @@ import type {
   VaultSpotBlock,
   PhotoEvidenceBlock,
   RichTextBlock,
+  TextSpan,
 } from '@/types/cms-blocks';
 
 /**
@@ -311,26 +312,43 @@ export function renderRichText(blocks: RichTextBlock[] | undefined | null): stri
   if (!blocks || blocks.length === 0) return '';
   return blocks
     .map((b) => {
-      const inner = b.children
+      if (b._type === 'image') {
+        return '<figure class="rich-image"><img src="' + escapeHtml(b.url) + '" alt="' + escapeHtml(b.alt || '') + '" loading="lazy" />' + (b.caption ? '<figcaption>' + escapeHtml(b.caption) + '</figcaption>' : '') + '</figure>';
+      }
+      if (b._type === 'code') {
+        return '<pre class="rich-code"><code>' + escapeHtml(b.code) + '</code></pre>';
+      }
+      if (b._type === 'list') {
+        const tag = b.style === 'number' ? 'ol' : 'ul';
+        const items = b.items.map((item) => {
+          const inner = item.map((c) => {
+            let out = escapeHtml(c.text || '');
+            if (c.marks.includes('link') && c.href) out = '<a href="' + escapeHtml(c.href) + '">' + out + '</a>';
+            return out;
+          }).join('');
+          return '<li>' + inner + '</li>';
+        }).join('');
+        return '<' + tag + ' class="rich-list">' + items + '</' + tag + '>';
+      }
+      const Tag = b.style === 'h1' ? 'h1' : b.style === 'h2' ? 'h2' : b.style === 'h3' ? 'h3' : b.style === 'h4' ? 'h4' : b.style === 'blockquote' ? 'blockquote' : 'p';
+      const inner = (b as { children: TextSpan[] }).children
         .map((c) => {
           let out = escapeHtml(c.text || '');
           if (c.marks.includes('link') && c.href) {
-            out = `<a href="${escapeHtml(c.href)}">${out}</a>`;
+            out = '<a href="' + escapeHtml(c.href) + '">' + out + '</a>';
           }
-          // Appliquer les marks de forme autour (hors link déjà géré)
-          const wrap: Array<{ open: string; close: string }> = [];
+          const wrap = [];
           if (c.marks.includes('strong')) wrap.push({ open: '<strong>', close: '</strong>' });
           if (c.marks.includes('em')) wrap.push({ open: '<em>', close: '</em>' });
           if (c.marks.includes('underline')) wrap.push({ open: '<u>', close: '</u>' });
           if (c.marks.includes('highlight')) wrap.push({ open: '<span class="rich-highlight">', close: '</span>' });
           if (c.marks.includes('code')) wrap.push({ open: '<code>', close: '</code>' });
-          if (c.marks.includes('blockquote')) wrap.push({ open: '<blockquote>', close: '</blockquote>' });
           let html = out;
           for (const w of wrap.reverse()) html = w.open + html + w.close;
           return html;
         })
         .join('');
-      return `<p>${inner}</p>`;
+      return '<' + Tag + '>' + inner + '</' + Tag + '>';
     })
     .join('\n');
 }
