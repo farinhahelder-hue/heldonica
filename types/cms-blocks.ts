@@ -240,6 +240,15 @@ export function createDefaultBlock(type: BlockType): CmsBlock {
 /**
  * Métadonnées de document (niveau page) à la Sanity : titre, slug, statut, date.
  */
+export interface DocumentRevision {
+  id: string;
+  createdAt: string; // ISO 8601
+  status: 'draft' | 'review' | 'published';
+  title: string;
+  blockCount: number;
+  snapshot: string; // JSON sérialisé des blocs
+}
+
 export interface DocumentMetadata {
   title: string;
   slug: string;
@@ -247,6 +256,7 @@ export interface DocumentMetadata {
   publishedAt?: string; // ISO 8601
   author?: string;
   excerpt?: string;
+  revisions?: DocumentRevision[];
 }
 
 export function createDefaultDocumentMetadata(): DocumentMetadata {
