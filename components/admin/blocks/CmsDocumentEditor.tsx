@@ -19,6 +19,7 @@ import {
   Maximize2,
   Minimize2,
 } from 'lucide-react';
+import { computeReadingMetrics } from '@/lib/cms-reading-metrics';
 import { BlockCanvas } from '@/components/admin/blocks/BlockCanvas';
 import { PreviewPane } from '@/components/admin/blocks/PreviewPane';
 import { CommandPalette } from '@/components/admin/blocks/CommandPalette';
@@ -46,6 +47,8 @@ export function CmsDocumentEditor({
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [splitView, setSplitView] = useState(true);
   const [internalSelectedId, setInternalSelectedId] = useState<string | null>(selectedBlockId ?? null);
+  const metrics = React.useMemo(() => computeReadingMetrics({ title: metadata.title, blocks }), [metadata.title, blocks]);
+  const [showShortcuts, setShowShortcuts] = useState(false);
 
   useEffect(() => {
     setInternalSelectedId(selectedBlockId ?? null);
@@ -170,9 +173,11 @@ export function CmsDocumentEditor({
               <option value="published">Publié</option>
             </select>
           </div>
-        </div>
-
-        <div className="flex items-center gap-2 w-full sm:w-auto">
+          <div className="hidden sm:flex items-center gap-3 text-[10px] text-stone-500 font-mono">
+            <span>{metrics.wordCount} mots</span>
+            <span>•</span>
+            <span>{metrics.readingTimeFormatted}</span>
+          </div>
           <button
             type="button"
             onClick={() => setSplitView((v) => !v)}
@@ -180,6 +185,14 @@ export function CmsDocumentEditor({
             title={splitView ? 'Plein écran éditeur' : 'Vue partagée'}
           >
             {splitView ? <Maximize2 size={16} /> : <Minimize2 size={16} />}
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowShortcuts(true)}
+            className="p-2 text-stone-600 hover:text-stone-900 hover:bg-stone-100 rounded-lg transition-colors"
+            title="Raccourcis clavier (?)"
+          >
+            <span className="text-xs font-bold">?</span>
           </button>
           <button
             type="button"
@@ -198,6 +211,22 @@ export function CmsDocumentEditor({
           >
             <CheckCircle2 size={14} />
             <span>Publier</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              const blob = new Blob([JSON.stringify({ metadata, blocks }, null, 2)], { type: 'application/json' });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = `${metadata.slug || 'carnet'}.json`;
+              a.click();
+              URL.revokeObjectURL(url);
+            }}
+            className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-xl transition-colors inline-flex items-center gap-1.5"
+            title="Exporter le carnet en JSON"
+          >
+            <span>⬇ JSON</span>
           </button>
           <button
             type="button"
@@ -324,6 +353,34 @@ export function CmsDocumentEditor({
               ))}
             </ul>
           )}
+        </div>
+      )}
+      {/* Modal raccourcis clavier */}
+      {showShortcuts && (
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center"
+          onClick={() => setShowShortcuts(false)}
+        >
+          <div className="absolute inset-0 bg-stone-900/60 backdrop-blur-sm" />
+          <div className="relative w-full max-w-md bg-white rounded-2xl shadow-2xl border border-stone-200 mx-4 p-5">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-sm font-bold text-stone-900 font-serif">Raccourcis clavier</h3>
+              <button
+                type="button"
+                onClick={() => setShowShortcuts(false)}
+                className="p-1 text-stone-400 hover:text-stone-700"
+              >
+                <X size={16} />
+              </button>
+            </div>
+            <ul className="space-y-2 text-xs text-stone-700">
+              <li className="flex justify-between"><span>Ouvrir commandes rapides</span><kbd className="bg-stone-100 px-1.5 py-0.5 rounded border border-stone-200">⌘K</kbd></li>
+              <li className="flex justify-between"><span>Annuler</span><kbd className="bg-stone-100 px-1.5 py-0.5 rounded border border-stone-200">⌘Z</kbd></li>
+              <li className="flex justify-between"><span>Rétablir</span><kbd className="bg-stone-100 px-1.5 py-0.5 rounded border border-stone-200">⌘⇧Z</kbd></li>
+              <li className="flex justify-between"><span>Astuce : sélectionner un bloc pour l'éditer</span><span className="text-stone-400">clic</span></li>
+              <li className="flex justify-between"><span>Fermer les modales</span><kbd className="bg-stone-100 px-1.5 py-0.5 rounded border border-stone-200">Esc</kbd></li>
+            </ul>
+          </div>
         </div>
       )}
     </div>
