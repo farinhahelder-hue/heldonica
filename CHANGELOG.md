@@ -13,8 +13,12 @@ enregistre déjà, sur données réelles.
   le 2026-09-03 sans aucun lecteur), et la file `waiting_validation`. Auth par session CMS.
   Aucune écriture : le geste du fondateur (valider/renvoyer) reste dans `/api/agent-tasks`,
   qui porte déjà la règle « une clé d'agent ne valide pas son propre travail ».
-- **Page `/admin/agents`** + composant `ConsoleAgents` : trois vues (à valider, fil
-  d'activité, gouvernance) et une fiche tâche avec PR, commit et timeline issue du journal.
+- **Console montée dans le CMS vivant** (`/panel-manager?section=console-agents`) +
+  composant `ConsoleAgents` : trois vues (à valider, fil d'activité, gouvernance) et une
+  fiche tâche avec PR, commit et timeline issue du journal. **Pas** sous `/admin/agents` :
+  la redirection permanente `/admin/:path*` → `/panel-manager` (next.config.js, posée en
+  avril) rend tout l'arbre `app/admin/*` inatteignable en production — vérifié sur
+  `www.heldonica.fr` (308). `/panel-manager` est l'interface que le fondateur utilise.
 - **`limit` borné à 1000** : l'API REST Supabase plafonne silencieusement à 1000 lignes ;
   au-delà, on croirait lire un journal complet qui ne l'est pas.
 - **L'erreur est nommée** : un journal vide et un journal en panne ne se ressemblent pas.
