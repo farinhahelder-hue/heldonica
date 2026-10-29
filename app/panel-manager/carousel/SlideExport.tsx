@@ -7,6 +7,17 @@ import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
 import { SlideData, HELDONICA_TOKENS, AspectRatio } from './tokens'
 
+function escapeHtml(str: string | undefined): string {
+  if (!str) return '';
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+
 interface SlideExportProps {
   slides: SlideData[]
   aspectRatio: AspectRatio
@@ -38,7 +49,7 @@ export default function SlideExport({
       <div style="
         width: ${targetWidth}px;
         height: ${targetHeight}px;
-        background-color: ${slide.backgroundColor || tokens.background};
+        background-color: ${escapeHtml(slide.backgroundColor || tokens.background)};
         position: relative;
         overflow: hidden;
         font-family: 'Inter', -apple-system, sans-serif;
@@ -47,7 +58,7 @@ export default function SlideExport({
           <div style="
             position: absolute;
             inset: 0;
-            background-image: url('${slide.image}');
+            background-image: url('${escapeHtml(slide.image)}');
             background-size: cover;
             background-position: center;
           ">
@@ -72,23 +83,23 @@ export default function SlideExport({
             font-family: 'Playfair Display', Georgia, serif;
             font-size: ${fontSizeTitle}px;
             font-weight: bold;
-            color: ${slide.textColor || tokens.text};
+            color: ${escapeHtml(slide.textColor || tokens.text)};
             margin: 0 0 ${padding}px 0;
             line-height: 1.2;
             max-width: 90%;
             position: relative;
             z-index: 1;
-          ">${slide.title}</h1>
+          ">${escapeHtml(slide.title)}</h1>
           <p style="
             font-size: ${fontSizeBody}px;
-            color: ${slide.textColor || tokens.text};
+            color: ${escapeHtml(slide.textColor || tokens.text)};
             opacity: 0.9;
             margin: 0;
             max-width: 85%;
             line-height: 1.6;
             position: relative;
             z-index: 1;
-          ">${slide.content}</p>
+          ">${escapeHtml(slide.content)}</p>
           ${slide.cta ? `
             <button style="
               margin-top: ${padding * 0.75}px;
@@ -101,7 +112,7 @@ export default function SlideExport({
               border-radius: ${padding * 0.25}px;
               position: relative;
               z-index: 1;
-            ">${slide.cta}</button>
+            ">${escapeHtml(slide.cta)}</button>
           ` : ''}
         </div>
         ${brandOverlay ? `
