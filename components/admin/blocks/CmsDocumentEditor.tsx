@@ -47,6 +47,49 @@ export function CmsDocumentEditor({
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [splitView, setSplitView] = useState(true);
   const [internalSelectedId, setInternalSelectedId] = useState<string | null>(selectedBlockId ?? null);
+  const [lastSavedAt, setLastSavedAt] = useState<string | null>(null);
+  const [recoveredDraft, setRecoveredDraft] = useState<{ blocks: CmsBlock[]; metadata: DocumentMetadata; savedAt: string } | null>(null);
+
+  const autosaveKey = `heldonica_cms_autosave_${metadata.slug || 'default'}`;
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    try {
+      const raw = localStorage.getItem(autosaveKey);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as { blocks: CmsBlock[]; metadata: DocumentMetadata; savedAt: string };
+      if (!parsed.savedAt || !parsed.blocks) return;
+      const ageMs = Date.now() - new Date(parsed.savedAt).getTime();
+      if (ageMs < 24 * 60 * 60 * 1000) setRecoveredDraft(parsed);
+    } catch { /* ignore */ }
+  }, [autosaveKey]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const timer = setTimeout(() => {
+      try {
+        const payload = { blocks, metadata, savedAt: new Date().toISOString() };
+        localStorage.setItem(autosaveKey, JSON.stringify(payload));
+        setLastSavedAt(payload.savedAt);
+      } catch { /* ignore */ }
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [blocks, metadata, autosaveKey]);
+
+  const handleRestoreDraft = useCallback(() => {
+    if (!recoveredDraft) return;
+    onChange(recoveredDraft.blocks);
+    setMetadata(recoveredDraft.metadata);
+    onMetadataChange?.(recoveredDraft.metadata);
+    setRecoveredDraft(null);
+  }, [recoveredDraft, onChange, onMetadataChange]);
+
+  const handleDismissDraft = useCallback(() => {
+    if (recoveredDraft) {
+      try { localStorage.removeItem(autosaveKey); } catch { /* ignore */ }
+    }
+    setRecoveredDraft(null);
+  }, [recoveredDraft, autosaveKey]);
   const metrics = React.useMemo(() => computeReadingMetrics({ title: metadata.title, blocks }), [metadata.title, blocks]);
   const [showShortcuts, setShowShortcuts] = useState(false);
 
@@ -277,6 +320,20 @@ export function CmsDocumentEditor({
           </button>
         </div>
       </div>
+
+      {/* Bannière de récupération de brouillon auto-sauvegardé */}
+      {recoveredDraft && (
+        <div className="flex items-center justify-between gap-3 px-4 py-2.5 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-900">
+          <div className="flex items-center gap-2">
+            <AlertTriangle size={14} className="shrink-0" />
+            <span>Modifications non sauvegardées détectées ({new Date(recoveredDraft.savedAt).toLocaleString('fr-FR')}). Restaurer ?</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button type="button" onClick={handleRestoreDraft} className="px-2.5 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-semibold transition-colors">Restaurer</button>
+            <button type="button" onClick={handleDismissDraft} className="px-2.5 py-1 text-amber-800 hover:bg-amber-100 rounded-lg transition-colors">Ignorer</button>
+          </div>
+        </div>
+      )}
 
       {/* Corps : éditeur blocs + preview split-pane */}
       <div className={`flex-1 flex ${splitView ? 'lg:flex-row' : 'flex-col'} gap-4 min-h-[400px]`}>
