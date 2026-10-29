@@ -70,8 +70,11 @@ Trois choix à assumer :
 
 - **`bigserial`, pas `uuid`** : le journal est lu en flux chronologique, l'ordre compte plus que
   l'identifiant. Une séquence rend la pagination `created_at, id` fiable même à la seconde.
-- **Append-only réel** : aucune policy `UPDATE`/`DELETE` ; `INSERT` réservé au `service_role`,
-  `SELECT` réservé à l'admin. Un journal réinscriptible ne prouve rien.
+- **Append-only réel** : aucune policy `UPDATE`/`DELETE`, et un trigger `BEFORE UPDATE OR
+  DELETE` qui lève pour tout le monde, `service_role` compris — RLS seule ne protège que
+  `anon` et `authenticated`. Seule exception tolérée : la mise à `NULL` de `task_id` par le
+  `ON DELETE SET NULL` de la clé étrangère, qui n'altère aucun autre champ. Un journal
+  réinscriptible ne prouve rien.
 - **`ON DELETE SET NULL`** sur `task_id` : une tâche ne se supprime pas aujourd'hui, mais le
   journal doit survivre à un nettoyage futur sans perdre la trace.
 

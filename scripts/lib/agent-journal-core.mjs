@@ -144,7 +144,7 @@ export async function journaliser(action = {}) {
     if (!reponse.ok) {
       const texte = await reponse.text();
       const message = /column .* does not exist/i.test(texte)
-        ? 'table agent_actions absente — appliquer supabase/migrations/20261029120000_agent_actions.sql'
+        ? 'table agent_actions absente — appliquer supabase/migrations/20261029160000_agent_actions.sql'
         : `PostgREST ${reponse.status}`;
       process.stderr.write(`agent-journal : ${message}\n`);
       return false;

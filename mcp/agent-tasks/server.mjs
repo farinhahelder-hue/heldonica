@@ -180,7 +180,7 @@ const serveur = new McpServer({ name: 'heldonica-agent-tasks', version: '0.1.0' 
 // `agent_tasks` dit ce qui a ete demande et ce qui est declare fini ; il ne dit
 // rien du deroule. On enveloppe donc l'enregistrement des outils plutot que les
 // cinq handlers : chaque geste, reussi ou refuse, laisse une ligne dans
-// `agent_actions` (migration 20261029120000).
+// `agent_actions` (migration 20261029160000).
 //
 // Best-effort : `journaliser` ne leve jamais et ne bloque pas le geste. Sans
 // base, sans migration, sans service key, le serveur fonctionne comme avant.

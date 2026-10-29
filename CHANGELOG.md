@@ -2,6 +2,27 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-29] — Journal d'actions : migration ré-horodatée et append-only tenu par trigger
+
+Deux défauts de la PR #770, mesurés en revue et corrigés sur sa branche (toujours sans merge,
+migration toujours non appliquée).
+
+- **Ordre des migrations** : le fichier s'appelait `20261029120000_agent_actions.sql`, donc
+  **avant** `20261029150000_journal_agent_task_events.sql`, elle-même appliquée en production.
+  Dans ce cas `supabase db push` refuse (« Found local migration files to be inserted before
+  the last migration on remote database ») — le piège documenté plus bas. Renommé
+  `20261029160000_agent_actions.sql` ; les trois références au nom (noyau du journal, serveur
+  MCP, entrée de ce fichier) suivent.
+- **Append-only** : RLS sans policy ne protège que `anon` et `authenticated` ; le
+  `service_role` la contourne par nature, donc un script pouvait réécrire ou effacer une ligne
+  du journal sans laisser de trace. Ajout du trigger `agent_actions_append_only`
+  (`BEFORE UPDATE OR DELETE`), qui lève sur toute modification **sauf** la mise à `NULL` de
+  `task_id` provoquée par le `ON DELETE SET NULL` de la clé étrangère — sans cette exception,
+  supprimer une tâche aurait échoué.
+- **Non vérifié** : la migration n'est toujours pas appliquée (pas de `service_role` ici). Le
+  trigger sera prouvé à l'application, en transaction annulée (`UPDATE` de `verb` → SQLSTATE
+  23001 ; suppression d'une tâche → `task_id` à `NULL`).
+
 ## [2026-10-29] — Socle de schemas CMS et journal d'actions agents
 
 Les deux propositions du jour passent au code, sur la branche
@@ -19,8 +40,8 @@ creee en production : la migration attend une application humaine.
   `table_of_contents` et `hospitality_spot` n'avaient **aucune conversion HTML**
   et disparaissaient du HTML, du flux RSS et de la colonne de secours sans un
   signal. Les trois cas sont ecrits.
-- **Journal d'actions** : migration `20261029120000_agent_actions.sql`
-  (append-only, RLS sans policy, donc service_role seulement), noyau partage
+- **Journal d'actions** : migration `20261029160000_agent_actions.sql`
+  (append-only tenu par trigger, RLS sans policy, donc service_role seulement), noyau partage
   `scripts/lib/agent-journal-core.mjs` (redaction `sb_secret_…`, `ghu_…`, JWT,
   cles sensibles), CLI `scripts/agent-journal.mjs` (`log`, `tail`, `--selftest`),
   hook `post-commit` (branche, SHA, trailer `Agent-Task:`, jamais bloquant) et

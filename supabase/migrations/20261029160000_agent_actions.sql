@@ -15,9 +15,16 @@
 -- `scripts/agent-journal.mjs`. Le detail est redige (`redact()`) avant
 -- l'ecriture : aucune valeur de secret n'entre ici.
 --
--- Append-only : aucune policy UPDATE ni DELETE. Seul le service_role ecrit et
--- lit (il contourne RLS par nature) ; anon et authenticated ne voient rien.
--- Un journal reinscriptible ne prouve rien.
+-- Append-only, tenu par un trigger et pas seulement par RLS : aucune policy
+-- UPDATE ni DELETE, et un trigger `BEFORE UPDATE OR DELETE` qui leve pour tout
+-- le monde, y compris le service_role (qui contourne RLS par nature). Un
+-- journal reinscriptible ne prouve rien.
+--
+-- Horodatage : 20261029160000, volontairement posterieur a
+-- 20261029150000_journal_agent_task_events.sql (appliquee en production).
+-- Un numero anterieur ferait refuser `supabase db push` (« Found local
+-- migration files to be inserted before the last migration on remote
+-- database »).
 --
 -- ⚠️ La base est partagee avec une autre application (voir
 -- docs/CMS_FOUNDATION_PHASE_0_INVENTAIRE.md §2) : cette migration ne nomme que
@@ -62,3 +69,46 @@ ALTER TABLE public.agent_actions ENABLE ROW LEVEL SECURITY;
 -- anon et authenticated, et le service_role (scripts, MCP, CI) passe outre.
 -- Si une lecture admin cote client devient necessaire, elle passera par une
 -- route serveur, pas par une policy ouverte.
+
+-- ── Append-only, reellement ──────────────────────────────────────────────────
+-- RLS seule ne protege que anon et authenticated : le service_role la
+-- contourne par construction. Sans ce trigger, un script pourrait donc
+-- reecrire ou effacer une ligne du journal sans laisser de trace — le
+-- contraire de ce que cette table existe pour prouver.
+--
+-- Exception unique : task_id est en ON DELETE SET NULL, donc supprimer une
+-- tache provoque un UPDATE sur agent_actions. On l'autorise a condition que
+-- seule cette colonne ait bouge ; tout autre changement est refuse.
+--
+-- Preuve attendue a l'application : dans une transaction annulee (BEGIN …
+-- ROLLBACK), un UPDATE de `verb` doit lever (SQLSTATE 23001), et une
+-- suppression de agent_tasks doit passer en mettant task_id a NULL.
+
+CREATE OR REPLACE FUNCTION public.agent_actions_append_only()
+RETURNS trigger
+LANGUAGE plpgsql
+SET search_path = public
+AS $fn$
+BEGIN
+  IF TG_OP = 'DELETE' THEN
+    RAISE EXCEPTION 'agent_actions est append-only : suppression interdite (id=%)', OLD.id
+      USING ERRCODE = 'restrict_violation';
+  END IF;
+
+  IF (to_jsonb(NEW) - 'task_id') IS DISTINCT FROM (to_jsonb(OLD) - 'task_id') THEN
+    RAISE EXCEPTION 'agent_actions est append-only : modification interdite (id=%)', OLD.id
+      USING ERRCODE = 'restrict_violation';
+  END IF;
+
+  RETURN NEW;
+END;
+$fn$;
+
+COMMENT ON FUNCTION public.agent_actions_append_only() IS
+  'Refuse toute modification ou suppression dans agent_actions. Seule exception : la mise a NULL de task_id par le ON DELETE SET NULL de la cle etrangere.';
+
+DROP TRIGGER IF EXISTS agent_actions_append_only_trigger ON public.agent_actions;
+CREATE TRIGGER agent_actions_append_only_trigger
+  BEFORE UPDATE OR DELETE ON public.agent_actions
+  FOR EACH ROW
+  EXECUTE FUNCTION public.agent_actions_append_only();
