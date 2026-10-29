@@ -364,7 +364,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
   // masquee par une valeur inventee.
   const publishedArticles = totalPosts
   const parsedCountries = parseInt(String(coveredCountries || '0'), 10)
-  const countryCount = isNaN(parsedCountries) || parsedCountries <= 0 ? 7 : parsedCountries
+  const countryCount = isNaN(parsedCountries) || parsedCountries <= 0 ? 0 : parsedCountries
 
   // L'ancienne vidéo (CloudFront) renvoie 403 : sans vidéo configurée, le hero
   // montre une photo vérifiée (vallée des Apuseni, sans personne).
@@ -457,8 +457,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-[#DED5C6]" data-reveal>
             <AnimatedStat nb={getCmsOrSetting('stat_1_nb', 'stat_1_nb', '4+', zones, settings)} label={getCmsOrSetting('stat_1_label', 'stat_1_label', 'Ans de slow travel', zones, settings)} />
             <AnimatedStat nb={getCmsOrSetting('stat_2_nb', 'stat_2_nb', '100+', zones, settings)} label={getCmsOrSetting('stat_2_label', 'stat_2_label', 'Adresses vécues', zones, settings)} />
-            <AnimatedStat nb={countryCount} suffix="+" label={getCmsOrSetting('stat_3_label', 'stat_3_label', 'Pays habités', zones, settings)} />
-            <AnimatedStat nb={publishedArticles} label={getCmsOrSetting('stat_4_label', 'stat_4_label', 'Carnets publiés', zones, settings)} />
+            <AnimatedStat nb={countryCount} suffix={countryCount > 0 ? '+' : ''} label={getCmsOrSetting('stat_3_label', 'stat_3_label', 'Pays habités', zones, settings)} />
+            <AnimatedStat nb={publishedArticles} suffix={publishedArticles > 0 ? '+' : ''} label={getCmsOrSetting('stat_4_label', 'stat_4_label', 'Carnets publiés', zones, settings)} />
           </div>
         </div>
       </section>

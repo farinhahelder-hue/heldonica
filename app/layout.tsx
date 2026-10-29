@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Script from 'next/script';
 import { Playfair_Display, DM_Sans } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/components/AuthProvider';
@@ -12,6 +11,7 @@ import { getGlobalZones } from '@/lib/site-content';
 import SiteContentProvider from '@/components/SiteContentProvider';
 import NewsletterPopup from '@/components/NewsletterPopup';
 import BackToTop from '@/components/BackToTop';
+import ConsentAwareAnalytics from '@/components/ConsentAwareAnalytics';
 
 const SITE_URL = 'https://www.heldonica.fr';
 
@@ -244,44 +244,9 @@ export default async function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schemaOrganization) }}
         />
-        <Script
-          src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
-          strategy="afterInteractive"
-        />
-        <Script id="google-analytics" strategy="afterInteractive" dangerouslySetInnerHTML={{
-          __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', '${gaId}');
-          `
-        }} />
-        {gtmId && (
-          <>
-            <Script id="gtm-init" strategy="afterInteractive" dangerouslySetInnerHTML={{
-              __html: `
-                window.dataLayer = window.dataLayer || [];
-                window.dataLayer.push({ 'gtm.start': new Date().getTime(), event: 'gtm.js' });
-              `
-            }} />
-            <Script
-              src={`https://www.googletagmanager.com/gtm.js?id=${gtmId}`}
-              strategy="afterInteractive"
-            />
-          </>
-        )}
+        <ConsentAwareAnalytics gaId={gaId} gtmId={gtmId} />
       </head>
       <body>
-        {gtmId && (
-          <noscript>
-            <iframe
-              src={`https://www.googletagmanager.com/ns.html?id=${gtmId}`}
-              height="0"
-              width="0"
-              style={{ display: 'none', visibility: 'hidden' }}
-            />
-          </noscript>
-        )}
         <ThemeProvider>
           <AuthProvider>
             {/* Zones et réglages chargés une fois ici : le header et le pied de

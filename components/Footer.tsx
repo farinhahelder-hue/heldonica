@@ -5,11 +5,13 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useContentLoader, getCmsOrSetting, getZoneLinks } from '@/hooks/useContentLoader'
 import type { CmsZone } from '@/lib/content-loader'
+import { CONSENT_PRIVACY_LINK, NEWSLETTER_CONSENT_LABEL } from '@/lib/consent-copy'
 
 export default function Footer() {
   const [email, setEmail] = useState('')
   const [subscribed, setSubscribed] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [consent, setConsent] = useState(false)
   const { zones, settings } = useContentLoader()
   const currentYear = new Date().getFullYear()
 
@@ -28,6 +30,10 @@ export default function Footer() {
   )
   const footerEmailPlaceholder = getCmsOrSetting(
     'footer_email_placeholder', 'footer_email_placeholder', 'ton@email.fr',
+    zones as Record<string, CmsZone>, settings
+  )
+  const newsletterConsentLabel = getCmsOrSetting(
+    'footer_newsletter_consent', '', NEWSLETTER_CONSENT_LABEL,
     zones as Record<string, CmsZone>, settings
   )
   const footerCtaLabel = getCmsOrSetting(
@@ -142,7 +148,7 @@ export default function Footer() {
       const res = await fetch('/api/brevo/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, source: 'footer' }),
+        body: JSON.stringify({ email, source: 'footer', consent }),
       })
 
       if (res.ok) {
@@ -177,23 +183,40 @@ export default function Footer() {
                   <p className="text-[#B8A99A] text-sm mt-0.5">{newsletterSuccessText}</p>
                 </div>
               ) : (
-                <form onSubmit={handleNewsletterSubmit} className="flex flex-col sm:flex-row gap-3">
-                  <input
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder={footerEmailPlaceholder || 'ton@email.com'}
-                    required
-                    disabled={loading}
-                    className="flex-1 px-4 py-3 bg-[#28231F] border border-[#423932] rounded-sm text-[#F7F3EC] placeholder-[#8C7F73] focus:outline-none focus:border-[#B8A99A] transition-colors disabled:opacity-50 text-sm"
-                  />
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="px-6 py-3 bg-action text-[#F7F3EC] text-xs uppercase tracking-[0.16em] font-medium rounded-sm hover:bg-action-fonce transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    {loading ? 'Envoi...' : "S'abonner"}
-                  </button>
+                <form onSubmit={handleNewsletterSubmit} className="space-y-3">
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder={footerEmailPlaceholder || 'ton@email.com'}
+                      required
+                      disabled={loading}
+                      className="flex-1 px-4 py-3 bg-[#28231F] border border-[#423932] rounded-sm text-[#F7F3EC] placeholder-[#8C7F73] focus:outline-none focus:border-[#B8A99A] transition-colors disabled:opacity-50 text-sm"
+                    />
+                    <button
+                      type="submit"
+                      disabled={loading}
+                      className="px-6 py-3 bg-action text-[#F7F3EC] text-xs uppercase tracking-[0.16em] font-medium rounded-sm hover:bg-action-fonce transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {loading ? 'Envoi...' : "S'abonner"}
+                    </button>
+                  </div>
+                  <label className="flex items-start gap-2 text-[11px] text-[#B8A99A] leading-normal">
+                    <input
+                      type="checkbox"
+                      required
+                      checked={consent}
+                      onChange={(e) => setConsent(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 rounded border-[#423932] bg-[#28231F] text-eucalyptus focus:ring-eucalyptus cursor-pointer"
+                    />
+                    <span>
+                      {newsletterConsentLabel}{' '}
+                      <Link href="/politique-confidentialite" className="text-[#E6DEC8] underline hover:text-white">
+                        {CONSENT_PRIVACY_LINK}
+                      </Link>.
+                    </span>
+                  </label>
                 </form>
               )}
             </div>

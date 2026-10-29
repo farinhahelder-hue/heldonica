@@ -9,6 +9,7 @@ import { getPageZones } from '@/lib/cms-zones'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { buildPageMetadata } from '@/lib/page-metadata'
+import { getAllPosts, getExcerpt } from '@/lib/blog-supabase'
 
 const PAGE = "destinations-alentejo";
 const FAQS: { q: string; a: string }[] = [
@@ -47,6 +48,10 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function AlentejoPage() {
   const zones = await getPageZones(PAGE)
+  const allPosts = await getAllPosts().catch(() => [])
+  const relatedPosts = allPosts
+    .filter((post) => `${post.title} ${post.destination || ''}`.toLowerCase().includes('alentejo'))
+    .slice(0, 3)
 
   const Z = (zone: string, type: 'text' | 'textarea' | 'html', fallback: string, className?: string, as?: any) => (
     <EditableZone page={PAGE} zone={zone} type={type} fallback={fallback} className={className} as={as} />
@@ -85,7 +90,7 @@ export default async function AlentejoPage() {
         <section className="relative min-h-[64vh] flex items-end overflow-hidden bg-[#241D1A] border-b border-[#DED5C6]">
           <Image
             src="/og-default.jpg"
-            alt="Alentejo — vignobles dorés sous le soleil portugais"
+            alt=""
             fill
             className="object-cover opacity-55"
             priority
@@ -444,65 +449,36 @@ export default async function AlentejoPage() {
             <h2 className="text-2xl md:text-3xl font-serif font-normal text-mahogany mb-8 text-center">
               Nos carnets liés
             </h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Link href="/blog" className="group block bg-[#FAF7F2] rounded-sm overflow-hidden border border-[#DED5C6] hover:border-mahogany/40 transition-colors">
-                <div className="relative aspect-[4/3] bg-[#EFE9DF]">
-                  <Image
-                    src="/og-default.jpg"
-                    alt={Z('article_1_alt', 'text', "Vignobles de l’Alentejo", undefined, 'span') as any}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  />
-                </div>
-                <div className="p-5">
-                  <p className="text-[11px] uppercase tracking-[0.16em] text-eucalyptus font-medium mb-1">
-                    {Z('article_1_label', 'text', "Portugal", undefined, 'span')}
-                  </p>
-                  <h3 className="font-serif font-normal text-mahogany group-hover:text-eucalyptus transition-colors">
-                    {Z('article_1_title', 'text', "Routard dans l’Alentejo : notre journal de bord", undefined, 'span')}
-                  </h3>
-                </div>
-              </Link>
-              <Link href="/blog" className="group block bg-[#FAF7F2] rounded-sm overflow-hidden border border-[#DED5C6] hover:border-mahogany/40 transition-colors">
-                <div className="relative aspect-[4/3] bg-[#EFE9DF]">
-                  <Image
-                    src="/og-default.jpg"
-                    alt={Z('article_2_alt', 'text', "Évora", undefined, 'span') as any}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  />
-                </div>
-                <div className="p-5">
-                  <p className="text-[11px] uppercase tracking-[0.16em] text-eucalyptus font-medium mb-1">
-                    {Z('article_2_label', 'text', "Découvertes Locales", undefined, 'span')}
-                  </p>
-                  <h3 className="font-serif font-normal text-mahogany group-hover:text-eucalyptus transition-colors">
-                    {Z('article_2_title', 'text', "Évora : 48h dans la ville UNESCO", undefined, 'span')}
-                  </h3>
-                </div>
-              </Link>
-              <Link href="/blog" className="group block bg-[#FAF7F2] rounded-sm overflow-hidden border border-[#DED5C6] hover:border-mahogany/40 transition-colors">
-                <div className="relative aspect-[4/3] bg-[#EFE9DF]">
-                  <Image
-                    src="/og-default.jpg"
-                    alt={Z('article_3_alt', 'text', "Vins portugais", undefined, 'span') as any}
-                    fill
-                    className="object-cover"
-                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  />
-                </div>
-                <div className="p-5">
-                  <p className="text-[11px] uppercase tracking-[0.16em] text-eucalyptus font-medium mb-1">
-                    {Z('article_3_label', 'text', "Food & Lifestyle", undefined, 'span')}
-                  </p>
-                  <h3 className="font-serif font-normal text-mahogany group-hover:text-eucalyptus transition-colors">
-                    {Z('article_3_title', 'text', "Le vin portugais qu’on ramène à chaque fois", undefined, 'span')}
-                  </h3>
-                </div>
-              </Link>
-            </div>
+            {relatedPosts.length > 0 ? (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {relatedPosts.map((post) => (
+                  <Link key={post.slug} href={`/blog/${post.slug}`} className="group block bg-[#FAF7F2] rounded-sm overflow-hidden border border-[#DED5C6] hover:border-mahogany/40 transition-colors">
+                    <div className="relative aspect-[4/3] bg-[#EFE9DF]">
+                      {post.featured_image ? (
+                        <Image
+                          src={post.featured_image}
+                          alt={post.alt_text || post.title}
+                          fill
+                          className="object-cover"
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                        />
+                      ) : null}
+                    </div>
+                    <div className="p-5">
+                      <p className="text-[11px] uppercase tracking-[0.16em] text-eucalyptus font-medium mb-1">
+                        {post.category}
+                      </p>
+                      <h3 className="font-serif font-normal text-mahogany group-hover:text-eucalyptus transition-colors">
+                        {post.title}
+                      </h3>
+                      <p className="mt-2 text-sm text-charcoal/65 line-clamp-2">
+                        {getExcerpt(post, 110)}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            ) : null}
             <div className="mt-8 text-center">
               <Link href="/blog" className="text-xs uppercase tracking-[0.16em] text-mahogany font-medium border-b border-mahogany/40 pb-1 hover:border-mahogany">
                 Voir tous nos carnets

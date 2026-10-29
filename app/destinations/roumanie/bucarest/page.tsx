@@ -8,10 +8,10 @@ import { buildPageMetadata } from '@/lib/page-metadata'
 
 const metadata: Metadata = {
   title: "Bucarest en couple : notre carnet slow travel | Heldonica",
-  description: "Guide Bucarest: Macro, culture, vie nocturne en Roumanie. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+  description: "Bucarest en couple : architecture, culture et vie nocturne en Roumanie. Notre carnet slow travel et nos repères pour découvrir la ville autrement.",
   openGraph: {
     title: "Bucarest en couple : notre carnet slow travel | Heldonica",
-    description: "Guide Bucarest: Macro, culture, vie nocturne en Roumanie. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
+    description: "Bucarest en couple : architecture, culture et vie nocturne en Roumanie. Notre carnet slow travel et nos repères pour découvrir la ville autrement.",
     type: 'website',
     images: ['https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/roumanie/IMG_20260827_135618.jpg'],
     locale: 'fr_FR',

@@ -97,6 +97,7 @@ export async function getAllPosts(): Promise<BlogPost[]> {
       title: item.title,
       slug: item.slug,
       category: item.category || 'Travel',
+      destination: item.destination || null,
       excerpt: item.excerpt || '',
       content: item.content || '',
       featured_image: item.featured_image || '',

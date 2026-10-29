@@ -257,6 +257,47 @@ d'interface, « hors périmètre éditorial public, à trancher ». C'est tranch
   - **Découpage** (revue du propriétaire, « une PR = un sujet ») : les constats A/B/C/I/F restent ici ; la recherche D/E/G, la migration des compteurs morts et le correctif des zones `header_logo_*` partent en PR séparées.
   - **Vérifié** : `tsc` 0 ; `vitest` **1054/1054**.
 
+  ## [2026-10-26 bis] — Hors-CMS : consentement RGPD, chiffres réels, routes jetables
+
+- **Contexte** : site laissé en maintenance (décision du fondateur) ; le CMS Carnet 2.0 est confié à OpenHands. Cette session ne touche ni `app/panel-manager/**`, ni `app/api/cms/**`, ni `lib/cms-*`. Branche `agent/opencode/hors-cms`, rebasée sur `origin/main` `301e7553` (lot maintenance + garde-fou emojis).
+- **Consentement explicite** :
+  - `/api/newsletter` et `/api/brevo/subscribe` refusent toute inscription sans `consent === true` (HTTP 400), en plus du honeypot et du rate limit.
+  - GA4/GTM ne sont plus posés dans le `<head>` pour tout le monde : `components/ConsentAwareAnalytics.tsx` ne monte les scripts qu'après `heldonica_cookie_consent_v1 = accepted`, et réagit à l'événement du bandeau sans rechargement. Le `<noscript>` GTM est retiré.
+  - Footer, `NewsletterForm`, `NewsletterPopup`, `GuideDownloadForm` et le quiz portent une case de consentement reliée à l'envoi.
+  - **4 tests neufs** sur `ConsentAwareAnalytics` (aucun script sans choix, refus `rejected`, chargement après acceptation, mise à jour en direct) + un test API sur le refus sans consentement dans `quiz-capture`.
+- **Cohérence éditoriale (fin des chiffres inventés)** :
+  - `/a-propos` et l'accueil n'affichent plus les replis « 25 carnets » ni « 7 pays » : les compteurs viennent des articles publiés, ou affichent 0 quand la donnée manque.
+  - `/expert-hotelier` : retrait des pourcentages et résultats de cas clients non mesurés (25 %, 45 %, 12→45 %, +34 %, 78 %).
+  - `/destinations/alentejo` : les trois faux liens « Nos carnets liés » sont remplacés par les vrais articles dont le titre ou la destination contient « alentejo » ; `getAllPosts` expose désormais `destination`.
+- **Nettoyage** : suppression des routes jetables `POST /api/publish-podgorica` et `POST /api/fix-destinations` (plus aucune référence dans le code). `POST /api/cms/import-trip` reste en place : sa suppression appartient au lot CMS.
+- **CMS Carnet 2.0 parqué, pas perdu** : la branche locale `agent/opencode/cms-2.0` (commit `82d588e0`, 32 fichiers) conserve le WIP CMS + consentement initial, dont `lib/cms-carnet-2.ts`, `lib/gemini-vision-interview.ts`, `app/api/cms/carnet/*` et `app/panel-manager/carnet/`. À confronter aux moteurs existants `lib/cms-photo-interview.ts` et `lib/cms-draft-from-evidence.ts` avant reprise.
+- **Vérifié** : `tsc` 0 erreur ; tests ciblés consentement / newsletter XSS / analytics verts ; `check:cms-hardcode` 1 334 textes en dur, 2 fichiers en baisse (cliquet mis à jour) ; `preflight` **13/13**. Suite vitest complète : **1 015/1 019** ; les **4 échecs** sont la locale `fr-FR` absente de l'ICU Alpine (`HeldonicaVerdict`, 3 `formatDate`), **reproduits sur `origin/main` intact** ; aucun échec introduit. `npm run garde-fous` complet reste rouge localement pour ces 4 tests et pour des dépassements des 5 s par défaut sous PRoot (les mêmes fichiers passent avec `--testTimeout=30000`).
+- **Build de production** : `npm run build` (Next 15.5.28) — compilation, lint/types, **160/160 pages statiques**, traces et table de routes générées, **0 erreur**. Les variables Supabase étant absentes de cette session, le build a utilisé le stub sécurisé de pré-rendu : il prouve la compilation, pas le rendu des données réelles.
+- **Non vérifié** : rendu visuel, comportement en production, valeur réelle de `site_settings.maintenance_mode` (aucun identifiant Supabase dans cette session). Aucune écriture en base, aucune migration. Mode maintenance **non touché**.
+- **Branche** : `agent/opencode/hors-cms`, basée sur `origin/main` `301e7553`.
+
+  ## [2026-10-26 ter] — Audit hors-CMS : pages fantômes et promesses non prouvées
+
+- **`lib/constants.ts` supprimé** : ce fichier n'était importé nulle part et portait des chiffres périmés/inventés (« 4 ans de slow travel depuis 2021 », « 25+ carnets », « 7 pays habités », « 100 adresses testées »). Les compteurs réellement affichés viennent désormais des articles publiés (`/a-propos`) ou de la base (`stat_*` de l'accueil) ; garder cette « source de vérité » morte ne pouvait que recontaminer une future page.
+- **`/destinations` ne revendique plus les pages en quarantaine** : la description, l'OG/Twitter et le JSON-LD `CollectionPage` citaient Sicile et Paris comme « testées sur le terrain », alors que leurs pages sont servies en « Bientôt » et en `noindex` (`lib/unpublished-pages.ts`). Remplacés par Portugal (page publiée) ; les entrées Sicile et Paris retirées de `hasPart`.
+- **`/destinations/roumanie/bucarest`** : la description SEO (`« Guide Bucarest: Macro, culture… »`) était un brouillon généré ; réécrite en français lisible, sans la formule boilerplate « testé en couple ». La page reste publiée (photo de terrain du 27/08/2026).
+- **`/expert-hotelier`** : le libellé « Résultats observés » devient « Ce que ça change » (aucun résultat client mesuré n'est affiché), et la FAQ ne promet plus une « hausse mesurable » sans dossier source : elle énonce l'objectif et rappelle que les résultats dépendent du point de départ.
+- **Reste à traiter, hors de cette session** :
+  - `lib/cms-page-defaults.ts:78` (`a-propos__bio_text`) dit encore « depuis plus de 10 ans », en contradiction avec l'histoire publique ; fichier `lib/cms-*`, réservé à OpenHands.
+  - Replis d'accueil `stat_1_nb = « 4+ »` et `stat_2_nb = « 100+ »` (`components/HomeClient.tsx`) : invérifiables sans base, et toujours affichés si `site_settings` ne les surcharge pas.
+  - Les 37 sous-pages en quarantaine gardent leurs métadonnées de brouillon dans le code source ; `buildPageMetadata` les remplace bien par `DESCRIPTION_BIENTOT`, mais le nettoyage de fond appartient au lot CMS/éditorial.
+  - `og-default.jpg` reste l'image de partage ou le hero de plusieurs pages publiées (Sardaigne, Zurich, guides…), faute de photo vérifiée.
+- **Vérifié** : `tsc` 0 erreur ; `preflight` **13/13** ; `check:content-pages` vert (« aucune dérive éditoriale dans les pages publiées ») ; `check:image-paths` vert avec 4 chemins en dette connue (Suisse) ; `unpublished-pages` + `SubDestinationTemplate` **12/12**. Aucune écriture en base, mode maintenance non touché.
+- **Rebasage final** : branche rebasée sur `origin/main` `301e7553` (#742 lot 2, #743 logo, #745 compteurs, #747 CI quotidienne, #748 règle secrets) ; conflits CHANGELOG résolus en conservant les deux lots ; contrôles rejoués après résolution.
+
+  ## [2026-10-26 quater] — CI zones CMS : note de capture rétablie, zones Alentejo désactivées
+
+- **`quiz.capture_email_note` réutilisée** : le remplacement de la note « Gratuit · Sans engagement · Zéro spam » par la case de consentement avait laissé la zone active sans lecteur. La note est rétablie au-dessus de la case ; `check:cms-zones` ne la compte plus comme orpheline.
+- **Zones Alentejo** : la page rend désormais les vrais articles `getAllPosts` (filtre « alentejo ») ; les neuf zones `article_1_*` à `article_3_*` ne sont plus affichées. Migration `20261026190000_desactivation_zones_articles_alentejo.sql` : `is_active = false` pour ces neuf clés. **Non appliquée** — elle attend un `db push` (écriture de production réservée au propriétaire).
+- **Version de migration unique** : le fichier Alentejo est renommé `20261026190000_...` car `20261026170000` est déjà pris par la migration amont #743 (`zones_header_logo_valeur_null`). Sans ce renommage, le CLI aurait considéré la migration comme déjà appliquée et l'aurait sautée en silence.
+- **Zones logo** : le correctif amont #743 (`NULL` au lieu de chaîne vide) est inclus par le rebasage ; il ne reste que la migration Alentejo à appliquer pour que le garde-fou cesse de compter ces neuf zones.
+- **Vérifié** : `tsc` 0 ; `preflight` **13/13** ; `check:content-pages` vert.
+
   ## [2026-10-25 quindecies] — Le filtre CMS n'est pas supprimé, il est déclaré
 
 - **Le constat** : la levée du verrou de câblage (lot 1) a retiré `CONSUMED_ZONE_KEYS` de `getGlobalZones()`, avec pour seule contrepartie un commentaire renvoyant à `check-cms-zones.mjs`. Or ce garde-fou ne vérifie qu'une chose : qu'une zone active est **lue par un composant**. Il ne dit rien de ce qui part dans le HTML public. La précaution d'origine — ne pas sérialiser une valeur qu'aucun composant n'affiche (résidus « Monica Schneider / Executive Coach », lus par Googlebot) — n'était donc plus portée par personne.

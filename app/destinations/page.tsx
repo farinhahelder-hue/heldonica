@@ -11,7 +11,7 @@ export const dynamicParams = true;
 const metadata: Metadata = {
   title: 'Destinations | Heldonica',
   description:
-    "Madère, Roumanie, Sicile et bien d’autres : on te partage nos destinations authentiques testées sur le terrain, loin des foules. Itinéraires et pépites dénichées.",
+    "Madère, Roumanie, Portugal et bien d’autres : on te partage nos destinations authentiques testées sur le terrain, loin des foules. Itinéraires et pépites dénichées.",
   keywords: [
     'destination hors sentiers battus',
     'destination authentique',
@@ -25,7 +25,7 @@ const metadata: Metadata = {
   },
   openGraph: {
     title: 'Destinations slow travel | Heldonica',
-    description: "Madère, Roumanie, Sicile et bien d’autres : nos destinations authentiques testées sur le terrain, loin des foules.",
+    description: "Madère, Roumanie, Portugal et bien d’autres : nos destinations authentiques testées sur le terrain, loin des foules.",
     url: 'https://www.heldonica.fr/destinations',
     siteName: 'Heldonica',
     type: 'website',
@@ -35,14 +35,14 @@ const metadata: Metadata = {
         url: '/og-default.jpg',
         width: 1200,
         height: 630,
-        alt: 'Destinations slow travel Heldonica — Madère, Roumanie, Sicile',
+        alt: 'Destinations slow travel Heldonica — Madère, Roumanie, Portugal',
       },
     ],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Destinations slow travel | Heldonica',
-    description: "Madère, Roumanie, Sicile et bien d’autres : nos destinations authentiques testées sur le terrain.",
+    description: "Madère, Roumanie, Portugal et bien d’autres : nos destinations authentiques testées sur le terrain.",
     images: ['/og-default.jpg'],
     creator: '@heldonica',
   },
@@ -82,18 +82,13 @@ export default async function DestinationsPage() {
     '@context': 'https://schema.org',
     '@type': 'CollectionPage',
     name: 'Destinations | Heldonica',
-    description: "Madère, Roumanie, Sicile et bien d’autres : on te partage nos destinations authentiques testées sur le terrain, loin des foules. Itinéraires et pépites dénichées.",
+    description: "Madère, Roumanie, Portugal et bien d’autres : on te partage nos destinations authentiques testées sur le terrain, loin des foules. Itinéraires et pépites dénichées.",
     url: 'https://www.heldonica.fr/destinations',
     hasPart: [
       {
         '@type': 'WebPage',
         name: 'Madère',
         url: 'https://www.heldonica.fr/destinations/madere'
-      },
-      {
-        '@type': 'WebPage',
-        name: 'Sicile',
-        url: 'https://www.heldonica.fr/destinations/sicile'
       },
       {
         '@type': 'WebPage',
@@ -109,11 +104,6 @@ export default async function DestinationsPage() {
         '@type': 'WebPage',
         name: 'Zurich',
         url: 'https://www.heldonica.fr/destinations/zurich'
-      },
-      {
-        '@type': 'WebPage',
-        name: 'Paris',
-        url: 'https://www.heldonica.fr/destinations/paris'
       }
     ]
   };
