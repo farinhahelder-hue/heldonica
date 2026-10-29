@@ -89,6 +89,22 @@ function configuration() {
   return url && cle ? { url, cle } : null;
 }
 
+/**
+ * Configuration d'ECRITURE — jamais la cle maitre.
+ *
+ * Le hook `post-commit` tourne sur le poste de chaque agent : lui donner
+ * `SUPABASE_SERVICE_ROLE_KEY` reviendrait a installer la cle maitre du projet
+ * dans chaque clone. On lit donc `AGENT_JOURNAL_KEY`, dediee au role
+ * `agent_journal` qui n'a que le droit d'INSERT (migration 20261029160000).
+ * Sans cette cle, `journaliser()` se tait : une action non tracee vaut mieux
+ * qu'un secret importe.
+ */
+function configurationEcriture() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const cle = process.env.AGENT_JOURNAL_KEY;
+  return url && cle ? { url, cle } : null;
+}
+
 /** Les colonnes lues par le CLI et le panneau, dans l'ordre d'affichage. */
 const COLONNES = [
   'id',
@@ -118,7 +134,7 @@ function entetes(cle) {
  */
 export async function journaliser(action = {}) {
   if (process.env.AGENT_JOURNAL === 'off') return false;
-  const config = configuration();
+  const config = configurationEcriture();
   if (!config) return false;
 
   const corps = {

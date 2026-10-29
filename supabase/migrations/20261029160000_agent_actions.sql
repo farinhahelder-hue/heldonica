@@ -65,10 +65,41 @@ CREATE INDEX IF NOT EXISTS idx_agent_actions_commit
 
 ALTER TABLE public.agent_actions ENABLE ROW LEVEL SECURITY;
 
--- Aucune policy n'est creee volontairement : sans policy, RLS refuse tout a
--- anon et authenticated, et le service_role (scripts, MCP, CI) passe outre.
--- Si une lecture admin cote client devient necessaire, elle passera par une
--- route serveur, pas par une policy ouverte.
+-- Aucune policy pour anon ni authenticated : la RLS leur refuse tout. Le
+-- service_role la contourne, mais le journal ne s'en sert pas (voir le role
+-- dedie plus bas). Si une lecture admin cote client devient necessaire, elle
+-- passera par une route serveur, pas par une policy ouverte.
+
+-- ── Ecriture sans cle maitre : un role qui ne peut QU'ajouter ────────────────
+-- Le hook post-commit tourne sur le poste de chaque agent. Lui laisser
+-- `SUPABASE_SERVICE_ROLE_KEY` (qui contourne la RLS et nos propres garde-fous)
+-- revient a installer la cle maitre du projet dans chaque clone — un secret de
+-- plus a fuir, pour un besoin qui se resume a un INSERT. Le role ci-dessous n'a
+-- que le droit d'appendre : ni lire, ni modifier, ni supprimer. On l'alimente
+-- par `AGENT_JOURNAL_KEY` (JWT signe pour ce role) ; sans cette cle,
+-- `journaliser()` se tait — une action non tracee vaut mieux qu'un secret
+-- importe. Provisionner la cle est une etape humaine : elle exige le secret JWT
+-- du projet, qui ne doit jamais entrer dans une migration.
+-- ─────────────────────────────────────────────────────────────────────────────
+DO $$
+BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'agent_journal') THEN
+    CREATE ROLE agent_journal NOLOGIN;
+  END IF;
+END $$;
+
+-- PostgREST n'expose le schema public qu'aux roles qui y ont `USAGE` : sans ce
+-- grant, la cle du role echouerait en 401 avant meme d'atteindre l'INSERT.
+GRANT USAGE ON SCHEMA public TO agent_journal;
+GRANT INSERT ON public.agent_actions TO agent_journal;
+GRANT USAGE, SELECT ON SEQUENCE public.agent_actions_id_seq TO agent_journal;
+
+DROP POLICY IF EXISTS agent_journal_append ON public.agent_actions;
+CREATE POLICY agent_journal_append
+  ON public.agent_actions
+  FOR INSERT
+  TO agent_journal
+  WITH CHECK (true);
 
 -- ── Append-only, reellement ──────────────────────────────────────────────────
 -- RLS seule ne protege que anon et authenticated : le service_role la
@@ -76,9 +107,11 @@ ALTER TABLE public.agent_actions ENABLE ROW LEVEL SECURITY;
 -- reecrire ou effacer une ligne du journal sans laisser de trace — le
 -- contraire de ce que cette table existe pour prouver.
 --
--- Exception unique : task_id est en ON DELETE SET NULL, donc supprimer une
--- tache provoque un UPDATE sur agent_actions. On l'autorise a condition que
--- seule cette colonne ait bouge ; tout autre changement est refuse.
+-- Exception unique, volontairement etroite : task_id est en ON DELETE SET NULL,
+-- donc supprimer une tache provoque un UPDATE sur agent_actions. On tolere ce
+-- seul passage — task_id non nul vers NULL, aucune autre colonne touchee. Une
+-- reaffectation (tache A -> tache B) reste refusee : ce serait falsifier le
+-- lien, pas subir une cascade.
 --
 -- Preuve attendue a l'application : dans une transaction annulee (BEGIN …
 -- ROLLBACK), un UPDATE de `verb` doit lever (SQLSTATE 23001), et une
@@ -95,17 +128,20 @@ BEGIN
       USING ERRCODE = 'restrict_violation';
   END IF;
 
-  IF (to_jsonb(NEW) - 'task_id') IS DISTINCT FROM (to_jsonb(OLD) - 'task_id') THEN
-    RAISE EXCEPTION 'agent_actions est append-only : modification interdite (id=%)', OLD.id
-      USING ERRCODE = 'restrict_violation';
+  IF NEW.task_id IS NULL
+     AND OLD.task_id IS NOT NULL
+     AND (to_jsonb(NEW) - 'task_id') IS NOT DISTINCT FROM (to_jsonb(OLD) - 'task_id')
+  THEN
+    RETURN NEW;
   END IF;
 
-  RETURN NEW;
+  RAISE EXCEPTION 'agent_actions est append-only : modification interdite (id=%)', OLD.id
+    USING ERRCODE = 'restrict_violation';
 END;
 $fn$;
 
 COMMENT ON FUNCTION public.agent_actions_append_only() IS
-  'Refuse toute modification ou suppression dans agent_actions. Seule exception : la mise a NULL de task_id par le ON DELETE SET NULL de la cle etrangere.';
+  'Refuse toute modification ou suppression dans agent_actions. Seule exception : la mise a NULL de task_id (non nul) par le ON DELETE SET NULL de la cle etrangere, sans autre colonne touchee.';
 
 DROP TRIGGER IF EXISTS agent_actions_append_only_trigger ON public.agent_actions;
 CREATE TRIGGER agent_actions_append_only_trigger
