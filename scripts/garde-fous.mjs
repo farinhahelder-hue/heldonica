@@ -30,6 +30,7 @@ export const CHECKS = [
   { key: 'erreurs-avalees', label: 'Erreurs Supabase avalées', script: 'check:erreurs-avalees', preflight: true },
   { key: 'cms-migrations', label: 'Tables référencées ↔ migrations', script: 'check:cms-migrations', preflight: true },
   { key: 'cms-cache', label: 'Fenêtre de revalidation des pages CMS', script: 'check:cms-cache', preflight: true },
+  { key: 'cms-schema', label: 'Types de blocs ↔ schémas ↔ rendu', script: 'check:cms-schema', preflight: true },
   { key: 'cms-zones', label: 'Zones CMS orphelines', script: 'check:cms-zones', preflight: false, needsDb: true },
   { key: 'cms-drift', label: 'Dérive des tables (base réelle)', script: 'check:cms-drift', preflight: false, needsDb: true },
   { key: 'content-coherence', label: 'Cohérence éditoriale', script: 'check:content-coherence', preflight: false, needsDb: true },
