@@ -2,6 +2,26 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-28] — Audit éditorial lot 2 : cohérence des chiffres de l'accueil (constats D et E)
+
+Deux chiffres de l'accueil se contredisaient, sur la **même page** : « dix ans » (`home/hero_tagline`)
+contre « 4+ » (`global/stat_1_nb`), et un « 7+ pays » sous une liste de neuf terrains alors que la base
+disait déjà 12. Trois ancrages concurrents des années coexistaient dans l'historique, aucun adossé à une
+preuve de terrain. Le propriétaire a tranché.
+
+- **Migration `20261028140000_coherence_chiffres_accueil.sql`** (appliquée en production) : les années
+  sont **retirées** (on ne choisit pas un chiffre non attesté) ; `site_settings.covered_countries` passe
+  de `7` à **`12` pays habités ensemble** ; l'accueil affiche désormais deux mesures distinctes —
+  **40 pays visités** et **12 pays habités** ; les trois zones figées `a-propos/stat_*_value` sont
+  désactivées (`is_active=false`, jamais supprimées).
+- **Code (PR #768)** : replis `7`→`0` dans `app/page.tsx` et `components/HomeClient.tsx` (convention du
+  dépôt : une lecture vide doit se voir, pas être masquée par une valeur inventée) ; **suffixe `+`
+  retiré** des compteurs « Pays habités » et « Carnets publiés » (constat F : « 8+ » pour 8 publiés).
+- **#746 fusionnée** après application de sa migration `20261026190000` (9 zones `article_*` alentejo
+  désactivées) : sa CI rouge venait d'un ordre d'opérations manquant, pas d'un défaut de code.
+- **Écart dépôt ↔ base : 0** (`supabase migration list`, 211 versions des deux côtés). Mode maintenance
+  intact. Garde-fous 21/21.
+
 ## [2026-10-28] — Dérive de schéma : 5 tables legacy rattachées à une migration
 
 Cinq tables étaient lues par le code (`.from('…')`) mais n'avaient **aucun** `CREATE TABLE`
