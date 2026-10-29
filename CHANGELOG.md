@@ -53,6 +53,30 @@ production, aucune table créée.
 - **Rien n'est appliqué ni mergé** : P0 et T1 attendent une décision humaine sur les points
   listés en fin de chaque document ; les migrations éventuelles passeront par
   `supabase/migrations/` et une application explicite.
+## [2026-10-29] — Suivi des agents : journal append-only des tâches + lien PR/commit
+
+Le registre `agent_tasks` ne gardait que l'**état présent**. `rendre_compte` fait un `PATCH`, donc chaque
+compte-rendu **écrasait** le précédent : impossible de reconstituer la trajectoire d'une tâche (qui l'a
+prise, combien de fois elle est repassée en `waiting_validation`, ce qui a été proposé puis retiré), et
+rien ne reliait une fiche aux commits ou à la PR qui l'ont réalisée — la PR #767 n'était rattachée à
+**aucune** fiche.
+
+- **Migration `20261029150000_journal_agent_task_events.sql`** (NON appliquée — voir ci-dessous) :
+  table `agent_task_events`, alimentée par un trigger `AFTER INSERT OR UPDATE OR DELETE` sur
+  `agent_tasks`. Chaque ligne garde l'état **avant et après** dans `payload`. Le trigger est **en base**,
+  pas dans le MCP : tout ce qui écrit est capturé, même un script SQL ou un agent qui oublie de rendre
+  compte. `task_id` en `ON DELETE SET NULL` : le journal survit à la disparition d'une fiche. Amorçage :
+  un point de départ daté par tâche existante.
+- **Volet rattachement** : colonnes `pr_url`, `commit_sha`, `created_by` sur `agent_tasks`.
+- **MCP** : sixième outil `lire_journal` (trajectoire d'une tâche, ou pouls du registre) ;
+  `rendre_compte` accepte `pr_url`/`commit_sha` ; `deposer_tache` pose `created_by`.
+- **Vérifié** : migration testée dans un Postgres 15 jetable (schéma `agent_tasks` reproduit depuis
+  `information_schema`) — deux bugs trouvés et corrigés par ce test (ordre du `CASE` qui rendait le label
+  `compte_rendu` mort ; violation de clé étrangère au `DELETE`). Idempotence confirmée. `test-client.mjs`
+  10/10. Garde-fous 21/21.
+- **Reste à faire (humain)** : appliquer la migration en production, puis
+  `SELECT event_type, count(*) FROM agent_task_events GROUP BY 1`. En attendant, `lire_journal` répond
+  « migration manquante » et le serveur MCP retombe proprement (aucune écriture cassée).
 
 ## [2026-10-28] — Audit éditorial lot 2 : cohérence des chiffres de l'accueil (constats D et E)
 

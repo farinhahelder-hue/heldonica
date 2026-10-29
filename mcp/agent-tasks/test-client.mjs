@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Client d'essai : lance le serveur en enfant, comme le ferait Claude Code,
- * Gemini CLI ou OpenCode, et exerce les cinq outils.
+ * Gemini CLI ou OpenCode, et exerce les six outils.
  *
  *   node test-client.mjs            # lecture seule + tentatives d'ecriture
  *
@@ -40,7 +40,7 @@ const ok = (cond, msg) => console.log(`${cond ? '  ✓' : '  ✗'} ${msg}`)
 // 1. Les outils sont bien la
 const outils = (await client.listTools()).tools.map((t) => t.name).sort()
 console.log('outils :', outils.join(', '))
-ok(outils.length === 5, '5 outils exposes')
+ok(outils.length === 6, '6 outils exposes')
 
 // 2. Lecture
 let r = await appel('taches_en_attente', { agent: 'discord-bot' })
@@ -48,6 +48,15 @@ ok(!r.isError && r.txt.includes('aec21f21'), 'taches_en_attente voit la tache ae
 
 r = await appel('lire_tache', { id: 'aec21f21' })
 ok(!r.isError && r.txt.includes('!tache'), 'lire_tache resout un prefixe et rend la description')
+
+// 2bis. Le journal — depend de la migration, donc on tolere son absence en le
+// disant clairement plutot qu'en faisant echouer le test.
+r = await appel('lire_journal', { limit: 5 })
+if (r.isError && /journal n'existe pas/.test(r.txt)) {
+  ok(true, `lire_journal dit clairement que la migration manque : ${r.txt.slice(0, 80)}…`)
+} else {
+  ok(!r.isError && /journal/.test(r.txt), 'lire_journal rend les derniers evenements')
+}
 
 // 3. Prendre — doit refuser : la tache est adressee a discord-bot, pas a claude
 r = await appel('prendre_tache', { id: 'aec21f21' })
