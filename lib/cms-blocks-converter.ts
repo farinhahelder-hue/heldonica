@@ -13,6 +13,7 @@ import type {
   VideoBlock,
   VaultSpotBlock,
   PhotoEvidenceBlock,
+  RichTextBlock,
 } from '@/types/cms-blocks';
 
 /**
@@ -32,7 +33,10 @@ export function blocksToHtml(blocks: CmsBlock[]): string {
         }
 
         case 'text': {
-          const paras = block.content
+          if (block.richText && block.richText.length > 0) {
+            return renderRichText(block.richText);
+          }
+          const paras = (block.content || '')
             .split(/\n\s*\n/)
             .map((p) => p.trim())
             .filter(Boolean);
@@ -297,4 +301,36 @@ function escapeHtml(str: string): string {
 
 function stripTags(html: string): string {
   return html.replace(/<[^>]*>/g, '').trim();
+}
+
+/**
+ * Rend un tableau de blocs Portable Text (modèle Sanity-style) en HTML.
+ * Marks supportés : strong, em, underline, highlight, link, code, blockquote.
+ */
+export function renderRichText(blocks: RichTextBlock[] | undefined | null): string {
+  if (!blocks || blocks.length === 0) return '';
+  return blocks
+    .map((b) => {
+      const inner = b.children
+        .map((c) => {
+          let out = escapeHtml(c.text || '');
+          if (c.marks.includes('link') && c.href) {
+            out = `<a href="${escapeHtml(c.href)}">${out}</a>`;
+          }
+          // Appliquer les marks de forme autour (hors link déjà géré)
+          const wrap: Array<{ open: string; close: string }> = [];
+          if (c.marks.includes('strong')) wrap.push({ open: '<strong>', close: '</strong>' });
+          if (c.marks.includes('em')) wrap.push({ open: '<em>', close: '</em>' });
+          if (c.marks.includes('underline')) wrap.push({ open: '<u>', close: '</u>' });
+          if (c.marks.includes('highlight')) wrap.push({ open: '<span class="rich-highlight">', close: '</span>' });
+          if (c.marks.includes('code')) wrap.push({ open: '<code>', close: '</code>' });
+          if (c.marks.includes('blockquote')) wrap.push({ open: '<blockquote>', close: '</blockquote>' });
+          let html = out;
+          for (const w of wrap.reverse()) html = w.open + html + w.close;
+          return html;
+        })
+        .join('');
+      return `<p>${inner}</p>`;
+    })
+    .join('\n');
 }

@@ -33,10 +33,32 @@ export interface BaseBlock {
   theme?: BlockTheme;
 }
 
-// 1. Bloc Texte libre & paragraphe
+// Modèle "Portable Text" à la Sanity : un bloc contient des enfants (spans),
+// chaque span porte des marks (annotations) et des markDefs (ex: liens).
+export type TextMark = 'strong' | 'em' | 'underline' | 'link' | 'highlight' | 'code' | 'blockquote';
+
+export interface TextSpan {
+  text: string;
+  marks: TextMark[];
+  href?: string; // présent quand 'link' est dans marks
+}
+
+export interface LinkMarkDef {
+  _type: 'link';
+  href: string;
+}
+
+export interface RichTextBlock {
+  _type: 'block';
+  children: TextSpan[];
+  markDefs?: LinkMarkDef[];
+}
+
+// 1. Bloc Texte libre & paragraphe (rich text Portable Text + fallback legacy)
 export interface TextBlock extends BaseBlock {
   type: 'text';
-  content: string; // Supporte HTML sain ou Markdown
+  content?: string; // legacy texte plat (rétrocompat)
+  richText?: RichTextBlock[]; // Portable Text à la Sanity
 }
 
 // 2. Bloc Titre
@@ -180,7 +202,7 @@ export function createDefaultBlock(type: BlockType): CmsBlock {
     case 'heading':
       return { id, type: 'heading', level: 2, text: 'Nouveau titre de section' };
     case 'text':
-      return { id, type: 'text', content: 'Écrivez votre paragraphe ici...' };
+      return { id, type: 'text', richText: [{ _type: 'block', children: [{ text: 'Écrivez votre paragraphe ici...', marks: [] }] }] };
     case 'image':
       return { id, type: 'image', url: '', alt: '', layout: 'wide', aspectRatio: '16:9', hotspot: { x: 0.5, y: 0.5 } };
     case 'gallery':
@@ -213,4 +235,24 @@ export function createDefaultBlock(type: BlockType): CmsBlock {
         },
       };
   }
+}
+
+/**
+ * Métadonnées de document (niveau page) à la Sanity : titre, slug, statut, date.
+ */
+export interface DocumentMetadata {
+  title: string;
+  slug: string;
+  status: 'draft' | 'review' | 'published';
+  publishedAt?: string; // ISO 8601
+  author?: string;
+  excerpt?: string;
+}
+
+export function createDefaultDocumentMetadata(): DocumentMetadata {
+  return {
+    title: 'Nouveau carnet',
+    slug: 'nouveau-carnet',
+    status: 'draft',
+  };
 }

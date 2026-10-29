@@ -97,10 +97,15 @@ export function computeReadingMetrics(input: ReadingMetricsInput): ReadingMetric
           headingCount++;
           fullText += ` ${block.text} ${block.subtitle ?? ''}`;
           break;
-        case 'text':
-          paragraphCount += block.content.split(/\n\s*\n/).filter(Boolean).length;
-          fullText += ` ${extractPlainText(block.content)}`;
+        case 'text': {
+          const richPlain = (block.richText || [])
+            .map((b) => b.children.map((c) => c.text).join(''))
+            .join('\n');
+          const plain = block.content || richPlain || '';
+          paragraphCount += plain.split(/\n\s*\n/).filter(Boolean).length;
+          fullText += ` ${extractPlainText(plain)}`;
           break;
+        }
         case 'image':
           imageCount++;
           if (block.caption) fullText += ` ${block.caption}`;
