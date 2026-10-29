@@ -132,8 +132,9 @@ Attention à `commit_sha`, présent **des deux côtés** : sur `agent_tasks` (vi
 référence l'**action brute** de l'agent au moment du commit. En cas de doute,
 c'est la valeur portée par `agent_tasks` qui fait référence.
 
-Le point d'architecture reste **ouvert** : garder les deux (complémentaires) ou
-n'en garder qu'un. Décision du propriétaire, avant de fusionner #770.
+La répartition **n'est pas ouverte** : `agent_task_events` est la vérité, point.
+`agent_actions` ne la remplace jamais — il l'éclaire. La console qui lit
+`agent_actions` sans `agent_task_events` se trompe de source.
 
 0. **Le Pre-flight avant de toucher une seule ligne.**
    Lancer systématiquement :

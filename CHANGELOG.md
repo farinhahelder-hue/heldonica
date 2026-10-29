@@ -18,10 +18,10 @@ serveur MCP). Elles rétablissent l'accord entre ce que le dépôt raconte et ce
 - **`AGENTS.md`** : annonçait 16 garde-fous ; il y en a **21** (22 avec la PR #770). Tableau complété
   (`content-known-errors`, `image-paths`, `cms-emojis`, `content-html-escapes`, `apk-signature`) et
   section « Deux journaux, deux rôles » ajoutée.
-- **Deux journaux, deux rôles** (documenté, décision ouverte) : `agent_task_events` = vérité système
-  (trigger, non contournable) ; `agent_actions` (#770, non fusionnée) = contexte d'intention, lié par
-  `task_id`. `commit_sha` : celui d'`agent_tasks` = livrable validé ; celui d'`agent_actions` = action
-  brute.
+- **Deux journaux, deux rôles** (documenté ; **décision prise**, pas ouverte) : `agent_task_events` =
+  vérité système (trigger, non contournable) ; `agent_actions` (#770, non fusionnée) = contexte
+  d'intention, lié par `task_id`. `commit_sha` : celui d'`agent_tasks` = livrable validé ; celui
+  d'`agent_actions` = action brute. `agent_actions` ne remplace jamais `agent_task_events`.
 - **Contenu** : `lib/cms-page-defaults.ts` (`a-propos__bio_text`) ne dit plus « depuis plus de 10 ans »
   (année non attestée) ; le réglage `covered_countries` s'appelle « Nombre de pays habités ».
 
