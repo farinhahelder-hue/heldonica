@@ -7,6 +7,7 @@ import {
   batchMigrateArticles,
   isArticleConvertedToBlocks,
 } from '@/lib/cms-article-migrator';
+import { validateBlocks } from '@/lib/cms-schema';
 
 let _cached: ReturnType<typeof createClient> | null = null;
 function getSupabase() {
@@ -120,6 +121,19 @@ export async function POST(req: Request) {
       }
     );
 
+    // Le registre de schemas (`lib/cms-schema`) dit ce qu'est un bloc valide.
+    // La migration ne refuse rien : le contenu legacy doit pouvoir passer.
+    // Mais elle rend les manquements visibles dans le rapport, au lieu de les
+    // laisser apparaitre dans le rendu public (une image sans `alt`, une
+    // anecdote de preuve au-dela de 200 caracteres).
+    const blockIssues = validateBlocks(migrationRes.blocks);
+    if (blockIssues.length > 0) {
+      console.warn(
+        `[cms/articles/migrate] ${blockIssues.length} bloc(s) hors contrat pour l'article ${articleId}`,
+        blockIssues.slice(0, 5)
+      );
+    }
+
     if (!dryRun && migrationRes.changed) {
       const { error: updateErr } = await (sb.from('cms_blog_posts') as any)
         .update({
@@ -144,6 +158,7 @@ export async function POST(req: Request) {
       articleId,
       slug: post.slug,
       ...migrationRes,
+      blockIssues,
     });
   }
 

@@ -2,6 +2,27 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-29] — Journal d'actions : migration ré-horodatée et append-only tenu par trigger
+
+Deux défauts de la PR #770, mesurés en revue et corrigés sur sa branche (toujours sans merge,
+migration toujours non appliquée).
+
+- **Ordre des migrations** : le fichier s'appelait `20261029120000_agent_actions.sql`, donc
+  **avant** `20261029150000_journal_agent_task_events.sql`, elle-même appliquée en production.
+  Dans ce cas `supabase db push` refuse (« Found local migration files to be inserted before
+  the last migration on remote database ») — le piège documenté plus bas. Renommé
+  `20261029160000_agent_actions.sql` ; les trois références au nom (noyau du journal, serveur
+  MCP, entrée de ce fichier) suivent.
+- **Append-only** : RLS sans policy ne protège que `anon` et `authenticated` ; le
+  `service_role` la contourne par nature, donc un script pouvait réécrire ou effacer une ligne
+  du journal sans laisser de trace. Ajout du trigger `agent_actions_append_only`
+  (`BEFORE UPDATE OR DELETE`), qui lève sur toute modification **sauf** la mise à `NULL` de
+  `task_id` provoquée par le `ON DELETE SET NULL` de la clé étrangère — sans cette exception,
+  supprimer une tâche aurait échoué.
+- **Non vérifié** : la migration n'est toujours pas appliquée (pas de `service_role` ici). Le
+  trigger sera prouvé à l'application, en transaction annulée (`UPDATE` de `verb` → SQLSTATE
+  23001 ; suppression d'une tâche → `task_id` à `NULL`).
+
 ## [2026-10-29] — Cohérence documentaire : journal d'agents appliqué, garde-fous, deux journaux
 
 Corrections de documentation et de contenu uniquement (aucune migration, aucun changement du
@@ -25,6 +46,58 @@ serveur MCP). Elles rétablissent l'accord entre ce que le dépôt raconte et ce
 - **Contenu** : `lib/cms-page-defaults.ts` (`a-propos__bio_text`) ne dit plus « depuis plus de 10 ans »
   (année non attestée) ; le réglage `covered_countries` s'appelle « Nombre de pays habités ».
 
+
+## [2026-10-29] — Socle de schemas CMS et journal d'actions agents
+
+Les deux propositions du jour passent au code, sur la branche
+`agent/freebuff/cms-sanity-like-tracabilite` — **sans merge**. Aucune table n'est
+creee en production : la migration attend une application humaine.
+
+- **Registre de schemas** (`lib/cms-schema/`) : les 12 types de blocs decrits une
+  seule fois (champs, bornes, valeurs admises), validateur sans dependance
+  (`validateBlock`, `validateBlocks`). Une chaine vide reste un etat d'edition ;
+  seule l'absence d'un champ obligatoire, une valeur hors liste ou une anecdote
+  de preuve au-dela de 200 caracteres sont fautives.
+- **Garde-fou `check:cms-schema`** (ajoute aux 16 existants) : compare l'union
+  `BlockType`, `createDefaultBlock`, le registre, `blocksToHtml` et
+  `BlockRenderer`. Il a trouve une vraie panne au premier passage : `map`,
+  `table_of_contents` et `hospitality_spot` n'avaient **aucune conversion HTML**
+  et disparaissaient du HTML, du flux RSS et de la colonne de secours sans un
+  signal. Les trois cas sont ecrits.
+- **Journal d'actions** : migration `20261029160000_agent_actions.sql`
+  (append-only tenu par trigger, RLS sans policy, donc service_role seulement), noyau partage
+  `scripts/lib/agent-journal-core.mjs` (redaction `sb_secret_…`, `ghu_…`, JWT,
+  cles sensibles), CLI `scripts/agent-journal.mjs` (`log`, `tail`, `--selftest`),
+  hook `post-commit` (branche, SHA, trailer `Agent-Task:`, jamais bloquant) et
+  instrumentation des cinq outils MCP par enveloppement de `registerTool`.
+- **Verifie** : `tsc --noEmit` exit 0 ; `vitest` sur les deux fichiers ajoutes,
+  9 tests passes ; `check:cms-schema` exit 0 sur les 12 types ;
+  `agent-journal --selftest` exit 0. **Non verifie** : ecriture reelle dans
+  `agent_actions` (migration non appliquee, pas de service key ici).
+
+## [2026-10-29] — Deux propositions écrites : socle CMS « Sanity-like » et journal d'actions agents
+
+Deux chantiers revenaient sans cesse en discussion sans jamais être posés par écrit : le CMS a la
+surface d'un Sanity mais pas son socle, et les agents déclarent ce qu'ils ont fait sans qu'on
+puisse le vérifier. Les deux propositions vivent sur la branche
+`agent/freebuff/cms-sanity-like-tracabilite` — documentation seule, aucune ligne de code de
+production, aucune table créée.
+
+- **`docs/PROPOSITION_CMS_SANITY_LIKE.md`** : état des lieux mesuré (12 types de blocs,
+  `schemas/*.ts` au format Sanity **importés nulle part**, `BlockCanvas` à ~3 380 lignes), écart
+  brique par brique avec Sanity, puis trois contrats à poser avant tout le reste — registre de
+  schémas exécutable, Portable Text v1 strict (clés stables, `markDefs`, blocs personnalisés dans
+  le flux), enveloppe de document avec `_rev` et paire brouillon/publié. Plan P0→P5 avec un
+  critère de sortie mesurable par phase et un garde-fou CI par contrat.
+- **`docs/PROPOSITION_TRACABILITE_AGENTS.md`** : le trou est nommé — `agent_tasks` trace
+  l'intention et un `actions_done` rédigé à la fin, jamais le déroulé. Cible en trois couches
+  (intention / journal / preuve), schéma `agent_actions` append-only donné en SQL pour discussion,
+  quatre points d'émission (MCP, hook `commit-msg` avec trailer `Agent-Task:`, garde-fous, CLI),
+  et un `redact()` obligatoire pour que le journal ne devienne pas le prochain vecteur de fuite
+  (incidents `sb_secret_…` / `ghu_…` du 26/10).
+- **Rien n'est appliqué ni mergé** : P0 et T1 attendent une décision humaine sur les points
+  listés en fin de chaque document ; les migrations éventuelles passeront par
+  `supabase/migrations/` et une application explicite.
 ## [2026-10-29] — Suivi des agents : journal append-only des tâches + lien PR/commit
 
 Le registre `agent_tasks` ne gardait que l'**état présent**. `rendre_compte` fait un `PATCH`, donc chaque

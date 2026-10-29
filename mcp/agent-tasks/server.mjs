@@ -24,6 +24,7 @@ import { fileURLToPath } from 'node:url'
 import { z } from 'zod'
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
+import { journaliser, redact } from './ledger.mjs'
 
 // --- environnement ----------------------------------------------------------
 
@@ -173,6 +174,46 @@ function resume(t) {
 // --- serveur ---------------------------------------------------------------------
 
 const serveur = new McpServer({ name: 'heldonica-agent-tasks', version: '0.1.0' })
+
+// --- journal --------------------------------------------------------------------
+//
+// `agent_tasks` dit ce qui a ete demande et ce qui est declare fini ; il ne dit
+// rien du deroule. On enveloppe donc l'enregistrement des outils plutot que les
+// cinq handlers : chaque geste, reussi ou refuse, laisse une ligne dans
+// `agent_actions` (migration 20261029160000).
+//
+// Best-effort : `journaliser` ne leve jamais et ne bloque pas le geste. Sans
+// base, sans migration, sans service key, le serveur fonctionne comme avant.
+const enregistrerBrut = serveur.registerTool.bind(serveur)
+serveur.registerTool = (nom, options, geste) =>
+  enregistrerBrut(nom, options, async (args) => {
+    const debut = Date.now()
+    try {
+      const resultat = await geste(args)
+      void journaliser({
+        kind: 'task',
+        verb: nom,
+        outcome: resultat?.isError ? 'refuse' : 'ok',
+        agent: AGENT || undefined,
+        duration_ms: Date.now() - debut,
+        detail: {
+          args: redact(args),
+          refus: resultat?.isError ? resultat.content?.[0]?.text : undefined,
+        },
+      })
+      return resultat
+    } catch (e) {
+      void journaliser({
+        kind: 'task',
+        verb: nom,
+        outcome: 'erreur',
+        agent: AGENT || undefined,
+        duration_ms: Date.now() - debut,
+        detail: { args: redact(args), erreur: e?.message },
+      })
+      throw e
+    }
+  })
 
 serveur.registerTool(
   'taches_en_attente',

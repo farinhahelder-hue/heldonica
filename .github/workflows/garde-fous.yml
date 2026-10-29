@@ -29,6 +29,12 @@ jobs:
       - run: npm ci
       - run: npx tsc --noEmit
 
+      # Le registre de schemas doit couvrir les douze types de blocs partout ou
+      # ils sont ecrits : union, fabrique, registre, conversion HTML et rendu.
+      # Statique (il lit les fichiers), donc lançable sans identifiants Supabase.
+      - name: Types de blocs ↔ schémas ↔ rendu
+        run: npm run check:cms-schema
+
       # Aucun workflow n'executait la suite de tests : 20 des 356 avaient pourri
       # sans que personne ne le voie, dont les onze de l'authentification du CMS,
       # qui comparaient une promesse a un booleen. Un test qui ne tourne pas ne

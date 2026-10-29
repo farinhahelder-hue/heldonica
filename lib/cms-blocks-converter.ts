@@ -77,6 +77,47 @@ export function blocksToHtml(blocks: CmsBlock[]): string {
           return `<aside class="vault-spot-highlight">\n  <strong>${escapeHtml(block.title)}</strong> (${escapeHtml(block.location)})\n  <blockquote>${escapeHtml(block.livedExperience)}</blockquote>\n</aside>`;
         }
 
+        case 'map': {
+          // Sans ce cas, une carte publiee disparaissait du HTML (et donc du
+          // flux RSS et de la colonne de secours) sans le moindre signal :
+          // `default` rend une chaine vide. Le garde-fou check:cms-schema
+          // compare desormais les types convertis a `BlockType`.
+          const reperes = block.markers
+            .map(
+              (m) =>
+                `  <li data-lat="${m.lat}" data-lng="${m.lng}">${escapeHtml(m.label)}${m.description ? ` — ${escapeHtml(m.description)}` : ''}</li>`
+            )
+            .join('\n');
+          const legende = block.caption ? `\n  <figcaption>${escapeHtml(block.caption)}</figcaption>` : '';
+          return `<figure class="heldonica-map" data-lat="${block.center.lat}" data-lng="${block.center.lng}" data-zoom="${block.zoom}" data-style="${block.mapStyle || 'minimal'}">\n  <ul class="map-markers">\n${reperes}\n  </ul>${legende}\n</figure>`;
+        }
+
+        case 'table_of_contents': {
+          const titre = block.title || 'Au fil du carnet';
+          const niveau = block.maxLevel === 3 ? 3 : 2;
+          return `<nav class="table-of-contents" data-level="${niveau}" data-display="${block.displayStyle || 'numbered'}">\n  <strong>${escapeHtml(titre)}</strong>\n</nav>`;
+        }
+
+        case 'hospitality_spot': {
+          const criteres: Array<[boolean, string]> = [
+            [block.ethicalCriteria.localFood, 'Cuisine locale'],
+            [block.ethicalCriteria.lowCarbonAccess, 'Acces bas carbone'],
+            [block.ethicalCriteria.quietAtmosphere, 'Atmosphere calme'],
+            [block.ethicalCriteria.fairPricing, 'Prix juste'],
+          ];
+          const liste = criteres
+            .filter(([actif]) => actif)
+            .map(([, libelle]) => `    <li>${escapeHtml(libelle)}</li>`)
+            .join('\n');
+          const anecdote = block.livedAnecdote
+            ? `\n  <blockquote>${escapeHtml(block.livedAnecdote)}</blockquote>`
+            : '';
+          const reservation = block.directBookingUrl
+            ? `\n  <p><a href="${escapeHtml(block.directBookingUrl)}" target="_blank" rel="noopener noreferrer">Reserver en direct</a></p>`
+            : '';
+          return `<aside class="hospitality-spot">\n  <strong>${escapeHtml(block.name)}</strong> (${escapeHtml(block.location)})\n  <ul>\n${liste}\n  </ul>${anecdote}${reservation}\n</aside>`;
+        }
+
         case 'photo_evidence': {
           const album = block.albumLink
             ? `\n  <p><a href="${escapeHtml(block.albumLink)}" target="_blank" rel="noopener noreferrer">Voir l’album</a></p>`
