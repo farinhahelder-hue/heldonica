@@ -113,7 +113,7 @@ export default async function AdminSettingsPage() {
       label: 'Système',
       fields: [
         { key: 'maintenance_mode', label: 'Mode maintenance', type: 'toggle', description: 'Affiche la page de maintenance' },
-        { key: 'covered_countries', label: 'Nombre de pays couverts', type: 'number', description: 'Pour affichage statistiques' },
+        { key: 'covered_countries', label: 'Nombre de pays habités', type: 'number', description: 'Pays habités par le duo (stat « Pays habités ») — pas les pays visités' },
       ] as SettingField[],
     },
   ]

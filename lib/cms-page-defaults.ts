@@ -75,7 +75,7 @@ export const PAGE_DEFAULTS: Record<string, string> = {
   'a-propos__intro_title': 'On ferme les ordis. On part.',
   'a-propos__intro_text': 'Heldonica est né de l\'envie de partager ce qu\'on découvre vraiment sur le terrain — pas ce qu\'on trouve dans les guides.',
   'a-propos__bio_name': 'L\'équipe Heldonica',
-  'a-propos__bio_text': 'Basés entre Paris et Madère, on parcourt l\'Europe et au-delà depuis plus de 10 ans. Notre mission : dénicher les adresses qui valent le détour, loin des sentiers battus.',
+  'a-propos__bio_text': 'Basés entre Paris et Madère, on parcourt l\'Europe et au-delà. Notre mission : dénicher les adresses qui valent le détour, loin des sentiers battus.',
   'a-propos__values_title': 'Nos valeurs',
   'a-propos__values_subtitle': 'Slow travel, authenticité, responsabilité',
   'a-propos__values_1_title': 'Authenticité',

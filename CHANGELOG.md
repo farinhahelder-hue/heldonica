@@ -2,6 +2,29 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-29] — Cohérence documentaire : journal d'agents appliqué, garde-fous, deux journaux
+
+Corrections de documentation et de contenu uniquement (aucune migration, aucun changement du
+serveur MCP). Elles rétablissent l'accord entre ce que le dépôt raconte et ce qui est vrai.
+
+- **Journal d'agents `20261029150000` : appliqué en production** (le CHANGELOG disait encore
+  « NON appliquée »). Amorçage 277 = 277 tâches, trigger prouvé, RLS vérifiée, version enregistrée.
+- **Archivage committé** : le CHANGELOG « Dérive de schéma » affirmait que le déplacement de
+  `levee_mode_maintenance` n'était « pas committé » — il l'est depuis `c169e1b3`.
+- **« 12 pays »** : l'entrée du 28/10 disait « la base disait déjà 12 ». En réalité la base valait
+  `7` ; le « 12 » n'était qu'un repli de code mesurant les pays *visités*. Formulation corrigée.
+- **Attribution** : les replis `7`→`0` viennent du commit `0a92d446`, pas de la PR #768 (qui ajoute
+  « Pays visités » et retire le suffixe `+`).
+- **`AGENTS.md`** : annonçait 16 garde-fous ; il y en a **21** (22 avec la PR #770). Tableau complété
+  (`content-known-errors`, `image-paths`, `cms-emojis`, `content-html-escapes`, `apk-signature`) et
+  section « Deux journaux, deux rôles » ajoutée.
+- **Deux journaux, deux rôles** (documenté ; **décision prise**, pas ouverte) : `agent_task_events` =
+  vérité système (trigger, non contournable) ; `agent_actions` (#770, non fusionnée) = contexte
+  d'intention, lié par `task_id`. `commit_sha` : celui d'`agent_tasks` = livrable validé ; celui
+  d'`agent_actions` = action brute. `agent_actions` ne remplace jamais `agent_task_events`.
+- **Contenu** : `lib/cms-page-defaults.ts` (`a-propos__bio_text`) ne dit plus « depuis plus de 10 ans »
+  (année non attestée) ; le réglage `covered_countries` s'appelle « Nombre de pays habités ».
+
 ## [2026-10-29] — Suivi des agents : journal append-only des tâches + lien PR/commit
 
 Le registre `agent_tasks` ne gardait que l'**état présent**. `rendre_compte` fait un `PATCH`, donc chaque
@@ -10,7 +33,8 @@ prise, combien de fois elle est repassée en `waiting_validation`, ce qui a ét�
 rien ne reliait une fiche aux commits ou à la PR qui l'ont réalisée — la PR #767 n'était rattachée à
 **aucune** fiche.
 
-- **Migration `20261029150000_journal_agent_task_events.sql`** (NON appliquée — voir ci-dessous) :
+- **Migration `20261029150000_journal_agent_task_events.sql`** (**appliquée en production** le
+  2026-10-29) :
   table `agent_task_events`, alimentée par un trigger `AFTER INSERT OR UPDATE OR DELETE` sur
   `agent_tasks`. Chaque ligne garde l'état **avant et après** dans `payload`. Le trigger est **en base**,
   pas dans le MCP : tout ce qui écrit est capturé, même un script SQL ou un agent qui oublie de rendre
@@ -23,25 +47,30 @@ rien ne reliait une fiche aux commits ou à la PR qui l'ont réalisée — la PR
   `information_schema`) — deux bugs trouvés et corrigés par ce test (ordre du `CASE` qui rendait le label
   `compte_rendu` mort ; violation de clé étrangère au `DELETE`). Idempotence confirmée. `test-client.mjs`
   10/10. Garde-fous 21/21.
-- **Reste à faire (humain)** : appliquer la migration en production, puis
-  `SELECT event_type, count(*) FROM agent_task_events GROUP BY 1`. En attendant, `lire_journal` répond
-  « migration manquante » et le serveur MCP retombe proprement (aucune écriture cassée).
+- **Vérifié en production** (2026-10-29) : amorçage **277 événements** = 277 tâches (unicité par
+  tâche) ; trigger `agent_tasks_journal` prouvé (INSERT→`depose`, UPDATE→`edition`,
+  DELETE→`suppression`, en transaction annulée) ; RLS active (anon : 0 ligne, service_role : 277) ;
+  version enregistrée dans `supabase_migrations.schema_migrations` (`20261029150000`).
 
 ## [2026-10-28] — Audit éditorial lot 2 : cohérence des chiffres de l'accueil (constats D et E)
 
 Deux chiffres de l'accueil se contredisaient, sur la **même page** : « dix ans » (`home/hero_tagline`)
-contre « 4+ » (`global/stat_1_nb`), et un « 7+ pays » sous une liste de neuf terrains alors que la base
-disait déjà 12. Trois ancrages concurrents des années coexistaient dans l'historique, aucun adossé à une
-preuve de terrain. Le propriétaire a tranché.
+contre « 4+ » (`global/stat_1_nb`), et un « 7+ pays » sous une liste de neuf terrains. Le « 12 pays »
+affiché n'était qu'un **repli de code** (mesurant en réalité les pays *visités*) : en base,
+`site_settings.covered_countries` valait bien `7`. Trois ancrages concurrents des années coexistaient
+dans l'historique, aucun adossé à une preuve de terrain. Le propriétaire a tranché.
 
 - **Migration `20261028140000_coherence_chiffres_accueil.sql`** (appliquée en production) : les années
   sont **retirées** (on ne choisit pas un chiffre non attesté) ; `site_settings.covered_countries` passe
   de `7` à **`12` pays habités ensemble** ; l'accueil affiche désormais deux mesures distinctes —
   **40 pays visités** et **12 pays habités** ; les trois zones figées `a-propos/stat_*_value` sont
   désactivées (`is_active=false`, jamais supprimées).
-- **Code (PR #768)** : replis `7`→`0` dans `app/page.tsx` et `components/HomeClient.tsx` (convention du
-  dépôt : une lecture vide doit se voir, pas être masquée par une valeur inventée) ; **suffixe `+`
-  retiré** des compteurs « Pays habités » et « Carnets publiés » (constat F : « 8+ » pour 8 publiés).
+- **Code (PR #768, rebasée sur #746)** : ajout de la mesure distincte « Pays visités » (~40) sur
+  l'accueil et **retrait du suffixe `+`** des compteurs « Pays habités » et « Carnets publiés »
+  (constat F : « 8+ » pour 8 publiés). Les **replis `7`→`0`** dans `app/page.tsx` et
+  `components/HomeClient.tsx` viennent en revanche du commit `0a92d446` (26/10, convention du dépôt :
+  une lecture vide doit se voir, pas être masquée par une valeur inventée), déjà sur `main` — #768 ne
+  touche pas `app/page.tsx`.
 - **#746 fusionnée** après application de sa migration `20261026190000` (9 zones `article_*` alentejo
   désactivées) : sa CI rouge venait d'un ordre d'opérations manquant, pas d'un défaut de code.
 - **Écart dépôt ↔ base : 0** (`supabase migration list`, 211 versions des deux côtés). Mode maintenance
@@ -83,16 +112,17 @@ Or `--include-all` **pousse ce fichier aussi** : vérifié en dry-run, il aurait
 **La suggestion du CLI était le piège.** Suivre l'indication aurait levé la maintenance sans
 décision du propriétaire.
 
-Le fichier de levée a été **parqué dans `supabase/archive/`** dans cet espace de travail — la
-convention de `EMERGENCY_FIX_20260602.sql`, dont le rôle est précisément de ne jamais être
-rejoué. Le CLI **ignore** `supabase/archive/` : `db push` ne voit plus que la migration de
-rattachement. **Contenu inchangé** (md5 `5d05d6677c2e54c2791cf0784129b936`, identique avant et
-après le déplacement).
+Le fichier a d'abord été **parqué dans `supabase/archive/`** — la convention de
+`EMERGENCY_FIX_20260602.sql`, dont le rôle est précisément de ne jamais être rejoué. Le CLI
+**ignore** `supabase/archive/` : `db push` ne voit plus que la migration de rattachement.
+**Contenu inchangé** (md5 `5d05d6677c2e54c2791cf0784129b936`, identique avant et après le
+déplacement).
 
-Ce déplacement n'est **pas committé** : le fichier porte la consigne explicite de rester hors de
-`main`, et il touche la règle n°4 (le mode maintenance est piloté par le propriétaire). Le
-committer est sa décision. Le jour de la levée, il suffira de le remettre dans
-`supabase/migrations/` avec un horodatage postérieur — la consigne de son propre en-tête.
+Le déplacement a ensuite été **committé** (`c169e1b3`, 2026-10-28), avec la consigne explicite de
+rester hors de `main`. Il ne touche pas la règle n°4 : le mode maintenance est lu dans
+`site_settings.maintenance_mode` (source de vérité, `middleware.ts`), pas dans ce fichier. Le jour
+de la levée, il suffira de le remettre dans `supabase/migrations/` avec un horodatage postérieur —
+la consigne de son propre en-tête.
 
 **État : APPLIQUÉE le 2026-10-28.** `supabase db push --linked` a exécuté
 `20261028120000_rattachement_tables_legacy.sql` et l'a journalisée. Écart dépôt ↔ base :
