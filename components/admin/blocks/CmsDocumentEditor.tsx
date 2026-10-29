@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useCallback, useEffect } from 'react';
-import type { CmsBlock, DocumentMetadata, BlockType } from '@/types/cms-blocks';
+import type { CmsBlock, DocumentMetadata, BlockType, DocumentRevision } from '@/types/cms-blocks';
 import { createDefaultDocumentMetadata, createDefaultBlock } from '@/types/cms-blocks';
 import {
   Search,
@@ -59,8 +59,28 @@ export function CmsDocumentEditor({
     },
     [metadata, onMetadataChange]
   );
-
   const handleCommandPaletteOpen = useCallback(() => setCommandPaletteOpen(true), []);
+
+  const handlePublish = useCallback(() => {
+    const revision = {
+      id: `rev_${Date.now().toString(36)}`,
+      createdAt: new Date().toISOString(),
+      status: 'published' as const,
+      title: metadata.title,
+      blockCount: blocks.length,
+      snapshot: JSON.stringify(blocks),
+    };
+    const next: DocumentMetadata = {
+      ...metadata,
+      status: 'published',
+      publishedAt: new Date().toISOString(),
+      revisions: [...(metadata.revisions || []), revision].slice(-20),
+    };
+    setMetadata(next);
+    onMetadataChange?.(next);
+  }, [metadata, blocks, onMetadataChange]);
+
+  const [showRevisions, setShowRevisions] = useState(false);
   const handleCommandPaletteClose = useCallback(() => setCommandPaletteOpen(false), []);
 
   useEffect(() => {
@@ -152,6 +172,25 @@ export function CmsDocumentEditor({
           </button>
           <button
             type="button"
+            onClick={handlePublish}
+            disabled={metadata.status === 'published'}
+            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 disabled:bg-stone-300 disabled:text-stone-500 text-white text-xs font-semibold rounded-xl transition-colors shadow-xs inline-flex items-center gap-1.5"
+            title="Publier ce carnet (crée une révision)"
+          >
+            <CheckCircle2 size={14} />
+            <span>Publier</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setShowRevisions((v) => !v)}
+            className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-xl transition-colors inline-flex items-center gap-1.5"
+            title="Historique des révisions"
+          >
+            <Clock size={14} />
+            <span>Révisions ({(metadata.revisions || []).length})</span>
+          </button>
+          <button
+            type="button"
             className="px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold rounded-xl transition-colors shadow-xs inline-flex items-center gap-1.5"
           >
             <Save size={14} />
@@ -220,6 +259,54 @@ export function CmsDocumentEditor({
           setCommandPaletteOpen(false);
         }}
       />
+      {/* Panneau d'historique des révisions (Content Lake style) */}
+      {showRevisions && (
+        <div className="border border-stone-200 rounded-xl bg-stone-50 p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-bold text-stone-900 font-serif">Historique des révisions</h3>
+            <button
+              type="button"
+              onClick={() => setShowRevisions(false)}
+              className="p-1 text-stone-400 hover:text-stone-700"
+            >
+              <X size={16} />
+            </button>
+          </div>
+          {(metadata.revisions || []).length === 0 ? (
+            <p className="text-xs text-stone-500 italic">Aucune révision publiée pour le moment.</p>
+          ) : (
+            <ul className="space-y-2">
+              {[...(metadata.revisions || [])].reverse().map((rev) => (
+                <li
+                  key={rev.id}
+                  className="flex items-center justify-between px-3 py-2 bg-white border border-stone-200 rounded-lg text-xs"
+                >
+                  <div>
+                    <div className="font-semibold text-stone-800">{rev.title || 'Sans titre'}</div>
+                    <div className="text-[10px] text-stone-500">
+                      {new Date(rev.createdAt).toLocaleString('fr-FR')} • {rev.blockCount} bloc{rev.blockCount > 1 ? 's' : ''} • {rev.status}
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      try {
+                        const snap = JSON.parse(rev.snapshot) as CmsBlock[];
+                        onChange(snap);
+                      } catch {
+                        // ignore
+                      }
+                    }}
+                    className="px-2 py-1 text-[10px] bg-stone-100 hover:bg-stone-200 text-stone-700 rounded transition-colors"
+                  >
+                    Restaurer
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      )}
     </div>
   );
 }
