@@ -18,7 +18,7 @@ import type {
   HospitalitySpotBlock,
 } from '@/types/cms-blocks';
 
-type FieldKind = 'text' | 'textarea' | 'select' | 'checkbox' | 'number' | 'url';
+type FieldKind = 'text' | 'textarea' | 'select' | 'checkbox' | 'number' | 'url' | 'date';
 
 interface FieldDef {
   key: string;
@@ -146,7 +146,7 @@ const BLOCK_SCHEMAS: Record<BlockType, BlockSchema> = {
     fields: [
       { key: 'imageUrl', label: 'URL de l’image', kind: 'url', placeholder: 'https://...' },
       { key: 'location', label: 'Lieu exact', kind: 'text', placeholder: 'Lieu vécu et vérifiable' },
-      { key: 'date', label: 'Date (ISO)', kind: 'text', placeholder: 'YYYY-MM-DD' },
+      { key: 'date', label: 'Date (ISO)', kind: 'date' },
       { key: 'anecdote', label: 'Anecdote', kind: 'textarea', placeholder: 'Max 200 caractères, vécue et vérifiable' },
       { key: 'albumLink', label: 'Lien album', kind: 'url', placeholder: 'https://...' },
       { key: 'cameraInfo', label: 'Boîtier & Optique', kind: 'text', placeholder: 'Nikon D7200 • 35mm f/1.8' },

@@ -59,6 +59,17 @@ export function CmsDocumentEditor({
     },
     [metadata, onMetadataChange]
   );
+  const handleGenerateSlug = useCallback(() => {
+    const slug = metadata.title
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 80);
+    handleMetadataChange({ slug });
+  }, [metadata.title, handleMetadataChange]);
+
   const handleCommandPaletteOpen = useCallback(() => setCommandPaletteOpen(true), []);
 
   const handlePublish = useCallback(() => {
@@ -136,6 +147,14 @@ export function CmsDocumentEditor({
               className="text-xs font-mono text-stone-600 bg-transparent border-none focus:ring-0 px-0 min-w-[140px] max-w-[200px]"
               maxLength={120}
             />
+            <button
+              type="button"
+              onClick={handleGenerateSlug}
+              title="Générer le slug depuis le titre"
+              className="text-[10px] text-stone-400 hover:text-amber-700 px-1"
+            >
+              ⚡
+            </button>
           </div>
           <div className="flex items-center gap-1.5">
             <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded ${statusColor(metadata.status)}`}>
