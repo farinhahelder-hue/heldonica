@@ -429,7 +429,7 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 <EditableZone page="home" zone="hero_line_3" fallback="On revient avec des pépites qu'on n'avait pas cherchées." className="hero-word inline" />
               </em>
             </h1>
-            <EditableZone page="home" zone="hero_tagline" type="textarea" fallback="Deux voyageurs, dix ans de terrain, des destinations qu'on a vraiment arpentées — pas lu dans un guide."
+            <EditableZone page="home" zone="hero_tagline" type="textarea" fallback="Deux voyageurs, des destinations qu'on a vraiment arpentées — pas lu dans un guide."
               className="text-sm md:text-base text-[#E6DEC8]/85 leading-relaxed mb-8 max-w-xl block"
             />
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-7">
@@ -455,10 +455,17 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
       <section className="bg-[#EFE9DF] border-b border-[#DED5C6]">
         <div className="max-w-6xl mx-auto px-6 md:px-10 py-6 md:py-8">
           <div className="grid grid-cols-2 md:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-[#DED5C6]" data-reveal>
-            <AnimatedStat nb={getCmsOrSetting('stat_1_nb', 'stat_1_nb', '4+', zones, settings)} label={getCmsOrSetting('stat_1_label', 'stat_1_label', 'Ans de slow travel', zones, settings)} />
+            {/* Stat 1 : les années ne sont plus revendiquées (trois ancrages
+                concurrents dans l'historique, aucun attesté). Le chiffre devient
+                les pays VISITÉS (~40, fourni par le propriétaire) — distinct des
+                pays HABITÉS (stat 3). */}
+            <AnimatedStat nb={getCmsOrSetting('stat_1_nb', 'stat_1_nb', '40', zones, settings)} label={getCmsOrSetting('stat_1_label', 'stat_1_label', 'Pays visités', zones, settings)} />
             <AnimatedStat nb={getCmsOrSetting('stat_2_nb', 'stat_2_nb', '100+', zones, settings)} label={getCmsOrSetting('stat_2_label', 'stat_2_label', 'Adresses vécues', zones, settings)} />
-            <AnimatedStat nb={countryCount} suffix={countryCount > 0 ? '+' : ''} label={getCmsOrSetting('stat_3_label', 'stat_3_label', 'Pays habités', zones, settings)} />
-            <AnimatedStat nb={publishedArticles} suffix={publishedArticles > 0 ? '+' : ''} label={getCmsOrSetting('stat_4_label', 'stat_4_label', 'Carnets publiés', zones, settings)} />
+            {/* Pas de suffixe « + » : le pays est un compte exact (12 habités,
+                fourni par le propriétaire), et « 12+ » sous une liste de terrains
+                laissait croire à un chiffre approximatif. */}
+            <AnimatedStat nb={countryCount} label={getCmsOrSetting('stat_3_label', 'stat_3_label', 'Pays habités', zones, settings)} />
+            <AnimatedStat nb={publishedArticles} label={getCmsOrSetting('stat_4_label', 'stat_4_label', 'Carnets publiés', zones, settings)} />
           </div>
         </div>
       </section>
