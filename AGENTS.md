@@ -111,6 +111,30 @@ Chaque écriture sur `agent_tasks` laisse une trace dans `agent_task_events`
 `lire_journal` la restitue. C'est ce qui permet de savoir qui a proposé quoi,
 quand, et ce qui a été modifié — la fiche seule n'a qu'un état présent.
 
+### Deux journaux, deux rôles (ne pas les confondre)
+
+| Journal | Origine | Rôle | État |
+|---|---|---|---|
+| `agent_task_events` | #769, fusionnée | **Vérité système.** Tout changement de `agent_tasks`, écrit par un trigger `AFTER INSERT/UPDATE/DELETE` — non contournable depuis le MCP, même un script SQL y passe. | Appliqué et actif. |
+| `agent_actions` | #770, **non fusionnée** | **Contexte d'intention.** Ce que l'agent déclare : outil appelé, argument, résultat, durée, commit. Alimenté par le MCP et le hook `post-commit`, avec rédaction des secrets. | Migration **non appliquée**. |
+
+La règle : `agent_task_events` dit **ce qui a changé** dans le registre ;
+`agent_actions` dit **pourquoi et comment**. Quand les deux seront en service,
+la console lit d'abord le premier (faisant foi), puis le second (explicatif).
+
+Le lien entre les deux est le **`task_id`** (plus la date). On ne cherche **pas**
+de clé de corrélation vers `agent_task_events` : le trigger est en base, le MCP
+ne récupère pas l'identifiant de l'événement qu'il vient de provoquer — le
+fabriquer serait fragile. `task_id` suffit à la console.
+
+Attention à `commit_sha`, présent **des deux côtés** : sur `agent_tasks` (via
+`rendre_compte`) il référence le **livrable validé** ; sur `agent_actions` il
+référence l'**action brute** de l'agent au moment du commit. En cas de doute,
+c'est la valeur portée par `agent_tasks` qui fait référence.
+
+Le point d'architecture reste **ouvert** : garder les deux (complémentaires) ou
+n'en garder qu'un. Décision du propriétaire, avant de fusionner #770.
+
 0. **Le Pre-flight avant de toucher une seule ligne.**
    Lancer systématiquement :
    ```bash
@@ -277,7 +301,10 @@ Linux et macOS via :
 npm run garde-fous
 ```
 
-Ce script exécute et récapitule dans un tableau clair l'ensemble des 16 contrôles :
+Ce script exécute et récapitule dans un tableau clair l'ensemble des 21 contrôles
+(`scripts/garde-fous.mjs`). La PR #770, non fusionnée, en ajoute un 22ᵉ
+(`check:cms-schema` — un type de bloc doit exister partout : union `BlockType`,
+blocs par défaut, registre de schémas, conversion HTML, rendu React) :
 
 | Contrôle | Ce qu'il attrape |
 |---|---|
@@ -292,9 +319,14 @@ Ce script exécute et récapitule dans un tableau clair l'ensemble des 16 contr�
 | `check:cms-drift` | Tables en base absentes des migrations, ou l'inverse. |
 | `check:content-coherence` | Voix éditoriale et mots bannis en production. |
 | `check:content-pages` | Prose des pages statiques : mots bannis et fragments de brouillon. |
-| `check:content-evidence` | Vécu qui n'est adossé à aucune photo. |
+| `check:content-known-errors` | Fautes connues dans le code (replis JSX). |
+| `check:image-paths` | Chemins d'image locaux pointant vers un fichier absent de `public/`. |
 | `check:design-tics` | Emojis décoratifs et cartes « SaaS » sur les pages publiques. |
+| `check:cms-emojis` | Emojis décoratifs en base (zones CMS). |
+| `check:content-html-escapes` | Guillemets échappés dans les balises (SQL). |
 | `check:cms-hardcode` | Texte visible écrit en dur hors du CMS. Cliquet : le compte par fichier (`scripts/cms-hardcode-baseline.json`) ne peut que baisser ; après un gain, `node scripts/check-cms-hardcode.mjs --update`. |
+| `check:apk-signature` | Signature APK : absence de clé de debug publique. |
+| `check:content-evidence` | Vécu qui n'est adossé à aucune photo. |
 | `typecheck` (`tsc`) | Erreurs de typage TypeScript strictes. |
 | `vitest` (`vitest run`) | Intégrité des fichiers de tests unitaires et intégration. |
 
