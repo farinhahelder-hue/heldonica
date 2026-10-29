@@ -343,6 +343,7 @@ export function renderRichText(blocks: RichTextBlock[] | undefined | null): stri
           if (c.marks.includes('underline')) wrap.push({ open: '<u>', close: '</u>' });
           if (c.marks.includes('highlight')) wrap.push({ open: '<span class="rich-highlight">', close: '</span>' });
           if (c.marks.includes('code')) wrap.push({ open: '<code>', close: '</code>' });
+          if (c.marks.includes('blockquote')) wrap.push({ open: '<blockquote>', close: '</blockquote>' });
           let html = out;
           for (const w of wrap.reverse()) html = w.open + html + w.close;
           return html;
