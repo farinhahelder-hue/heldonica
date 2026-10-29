@@ -98,12 +98,18 @@ n'est pas dans la table, ça n'a pas été demandé ni fait.
 
 ### Les gestes de l'agent
 
-Ils existent sous forme d'outils MCP dans `mcp/agent-tasks/` — cinq outils,
+Ils existent sous forme d'outils MCP dans `mcp/agent-tasks/` — six outils,
 les mêmes pour Claude Code (`.mcp.json`), Gemini CLI (`.gemini/settings.json`)
-et OpenCode (`opencode.json`) : `taches_en_attente`, `lire_tache`,
+et OpenCode (`opencode.json`) : `taches_en_attente`, `lire_tache`, `lire_journal`,
 `prendre_tache`, `rendre_compte`, `deposer_tache`. Pas d'outil de suppression,
 c'est voulu. Chaque client se présente par `AGENT_NAME` ; sans nom, lecture
 seule. Détails et installation : `mcp/agent-tasks/README.md`.
+
+Chaque écriture sur `agent_tasks` laisse une trace dans `agent_task_events`
+(trigger `agent_tasks_journal`, migration
+`20261029150000_journal_agent_task_events.sql`), avec l'état avant et après.
+`lire_journal` la restitue. C'est ce qui permet de savoir qui a proposé quoi,
+quand, et ce qui a été modifié — la fiche seule n'a qu'un état présent.
 
 0. **Le Pre-flight avant de toucher une seule ligne.**
    Lancer systématiquement :
