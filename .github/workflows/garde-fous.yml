@@ -123,6 +123,14 @@ jobs:
       - name: Fenetre de revalidation des pages CMS
         run: npm run check:cms-cache
 
+      # Un type de bloc doit exister partout ou nulle part : union BlockType,
+      # blocs par defaut, registre de schemas, conversion HTML et rendu React.
+      # Statique, comme check:cms-cache : il lit les fichiers du depot. Il a
+      # trouve map, table_of_contents et hospitality_spot sans conversion HTML
+      # (silencieusement perdus dans le HTML, le RSS et la colonne de secours).
+      - name: Types de blocs ↔ schémas ↔ rendu
+        run: npm run check:cms-schema
+
       # Modules critiques absents et retard sur origin/main. Le 10/10, huit
       # fichiers référencés par le code n'ont jamais été committés : ils
       # n'existaient que sur la machine de l'auteur. Ce contrôle les voit sans
