@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import type {
   CmsBlock,
   BlockType,
@@ -2367,9 +2367,13 @@ function RichTextEditor({ block, onUpdate }: { block: TextBlock; onUpdate: (p: P
   };
 
   // Synchronise le contenu plat (linter, comptage mots, rétrocompat legacy)
+  const mountedRef = useRef(false);
+  const onUpdateRef = useRef(onUpdate);
+  onUpdateRef.current = onUpdate;
   useEffect(() => {
-    onUpdate({ richText: rt, content: richToPlain(rt) || undefined });
-  }, [rt, onUpdate]);
+    if (!mountedRef.current) { mountedRef.current = true; return; }
+    onUpdateRef.current({ richText: rt, content: richToPlain(rt) || undefined });
+  }, [rt]);
 
   const markBtn = (mark: TextMark) => `text-xs border rounded px-1.5 py-1 ${isMark(mark) ? 'bg-amber-100 border-amber-300 text-amber-900 font-bold' : 'border-stone-200 text-stone-600 hover:bg-stone-100'}`;
 
