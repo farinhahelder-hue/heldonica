@@ -2,6 +2,35 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-29] — Console de pilotage des agents : fil d'activité, file à valider, gouvernance
+
+Le suivi des agents avait un socle (le journal `agent_task_events`, PR #769) mais aucun
+poste pour le lire. Cette console est ce poste : elle rend observable ce que le journal
+enregistre déjà, sur données réelles.
+
+- **API `/api/admin/agents/journal`** (lecture seule) : rend le journal paginé (filtrable
+  par `agent` et `event_type`), la vue agrégée `v_agent_governance` (présente en base depuis
+  le 2026-09-03 sans aucun lecteur), et la file `waiting_validation`. Auth par session CMS.
+  Aucune écriture : le geste du fondateur (valider/renvoyer) reste dans `/api/agent-tasks`,
+  qui porte déjà la règle « une clé d'agent ne valide pas son propre travail ».
+- **Console montée dans le CMS vivant** (`/panel-manager?section=console-agents`) +
+  composant `ConsoleAgents` : trois vues (à valider, fil d'activité, gouvernance) et une
+  fiche tâche avec PR, commit et timeline issue du journal. **Pas** sous `/admin/agents` :
+  la redirection permanente `/admin/:path*` → `/panel-manager` (next.config.js, posée en
+  avril) rend tout l'arbre `app/admin/*` inatteignable en production — vérifié sur
+  `www.heldonica.fr` (308). `/panel-manager` est l'interface que le fondateur utilise.
+- **`limit` borné à 1000** : l'API REST Supabase plafonne silencieusement à 1000 lignes ;
+  au-delà, on croirait lire un journal complet qui ne l'est pas.
+- **L'erreur est nommée** : un journal vide et un journal en panne ne se ressemblent pas.
+  C'est le motif exact du bug « Aucun post programmé » — un écran qui affiche une absence là
+  où la requête échoue.
+- **Hors périmètre (v2, volontairement)** : détection d'anomalies et `audit_anomalies`. Les
+  seuils (« 24 h », « 48 h ») doivent être calibrés sur des données réelles, pas inventés
+  avant la première semaine d'usage.
+- **Tests** : `__tests__/api/admin-agents-journal.test.ts` (7 cas — sources interrogées,
+  erreurs nommées, borne de `limit`, filtre inconnu écarté, refus non authentifié sans
+  lecture de base). Garde-fous : 21/21 verts.
+
 ## [2026-10-29] — Cohérence documentaire : journal d'agents appliqué, garde-fous, deux journaux
 
 Corrections de documentation et de contenu uniquement (aucune migration, aucun changement du

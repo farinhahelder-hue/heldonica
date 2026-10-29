@@ -50,6 +50,11 @@ const MapManagerSection = dynamic(() => import('./maps/MapManagerSection'), { ss
 const DesignEditor = dynamic(() => import('@/components/admin/DesignEditor'), { ssr: false });
 const GeoAuditPanel = dynamic(() => import('@/components/admin/GeoAuditPanel'), { ssr: false });
 const TestimonialsManager = dynamic(() => import('@/components/admin/TestimonialsManager'), { ssr: false });
+// Console de pilotage des agents : lit le journal système (agent_task_events) et
+// la vue v_agent_governance. Montee ici et non sous /admin/agents : la
+// redirection permanente /admin/:path* (next.config.js) rend cet arbre
+// inatteignable depuis avril, alors que /panel-manager est le CMS vivant.
+const ConsoleAgents = dynamic(() => import('@/components/admin/ConsoleAgents'), { ssr: false });
 const ChecklistTemplatesManager = dynamic(() => import('@/components/admin/ChecklistTemplatesManager'), { ssr: false });
 const InstagramPublisher = dynamic(() => import('@/components/admin/InstagramPublisher'), { ssr: false });
 const InstagramStatsDashboard = dynamic(() => import('@/components/admin/InstagramStatsDashboard'), { ssr: false });
@@ -117,7 +122,7 @@ type NavSection =
   | 'testimonials' | 'checklists'
   | 'destination-pillars' | 'guides' | 'editable-zones' | 'sub-destinations'
   | 'seasons' | 'redirects' | 'layouts' | 'audit' | 'hospitality' | 'tokens-releases'
-  | 'hub' | 'task-giver' | 'seo-geo' | 'branding';
+  | 'hub' | 'task-giver' | 'seo-geo' | 'branding' | 'console-agents';
 
 // Sections adressables depuis l'URL. Le panneau ne gardait sa section qu'en
 // memoire : impossible d'ouvrir directement « Design » ou « Articles », que ce
@@ -131,7 +136,7 @@ const SECTIONS_URL: readonly NavSection[] = [
   'testimonials', 'checklists',
   'destination-pillars', 'guides', 'editable-zones', 'sub-destinations',
   'seasons', 'redirects', 'layouts', 'audit', 'hospitality', 'tokens-releases',
-  'hub', 'task-giver', 'seo-geo', 'branding',
+  'hub', 'task-giver', 'seo-geo', 'branding', 'console-agents',
 ]
 
 function sectionDepuisUrl(valeur: string | null): NavSection | null {
@@ -818,6 +823,7 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: React.Rea
       items: [
         { id: 'hub',           label: 'Hub Outils (Google/Meta)', icon: <ExternalLink size={15} /> },
         { id: 'task-giver',    label: 'Tâches Jules & IA',   icon: <Bot size={15} /> },
+        { id: 'console-agents',label: 'Console des agents',  icon: <ShieldCheck size={15} /> },
         { id: 'blog-generator',label: 'Générateur blog',  icon: <Bot size={15} /> },
         { id: 'instagram',     label: 'Instagram',           icon: <Camera size={15} /> },
         { id: 'analytics',     label: 'Analytics IA',        icon: <BarChart3 size={15} /> },
@@ -2394,6 +2400,15 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: React.Rea
             <ErrorBoundary>
               <Suspense fallback={<SkeletonForm />}>
                 <TokensAndReleasesManager />
+              </Suspense>
+            </ErrorBoundary>
+          )}
+
+          {/* -- Console des agents (journal systeme, file a valider) -- */}
+          {activeSection === 'console-agents' && (
+            <ErrorBoundary>
+              <Suspense fallback={<SkeletonForm />}>
+                <ConsoleAgents />
               </Suspense>
             </ErrorBoundary>
           )}
