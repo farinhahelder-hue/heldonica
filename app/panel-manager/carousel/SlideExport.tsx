@@ -5,6 +5,7 @@ import { ImageDown, Send, Package, Globe } from 'lucide-react'
 import { toPng } from 'html-to-image'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
+import DOMPurify from 'dompurify'
 import { SlideData, HELDONICA_TOKENS, AspectRatio } from './tokens'
 
 interface SlideExportProps {
@@ -134,7 +135,7 @@ export default function SlideExport({
     
     // Create temporary container
     const container = document.createElement('div')
-    container.innerHTML = generateSlideHTML(slide, targetDim.width, targetDim.height)
+    container.innerHTML = DOMPurify.sanitize(generateSlideHTML(slide, targetDim.width, targetDim.height))
     const slideEl = container.firstElementChild as HTMLElement
     
     if (!slideEl) return null
