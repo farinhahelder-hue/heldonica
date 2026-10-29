@@ -26,6 +26,30 @@ rien ne reliait une fiche aux commits ou à la PR qui l'ont réalisée — la PR
 - **Reste à faire (humain)** : appliquer la migration en production, puis
   `SELECT event_type, count(*) FROM agent_task_events GROUP BY 1`. En attendant, `lire_journal` répond
   « migration manquante » et le serveur MCP retombe proprement (aucune écriture cassée).
+## [2026-10-29] — Deux propositions écrites : socle CMS « Sanity-like » et journal d'actions agents
+
+Deux chantiers revenaient sans cesse en discussion sans jamais être posés par écrit : le CMS a la
+surface d'un Sanity mais pas son socle, et les agents déclarent ce qu'ils ont fait sans qu'on
+puisse le vérifier. Les deux propositions vivent sur la branche
+`agent/freebuff/cms-sanity-like-tracabilite` — documentation seule, aucune ligne de code de
+production, aucune table créée.
+
+- **`docs/PROPOSITION_CMS_SANITY_LIKE.md`** : état des lieux mesuré (12 types de blocs,
+  `schemas/*.ts` au format Sanity **importés nulle part**, `BlockCanvas` à ~3 380 lignes), écart
+  brique par brique avec Sanity, puis trois contrats à poser avant tout le reste — registre de
+  schémas exécutable, Portable Text v1 strict (clés stables, `markDefs`, blocs personnalisés dans
+  le flux), enveloppe de document avec `_rev` et paire brouillon/publié. Plan P0→P5 avec un
+  critère de sortie mesurable par phase et un garde-fou CI par contrat.
+- **`docs/PROPOSITION_TRACABILITE_AGENTS.md`** : le trou est nommé — `agent_tasks` trace
+  l'intention et un `actions_done` rédigé à la fin, jamais le déroulé. Cible en trois couches
+  (intention / journal / preuve), schéma `agent_actions` append-only donné en SQL pour discussion,
+  quatre points d'émission (MCP, hook `commit-msg` avec trailer `Agent-Task:`, garde-fous, CLI),
+  et un `redact()` obligatoire pour que le journal ne devienne pas le prochain vecteur de fuite
+  (incidents `sb_secret_…` / `ghu_…` du 26/10).
+- **Rien n'est appliqué ni mergé** : P0 et T1 attendent une décision humaine sur les points
+  listés en fin de chaque document ; les migrations éventuelles passeront par
+  `supabase/migrations/` et une application explicite.
+
 
 ## [2026-10-28] — Audit éditorial lot 2 : cohérence des chiffres de l'accueil (constats D et E)
 
