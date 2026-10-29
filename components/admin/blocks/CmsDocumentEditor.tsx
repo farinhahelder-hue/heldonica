@@ -230,6 +230,37 @@ export function CmsDocumentEditor({
           </button>
           <button
             type="button"
+            onClick={() => {
+              const input = document.createElement('input');
+              input.type = 'file';
+              input.accept = 'application/json';
+              input.onchange = (e) => {
+                const file = (e.target as HTMLInputElement).files?.[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = () => {
+                  try {
+                    const parsed = JSON.parse(String(reader.result)) as { metadata?: DocumentMetadata; blocks?: CmsBlock[] };
+                    if (parsed.blocks) onChange(parsed.blocks);
+                    if (parsed.metadata) {
+                      setMetadata(parsed.metadata);
+                      onMetadataChange?.(parsed.metadata);
+                    }
+                  } catch {
+                    // ignore
+                  }
+                };
+                reader.readAsText(file);
+              };
+              input.click();
+            }}
+            className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-xl transition-colors inline-flex items-center gap-1.5"
+            title="Importer un carnet depuis un fichier JSON"
+          >
+            <span>⬆ JSON</span>
+          </button>
+          <button
+            type="button"
             onClick={() => setShowRevisions((v) => !v)}
             className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-xl transition-colors inline-flex items-center gap-1.5"
             title="Historique des révisions"
