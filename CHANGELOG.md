@@ -26,6 +26,35 @@ rien ne reliait une fiche aux commits ou à la PR qui l'ont réalisée — la PR
 - **Reste à faire (humain)** : appliquer la migration en production, puis
   `SELECT event_type, count(*) FROM agent_task_events GROUP BY 1`. En attendant, `lire_journal` répond
   « migration manquante » et le serveur MCP retombe proprement (aucune écriture cassée).
+## [2026-10-29] — Socle de schemas CMS et journal d'actions agents
+
+Les deux propositions du jour passent au code, sur la branche
+`agent/freebuff/cms-sanity-like-tracabilite` — **sans merge**. Aucune table n'est
+creee en production : la migration attend une application humaine.
+
+- **Registre de schemas** (`lib/cms-schema/`) : les 12 types de blocs decrits une
+  seule fois (champs, bornes, valeurs admises), validateur sans dependance
+  (`validateBlock`, `validateBlocks`). Une chaine vide reste un etat d'edition ;
+  seule l'absence d'un champ obligatoire, une valeur hors liste ou une anecdote
+  de preuve au-dela de 200 caracteres sont fautives.
+- **Garde-fou `check:cms-schema`** (ajoute aux 16 existants) : compare l'union
+  `BlockType`, `createDefaultBlock`, le registre, `blocksToHtml` et
+  `BlockRenderer`. Il a trouve une vraie panne au premier passage : `map`,
+  `table_of_contents` et `hospitality_spot` n'avaient **aucune conversion HTML**
+  et disparaissaient du HTML, du flux RSS et de la colonne de secours sans un
+  signal. Les trois cas sont ecrits.
+- **Journal d'actions** : migration `20261029120000_agent_actions.sql`
+  (append-only, RLS sans policy, donc service_role seulement), noyau partage
+  `scripts/lib/agent-journal-core.mjs` (redaction `sb_secret_…`, `ghu_…`, JWT,
+  cles sensibles), CLI `scripts/agent-journal.mjs` (`log`, `tail`, `--selftest`),
+  hook `post-commit` (branche, SHA, trailer `Agent-Task:`, jamais bloquant) et
+  instrumentation des cinq outils MCP par enveloppement de `registerTool`.
+- **Verifie** : `tsc --noEmit` exit 0 ; `vitest` sur les deux fichiers ajoutes,
+  9 tests passes ; `check:cms-schema` exit 0 sur les 12 types ;
+  `agent-journal --selftest` exit 0. **Non verifie** : ecriture reelle dans
+  `agent_actions` (migration non appliquee, pas de service key ici).
+
+
 ## [2026-10-29] — Deux propositions écrites : socle CMS « Sanity-like » et journal d'actions agents
 
 Deux chantiers revenaient sans cesse en discussion sans jamais être posés par écrit : le CMS a la

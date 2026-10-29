@@ -1,0 +1,38 @@
+#!/bin/sh
+# post-commit — journalise le commit dans `agent_actions`.
+#
+# Le journal de la coordination disait « ce qui est demandé » (agent_tasks) et
+# « ce qui est déclaré fini » (actions_done), jamais le commit lui-même. Ce
+# hook relie les trois : branche, SHA, trailer `Agent-Task:`.
+#
+# Il ne bloque jamais : une base injoignable, une migration non appliquée ou
+# l'absence de node sortent en 0. Un hook qui échoue sur un détail de forme
+# sera contourné (`git commit --no-verify`), et on perdra la trace entière.
+
+branche=$(git symbolic-ref --quiet --short HEAD) || exit 0
+sha=$(git rev-parse HEAD 2>/dev/null) || exit 0
+sujet=$(git log -1 --pretty=%s 2>/dev/null)
+
+# Trailer facultatif : « Agent-Task: <uuid> ». On accepte les préfixes courts.
+tache=$(git log -1 --pretty=%B 2>/dev/null \
+  | sed -n 's/^Agent-Task:[[:space:]]*\([0-9a-fA-F-]\{8,\}\).*/\1/p' \
+  | head -1)
+
+case "$branche" in
+  agent/*)
+    if [ -z "$tache" ]; then
+      echo "– pas de trailer « Agent-Task: <uuid> » : commit journalisé sans lien de tâche." >&2
+    fi
+    ;;
+esac
+
+command -v node >/dev/null 2>&1 || exit 0
+racine=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+[ -f "$racine/scripts/agent-journal.mjs" ] || exit 0
+
+AGENT_BRANCH="$branche" node "$racine/scripts/agent-journal.mjs" log \
+  --kind=git --verb=commit --target="$branche" --outcome=ok \
+  --commit="$sha" --branch="$branche" --message="$sujet" \
+  ${tache:+--task="$tache"} --quiet >/dev/null 2>&1 || true
+
+exit 0
