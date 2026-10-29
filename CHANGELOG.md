@@ -23,6 +23,32 @@ migration toujours non appliquée).
   trigger sera prouvé à l'application, en transaction annulée (`UPDATE` de `verb` → SQLSTATE
   23001 ; suppression d'une tâche → `task_id` à `NULL`).
 
+## [2026-10-29] — Journal d'actions : sortir la clé maître du chemin d'écriture
+
+Suite de l'entrée précédente, sur la même branche. L'item 3 de la spec de revue restait ouvert :
+le hook `post-commit` ne nommait pas `service_role`, mais la chaîne qu'il appelle le faisait.
+
+- **Le défaut, tel qu'il était** : `.githooks/post-commit` → `scripts/agent-journal.mjs` →
+  `scripts/lib/agent-journal-core.mjs`, qui lisait `SUPABASE_SERVICE_ROLE_KEY` pour un simple
+  `INSERT`. Vérifier le hook seul (« aucune mention de service_role ») était donc vrai **et**
+  trompeur : c'est la chaîne d'appel qu'il faut lire, pas le premier fichier.
+- **Le remède** : l'écriture passe par `AGENT_JOURNAL_KEY`, clé dédiée au rôle `agent_journal`
+  créé par la migration — `INSERT` seul, ni `SELECT`, ni `UPDATE`, ni `DELETE`. La lecture
+  (`lireActions`, CLI `tail`) garde la clé maître : elle a besoin de `SELECT`, et le hook
+  n'appelle jamais ce chemin.
+- **Sans la clé, `journaliser()` se tait** (best-effort assumé) : une action non tracée vaut
+  mieux que la clé maître installée dans chaque clone. À dire noir sur blanc, sinon on croira le
+  journal alimenté alors qu'il est vide.
+- **Provisionnement humain** : créer le JWT du rôle exige le secret de signature du projet, qui
+  ne doit jamais entrer dans une migration ni dans `.env.example` (qui documente la variable, pas
+  sa valeur).
+- **Vérifié sur Postgres 15 réel** (conteneur, schéma `auth` absent donc `agent_tasks` stubbée) :
+  migration exécutée exit 0 ; `UPDATE`/`DELETE` lèvent tous deux (SQLSTATE 23001), la ligne
+  survit ; `SET ROLE agent_journal` insère, et `has_table_privilege` rend `f|t|f|f`
+  (SELECT non, INSERT oui, UPDATE non, DELETE non) ; la suppression d'une tâche référencée met
+  `task_id` à `NULL` sans erreur. **Non vérifié** : l'exposition PostgREST réelle (la clé du rôle
+  n'existe pas encore) et l'application en production.
+
 ## [2026-10-29] — Cohérence documentaire : journal d'agents appliqué, garde-fous, deux journaux
 
 Corrections de documentation et de contenu uniquement (aucune migration, aucun changement du
@@ -58,18 +84,19 @@ creee en production : la migration attend une application humaine.
   (`validateBlock`, `validateBlocks`). Une chaine vide reste un etat d'edition ;
   seule l'absence d'un champ obligatoire, une valeur hors liste ou une anecdote
   de preuve au-dela de 200 caracteres sont fautives.
-- **Garde-fou `check:cms-schema`** (ajoute aux 16 existants) : compare l'union
+- **Garde-fou `check:cms-schema`** (22ᵉ contrôle, câblé dans la CI) : compare l'union
   `BlockType`, `createDefaultBlock`, le registre, `blocksToHtml` et
   `BlockRenderer`. Il a trouve une vraie panne au premier passage : `map`,
   `table_of_contents` et `hospitality_spot` n'avaient **aucune conversion HTML**
   et disparaissaient du HTML, du flux RSS et de la colonne de secours sans un
   signal. Les trois cas sont ecrits.
 - **Journal d'actions** : migration `20261029160000_agent_actions.sql`
-  (append-only tenu par trigger, RLS sans policy, donc service_role seulement), noyau partage
+  (append-only tenu par **trigger**, RLS sans policy ; écriture par un rôle dédié
+  `agent_journal` limité à l'`INSERT`, jamais la clé maître), noyau partage
   `scripts/lib/agent-journal-core.mjs` (redaction `sb_secret_…`, `ghu_…`, JWT,
   cles sensibles), CLI `scripts/agent-journal.mjs` (`log`, `tail`, `--selftest`),
   hook `post-commit` (branche, SHA, trailer `Agent-Task:`, jamais bloquant) et
-  instrumentation des cinq outils MCP par enveloppement de `registerTool`.
+  instrumentation des six outils MCP par enveloppement de `registerTool`.
 - **Verifie** : `tsc --noEmit` exit 0 ; `vitest` sur les deux fichiers ajoutes,
   9 tests passes ; `check:cms-schema` exit 0 sur les 12 types ;
   `agent-journal --selftest` exit 0. **Non verifie** : ecriture reelle dans
