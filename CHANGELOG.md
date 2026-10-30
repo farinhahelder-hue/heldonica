@@ -2,6 +2,45 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-30 nonies] — Audit C2PA de toutes les images publiées, et revue de la PR #787
+
+L'audit d'images de Madère a été généralisé : **toutes** les images référencées par
+du contenu publié ou actif (destinations publiées, articles publiés, items de guide,
+zones CMS, héros de pilier, témoignages) ont été téléchargées et inspectées à la
+recherche du manifeste C2PA que les générateurs inscrivent dans le JPEG.
+
+- **Nouveau garde-fou réutilisable** : `scripts/audit/check-c2pa.mjs` — accepte des
+  URLs ou des chemins locaux, cherche `c2pa`, `trainedAlgorithmicMedia`, `SynthID`,
+  « Google Generative AI », `digitalSourceType`. Un EXIF absent ne prouve rien ; le
+  manifeste, lui, est une preuve.
+- **Résultat** : 8 images sur 16 portent le manifeste — les 5 de Madère, et **3 du
+  bucket `montenegro/`** (`sahat_kula`, `sipcanik_winery`, `stara_varos`). Ces 3 sont
+  dans `destinations.gallery_images`, **colonne rendue par aucun composant** : elles
+  ne fuient pas. Les vraies photos du Monténégro (`1793358027881-…-hero.jpg`,
+  `podgorica/1793355515554-…-nuit.jpg`) et les 3 photos roumaines sont saines.
+- **Aucune image IA ne subsiste dans le rendu public** après la migration Madère.
+
+Revue de la **PR #787** (agent Gemini/antigravity, Monténégro) : travail de fond solide.
+- **6 photos réelles** ajoutées, **aucun manifeste C2PA** (l'inverse exact des images
+  IA). Leur EXIF a été retiré par le script de traitement — la preuve d'appareil
+  n'est donc plus dans le fichier, mais l'absence de marqueur IA est vérifiable.
+- **Migration saine** : les 19 colonnes qu'elle met à jour existent toutes, les 7
+  blocs `::jsonb` sont **valides** (revérifiés), `cms_sub_destinations` accepte les
+  colonnes de l'INSERT, et les 3 sous-destinations visées n'existent pas encore.
+- **3 réserves, à corriger par l'auteur** :
+  1. La PR est **en conflit** (`mergeable_state = dirty`, diverged, 3 commits de
+     retard sur `main`) — sur `CHANGELOG.md`. Le rebase sur `main` est nécessaire.
+  2. **Le workflow « Garde-fous » ne s'est jamais exécuté** sur la branche (0 run ;
+     seul CodeRabbit, « skipped »). Le conflit en est la cause probable. « Aucun
+     contrôle en échec » ne signifie pas « contrôles passés ».
+  3. Le CHANGELOG annonce `content/evidence/montenegro.json` (32 spots GPS) comme
+     livré : **ce fichier n'existe ni dans la branche ni dans `main`**. Soit il a été
+     oublié, soit il n'a jamais été produit.
+- **Note** : 5 des 6 photos ne sont référencées nulle part dans la migration — seule
+  `petrovac_mer.jpg` sert de héros. `budva_`, `buljarica_`, `perazica_`,
+  `podgorica_cijevna_chutes` et `podgorica_stara_varos` sont déposées mais non
+  affichées (elles seront utiles pour les sous-destinations).
+
 ## [2026-10-30 octies] — Madère passe « Bientôt » : un fonds d'images intégralement généré
 
 Le propriétaire a demandé de mettre **Madère en brouillon** aussi, comme les deux
