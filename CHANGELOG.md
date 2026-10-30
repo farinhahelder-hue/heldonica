@@ -2,6 +2,22 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-30 quindecies] — Intégration front-end des capsules vidéo de terrain dans les sous-destinations du Monténégro
+
+Valorisation des extraits vidéo web optimisés (720p H.264 vertical 9:16) directement dans les récits de sous-destination :
+- **Évolution de `SubDestinationTemplate` (`components/SubDestinationTemplate.tsx`)** :
+  - Support de props optionnelles (`videoUrl`, `videoPoster`, `videoTitle`, `videoCaption`).
+  - Section dédiée « Instantané de terrain » entre l'esprit du lieu et les pépites, au format smartphone (max-w-sm, aspect 9/16, coins `rounded-sm`, filet `#DED5C6`).
+  - Balise `<video>` avec `autoPlay muted loop playsInline controls preload="metadata"` : zéro régression LCP (le poster porte l'image d'abord).
+- **Génération de 3 posters de couverture réels (0 IA, 0 C2PA)** :
+  - `montenegro_hotel_as_perazica_poster.jpg` (157 Ko)
+  - `montenegro_cijevna_waterfall_poster.jpg` (208 Ko)
+  - `montenegro_kayak_sveta_nedjelja_poster.jpg` (107 Ko)
+- **Affectation dans les 3 pages de sous-destination** :
+  - `petrovac-perazica` : sur le toit de l'hôtel brutaliste AS face à la mer turquoise.
+  - `podgorica-cijevna` : bouillonnement des cascades de la Cijevna dans les failles de calcaire blanc.
+  - `buljarica-lucice` : glisse en kayak matinale vers la chapelle de Sveta Nedjelja.
+
 ## [2026-10-30 quaterdecies] — Réconciliation de la dérive de migration (accroche Monténégro) et purge de la bibliothèque média
 
 Résolution de la dérive détectée entre la base de production et le dépôt Git :

@@ -40,6 +40,10 @@ export interface SubDestinationProps {
    * la carte « Style » via `getStyleLabel`.
    */
   travelStyle?: string
+  videoUrl?: string
+  videoPoster?: string
+  videoTitle?: string
+  videoCaption?: string
   relatedArticles?: Array<{
     slug: string
     title: string
@@ -59,6 +63,10 @@ export default function SubDestinationTemplate({
   highlights,
   localTip,
   travelStyle,
+  videoUrl,
+  videoPoster,
+  videoTitle,
+  videoCaption,
   relatedArticles = [],
 }: SubDestinationProps) {
   // Contenu non publiable (cf. lib/unpublished-pages.ts) : le brouillon en base
@@ -198,6 +206,40 @@ export default function SubDestinationTemplate({
           </div>
         </div>
       </section>
+
+      {/* ── CAPSULE VIDÉO DE TERRAIN ── */}
+      {videoUrl && (
+        <section className="py-14 bg-[#FAF7F2] border-b border-[#DED5C6]">
+          <div className="max-w-2xl mx-auto px-6 text-center">
+            <p className="text-eucalyptus text-[11px] font-medium uppercase tracking-[0.2em] mb-2">
+              <EditableZone page={page} zone="video_kicker" fallback="Instantané de terrain" />
+            </p>
+            {videoTitle && (
+              <h2 className="text-2xl md:text-3xl font-serif font-normal text-mahogany mb-6">
+                <EditableZone page={page} zone="video_title" fallback={videoTitle} />
+              </h2>
+            )}
+            <div className="relative mx-auto rounded-sm overflow-hidden border border-[#DED5C6] bg-[#241D1A] max-w-[280px] sm:max-w-xs md:max-w-sm">
+              <video
+                src={videoUrl}
+                poster={videoPoster}
+                autoPlay
+                muted
+                loop
+                playsInline
+                controls
+                preload="metadata"
+                className="w-full h-auto aspect-[9/16] object-cover"
+              />
+            </div>
+            {videoCaption && (
+              <p className="text-charcoal/70 text-xs italic font-serif mt-3 max-w-sm mx-auto leading-relaxed">
+                <EditableZone page={page} zone="video_caption" fallback={videoCaption} />
+              </p>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* ── HIGHLIGHTS / PÉPITES ── */}
       <section className="py-20 bg-[#EFE9DF] border-b border-[#DED5C6]">

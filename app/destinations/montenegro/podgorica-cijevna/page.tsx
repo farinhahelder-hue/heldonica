@@ -59,6 +59,10 @@ export default async function PodgoricaCijevnaPage() {
         highlights={highlights}
         localTip="Garde la Cijevna pour la fin de matinée : la lumière entre dans le canyon à ce moment-là, et tu seras seul sur place. Le retour vers la côte par la M-2.3 traverse Cetinje, l'ancienne capitale royale."
         travelStyle="slow-culture"
+        videoUrl="/videos/destinations/montenegro/montenegro_cijevna_waterfall.mp4"
+        videoPoster="/videos/destinations/montenegro/montenegro_cijevna_waterfall_poster.jpg"
+        videoTitle="Le bouillonnement des chutes de la Cijevna"
+        videoCaption="À quinze minutes de la capitale, la rivière cascade dans les vasques de calcaire blanc."
       />
       <Footer />
     </InlineEditProvider>

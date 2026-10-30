@@ -59,6 +59,10 @@ export default async function PetrovacPerazicaPage() {
         highlights={highlights}
         localTip="Prends de bonnes baskets : le sentier de Crvena Stijena se marche sur de la roche, et l'exploration de l'hôtel AS se fait dans du béton brut. Fin mai, l'eau est déjà tiède et les transats payants ne sont pas encore installés."
         travelStyle="slow-nature"
+        videoUrl="/videos/destinations/montenegro/montenegro_hotel_as_perazica.mp4"
+        videoPoster="/videos/destinations/montenegro/montenegro_hotel_as_perazica_poster.jpg"
+        videoTitle="Sur le toit de l'hôtel fantôme à Perazića Do"
+        videoCaption="Dernier étage face à la mer : le béton brut envahi par le street art et l'eau turquoise en contrebas."
       />
       <Footer />
     </InlineEditProvider>

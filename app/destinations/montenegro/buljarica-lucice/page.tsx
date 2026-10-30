@@ -59,6 +59,10 @@ export default async function BuljaricaLucicePage() {
         highlights={highlights}
         localTip="Pars tôt pour éviter la chaleur sur la montée, et emporte de l'eau : il n'y a rien entre Lučice et Buljarica. Le retour se fait par le même sentier, ou en voiture par la route de la côte si tu as garé ton véhicule à Petrovac."
         travelStyle="slow-nature"
+        videoUrl="/videos/destinations/montenegro/montenegro_kayak_sveta_nedjelja.mp4"
+        videoPoster="/videos/destinations/montenegro/montenegro_kayak_sveta_nedjelja_poster.jpg"
+        videoTitle="En kayak vers la chapelle de Sveta Nedjelja"
+        videoCaption="Glisse matinale sur une eau cristalline vers les rochers jumeaux et leur clocher perché."
       />
       <Footer />
     </InlineEditProvider>
