@@ -15,14 +15,20 @@
 
 import { NextResponse } from 'next/server';
 import { createCmsSessionResponse } from '@/lib/cms-auth';
-import { isGoogleSignInConfigured, verifierJetonGoogle } from '@/lib/cms-google-signin';
+import { isGoogleSignInConfigured, verifierJetonGoogle, getSignInClientId } from '@/lib/cms-google-signin';
 import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   // État de la connexion, pour que l'app puisse l'afficher sans tenter un appel.
-  return NextResponse.json({ configure: isGoogleSignInConfigured() });
+  // On expose aussi le client ID : le bouton web en a besoin pour initialiser
+  // Google Identity Services, et il n'est pas secret (il figure dans chaque page
+  // qui charge le script). Tant qu'il n'est pas posé, on n'envoie rien.
+  return NextResponse.json({
+    configure: isGoogleSignInConfigured(),
+    clientId: getSignInClientId(),
+  });
 }
 
 export async function POST(req: Request) {
