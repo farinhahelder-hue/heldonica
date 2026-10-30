@@ -2,6 +2,17 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-30 quaterdecies] — Réconciliation de la dérive de migration (accroche Monténégro) et purge de la bibliothèque média
+
+Résolution de la dérive détectée entre la base de production et le dépôt Git :
+- **Versionnement de la migration `20261030184500_corriger_accroche_montenegro.sql`** :
+  - Intégration du fichier dans `supabase/migrations/` et enregistrement officiel dans `supabase_migrations.schema_migrations`.
+  - Supprime toute mention résiduelle de Kotor dans `destinations.excerpt` (Monténégro et Podgorica) au profit du vécu documenté.
+- **Purge de la bibliothèque média Supabase et du stockage objet** :
+  - Suppression des 4 fiches d'images IA dans `public.cms_media` (ids 264 à 267).
+  - Suppression des 4 objets dans le bucket de stockage `storage.objects` (`stara_varos.jpg`, `moraca_millennium.jpg`, `sahat_kula.jpg`, `sipcanik_winery.jpg`).
+  - Zéro objet IA résiduel dans le bucket `media/destinations/montenegro/`.
+
 ## [2026-10-30 terdecies] — Purge intégrale des images IA (fichiers, fallbacks, albums et templates) et nouveau garde-fou C2PA
 
 Application stricte de la Règle n°1 d'Heldonica (« On n'invente rien ») sur l'ensemble du dépôt et des surfaces de repli.
