@@ -2,6 +2,33 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-30 terdecies] — Purge intégrale des images IA (fichiers, fallbacks, albums et templates) et nouveau garde-fou C2PA
+
+Application stricte de la Règle n°1 d'Heldonica (« On n'invente rien ») sur l'ensemble du dépôt et des surfaces de repli.
+Suite à l'audit conjoint Antigravity & OpenHands, élimination définitive de tous les visuels portant le manifeste C2PA et assainissement des références résiduelles dans le code.
+
+- **Suppression physique de 4 fichiers IA du dépôt** :
+  - `public/images/destinations/montenegro/moraca_millennium.jpg` (1 023 Ko)
+  - `public/images/destinations/montenegro/sahat_kula.jpg` (1 137 Ko)
+  - `public/images/destinations/montenegro/sipcanik_winery.jpg` (1 020 Ko)
+  - `public/images/destinations/montenegro/stara_varos.jpg` (1 127 Ko)
+  Aucune image générée ne subsiste dans `public/images/` (validé par `check:cms-ai-images`).
+- **Correction des fallbacks d'accueil (`lib/home-data.ts`, `components/HomeClient.tsx`)** :
+  - Remplacement de l'image de repli `sahat_kula.jpg` par la vraie photo de terrain `petrovac_mer.jpg`.
+  - Remplacement de l'accroche fictive (« Fjord de Kotor, ruelles anciennes et Adriatique hors des radars ») par le vécu réel (« Petrovac, les criques de Perazića Do et la vieille ville de Podgorica »).
+- **Assainissement des albums de preuves (`lib/cms-photo-albums.ts`)** :
+  - Retrait de la fausse attribution Nikon D7200 sur `moraca_millennium.jpg` et remplacement par les vraies photos de Stara Varoš et des chutes de la Cijevna (`podgorica_stara_varos.jpg`, `podgorica_cijevna_chutes.jpg`).
+  - Retrait de l'album `madere-automne-2024` qui référençait les 5 images générées de Madère (conforme à la mise en « Bientôt » de Madère).
+- **Nettoyage des gabarits et articles (`lib/cms-templates.ts`, `podgorica-pepites-slow-travel-couple.mdx`)** :
+  - Remplacement des placeholders de templates par les photos réelles de Roumanie et du Monténégro.
+  - Mise à jour des 5 chemins d'images dans l'article MDX de Podgorica vers les photos de terrain authentiques.
+  - Mise à jour des fallbacks dans `DestinationPage.tsx` et `kotor/page.tsx`.
+- **Migration SQL idempotente (`supabase/migrations/20261030180000_purge_refs_images_generees.sql`)** :
+  - Colmate toute réintroduction possible par d'anciennes migrations sur les colonnes `featured_image` et `hero_unsplash_url` de la table `destinations`.
+- **Nouveau garde-fou CI (`scripts/check-cms-ai-images.mjs`)** :
+  - Scanne automatiquement `public/images/` à la recherche des marqueurs C2PA (`c2pa`, `trainedalgorithmicmedia`, `digitalsourcetype`, `google c2pa`).
+  - Intégré dans `scripts/garde-fous.mjs` (preflight) et dans `package.json` (`npm run check:cms-ai-images`).
+
 ## [2026-10-30 duodecies] — Cohérence éditoriale : le garde-fou regardait à côté du pilier
 
 `check-content-coherence` scannait `cms_editable_zones`, `cms_home_destinations`,

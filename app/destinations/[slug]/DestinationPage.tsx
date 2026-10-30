@@ -20,7 +20,7 @@ import { isUnpublishedCmsPage } from '@/lib/unpublished-pages'
 const DESTINATION_IMAGES: Record<string, string> = {
   'sicile': '/og-default.jpg',
   'lisbonne': '/og-default.jpg',
-  'montenegro': '/images/destinations/montenegro/moraca_millennium.jpg',
+  'montenegro': '/images/destinations/montenegro/petrovac_mer.jpg',
   'suisse': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/stoos-02.jpg',
   'zurich': '/og-default.jpg',
   'paris': '/og-default.jpg',

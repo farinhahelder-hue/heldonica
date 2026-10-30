@@ -590,8 +590,8 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
                 destination_slug: 'montenegro',
                 title: 'Monténégro',
                 country: 'Monténégro',
-                tagline: 'Fjord de Kotor, ruelles anciennes et Adriatique hors des radars.',
-                custom_image_url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/montenegro/sahat_kula.jpg',
+                tagline: 'Petrovac, les criques de Perazića Do et la vieille ville de Podgorica.',
+                custom_image_url: 'https://www.heldonica.fr/images/destinations/montenegro/petrovac_mer.jpg',
               },
             ]).map((dest: any) => {
               const slug = dest.destination_slug || dest.slug || ''

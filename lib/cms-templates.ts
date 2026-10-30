@@ -168,7 +168,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
         {
           id: generateId('tpl_photo'),
           type: 'photo_evidence',
-          imageUrl: 'https://heldonica.fr/images/destinations/montenegro/moraca_millennium.jpg',
+          imageUrl: 'https://www.heldonica.fr/images/destinations/montenegro/petrovac_mer.jpg',
           location: `${dest} — premier matin`,
           date: '2026-05-18',
           anecdote: atmo ? atmo.sensorySnippet : 'Le silence matinal le long de la berge avant l\'éveil de la ville.',
@@ -310,12 +310,12 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
           displayMode: 'carousel',
           images: [
             {
-              url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/fanal_foret.jpg',
+              url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/roumanie/IMG_20260827_135023.jpg',
               alt: 'Atmosphère feutrée de la cour intérieure',
               caption: 'La cour intérieure ombragée aux premières heures.',
             },
             {
-              url: 'https://heldonica.fr/images/destinations/montenegro/sahat_kula.jpg',
+              url: 'https://www.heldonica.fr/images/destinations/montenegro/petrovac_mer.jpg',
               alt: 'Chambre aux matières brutes et naturelles',
               caption: 'Pierres apparentes et bois patiné.',
             },
@@ -435,7 +435,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
         {
           id: generateId('tpl_photo'),
           type: 'photo_evidence',
-          imageUrl: 'https://heldonica.fr/images/destinations/montenegro/moraca_millennium.jpg',
+          imageUrl: 'https://www.heldonica.fr/images/destinations/montenegro/petrovac_mer.jpg',
           location: `${dest} — au lever du jour`,
           date: '2026-05-18',
           anecdote: 'Le village avant le premier bus : preuve que la tranquillité appartient à ceux qui se lèvent tôt.',
@@ -638,7 +638,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
         {
           id: generateId('tpl_photo'),
           type: 'photo_evidence',
-          imageUrl: 'https://heldonica.fr/images/destinations/montenegro/moraca_millennium.jpg',
+          imageUrl: 'https://www.heldonica.fr/images/destinations/montenegro/petrovac_mer.jpg',
           location: `${dest} — au marché du matin`,
           date: '2026-05-18',
           anecdote: 'Le patron choisit lui-même ses légumes à l’aube : le secret d’une cuisine authentique.',
@@ -725,7 +725,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
         {
           id: generateId('tpl_photo'),
           type: 'photo_evidence',
-          imageUrl: 'https://heldonica.fr/images/destinations/montenegro/moraca_millennium.jpg',
+          imageUrl: 'https://www.heldonica.fr/images/destinations/montenegro/petrovac_mer.jpg',
           location: `${dest} — en fin d’après-midi`,
           date: '2026-05-18',
           anecdote: 'Lumière rasante sur les rails au moment où le train s’arrête dans le calme du crépuscule.',
