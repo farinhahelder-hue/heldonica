@@ -51,6 +51,25 @@ export type GoogleVerification =
   | { ok: false; raison: string };
 
 /**
+ * Classe un refus de jeton Google en une catégorie sûre à journaliser.
+ *
+ * `google-auth-library` glisse parfois le jeton lui-même dans le message
+ * d'erreur (`Invalid token signature: <jeton>`, `Wrong number of segments in
+ * token: <jeton>`, `Can't parse token payload: <segment>`). Journaliser ce
+ * message tel quel déposerait un jeton d'identité vivant hors du dépôt : on ne
+ * le reprend donc jamais, on le classe. La distinction sert au diagnostic —
+ * « audience » signale un client ID qui ne correspond pas au bouton, la cause la
+ * plus fréquente d'un bouton Google qui refuse sans rien dire.
+ */
+export function classerRefusGoogle(erreur: unknown): string {
+  const message = erreur instanceof Error ? erreur.message : String(erreur ?? '');
+  if (/wrong recipient|audience/i.test(message)) return 'audience';
+  if (/too late|too early|expiration/i.test(message)) return 'expiration';
+  if (/signature|segments|envelope|issuer|parse/i.test(message)) return 'jeton illisible';
+  return 'inconnu';
+}
+
+/**
  * Vérifie un jeton d'identité Google.
  *
  * `verifyIdToken` contrôle la signature auprès des clés publiques de Google,
@@ -86,9 +105,11 @@ export async function verifierJetonGoogle(jeton: string): Promise<GoogleVerifica
       return { ok: false, raison: 'Ce compte n\'est pas autorisé.' };
     }
     return { ok: true, email: payload.email };
-  } catch {
+  } catch (e) {
     // Google répond « Token used too late », « Wrong recipient », « Invalid
-    // signature »… Détail utile en journal, jamais renvoyé au client.
+    // signature »… Le message brut peut porter le jeton : on ne journalise que
+    // sa catégorie, jamais le message lui-même. Jamais renvoyé au client.
+    console.error('[cms-auth/google] jeton refusé :', classerRefusGoogle(e));
     return { ok: false, raison: 'Jeton Google refusé.' };
   }
 }
