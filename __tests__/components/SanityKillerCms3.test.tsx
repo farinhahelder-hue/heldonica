@@ -9,9 +9,9 @@ import { BlockCanvas } from '@/components/admin/blocks/BlockCanvas';
 import { AstJsonInspectorModal } from '@/components/admin/blocks/AstJsonInspectorModal';
 import { EeatScorecardHud } from '@/components/admin/blocks/EeatScorecardHud';
 import { BubbleToolbar } from '@/components/admin/blocks/BubbleToolbar';
-import { blocksToHtml, htmlToBlocks } from '@/lib/cms-blocks-converter';
+import { blocksToHtml, htmlToBlocks, renderRichText } from '@/lib/cms-blocks-converter';
 import { instantiateCmsTemplate, CMS_TEMPLATES } from '@/lib/cms-templates';
-import type { ImageBlock as ImageBlockType, CmsBlock } from '@/types/cms-blocks';
+import type { ImageBlock as ImageBlockType, TextBlock, CmsBlock, RichTextBlock } from '@/types/cms-blocks';
 
 describe('CMS 3.0 Sanity Killer — Hotspot & Visual Click-to-Edit', () => {
   it('HotspotPicker affiche les presets et déclenche onChange lors d’un clic', () => {
@@ -100,6 +100,71 @@ describe('CMS 3.0 Sanity Killer — Hotspot & Visual Click-to-Edit', () => {
     expect(restored[0].type).toBe('image');
     const restoredImg = restored[0] as ImageBlockType;
     expect(restoredImg.hotspot).toEqual({ x: 0.7, y: 0.25 });
+  });
+
+  it('Round-trip Portable Text (Sanity-style) : gras, italique, lien et surligné survivent à blocksToHtml → htmlToBlocks', () => {
+    const blocks: CmsBlock[] = [
+      {
+        id: 'blk_rt',
+        type: 'text',
+        richText: [
+          {
+            _type: 'block',
+            children: [
+              { text: 'Le ', marks: [] },
+              { text: 'sentier brumeux', marks: ['strong', 'em'] },
+              { text: ' mène au ', marks: [] },
+              { text: 'refuge', marks: ['link'], href: 'https://heldonica.fr/refuge' },
+              { text: '.', marks: [] },
+            ],
+          },
+          {
+            _type: 'block',
+            children: [{ text: 'Surligné.', marks: ['highlight'] }],
+          },
+        ],
+      },
+    ];
+
+    const html = blocksToHtml(blocks);
+    expect(html).toContain('<strong><em>sentier brumeux</em></strong>');
+    expect(html).toContain('<a href="https://heldonica.fr/refuge">refuge</a>');
+    expect(html).toContain('<span class="rich-highlight">Surligné.</span>');
+
+    const restored = htmlToBlocks(html);
+    expect(restored).toHaveLength(1);
+    const restoredTxt = restored[0] as TextBlock;
+    expect(restoredTxt.richText).toBeDefined();
+    const b0 = restoredTxt.richText![0];
+    const span2 = b0.children[2];
+    expect(span2.text).toBe(' mène au ');
+    const span3 = b0.children[3];
+    expect(span3.text).toBe('refuge');
+    expect(span3.marks).toContain('link');
+    expect(span3.href).toBe('https://heldonica.fr/refuge');
+    const b1 = restoredTxt.richText![1];
+    expect(b1.children[0].marks).toContain('highlight');
+  });
+
+  it('renderRichText supporte les nouveaux marks code et blockquote (Portable Text étendu)', () => {
+    const blocks: RichTextBlock[] = [
+      {
+        _type: 'block',
+        children: [
+          { text: 'Code inline ', marks: [] },
+          { text: 'const x = 1', marks: ['code'] },
+          { text: ' et citation :', marks: [] },
+        ],
+      },
+      {
+        _type: 'block',
+        children: [{ text: 'Un mot cité', marks: ['blockquote'] }],
+      },
+    ];
+
+    const html = renderRichText(blocks);
+    expect(html).toContain('<code>const x = 1</code>');
+    expect(html).toContain('<blockquote>Un mot cité</blockquote>');
   });
 
   it('OmnisearchPalette filtre par mot-clé et insère une pépite du Coffre RAG', () => {

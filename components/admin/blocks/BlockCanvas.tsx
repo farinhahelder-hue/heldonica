@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import type {
   CmsBlock,
   BlockType,
@@ -16,6 +16,9 @@ import type {
   MapBlock,
   TableOfContentsBlock,
   HospitalitySpotBlock,
+  RichTextBlock,
+  TextSpan,
+  TextMark,
   BlockSpacing,
   BlockTheme,
 } from '@/types/cms-blocks';
@@ -97,6 +100,7 @@ import { generateFaqVerdictBundle } from '@/lib/cms-faq-verdict-generator';
 import { BlockRenderer } from '@/components/blocks/BlockRenderer';
 import { LogoStudioModal } from '@/components/admin/LogoStudioModal';
 import { BubbleToolbar } from './BubbleToolbar';
+import { BlockInspector } from './BlockInspector';
 import { AstJsonInspectorModal } from './AstJsonInspectorModal';
 import { EeatScorecardHud } from './EeatScorecardHud';
 import { AgentPresenceBadge } from './AgentPresenceBadge';
@@ -743,8 +747,10 @@ export function BlockCanvas({
     handleDragEnd();
   };
 
+  const selectedBlock = blocks.find((b) => b.id === selectedBlockId);
+
   return (
-    <div className={`space-y-6 ${className}`}>
+    <div className={`grid grid-cols-1 lg:${selectedBlock ? 'grid-cols-3' : 'grid-cols-1'} gap-6 ${className}`}>
       {/* Suggestions intelligentes du Coffre des Savoirs RAG */}
       {vaultSuggestions.length > 0 && (
         <div className="space-y-3">
@@ -1353,7 +1359,7 @@ export function BlockCanvas({
                     <HeadingEditor block={block} onUpdate={(p) => updateBlock(block.id, p)} />
                   )}
                   {block.type === 'text' && (
-                    <TextEditor block={block} onUpdate={(p) => updateBlock(block.id, p)} />
+                    <RichTextEditor block={block} onUpdate={(p) => updateBlock(block.id, p)} />
                   )}
                   {block.type === 'image' && (
                     <ImageEditor block={block} onUpdate={(p) => updateBlock(block.id, p)} />
@@ -2195,6 +2201,16 @@ export function BlockCanvas({
           commitBlocks(newBlocks);
         }}
       />
+
+      {/* Inspecteur contextuel Sanity-style : champs du bloc sélectionné */}
+      {selectedBlock && (
+        <div className="lg:col-span-1 sticky top-4 max-h-[90vh] overflow-y-auto">
+          <BlockInspector
+            block={selectedBlock}
+            onUpdate={(patch) => updateBlock(selectedBlockId!, patch)}
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -2236,15 +2252,276 @@ function HeadingEditor({ block, onUpdate }: { block: HeadingBlock; onUpdate: (p:
   );
 }
 
-function TextEditor({ block, onUpdate }: { block: TextBlock; onUpdate: (p: Partial<TextBlock>) => void }) {
+/* ------------------------------------------------------------------ */
+/* Rich Text Editor "Portable Text" à la Sanity pour les blocs texte  */
+/* ------------------------------------------------------------------ */
+
+const plainToRich = (text: string): TextRichBlock[] =>
+  text.split('\n').map((t) => ({ _type: 'block', children: [{ text: t, marks: [] }] }));
+
+const richToPlain = (rt: RichTextBlock[]): string =>
+  rt.filter((b): b is Extract<RichTextBlock, { _type: 'block' }> => b._type === 'block').map((b) => b.children.map((c) => c.text).join('')).join('\n');
+
+const markLabel: Record<TextMark, string> = {
+  strong: 'Gras',
+  em: 'Italique',
+  underline: 'Souligné',
+  highlight: 'Surligné',
+  link: 'Lien',
+  code: 'Code',
+  blockquote: 'Citation',
+};
+
+const markClasses = (c: TextSpan): string => {
+  const cls: string[] = [];
+  if (c.marks.includes('strong')) cls.push('font-bold');
+  if (c.marks.includes('em')) cls.push('italic');
+  if (c.marks.includes('underline')) cls.push('underline');
+  if (c.marks.includes('highlight')) cls.push('bg-amber-100');
+  if (c.marks.includes('link')) cls.push('text-sky-600 underline');
+  return cls.join(' ');
+};
+
+type TextRichBlock = Extract<RichTextBlock, { _type: "block" }>;
+
+function RichTextEditor({ block, onUpdate }: { block: TextBlock; onUpdate: (p: Partial<TextBlock>) => void }) {
+  const initial = (block.richText?.filter((b): b is TextRichBlock => b._type === 'block') ?? (block.content ? plainToRich(block.content) : [{ _type: 'block', children: [{ text: '', marks: [] }] }]));
+  const [rt, setRt] = useState<Array<Extract<RichTextBlock, { _type: "block" }>>>(initial);
+  const [active, setActive] = useState<{ bi: number; si: number } | null>(null);
+  const [editing, setEditing] = useState<{ bi: number; si: number } | null>(null);
+  const [editValue, setEditValue] = useState('');
+  const [linkHref, setLinkHref] = useState('');
+
+  const activeSpan = active ? rt[active.bi]?.children[active.si] : undefined;
+  const isMark = (mark: TextMark) => activeSpan?.marks.includes(mark) ?? false;
+
+  const toggleMark = (mark: TextMark) => {
+    if (!active) return;
+    setRt((prev) =>
+      prev.map((b, bi) => {
+        if (bi !== active!.bi) return b;
+        return {
+          ...b,
+          children: b.children.map((c, si) => {
+            if (si !== active!.si) return c;
+            const marks: TextMark[] = c.marks.includes(mark)
+              ? c.marks.filter((m) => m !== mark)
+              : [...c.marks, mark];
+            return { ...c, marks };
+          }),
+        };
+      })
+    );
+    setEditing(null);
+  };
+
+  const confirmLink = () => {
+    if (!active) return;
+    setRt((prev) =>
+      prev.map((b, bi) => {
+        if (bi !== active!.bi) return b;
+        return {
+          ...b,
+          children: b.children.map((c, si) => {
+            if (si !== active!.si) return c;
+            if (linkHref.trim()) {
+              return { ...c, marks: [...new Set([...c.marks, 'link' as TextMark])], href: linkHref.trim() };
+            }
+            return { ...c, marks: c.marks.filter((m) => m !== 'link'), href: undefined };
+          }),
+        };
+      })
+    );
+    setLinkHref('');
+    setEditing(null);
+  };
+
+  const saveEdited = () => {
+    if (!active || !editing) return;
+    setRt((prev) =>
+      prev.map((b, bi) => {
+        if (bi !== active!.bi) return b;
+        return {
+          ...b,
+          children: b.children.map((c, si) => {
+            if (si !== active!.si) return c;
+            return { ...c, text: editValue };
+          }),
+        };
+      })
+    );
+    setEditing(null);
+  };
+
+  const addParagraph = () => {
+    setRt([...rt, { _type: 'block', children: [{ text: '', marks: [] }] }]);
+    setActive({ bi: rt.length, si: 0 });
+    setEditing(null);
+  };
+
+  const removeParagraph = (bi: number) => {
+    if (rt.length <= 1) return;
+    setRt(rt.filter((_, i) => i !== bi));
+    setActive(null);
+    setEditing(null);
+  };
+
+  // Synchronise le contenu plat (linter, comptage mots, rétrocompat legacy)
+  const mountedRef = useRef(false);
+  const onUpdateRef = useRef(onUpdate);
+  onUpdateRef.current = onUpdate;
+  useEffect(() => {
+    if (!mountedRef.current) { mountedRef.current = true; return; }
+    onUpdateRef.current({ richText: rt, content: richToPlain(rt) || undefined });
+  }, [rt]);
+
+  const markBtn = (mark: TextMark) => `text-xs border rounded px-1.5 py-1 ${isMark(mark) ? 'bg-amber-100 border-amber-300 text-amber-900 font-bold' : 'border-stone-200 text-stone-600 hover:bg-stone-100'}`;
+
   return (
-    <div>
+    <div className="border border-stone-200 rounded-xl bg-stone-50 p-2">
+      {/* Barre de formatage Portable Text (à la Sanity) */}
+      <div className="flex flex-wrap items-center gap-2 mb-2 pb-2 border-b border-stone-200">
+        <span className="text-[10px] font-bold text-stone-500 uppercase tracking-wider mr-2">Rich Text</span>
+        <button type="button" onClick={() => toggleMark('strong')} title="Gras" className={markBtn('strong')}>B</button>
+        <button type="button" onClick={() => toggleMark('em')} title="Italique" className={markBtn('em')}>I</button>
+        <button type="button" onClick={() => toggleMark('underline')} title="Souligné" className={markBtn('underline')}>U</button>
+        <button type="button" onClick={() => toggleMark('highlight')} title="Surligné" className={markBtn('highlight')}>≡</button>
+        {active && (
+          <>
+            <input
+              type="text"
+              value={linkHref}
+              onChange={(e) => setLinkHref(e.target.value)}
+              placeholder="https://…"
+              disabled={!isMark('link')}
+              className="w-32 text-xs border border-stone-200 rounded px-2 py-1 focus:outline-none focus:border-amber-500"
+            />
+            <button
+              type="button"
+              onClick={confirmLink}
+              disabled={!linkHref.trim() && !activeSpan?.href}
+              className="text-xs border border-stone-200 rounded px-1.5 py-1 hover:bg-stone-100"
+              title="Appliquer le lien"
+            >
+              🔗
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                if (!active) return;
+                setRt((prev) =>
+                  prev.map((b, bi) => {
+                    if (bi !== active.bi) return b;
+                    return {
+                      ...b,
+                      children: b.children.map((c, si) => {
+                        if (si !== active.si) return c;
+                        return { ...c, marks: c.marks.filter((m) => m !== 'link'), href: undefined };
+                      }),
+                    };
+                  })
+                );
+                setLinkHref('');
+              }}
+              className="text-xs text-stone-400 hover:text-stone-700 p-0.5"
+              title="Retirer le lien"
+            >
+              ✕
+            </button>
+          </>
+        )}
+        <button type="button" onClick={addParagraph} className="text-xs text-stone-500 hover:text-stone-800 px-1.5 py-1 rounded hover:bg-stone-100">+ paragraphe</button>
+        <span className="ml-auto text-[10px] text-stone-400">{rt.length} paragraphe{rt.length > 1 ? 's' : ''}</span>
+      </div>
+
+      {/* Paragraphes et spans éditables */}
+      <div className="space-y-2">
+        {rt.map((b, bi) => (
+          <div key={bi} className="flex flex-col gap-1">
+            <div className="flex flex-wrap items-baseline gap-1 leading-relaxed min-h-[1.5em]">
+              {b.children.map((c, si) => {
+                const isActive = active?.bi === bi && active?.si === si;
+                const isEditing = editing?.bi === bi && editing?.si === si;
+                const hasLink = c.marks.includes('link');
+                return (
+                  <span key={si} onClick={() => setActive({ bi, si })}>
+                    {isEditing ? (
+                      <input
+                        autoFocus
+                        value={editValue}
+                        onChange={(e) => setEditValue(e.target.value)}
+                        onBlur={saveEdited}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            saveEdited();
+                          }
+                        }}
+                        className={`text-sm ${markClasses(c)} border border-amber-300 rounded px-1 bg-amber-50/40`}
+                      />
+                    ) : hasLink ? (
+                      <a
+                        href={c.href!}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onDoubleClick={() => { setEditing({ bi, si }); setEditValue(c.text); }}
+                        className={`cursor-pointer ${markClasses(c)} ${isActive ? 'ring-1 ring-amber-400 bg-amber-50/30 rounded' : ''} hover:text-sky-700`}
+                        title={c.marks.filter((m) => m !== 'link').join(', ') || 'lien'}
+                      >
+                        {c.text || ' '}
+                      </a>
+                    ) : (
+                      <span
+                        onDoubleClick={() => { setEditing({ bi, si }); setEditValue(c.text); }}
+                        className={`cursor-text ${markClasses(c)} ${isActive ? 'ring-1 ring-amber-400 bg-amber-50/30 rounded' : ''} select-text`}
+                        title={c.marks.join(', ') || 'texte brut'}
+                      >
+                        {c.text || ' '}
+                      </span>
+                    )}
+                  </span>
+                );
+              })}
+            </div>
+
+            {/* Contrôles du paragraphe actif */}
+            {active?.bi === bi && (
+              <div className="flex items-center gap-1 text-[10px]">
+                {b.children.map((_, si) => (
+                  <button
+                    key={si}
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActive({ bi, si });
+                    }}
+                    className={`px-1 py-0.5 rounded border text-xs ${active?.si === si ? 'border-amber-500 bg-amber-50 text-amber-800 font-bold' : 'border-stone-200 text-stone-500 hover:border-amber-300'}`}
+                  >
+                    {si + 1}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => removeParagraph(bi)}
+                  className="text-rose-500 text-[10px] hover:text-rose-700 px-1"
+                  title="Supprimer ce paragraphe"
+                >
+                  suppr
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
+        {rt.length === 0 && <div className="text-[11px] text-stone-400 italic">Aucun paragraphe — cliquez "+ paragraphe"</div>}
+      </div>
+
+      {/* Miroir texte-plat (valeur de formulaire) pour la rétrocompatibilité legacy et les outils de test */}
       <textarea
-        rows={4}
-        value={block.content}
-        onChange={(e) => onUpdate({ content: e.target.value })}
-        placeholder="Écrivez votre paragraphe de carnet de voyage..."
-        className="w-full bg-stone-50 border border-stone-200 rounded-xl p-3 text-sm text-stone-800 leading-relaxed focus:bg-white focus:outline-none focus:ring-1 focus:ring-amber-500 resize-y font-sans"
+        readOnly
+        tabIndex={-1}
+        aria-hidden="true"
+        value={block.content ?? richToPlain(rt)}
+        style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden', border: 0, padding: 0, margin: 0, pointerEvents: 'none' }}
       />
     </div>
   );
