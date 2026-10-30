@@ -74,8 +74,8 @@ describe('outillage garde-fous — scripts du pré-vol', () => {
   });
 
   describe('garde-fous — agrégateur', () => {
-    it('expose les 21 contrôles attendus', () => {
-      expect(CHECKS).toHaveLength(21);
+    it('expose les 22 contrôles attendus', () => {
+      expect(CHECKS).toHaveLength(22);
       expect(CHECKS.map((c) => c.key)).toContain('cms-migrations');
       expect(CHECKS.map((c) => c.key)).toContain('cms-cache');
       expect(CHECKS.map((c) => c.key)).toContain('brand-sync');

@@ -2,6 +2,50 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-30 sexdecies] — Réparer la CI rouge : le garde-fou C2PA n'était câblé nulle part
+
+**Constat.** `main` était **en échec** depuis la fusion de #790 (`25165f4`), et l'entrée
+précédente ne l'a pas vu : elle annonçait « CI verte » alors que le workflow « Garde-fous »
+échouait. La preuve, sur les deux commits concernés :
+
+```
+Garde-fous  25165f44  completed  failure
+Garde-fous  f10d8c9f  completed  failure
+```
+
+Quatre tests cassés, tous des conséquences directes de #790 :
+
+- **`check:cms-ai-images` n'était câblé dans aucun workflow.** Le contrôle existait dans
+  `CHECKS` et dans `package.json`, mais aucune étape CI ne l'appelait — il était vert en
+  local et **absent en production de contrôle**. C'est exactement le trou que le test
+  « câble dans la CI tout contrôle de CHECKS qui ne dépend pas de la base » avait été écrit
+  pour attraper. Il a fait son travail ; personne ne l'a écouté.
+- **`CHECKS` est passé de 21 à 22** entrées, sans mise à jour de l'assertion de longueur.
+- **L'album Madère a été retiré** de `lib/cms-photo-albums.ts` — à raison, mais deux tests
+  l'ignoraient encore.
+
+**Ce qui a été vérifié avant de toucher aux tests** (ne pas corriger un test pour faire
+taire une régression réelle) : les 5 visuels Madère du bucket `media` portent **tous** un
+manifeste C2PA de générateur (`c2pa`, `trainedalgorithmicmedia`, `digitalsourcetype`,
+`google c2pa`) — mesuré en les téléchargeant. Aucune photo de terrain madérienne n'existe
+dans le dépôt. **Le code avait raison ; le test était périmé.** Les assertions sont donc
+corrigées en documentant le pourquoi, pas en restaurant l'album.
+
+**Corrections :**
+
+| Fichier | Changement |
+|---|---|
+| `.github/workflows/garde-fous.yml` | Étape « Images générées dans public/ (C2PA) » — le contrôle tourne enfin en CI |
+| `__tests__/scripts/garde-fous-outillage.test.ts` | 21 → 22 contrôles |
+| `__tests__/lib/cms-photo-albums.test.ts` | Album Madère : attendu **absent** (raison C2PA) ; recherche « Fanal » → 0 résultat assumé ; « Cijevna » remplace « Fanal » comme cas positif |
+
+**Vérifié :** `npm run garde-fous` → **22/22** (18 exécutés, 4 ignorés faute de clés) ;
+`vitest` 1153 tests verts ; `tsc` exit 0.
+
+**Dette signalée, non traitée ici :** les 5 images Madère IA sont **encore servies
+publiquement** (`storage.objects` non purgé) et citées par `lib/cms-vault-spots.ts` — même
+traitement que les 4 du Monténégro, à faire dans une PR dédiée.
+
 ## [2026-10-30 quindecies] — Intégration front-end des capsules vidéo de terrain dans les sous-destinations du Monténégro
 
 Valorisation des extraits vidéo web optimisés (720p H.264 vertical 9:16) directement dans les récits de sous-destination :

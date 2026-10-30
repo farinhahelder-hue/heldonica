@@ -175,6 +175,12 @@ jobs:
       - name: Chemins d'image locaux (fichiers dans public/)
         run: npm run check:image-paths
 
+      # Manifeste C2PA des générateurs d'images. Le script existait dans CHECKS
+      # depuis la PR #790 mais n'était câblé dans aucun workflow : vert en local,
+      # absent en CI — le trou que le test « câble dans la CI » a attrapé.
+      - name: Images générées dans public/ (C2PA)
+        run: npm run check:cms-ai-images
+
       # Tics visuels « IA / SaaS » (cartes SaaS, rayons exagérés, emojis décoratifs).
       # Statique, comme check:content-pages : refuse les dérives de design system.
       - name: Tics visuels et emojis hors charte
