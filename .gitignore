@@ -58,6 +58,7 @@ heldonica-mobile/ci-artifacts/
 # RELEASE_KEYSTORE_BASE64 (voir heldonica-mobile/app/build.gradle.kts).
 heldonica-mobile/keystore/heldonica-release.keystore
 content/evidence/*.json
+!content/evidence/montenegro.json
 content/drafts/*.md
 
 # Outillage local du poste (chemins Windows en dur, caches Python)
