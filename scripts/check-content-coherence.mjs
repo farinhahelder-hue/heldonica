@@ -313,6 +313,27 @@ async function main() {
       cible.push({ ou: `cms_guide_items / ${g.guide_slug} #${g.rank}`, mots: hits, actif: g.is_active, quarantaine: false });
     }
 
+    // cms_pillar_pages et cms_seasons étaient hors du périmètre : le pilier
+    // Monténégro (PR #787) a servi « circuit » et « coup de cœur » sans que rien
+    // ne s'allume, et cms_seasons en portait deux autres depuis des semaines.
+    // Les deux alimentent pourtant des pages publiques actives.
+    const pillars = await fetchAll(url, key, 'cms_pillar_pages', 'slug,is_active,tagline,hero_subtitle,intro,itinerary,budget_breakdown,faq,verdict,tested_by_heldonica,seo_title,seo_desc');
+    for (const p of pillars) {
+      const champs = [p.tagline, p.hero_subtitle, p.intro, p.itinerary, p.budget_breakdown, p.faq, p.verdict, p.tested_by_heldonica, p.seo_title, p.seo_desc];
+      const hits = motsBannisDans(champs.filter(Boolean).map((v) => (typeof v === 'string' ? v : JSON.stringify(v))).join(' '));
+      if (hits.length === 0) continue;
+      const cible = p.is_active ? fuites : dette;
+      cible.push({ ou: `cms_pillar_pages / ${p.slug}`, mots: hits, actif: p.is_active, quarantaine: false });
+    }
+
+    const seasons = await fetchAll(url, key, 'cms_seasons', 'destination_slug,season_label,is_active,note,weather,crowd,price');
+    for (const s of seasons) {
+      const hits = motsBannisDans(`${s.note || ''} ${s.weather || ''}`);
+      if (hits.length === 0) continue;
+      const cible = s.is_active ? fuites : dette;
+      cible.push({ ou: `cms_seasons / ${s.destination_slug} (${s.season_label})`, mots: hits, actif: s.is_active, quarantaine: false });
+    }
+
     if (dette.length > 0) {
       console.log(`\nℹ ${dette.length} ligne(s) de contenu inactives ou quarantainées portent un mot banni — dette assumée, non bloquante :`);
       dette.forEach((d) => console.log(`  – ${d.ou}${d.actif ? ' (active, page quarantainée)' : ' (inactive)'} : ${d.mots.join(', ')}`));
