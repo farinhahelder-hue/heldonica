@@ -2,6 +2,58 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-30 octies] — Madère passe « Bientôt » : un fonds d'images intégralement généré
+
+Le propriétaire a demandé de mettre **Madère en brouillon** aussi, comme les deux
+articles incohérents de l'entrée précédente. La raison est plus lourde que prévu :
+ce n'est pas le texte qui pose problème, c'est la preuve.
+
+- **Constat (C2PA lu octet par octet sur le bucket public).** Les **cinq** images du
+  fonds `media/destinations/madere/` (`pico_do_arieiro`, `ponta_do_sol`, `porto_moniz`,
+  `achadas_da_cruz`, `fanal_foret`) portent un manifeste signé **« Created by Google
+  Generative AI »**, `digitalSourceType = trainedAlgorithmicMedia`, plus **SynthID**.
+  **Aucune photo réelle de Madère n'existe** dans le bucket. Or ces images servent à
+  prouver un vécu revendiqué en toutes lettres par le pilier (« Septembre 2025, en
+  couple, 8 jours », « on a marché dans la forêt de Fanal », « on s'est baignés à Porto
+  Moniz »). Règle #1 : on n'invente rien. Sur le héros, le panneau porte même deux
+  orthographes du même sommet (« PICO DO ARIEIRO » puis « VEREDA DO AREEIRO »).
+- **Pourquoi les drapeaux seuls ne suffisaient pas.** Madère est une **page pilier**
+  (`cms_pillar_pages`), pas un article. `DestinationPillar` ne connaît pas le mécanisme
+  « Bientôt » (contrairement à `SubDestinationTemplate`), et `buildPillarMetadata`
+  n'appliquait ni `noindex` ni image de partage par défaut : passer `is_active = false`
+  seul aurait rendu une page **HTTP 200 mais vide**, toujours indexable et toujours au
+  sitemap. Il fallait du code.
+- **Ce qui a été fait.**
+  - `lib/unpublished-pages.ts` : `'/destinations/madere'` + `'destinations-madere'`
+    ajoutés (53 → 54 entrées par liste, test mis à jour).
+  - `app/destinations/madere/page.tsx` : garde `isUnpublishedPath` → rend
+    `ComingSoonDestination` au lieu du pilier.
+  - `lib/pillar-metadata.ts` : une page pilier non publiable sort de l'index et sert
+    `DEFAULT_OG_IMAGE`, **jamais** sa `hero` (l'image IA ne part plus en `og:image`).
+  - `lib/home-data.ts` + `components/HomeClient.tsx` : la carte d'accueil Madère et
+    son image IA retirées, y compris des replis codés en dur (l'image ne peut plus
+    être servie même si Supabase est injoignable). La liste `/destinations` et le
+    pied de page étaient déjà couverts par `isUnpublishedPath`.
+  - `components/SlowTravelQuiz.tsx` : le profil « Explorateur Sensoriel » recommandait
+    `/destinations/madere` (page vide) ; il renvoie désormais vers le sur-mesure,
+    même motif que la Sicile.
+  - **Migration `20261030160000_madere_bientot.sql`** : bascule trois drapeaux —
+    `destinations.published=false/status='coming_soon'`,
+    `cms_home_destinations.is_active=false`, `cms_pillar_pages.is_active=false`.
+    **Aucun `DELETE`.** Idempotente, réversible par migration versionnée.
+- **Un quatrième point de fuite, en ligne celui-là.** Le guide « 10 pépites de Madère »
+  reste publié (aimant à contacts, lié depuis `/start`, `/guides` et le sitemap), mais sa
+  zone de partage `seo_og_image` (`cms_editable_zones`) pointait sur la même image IA.
+  Le HTML réellement servi le confirmait :
+  `<meta property="og:image" content="…/madere/pico_do_arieiro.jpg">`. Aucun composant
+  n'affiche cette zone sur la page (le héros lit `hero_bg_image`, absent → repli
+  `/og-default.jpg`). La migration la remet sur `og-default.jpg`, sans toucher au guide.
+  Le `og:image` Madère ne subsiste donc nulle part dans le rendu public.
+- **Non fait ici** : la migration n'est pas appliquée en production (aucun accès DDL
+  depuis ce poste). Le propriétaire l'applique. En attendant, le garde `ComingSoon`
+  côté page est déjà effectif au prochain déploiement, car il lit
+  `lib/unpublished-pages.ts` — la carte d'accueil, elle, attend la migration.
+
 ## [2026-10-30 septies] — Deux articles incohérents repassés en brouillon
 
 Le propriétaire a demandé de retirer du site les articles incohérents, **sans rien

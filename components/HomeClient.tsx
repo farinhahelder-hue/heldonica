@@ -580,13 +580,6 @@ export default function HomeClient({ featured, travelPosts, foodPosts, latestPos
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
             {(homeDestinations && homeDestinations.length > 0 ? homeDestinations : [
               {
-                destination_slug: 'madere',
-                title: 'Madère',
-                country: 'Portugal',
-                tagline: 'Slow travel, falaises, levadas et douceur atlantique.',
-                custom_image_url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/pico_do_arieiro.jpg',
-              },
-              {
                 destination_slug: 'roumanie',
                 title: 'Roumanie',
                 country: 'Roumanie',

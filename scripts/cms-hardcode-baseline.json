@@ -151,7 +151,7 @@
   "components/HeldonicaFAQ.tsx": 0,
   "components/HeldonicaProof.tsx": 2,
   "components/HeldonicaVerdict.tsx": 4,
-  "components/HomeClient.tsx": 28,
+  "components/HomeClient.tsx": 27,
   "components/HotelierForm.tsx": 0,
   "components/itinerary/DayAccommodationBox.tsx": 3,
   "components/itinerary/DaySummaryTable.tsx": 0,

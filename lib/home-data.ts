@@ -4,6 +4,7 @@
  */
 
 import { supabase } from './supabase-client';
+import { isUnpublishedPath } from './unpublished-pages';
 
 export interface HomeDestination {
   id: string;
@@ -37,22 +38,8 @@ function getDestinationEmoji(_slug: string): string {
 export const FALLBACK_HOME_DESTINATIONS: HomeDestination[] = [
   {
     id: 'fallback-1',
-    destination_slug: 'madere',
-    display_order: 1,
-    is_featured: true,
-    custom_title: null,
-    custom_description: null,
-    custom_image_url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/pico_do_arieiro.jpg',
-    title: 'Madère',
-    tagline: 'Slow travel, falaises, levadas et douceur atlantique.',
-    hero_unsplash_url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/pico_do_arieiro.jpg',
-    country: 'Portugal',
-    flag_emoji: null,
-  },
-  {
-    id: 'fallback-2',
     destination_slug: 'roumanie',
-    display_order: 2,
+    display_order: 1,
     is_featured: true,
     custom_title: null,
     custom_description: null,
@@ -64,9 +51,9 @@ export const FALLBACK_HOME_DESTINATIONS: HomeDestination[] = [
     flag_emoji: null,
   },
   {
-    id: 'fallback-3',
+    id: 'fallback-2',
     destination_slug: 'montenegro',
-    display_order: 3,
+    display_order: 2,
     is_featured: true,
     custom_title: null,
     custom_description: null,
@@ -147,14 +134,17 @@ export async function getHomeDestinations(): Promise<HomeDestination[]> {
 
     // Ne retenir de cms_home_destinations que les destinations réellement publiées,
     // puis compléter avec les destinations publiées restantes (ex: montenegro).
+    // Une page « Bientôt » (lib/unpublished-pages.ts) est écartée : sa carte
+    // mènerait à une page sans contenu, et son image de repli est justement ce
+    // qui l'a fait déclasser (fonds Madère généré par IA).
     const orderedSlugs: string[] = [];
     for (const hd of homeDests || []) {
-      if (hd?.slug && destMap.has(hd.slug) && !orderedSlugs.includes(hd.slug)) {
+      if (hd?.slug && destMap.has(hd.slug) && !orderedSlugs.includes(hd.slug) && !isUnpublishedPath(`/destinations/${hd.slug}`)) {
         orderedSlugs.push(hd.slug);
       }
     }
     for (const d of publishedDests) {
-      if (d?.slug && !orderedSlugs.includes(d.slug)) {
+      if (d?.slug && !orderedSlugs.includes(d.slug) && !isUnpublishedPath(`/destinations/${d.slug}`)) {
         orderedSlugs.push(d.slug);
       }
     }
