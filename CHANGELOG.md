@@ -2,6 +2,40 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-30 septies] — Deux articles incohérents repassés en brouillon
+
+Le propriétaire a demandé de retirer du site les articles incohérents, **sans rien
+supprimer** : mise en brouillon, et conservation du carnet de terrain Podgorica.
+
+- **Constat (mesure sur le HTML réellement servi, 2026-10-30).** Sur les trois seuls
+  articles publiés, deux portaient des fautes visibles : `bacalhau-gomes-sa-recette`
+  (« déssalé », « éffóchées », « crème fraiche », « Island ») et
+  `poncha-recette-authentique` (« madeiréen », « sucrde », plus un pronom « nous »
+  sujet, banni par le guide de voix). `podgorica-capitale-oubliee-montenegro` est un
+  carnet adossé à un vécu réel : **conservé publié**.
+- **Migration `20261030120000_depublier_articles_incoherents.sql`** : bascule
+  `published = false, status = 'draft'` sur les deux slugs, `published_at` laissé
+  intact (historique de première mise en ligne). **Aucun `DELETE`** — le contenu reste
+  éditable au CMS. Idempotente ; retour arrière par republication.
+- **Vérifié après application** : `cms_blog_posts` = **56 lignes avant comme après**
+  (aucune perte), **1 seul article publié** (Podgorica), 55 brouillons. En ligne :
+  `/blog/bacalhau-gomes-sa-recette` et `/blog/poncha-recette-authentique` → **HTTP 404**,
+  `/blog/podgorica-capitale-oubliee-montenegro` → **HTTP 200**, `/blog` ne liste plus
+  que Podgorica. Le sitemap reste périmé jusqu'au prochain déploiement (généré au
+  build, `revalidate` non explicite sur `app/sitemap.ts`).
+- **À suivre (non traité ici)** : `/a-propos` affiche « 0 Carnets publiés » alors qu'un
+  article reste publié. Les zones CMS `stat_*_value` (7 / 8 / 4) sont `is_active = false`
+  et le bloc rendu vient du code (`app/a-propos/page.tsx`, `STATS`). L'écart entre la
+  valeur en base et le rendu mérite une vérification dédiée.
+- **Audit d'images en ligne — vérification indépendante.** Un rapport d'audit a été
+  annoncé (C2PA sur le fonds Madère, lots `batch-*` sans EXIF, og:image générique).
+  **Confirmé** ici : le manifeste C2PA est présent sur les 5 images Madère du bucket
+  (`Created by Google Generative AI`, `trainedAlgorithmicMedia`, SynthID), et les lots
+  `batch-1778535464596-3.jpg` (Suisse) / `batch-1778535469099-7.jpg` (Bucarest) n'ont
+  **aucun EXIF**. En revanche, les fichiers `rapport-coherence-en-ligne.md`,
+  `scripts/audit-ligne.mjs` et `scripts/audit-c2pa.mjs` **n'existent pas** dans ce
+  dépôt : les constats ne sont pas reproductibles en l'état.
+
 ## [2026-10-30 quinquies] — Connexion Google : un refus redevient diagnosticable
 
 `verifierJetonGoogle` avalait la raison du refus de Google. Son commentaire annonçait
