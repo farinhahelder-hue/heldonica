@@ -367,6 +367,7 @@ html.dark {
 .dark [class~="bg-[#EFE9DF]"]              { background-color: #252320; }
 .dark [class~="bg-[#EFE9DF]/70"]           { background-color: rgba(37, 35, 32, 0.7); }
 .dark [class~="bg-[#F7F3EC]/98"]           { background-color: rgba(26, 24, 22, 0.98); }
+  .dark [class~="bg-[#F7F3EC]/95"]           { background-color: rgba(26, 24, 22, 0.95); }
 .dark [class~="bg-[#F7F3EC]/92"]           { background-color: rgba(26, 24, 22, 0.92); }
 .dark [class~="hover:bg-[#EFE9DF]"]:hover  { background-color: #2C2A27; }
 .dark [class~="hover:bg-[#F7F3EC]"]:hover  { background-color: #252320; }
@@ -378,6 +379,7 @@ html.dark {
 .dark [class~="hover:bg-[#E8E0D2]"]:hover  { background-color: #2C2A27; }
 
 .dark [class~="border-[#DED5C6]"]          { border-color: #38352F; }
+  .dark [class~="border-[#D8CEBE]"]          { border-color: #38352F; }
 .dark [class~="border-[#E2D9C8]"]          { border-color: #38352F; }
 .dark [class~="border-[#E8E0D2]"]          { border-color: #2C2A27; }
 
