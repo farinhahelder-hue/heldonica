@@ -8,15 +8,20 @@
  * recompression, d'où le second marqueur (digitalSourceType).
  *
  * Usage :
- *   node scripts/check-cms-ai-images.mjs            # public/images
- *   node scripts/check-cms-ai-images.mjs public/    # autre racine
+ *   node scripts/check-cms-ai-images.mjs            # public/ (tout ce qui est servi)
+ *   node scripts/check-cms-ai-images.mjs public/images   # une sous-racine
+ *
+ * La racine par défaut est `public/`, pas `public/images/` : les posters de
+ * capsule vidéo vivent sous `public/videos/` et sont tout aussi servis. Scanner
+ * `public/images` seul laissait ces posters hors du contrôle — un poster de
+ * couverture fabriqué serait passé en CI (constat du 30/10/2026, PR #791).
  *
  * Sortie : 0 si aucune image générée, 1 sinon (liste des fichiers fautifs).
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 
-const RACINE = process.argv[2] || 'public/images';
+const RACINE = process.argv[2] || 'public';
 const EXTENSIONS = new Set(['.jpg', '.jpeg', '.png', '.webp', '.avif', '.tif', '.tiff']);
 
 /** Marqueurs binaires d'un contenu généré (ASCII, insensibles à la casse). */

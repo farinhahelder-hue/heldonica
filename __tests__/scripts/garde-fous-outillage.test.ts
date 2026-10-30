@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync, existsSync } from 'node:fs';
+import { readFileSync, writeFileSync, rmSync, existsSync } from 'node:fs';
 import { execFileSync } from 'node:child_process';
 import { extraireMotsBannisTS, blocPython, appliquerBloc } from '../../scripts/sync-brand-voice.mjs';
 import { CRITIQUES } from '../../scripts/check-workspace-sync.mjs';
@@ -104,6 +104,67 @@ describe('outillage garde-fous — scripts du pré-vol', () => {
       const statiques = CHECKS.filter((c) => !c.needsDb && c.script);
       const nonCables = statiques.map((c) => c.script).filter((s) => !yml.includes(`npm run ${s}`));
       expect(nonCables).toEqual([]);
+    });
+  });
+
+  describe('couverture des médias servis (public/)', () => {
+    // Le 30/10/2026, la CI ne contrôlait que `public/images` : les 3 posters de
+    // capsule vidéo (`public/videos/…`) et les 6 chemins `/videos/` du code
+    // échappaient aux deux garde-fous. Ces tests verrouillent l'élargissement.
+
+    it('check-cms-ai-images scanne par défaut public/, pas seulement public/images', () => {
+      const source = readFileSync('scripts/check-cms-ai-images.mjs', 'utf8');
+      const defaut = source.match(/process\.argv\[2\]\s*\|\|\s*'([^']+)'/);
+      expect(defaut?.[1]).toBe('public');
+    });
+
+    it('check-cms-ai-images détecte un marqueur IA sous public/videos/', () => {
+      const dossier = 'public/videos/destinations/montenegro';
+      const temoin = `${dossier}/_c2pa_temoin.test.jpg`;
+      const original = `${dossier}/montenegro_cijevna_waterfall_poster.jpg`;
+      writeFileSync(
+        temoin,
+        Buffer.concat([readFileSync(original), Buffer.from('trainedAlgorithmicMedia')])
+      );
+      try {
+        let sortie = '';
+        try {
+          execFileSync('node', ['scripts/check-cms-ai-images.mjs'], { encoding: 'utf8' });
+        } catch (e) {
+          sortie = String(e.stdout || '') + String(e.stderr || '');
+        }
+        expect(sortie).toContain('_c2pa_temoin.test.jpg');
+      } finally {
+        rmSync(temoin, { force: true });
+      }
+    });
+
+    it('check-image-paths collecte aussi les chemins /videos/', () => {
+      const source = readFileSync('scripts/check-image-paths.mjs', 'utf8');
+      expect(source).toMatch(/\/(?:images|videos)\//);
+      expect(source).toMatch(/videoUrl|EXT_VIDEO/);
+    });
+
+    it('check-image-paths refuse un poster vidéo absent de public/', () => {
+      const page = 'app/destinations/montenegro/podgorica-cijevna/page.tsx';
+      const original = readFileSync(page, 'utf8');
+      const casse = original.replace(
+        'montenegro_cijevna_waterfall_poster.jpg',
+        'montenegro_poster_inexistant.test.jpg'
+      );
+      expect(casse).not.toBe(original);
+      writeFileSync(page, casse);
+      try {
+        let code = 0;
+        try {
+          execFileSync('node', ['scripts/check-image-paths.mjs'], { encoding: 'utf8' });
+        } catch (e) {
+          code = e.status ?? 1;
+        }
+        expect(code).toBe(1);
+      } finally {
+        writeFileSync(page, original);
+      }
     });
   });
 });

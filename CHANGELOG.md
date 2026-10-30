@@ -46,6 +46,31 @@ corrigées en documentant le pourquoi, pas en restaurant l'album.
 publiquement** (`storage.objects` non purgé) et citées par `lib/cms-vault-spots.ts` — même
 traitement que les 4 du Monténégro, à faire dans une PR dédiée.
 
+**Complément — deux garde-fous ne voyaient pas `public/videos/`.** En vérifiant les
+capsules vidéo de terrain (`0d27b57`), j'ai constaté que les deux contrôles de médias
+s'arrêtaient à `public/images` :
+
+| Contrôle | Avant | Après |
+|---|---|---|
+| `check:cms-ai-images` | racine `public/images` | racine `public/` |
+| `check:image-paths` | regex `/images/…` | `/images/…` **et** `/videos/…` |
+
+Les 3 posters de capsule et les 6 chemins `/videos/` du code étaient donc **hors
+contrôle** : un poster fabriqué ou un `.mp4` absent seraient passés en CI. C'est la même
+famille de panne que le hero mort du 25/10 — un `<video>` sans source reste noir, en
+silence.
+
+Prouvé mordant par **preuve négative** (un fichier témoin avec marqueur C2PA injecté sous
+`public/videos/` est bien refusé ; un poster renommé inexistant fait bien échouer
+`check-image-paths`, exit 1) et par **4 tests** ajoutés dans
+`__tests__/scripts/garde-fous-outillage.test.ts`. La collecte passe de 14 à 20 chemins
+surveillés.
+
+**Vérifié :** `npm run garde-fous` → 18/22 (4 ignorés faute de clés) ; `vitest` vert ;
+les 3 posters réels sont confirmés sans marqueur C2PA ; les 3 `.mp4` portent un encodeur
+FFmpeg/`libx264` (vraies vidéos de terrain — un faux positif `veo` a été écarté : il
+provenait de données compressées, pas d'un manifeste).
+
 ## [2026-10-30 quindecies] — Intégration front-end des capsules vidéo de terrain dans les sous-destinations du Monténégro
 
 Valorisation des extraits vidéo web optimisés (720p H.264 vertical 9:16) directement dans les récits de sous-destination :
