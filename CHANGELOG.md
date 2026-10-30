@@ -2,6 +2,26 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-30 sexies] — Keystore de release : deux pièges mesurés, pas supposés
+
+Le guide `heldonica-mobile/keystore/README.md` a été complété par deux constats obtenus en
+**exécutant réellement** la chaîne de signature (JDK 17 Temurin portable, keystore jetable,
+artefact signé puis relu), et non en recopiant une documentation.
+
+- **`RELEASE_KEY_PASSWORD` doit être identique à `RELEASE_STORE_PASSWORD`.** Depuis Java 9,
+  `keytool` produit un keystore **PKCS12** par défaut, qui ne stocke qu'un seul mot de passe.
+  Une valeur différente est ignorée par `keytool` (simple avertissement), mais fait échouer le
+  build Gradle avec un message **trompeur** : `key associated with heldonica not a private key`.
+  Ce message ne mentionne pas le mot de passe — il laisse croire à un keystore corrompu.
+- **Le SHA-1 relevé est bien celui qui signera l'APK.** Un artefact signé avec le keystore de
+  test, relu par `keytool -printcert -jarfile`, porte le même SHA-1 que `keytool -list`. C'est
+  la valeur que Google compare à l'enregistrement du client OAuth Android ; une erreur de copie
+  ne se verrait qu'au premier refus de connexion.
+
+**Vérifié par exécution** : création du keystore, extraction SHA-1/SHA-256, aller-retour base64
+identique octet pour octet (2 718 octets), signature puis vérification (`jar verified`),
+comparaison du certificat dans l'artefact signé.
+
 ## [2026-10-30 quinquies] — Connexion Google : un refus redevient diagnosticable
 
 `verifierJetonGoogle` avalait la raison du refus de Google. Son commentaire annonçait
