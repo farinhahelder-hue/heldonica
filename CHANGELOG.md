@@ -2,6 +2,28 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-30] — Levée du mode maintenance : le site public est rouvert
+
+Décision explicite du propriétaire. `site_settings.maintenance_mode` passe à `'false'` par une
+migration versionnée (`20261030100000_levee_mode_maintenance.sql`, commit `ca779789`, branche
+`agent/openhands/levee-maintenance`), reprise de l'archive du 26/10 ré-horodatée après la
+dernière migration appliquée. Registre porté à 213 versions.
+
+Prérequis re-vérifiés le 30/10 avant application : constats D (années d'expérience) et E (nombre
+de pays) tranchés par la migration `20261028140000`, constat F (« 8+ » carnets) corrigé dans le
+code, conflit `robots.txt` résolu, images de `public/` débloquées pendant la maintenance.
+21/21 garde-fous verts.
+
+Vérifié en production, sans bypass : `/`, `/guides`, `/travel-planning`, `/expert-hotelier`,
+`/a-propos`, `/contact`, `/blog`, `/destinations/madere` → HTTP 200 (étaient 307 → `/maintenance`).
+Navigateur réel : `h1` présent, 0 erreur JS. `/maintenance` reste en `noindex` et hors sitemap.
+Détail : `.audit/audit-editorial-2026-10-20/LEVEE-MAINTENANCE-2026-10-30.md`.
+
+Restent ouverts, non bloquants : constat G (six articles datés `2026-05-18`, import en bloc —
+aucune date réelle attestée, fiche `agent_tasks` `a94ccaf7`) ; la page `/maintenance` en
+production affiche encore l'ancienne version (correctif local `4cce6d8b`, non déployé) ;
+l'accueil n'expose pas d'élément `<main>`.
+
 ## [2026-10-29] — Console de pilotage des agents : fil d'activité, file à valider, gouvernance
 
 Le suivi des agents avait un socle (le journal `agent_task_events`, PR #769) mais aucun
