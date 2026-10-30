@@ -2,6 +2,28 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-30 quater] — Keystore de release : documentation vérifiée
+
+Le `README` mobile annonçait encore un « repli automatique sur le keystore de debug versionné »
+pour signer une release. **C'est faux depuis le 2026-10-20** : `app/build.gradle.kts` échoue
+désormais si aucun keystore de release n'est fourni, précisément parce que le keystore de debug
+est **public** (dépôt ouvert). Le commentaire du build le disait, pas le README. Corrigé.
+
+- **`heldonica-mobile/README.md`** : la signature de release décrit la réalité (échec sans
+  keystore, `-PallowUnsignedRelease` pour un build de validation sans clé).
+- **`heldonica-mobile/keystore/README.md`** (nouveau) : la marche à suivre pour créer le keystore
+  de release, relever le SHA-1 exigé par le client OAuth Android, et poser les secrets de CI
+  (`RELEASE_KEYSTORE_BASE64` et consorts).
+
+**Empreinte du keystore de debug** (lue dans le fichier versionné) : SHA-256
+`15:71:BD:5C:CE:90:FF:94:32:79:C7:D2:D6:80:88:5B:0C:00:84:4E:CE:B2:97:CC:45:39:06:EB:DD:C1:02:4F`.
+C'est bien celle citée par le commentaire du build comme ayant signé les 7 APK publiés : le risque
+est réel, pas théorique.
+
+**Vérifié** : les commandes du guide ont été exécutées sur un keystore de test jetable — création,
+extraction du SHA-1 et du SHA-256, encodage base64, aller-retour octet pour octet. Garde-fous
+21/21, dont « Signature APK (pas de clé de debug publique) ».
+
 ## [2026-10-30 bis] — Connexion Google au CMS : le client web
 
 La route `POST /api/cms/auth/google` existait, testée, mais **aucun client ne l'appelait** :

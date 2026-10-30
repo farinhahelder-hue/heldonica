@@ -35,8 +35,12 @@ cd heldonica-mobile
 ./gradlew assembleRelease
 # APK → app/build/outputs/apk/release/app-release.apk
 # Signature : un vrai keystore si keystore/heldonica-release.keystore existe (mot de
-# passe via local.properties `release.storePassword`, ou variable RELEASE_STORE_PASSWORD),
-# sinon repli automatique sur le keystore de debug versionné.
+# passe via local.properties `release.storePassword`, ou variable RELEASE_STORE_PASSWORD).
+# SANS keystore de release, la construction ÉCHOUE : il n'y a plus aucun repli sur le
+# keystore de debug versionné, qui est public (dépôt ouvert). Un APK de release signé
+# avec lui serait imitable, et Android accepterait la mise à jour forgée comme légitime.
+# Pour un simple build de validation (R8, proguard, lint) sans clé : `-PallowUnsignedRelease`.
+# Voir `keystore/README.md` pour créer le keystore de release et poser les secrets CI.
 ```
 
 Le wrapper (`gradlew` + `gradle/wrapper/gradle-wrapper.jar`) est **versionné** : pas besoin
