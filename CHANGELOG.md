@@ -2,6 +2,67 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-30 septendecies] — Dates de voyage inventées : « Septembre 2025 » était en ligne sur la Roumanie
+
+**Le défaut.** Le propriétaire a confirmé : le voyage à Madère a eu lieu en **avril 2026**.
+Or deux carnets affichaient « **Septembre 2025** ». Mesure, sans ambiguïté :
+
+```
+cms_media.taken_at  →  2026-04 (9)   2026-05 (92)   2026-08 (147)   2026-09 (5)
+                       2025 : AUCUNE ligne, sur 253 photos
+```
+
+**Aucun voyage de 2025 n'existe dans la médiathèque.** Le contenu décrivait donc des
+séjours qui n'ont pas eu lieu — règle n°1, « on n'invente rien ».
+
+**Le motif, et il est instructif :** les trois carnets ont été créés à la **même seconde**
+(`2026-07-30 12:02:32`). Une génération en lot a inventé « Septembre 2025 » et l'a recopiée
+sur **deux destinations sur trois**. Le Monténégro (« Fin mai 2026 », photos du 27 mai) est
+le contre-exemple qui prouve que la valeur était saisissable correctement.
+
+| Carnet | Affirmé | Photos réelles | État |
+|---|---|---|---|
+| madere | Septembre 2025 | 23–25 avril 2026 | `is_active = false` |
+| roumanie | Septembre 2025 | 25–31 août 2026 | **`is_active = true` — EN LIGNE** |
+| montenegro | Fin mai 2026 | 27 mai 2026 | correct, non touché |
+
+**L'urgence :** `/destinations/roumanie` répondait **HTTP 200**, **sans `noindex`**, présent
+dans le `sitemap.xml`, et affichait « Septembre 2025 » **deux fois** dans le HTML servi. Ce
+n'était pas un brouillon : c'était public.
+
+**Corrigé** — migration `20261030190000_corriger_dates_voyages_inventees.sql` :
+
+- carnet `roumanie` → « **Août 2026** » ; carnet `madere` → « **Avril 2026** » ;
+- 6 occurrences éditoriales dans 4 articles (les 10 articles Madère restent en brouillon) :
+  `bacalhau-a-lagareiro`, `bolo-do-caco-recette-traditionnelle-de-madere-3`,
+  `prego-no-bolo-do-caco`, `foret-fanal-levadas-mystiques-madere-slow-travel`.
+
+**Méthode — rien appliqué sans preuve préalable.** La migration a d'abord été rejouée
+**dans une transaction `ROLLBACK`** sur la base réelle : valeurs attendues vérifiées, puis
+état confirmé intact. Les valeurs d'origine ont été sauvegardées avant écriture
+(2 piliers, 4 articles), et chaque `UPDATE` est conditionné par un `LIKE` sur la chaîne
+fautive — la migration est donc **idempotente** et rejouable.
+
+**Mesure après application**, sur le HTML réellement servi (cache ISR de 1 h expiré) :
+
+```
+/destinations/roumanie   HTTP 200   « Septembre 2025 » : 0    « Août 2026 » : 2
+```
+
+**Ce qui n'est pas touché, et pourquoi.** Les carnets **Suisse** gardent leur année 2025 :
+leurs photos sont réellement datées `PXL_20250712_*` (juillet 2025) — l'année est vraie, la
+retirer aurait créé une fausse correction. Un écart distinct subsiste entre `zurich`
+(« 2026 ») et ses propres photos de juillet 2025 : **hors périmètre**, à traiter à part.
+
+Aucun `DELETE`, aucune dépublication. Les durées (« 8 jours », « 9 jours ») ne sont pas
+touchées : les imports photo pouvant être partiels, elles ne sont pas prouvées fausses.
+
+**Piège de comptage à retenir :** un `LIKE '%2025%'` sur la ligne entière remonte **19**
+occurrences — 13 d'entre elles sont des `published_at`/`created_at` techniques, et les
+vecteurs d'embedding produisent des faux positifs par milliers. Seuls les champs éditoriaux
+(`title`, `excerpt`, `content`, `voice_notes`) comptent.
+
+
 ## [2026-10-30 sexdecies] — Réparer la CI rouge : le garde-fou C2PA n'était câblé nulle part
 
 **Constat.** `main` était **en échec** depuis la fusion de #790 (`25165f4`), et l'entrée
