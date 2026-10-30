@@ -2,6 +2,62 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-30 bis] — Connexion Google au CMS : le client web
+
+La route `POST /api/cms/auth/google` existait, testée, mais **aucun client ne l'appelait** :
+en production elle répondait `{"configure":false}` puis 503. Cette entrée branche le client web
+et lève le blocage CSP qui l'aurait rendu muet.
+
+- **CSP ouverte** (`next.config.js`) : `accounts.google.com` ajouté à `script-src`, `frame-src`
+  (le bouton GIS est rendu dans une iframe) et `connect-src` (rafraîchissement du jeton). Sans
+  ces trois entrées, le script était bloqué **en silence** — la panne exacte que GA4 a connue
+  et qui est déjà commentée dans ce même fichier.
+- **`GET /api/cms/auth/google`** expose désormais `clientId` (public par nature, il figure dans
+  toute page qui charge le script). Tant que les variables manquent, `configure` reste `false`
+  et aucun client ID n'est envoyé.
+- **`app/panel-manager/CmsAdminClient.tsx`** : bouton « Se connecter avec Google » au-dessus du
+  champ mot de passe, séparé par un « ou ». Le script GIS n'est chargé que si le serveur annonce
+  `configure: true` — sans les variables, l'écran reste strictement celui d'avant. Le jeton est
+  vérifié côté serveur (signature, audience, expiration, adresse autorisée) : le navigateur n'est
+  jamais cru sur parole. `CMS_PASSWORD` reste la voie de secours.
+- **Tests** : `__tests__/api/cms-auth-google.test.ts` appelle la vraie route `GET` (3 cas :
+  non configuré, configuré, repli sur le client Photos). Mutation vérifiée — neutraliser
+  `clientId` fait échouer 2 des 3 cas.
+
+**Reste à faire (action humaine, hors dépôt)** : créer le client OAuth « Web » dans Google Cloud
+Console (origine autorisée `https://www.heldonica.fr`), puis poser sur Vercel
+`GOOGLE_SIGNIN_CLIENT_ID` et `CMS_ALLOWED_EMAIL=farinhahelder@gmail.com`. Sans ces deux
+variables, rien ne change en production.
+
+**Android non traité ici** : l'app affiche le CMS dans une WebView, or Google **refuse** OAuth
+dans une WebView (`disallowed_useragent`). Il faut le flux natif (Credential Manager → `{idToken}`
+→ route), et un keystore de release privé **avant** d'enregistrer l'empreinte du client OAuth
+Android — le keystore de debug est versionné dans un dépôt public.
+
+## [2026-10-30 ter] — Connexion Google au CMS : le client Android
+
+Suite de l'entrée précédente. Le web fonctionne, mais le téléphone ne peut pas utiliser le bouton
+web : `EditeurActivity` affiche le CMS dans une **WebView**, et Google refuse l'OAuth dans une
+WebView (`disallowed_useragent`). La connexion se fait donc **en natif**, et la vue web ne reçoit
+qu'un cookie de session déjà posé — rien d'autre ne change côté page.
+
+- **`ConnexionGoogle.kt`** (nouveau) : Credential Manager obtient un jeton d'identité Google, puis
+  l'échange contre le cookie via `POST /api/cms/auth/google`. Deux temps, dans cet ordre : comptes
+  déjà autorisés (sélection automatique, rien à toucher) ; si l'appareil n'en a aucun, réouverture
+  en proposant tous les comptes — sans quoi la première connexion serait impossible.
+- **`EditeurActivity.ouvrir()`** : Google d'abord, mot de passe ensuite. `Indisponible` (aucun
+  compte, Google absent) retombe sur le mot de passe ; `Annule` (fenêtre fermée) charge le panel
+  sans cookie, dont l'écran de connexion propose le mot de passe. Aucun chemin ne bloque l'accès.
+- **`build.gradle.kts`** : dépendances `credentials` + `googleid`, et `BuildConfig.GOOGLE_SIGNIN_CLIENT_ID`
+  lu depuis `google.signinClientId` (vide = Google éteint, écran identique à avant).
+- **Tests** : `ConnexionGoogleTest.kt` sur `extraireCookie` (4 cas : valeur sans attributs, bon
+  cookie parmi d'autres, absence, cookie vide). Tourne en CI via `testDebugUnitTest`.
+
+**Reste à faire (action humaine)** : créer le client OAuth **Android** dans Google Cloud Console
+(paquet `fr.heldonica.mobile` + empreinte SHA-1), ce qui exige **d'abord** un keystore de release
+privé — le keystore de debug est public. Puis renseigner `google.signinClientId` dans
+`local.properties` (non versionné).
+
 ## [2026-10-30] — Levée du mode maintenance : le site public est rouvert
 
 Décision explicite du propriétaire. `site_settings.maintenance_mode` passe à `'false'` par une

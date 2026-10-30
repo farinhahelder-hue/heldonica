@@ -224,6 +224,9 @@ function CmsAdminClientInner() {
   const [authLoading, setAuthLoading] = useState(true);
   const [password, setPassword] = useState('');
   const [authError, setAuthError] = useState('');
+  const [googleClientId, setGoogleClientId] = useState<string | null>(null);
+  const [googleConfigured, setGoogleConfigured] = useState(false);
+  const googleBtnRef = useRef<HTMLDivElement>(null);
   const [saving, setSaving] = useState(false);
   const [saveMsg, setSaveMsg] = useState('');
   const [isDirty, setIsDirty] = useState(false); // tracks unsaved article changes
@@ -610,6 +613,82 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: React.Rea
     }
   };
 
+  // ── Connexion Google ──────────────────────────────────────────────────────
+  // On interroge d'abord l'état : si le serveur n'a pas les deux variables, on
+  // n'injecte pas le script Google du tout et le mot de passe reste seul.
+  useEffect(() => {
+    fetch('/api/cms/auth/google')
+      .then(r => r.json())
+      .then(d => {
+        if (d?.configure && typeof d.clientId === 'string' && d.clientId) {
+          setGoogleClientId(d.clientId);
+          setGoogleConfigured(true);
+        }
+      })
+      .catch(() => setGoogleConfigured(false));
+  }, []);
+
+  // Le jeton obtenu par GIS est vérifié côté serveur (signature, audience,
+  // expiration, adresse autorisée) : le navigateur n'est jamais cru sur parole.
+  const handleGoogleCredential = useCallback(async (idToken: string) => {
+    setAuthError('');
+    try {
+      const res = await fetch('/api/cms/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      });
+      if (res.ok) {
+        setIsAuthenticated(true);
+        return;
+      }
+      if (res.status === 429) {
+        setAuthError('Trop de tentatives. Réessaie dans une minute.');
+      } else if (res.status === 503) {
+        setAuthError('Connexion Google non configurée côté serveur.');
+      } else {
+        setAuthError('Connexion Google refusée.');
+      }
+    } catch {
+      setAuthError('Erreur réseau');
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!googleConfigured || !googleClientId || isAuthenticated) return;
+
+    const initialiser = () => {
+      const gsi = (window as unknown as { google?: any }).google;
+      if (!gsi?.accounts?.id || !googleBtnRef.current) return;
+      gsi.accounts.id.initialize({
+        client_id: googleClientId,
+        callback: (reponse: { credential?: string }) => {
+          if (reponse?.credential) void handleGoogleCredential(reponse.credential);
+        },
+      });
+      gsi.accounts.id.renderButton(googleBtnRef.current, {
+        theme: 'outline',
+        size: 'large',
+        text: 'signin_with',
+        locale: 'fr',
+        width: 280,
+      });
+    };
+
+    const existant = document.getElementById('gsi-client-script');
+    if (existant) {
+      initialiser();
+      return;
+    }
+    const script = document.createElement('script');
+    script.id = 'gsi-client-script';
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.onload = initialiser;
+    document.head.appendChild(script);
+  }, [googleConfigured, googleClientId, isAuthenticated, handleGoogleCredential]);
+
   // ── Articles ──────────────────────────────────────────────────────────────
   const loadArticles = useCallback(async () => {
     setLoadingArticles(true);
@@ -756,6 +835,21 @@ function CollapsibleSection({ title, defaultOpen, children }: { title: React.Rea
             <h1 className="text-xl font-bold text-[#6b2a1a]">Heldonica CMS</h1>
             <p className="text-gray-400 text-sm mt-1">Connexion requise</p>
           </div>
+
+          {googleConfigured && googleClientId && (
+            <div className="mb-5">
+              <div ref={googleBtnRef} className="flex justify-center" />
+              <p className="text-center text-[11px] text-gray-400 mt-2">
+                Connexion par le compte Google du propriétaire
+              </p>
+              <div className="flex items-center gap-3 my-5">
+                <span className="h-px flex-1 bg-gray-200" />
+                <span className="text-[11px] uppercase tracking-wider text-gray-400">ou</span>
+                <span className="h-px flex-1 bg-gray-200" />
+              </div>
+            </div>
+          )}
+
           <form onSubmit={handleLogin} className="space-y-4">
             <input
               type="password"

@@ -129,6 +129,15 @@ android {
             "BRAIN_WEB_URL",
             "\"${cmsProps.getProperty("brain.webUrl") ?: ""}\""
         )
+        // Client OAuth *web* du projet, pas le client Android : c'est lui que
+        // Google place dans l'audience du jeton, donc celui que le serveur
+        // verifie. Vide = la connexion Google reste eteinte et le mot de passe
+        // demeure la seule voie, exactement comme avant.
+        buildConfigField(
+            "String",
+            "GOOGLE_SIGNIN_CLIENT_ID",
+            "\"${cmsProps.getProperty("google.signinClientId") ?: ""}\""
+        )
     }
 
     buildTypes {
@@ -189,6 +198,14 @@ dependencies {
     implementation("androidx.fragment:fragment:1.6.2")
     implementation("androidx.exifinterface:exifinterface:1.3.7")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    // Connexion Google native (ConnexionGoogle.kt). Credential Manager et non
+    // l'ancien GoogleSignInClient : c'est l'API courante, et elle rend le jeton
+    // d'identite que la route /api/cms/auth/google verifie deja. La version suit
+    // la derniere compatible compileSdk 34 / AGP 8.4, comme le reste du projet.
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.0")
 
     // Montage video, sur le telephone.
     //
