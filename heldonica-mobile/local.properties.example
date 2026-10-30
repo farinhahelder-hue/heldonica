@@ -22,3 +22,16 @@ brain.baseUrl=http://10.10.145.61:8440
 # La connexion a la console se fait a la main (mot de passe Brain),
 # aucun secret n'est stocke dans l'APK pour cet onglet.
 brain.webUrl=
+
+# Connexion Google au CMS depuis le telephone (facultatif).
+#
+# Client OAuth *web* du projet — pas le client Android. Google place ce
+# client dans l'audience du jeton, et c'est lui que le serveur verifie.
+# Laisse vide pour garder le mot de passe seul : l'ecran du CMS reste
+# exactement celui d'avant.
+#
+# Prealable cote Google Cloud : le client Android correspondant doit exister,
+# avec le nom de paquet `fr.heldonica.mobile` et l'empreinte SHA-1 du keystore
+# de *release*. Le keystore de debug etant versionne dans un depot public, une
+# APK signee avec lui ne peut pas identifier l'application de facon fiable.
+google.signinClientId=
