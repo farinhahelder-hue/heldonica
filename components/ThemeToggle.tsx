@@ -10,8 +10,8 @@ export default function ThemeToggle() {
   useEffect(() => {
     setMounted(true)
     const saved = localStorage.getItem('theme') as 'light' | 'dark' | null
-    const preferred = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-    const active = saved || preferred
+    // Par defaut, theme clair privilegie (charte carnet). Mode sombre uniquement si explicitement choisi.
+    const active = saved === 'dark' ? 'dark' : 'light'
     setTheme(active)
   }, [])
 

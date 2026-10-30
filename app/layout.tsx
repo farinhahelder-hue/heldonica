@@ -225,9 +225,9 @@ export default async function RootLayout({
             (function() {
               try {
                 var saved = localStorage.getItem('theme');
-                var preferred = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-                var theme = saved || preferred;
-                if (theme === 'dark') document.documentElement.classList.add('dark');
+                // Par defaut, la charte carnet slow travel (clair) est privilegiee.
+                // Le mode sombre n'est active que sur choix explicite enregistre.
+                if (saved === 'dark') document.documentElement.classList.add('dark');
               } catch (e) {}
             })();
           `
