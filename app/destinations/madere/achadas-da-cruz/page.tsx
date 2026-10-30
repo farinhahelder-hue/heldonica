@@ -13,7 +13,7 @@ const metadata: Metadata = {
     title: "Achadas da Cruz en couple : notre carnet slow travel | Heldonica",
     description: "Le funiculaire. 1000m de chute. Vertige en Secret Gem. Notre guide slow travel testé en couple : pépites locales, adresses insolites et conseils pratiques.",
     type: 'website',
-    images: ['https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/achadas_da_cruz.jpg'],
+    images: ['/og-default.jpg'],
     locale: 'fr_FR',
     siteName: 'Heldonica'
   },
@@ -55,7 +55,7 @@ export default async function AchadasdaCruzPage() {
         name="Achadas da Cruz"
         parentName="Madère"
         parentSlug="madere"
-        heroImage="https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/achadas_da_cruz.jpg"
+        heroImage="/og-default.jpg"
         introText="Le funiculaire. 1000m de chute. Vertige."
         highlights={highlights}
         localTip="Prends le temps de visiter les lieux d'intérêt en début de matinée et d'échanger avec les habitants pour dénicher les meilleures adresses de quartier."

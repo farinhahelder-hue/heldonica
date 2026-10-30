@@ -2,6 +2,49 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-30 septendecies] — Clore la dette des visuels IA : 6 références dans le code, 10 lignes en base
+
+**Constat.** L'entrée précédente signalait la dette sans la traiter : « les 5 images Madère IA
+sont encore servies publiquement et citées par `lib/cms-vault-spots.ts` ». En reprenant le
+dossier, j'ai mesuré son ampleur réelle — plus large qu'annoncée :
+
+| Surface | Avant | Après |
+|---|---|---|
+| `app/destinations/madere/{ponta-do-sol,porto-moniz,achadas-da-cruz}/page.tsx` | `heroImage` + `og:image` → URL IA | `/og-default.jpg` (convention des 10 pages sœurs) |
+| `lib/cms-templates.ts` (l. 390, 505) | `imageUrl`/`url` → `madere/achadas_da_cruz.jpg` | photo de terrain Roumanie (déjà utilisée par #790) |
+| `lib/cms-vault-spots.ts` (l. 575) | image Markdown → `madere/fanal_foret.jpg` | illustration retirée, texte intact |
+| `heldonica-mobile/…/knowledge_vault.json` | même image Markdown | illustration retirée, JSON valide (5 entrées) |
+| **Base** : `cms_blog_posts` (7), `destinations` (3), `cms_editable_zones` (1) | URL `madere/` en `featured_image`/`og_image`/`hero_unsplash_url` | migration `20261030190000` → `/og-default.jpg` |
+
+Les lignes en base étaient **toutes en brouillon** (`published=false`, `status='draft'` ou
+`'coming_soon'`) : rien n'était affiché, mais republier une fiche aurait ressorti une image
+fabriquée. `20261018120000_reconciliation_images.sql` les avait posées ; la purge du 18/10
+(`…180000`) ne visait que le Monténégro et ne les voyait pas.
+
+**Le trou qui les avait laissées passer.** `check:cms-ai-images` ne lisait que les octets de
+`public/`. Une image générée rangée dans le bucket Supabase — dont les octets ne sont pas
+dans le dépôt — échappait donc à tout contrôle, alors que son URL, elle, est dans le code.
+Le script refuse désormais aussi les références de code aux cinq objets générés connus
+(`app`, `components`, `lib`, `heldonica-mobile`).
+
+**Prouvé mordant par mutation** : réinjecter une URL IA dans `ponta-do-sol/page.tsx` fait
+échouer le contrôle (exit 1, fichier et objet nommés) ; la restauration repasse à exit 0.
+**5 tests** ajoutés dans `__tests__/scripts/check-cms-ai-images.test.ts`, dont « le dépôt
+lui-même est propre ».
+
+**Migration validée par exécution, pas par relecture.** Postgres 15 jetable : schéma
+reproduit, 7+3+1 lignes fautives injectées, migration exécutée (exit 0, aucun
+avertissement), état après = **0 / 0 / 0** et la photo de terrain intacte ; rejouée, elle
+reste idempotente. Aucun `DELETE` : seule la colonne d'image change.
+
+**Vérifié :** `npm run garde-fous` → 18/22 (4 ignorés faute de clés) ; `tsc` exit 0 ;
+`vitest` vert ; `check:image-paths` 20/20 ; plus aucune référence de code aux cinq objets.
+
+**Reste à faire (hors de ma portée, aucun accès écriture Storage) :** les octets des 5
+fichiers IA sont **toujours servis** sous `media/destinations/madere/` — les supprimer du
+bucket demande un accès que ce poste n'a pas. La migration ne les rend plus référencés, mais
+une URL devinée répondrait encore 200.
+
 ## [2026-10-30 sexdecies] — Réparer la CI rouge : le garde-fou C2PA n'était câblé nulle part
 
 **Constat.** `main` était **en échec** depuis la fusion de #790 (`25165f4`), et l'entrée

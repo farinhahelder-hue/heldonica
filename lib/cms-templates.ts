@@ -387,7 +387,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
         {
           id: generateId('tpl_photo2'),
           type: 'photo_evidence',
-          imageUrl: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/achadas_da_cruz.jpg',
+          imageUrl: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/roumanie/IMG_20260827_135023.jpg',
           location: `${dest} — sentier escarpé`,
           date: '2024-10-12',
           anecdote: 'Entre ciel et océan, le sentier vertigineux vers les parcelles cultivées.',
@@ -502,7 +502,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
         {
           id: generateId('tpl_image'),
           type: 'image',
-          url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/achadas_da_cruz.jpg',
+          url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/roumanie/IMG_20260827_135023.jpg',
           alt: 'Ligne de crête découpée dans la brume matinale',
           caption: 'La sente à pic plongeant vers l’océan à perte de vue.',
           layout: 'wide',
