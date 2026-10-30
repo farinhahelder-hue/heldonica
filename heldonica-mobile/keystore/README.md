@@ -58,7 +58,22 @@ Coller le résultat dans le secret GitHub **`RELEASE_KEYSTORE_BASE64`**, puis po
 |---|---|
 | `RELEASE_STORE_PASSWORD` | le mot de passe du keystore |
 | `RELEASE_KEY_ALIAS` | `heldonica` (ou l'alias choisi) |
-| `RELEASE_KEY_PASSWORD` | le mot de passe de la clé (souvent identique au précédent) |
+| `RELEASE_KEY_PASSWORD` | **le même mot de passe que `RELEASE_STORE_PASSWORD`** |
+
+> **Piège vérifié (2026-10-30) : `RELEASE_KEY_PASSWORD` doit être identique à
+> `RELEASE_STORE_PASSWORD`.** Depuis Java 9, `keytool` crée un keystore **PKCS12** par
+> défaut, et PKCS12 ne stocke qu'un seul mot de passe : celui de la clé **est** celui du
+> store. Si vous mettez une valeur différente, `keytool` l'ignore avec un avertissement
+> (`Different store and key passwords not supported for PKCS12 KeyStores`) — mais le build
+> Gradle, lui, **échoue avec un message trompeur** :
+>
+> ```
+> key associated with heldonica not a private key
+> ```
+>
+> Ce message ne parle pas de mot de passe : il fait croire à un keystore corrompu. La cause
+> est simplement un `RELEASE_KEY_PASSWORD` différent. Mettez la même valeur dans les deux
+> secrets, ou recréez le keystore avec `-storetype JKS` si vous tenez à deux mots de passe.
 
 Tant que `RELEASE_KEYSTORE_BASE64` est absent, la CI construit un APK **non signé** pour la
 validation (R8, proguard, lint) et **refuse de publier** — c'est voulu.
@@ -86,5 +101,14 @@ CMS reste alors exactement celui d'avant.
 ## Vérifications déjà faites
 
 Les commandes ci-dessus ont été exécutées sur un keystore de test jetable : création,
-extraction du SHA-1 et du SHA-256, encodage base64 et aller-retour octet pour octet. Elles
-fonctionnent telles quelles.
+extraction du SHA-1 et du SHA-256, encodage base64 et aller-retour octet pour octet.
+
+Deux points ont été **mesurés**, pas supposés :
+
+1. **Le SHA-1 relevé est bien celui qui signera l'APK.** Un artefact a été signé avec le
+   keystore de test, puis `keytool -printcert -jarfile` a relu le certificat *dans
+   l'artefact signé* : son SHA-1 est identique à celui rendu par `keytool -list`. C'est
+   exactement la valeur que Google compare au moment de l'enregistrement du client OAuth
+   Android. Une erreur de copie ici ne se verrait qu'au premier refus de connexion.
+2. **Le format par défaut est PKCS12** (voir le piège de `RELEASE_KEY_PASSWORD` plus haut) :
+   mot de passe de clé obligatoirement identique à celui du store.
