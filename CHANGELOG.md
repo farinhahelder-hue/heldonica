@@ -2,6 +2,28 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-30 undecies] — Monténégro : les 3 sous-destinations ont une page, plus de lien mort
+
+La migration de #787 a inséré 3 lignes dans `cms_sub_destinations` (`podgorica-cijevna`,
+`petrovac-perazica`, `buljarica-lucice`), que le pilier rend en cartes vers
+`/destinations/montenegro/<slug>`. Mais **aucune page ne servait ces slugs** : le gabarit
+`SubDestinationTemplate` vit dans un fichier `page.tsx` par sous-destination (comme
+`roumanie/brasov`), il n'existe pas de route dynamique pour eux. Les 3 cartes étaient donc
+**3 liens morts (404)** en production, mesurés.
+
+- **3 pages créées** à partir du vécu réel du pilier (itinéraire, FAQ, dossier de terrain) :
+  `app/destinations/montenegro/{podgorica-cijevna,petrovac-perazica,buljarica-lucice}/page.tsx`.
+  Contenu court — intro, 3 piliers, astuce locale — pour ne pas recopier l'itinéraire du pilier.
+- **2 mots bannis retirés du pilier en base** : « circuit » (FAQ) et « coup de cœur » (verdict),
+  remplacés par « itinéraires éclair » et « l'étape qui nous a le plus marqués ». Ils étaient
+  passés en ligne parce que `check-content-coherence` scanne `cms_editable_zones`,
+  `cms_home_destinations`, `cms_sub_destinations` et `cms_guide_items`, **mais pas
+  `cms_pillar_pages`** — angle mort à combler.
+- `scripts/cms-hardcode-baseline.json` : entrée pour les 3 pages (6 textes en dur chacune,
+  même compte que `roumanie/brasov` et `normandie/*` — le repli du gabarit).
+
+Garde-fous 21/21, `tsc` 0 erreur.
+
 ## [2026-10-30 decies] — Monténégro : refonte pilier, preuves GPS de terrain (Petrovac, Perazića Do, Buljarica), assainissement IA et vidéos web
 
 Extraction et analyse certifiée de 1 636 clichés et 284 vidéos du voyage réel de fin mai 2026 (Nikon D7200 24 Mpx + Pixel 8 Pro 12 Mpx).
