@@ -32,8 +32,8 @@ const profileMeta: Record<
   explorateur_sensoriel: {
     title: 'Profil: Explorateur Sensoriel',
     subtitle: 'Tu voyages pour ressentir le lieu avant de le consommer.',
-    recommendation: 'Destination recommandee: Madere',
-    primaryHref: '/destinations/madere',
+    recommendation: 'Destination recommandee: Madere (sur mesure)',
+    primaryHref: '/travel-planning-form?destination=madere',
     planningHref: '/travel-planning-form?destination=madere',
   },
   contemplatif_alpin: {

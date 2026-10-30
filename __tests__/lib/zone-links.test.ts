@@ -21,13 +21,29 @@ describe('getZoneLinks', () => {
       'footer_dest_item',
       [],
       zones({
-        footer_dest_item_1_label: 'Madère',
-        footer_dest_item_1_url: '/destinations/madere',
+        footer_dest_item_1_label: 'Roumanie',
+        footer_dest_item_1_url: '/destinations/roumanie',
         footer_dest_item_2_label: 'Grèce',
         footer_dest_item_2_url: '/destinations/grece',
       })
     )
-    expect(links).toEqual([{ label: 'Madère', url: '/destinations/madere' }])
+    expect(links).toEqual([{ label: 'Roumanie', url: '/destinations/roumanie' }])
+  })
+
+  it('écarte Madère, page pilier « Bientôt » (30/10/2026)', () => {
+    // Le pied de page menait vers le pilier Madère depuis chaque page du site,
+    // alors que son fonds d'images est intégralement généré par IA.
+    const links = getZoneLinks(
+      'footer_dest_item',
+      [],
+      zones({
+        footer_dest_item_1_label: 'Madère',
+        footer_dest_item_1_url: '/destinations/madere',
+        footer_dest_item_2_label: 'Roumanie',
+        footer_dest_item_2_url: '/destinations/roumanie',
+      })
+    )
+    expect(links).toEqual([{ label: 'Roumanie', url: '/destinations/roumanie' }])
   })
 
   it('filtre aussi le fallback', () => {

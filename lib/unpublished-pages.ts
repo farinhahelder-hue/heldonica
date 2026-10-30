@@ -92,6 +92,14 @@ export const UNPUBLISHED_PATHS: readonly string[] = [
   '/destinations/colombie',
   '/destinations/lisbonne',
   '/destinations/sicile',
+
+  // Décision du propriétaire du 30/10/2026 : la page pilier Madère passe
+  // « Bientôt ». Le fonds d'images de l'île est intégralement généré par IA
+  // (manifeste C2PA « Created by Google Generative AI », trainedAlgorithmicMedia,
+  // SynthID sur les 5 fichiers du bucket), et aucune photo réelle de Madère
+  // n'existe. Le texte revendique un vécu (« Septembre 2025, 8 jours ») que ces
+  // images ne peuvent pas prouver : règle #1, on n'invente rien.
+  '/destinations/madere',
 ] as const;
 
 /** Clés de page CMS (`destinations-sicile-taormine`) correspondantes. */
@@ -155,6 +163,10 @@ export const UNPUBLISHED_CMS_PAGES: readonly string[] = [
   'destinations-colombie',
   'destinations-lisbonne',
   'destinations-sicile',
+
+  // Décision du propriétaire du 30/10/2026 : la page pilier Madère passe
+  // « Bientôt » (fonds d'images intégralement généré par IA, cf. plus haut).
+  'destinations-madere',
 ] as const;
 
 const pathSet = new Set(UNPUBLISHED_PATHS);

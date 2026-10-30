@@ -2,6 +2,131 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-30 nonies] — Audit C2PA de toutes les images publiées, et revue de la PR #787
+
+L'audit d'images de Madère a été généralisé : **toutes** les images référencées par
+du contenu publié ou actif (destinations publiées, articles publiés, items de guide,
+zones CMS, héros de pilier, témoignages) ont été téléchargées et inspectées à la
+recherche du manifeste C2PA que les générateurs inscrivent dans le JPEG.
+
+- **Nouveau garde-fou réutilisable** : `scripts/audit/check-c2pa.mjs` — accepte des
+  URLs ou des chemins locaux, cherche `c2pa`, `trainedAlgorithmicMedia`, `SynthID`,
+  « Google Generative AI », `digitalSourceType`. Un EXIF absent ne prouve rien ; le
+  manifeste, lui, est une preuve.
+- **Résultat** : 8 images sur 16 portent le manifeste — les 5 de Madère, et **3 du
+  bucket `montenegro/`** (`sahat_kula`, `sipcanik_winery`, `stara_varos`). Ces 3 sont
+  dans `destinations.gallery_images`, **colonne rendue par aucun composant** : elles
+  ne fuient pas. Les vraies photos du Monténégro (`1793358027881-…-hero.jpg`,
+  `podgorica/1793355515554-…-nuit.jpg`) et les 3 photos roumaines sont saines.
+- **Aucune image IA ne subsiste dans le rendu public** après la migration Madère.
+
+Revue de la **PR #787** (agent Gemini/antigravity, Monténégro) : travail de fond solide.
+- **6 photos réelles** ajoutées, **aucun manifeste C2PA** (l'inverse exact des images
+  IA). Leur EXIF a été retiré par le script de traitement — la preuve d'appareil
+  n'est donc plus dans le fichier, mais l'absence de marqueur IA est vérifiable.
+- **Migration saine** : les 19 colonnes qu'elle met à jour existent toutes, les 7
+  blocs `::jsonb` sont **valides** (revérifiés), `cms_sub_destinations` accepte les
+  colonnes de l'INSERT, et les 3 sous-destinations visées n'existent pas encore.
+- **3 réserves, à corriger par l'auteur** :
+  1. La PR est **en conflit** (`mergeable_state = dirty`, diverged, 3 commits de
+     retard sur `main`) — sur `CHANGELOG.md`. Le rebase sur `main` est nécessaire.
+  2. **Le workflow « Garde-fous » ne s'est jamais exécuté** sur la branche (0 run ;
+     seul CodeRabbit, « skipped »). Le conflit en est la cause probable. « Aucun
+     contrôle en échec » ne signifie pas « contrôles passés ».
+  3. Le CHANGELOG annonce `content/evidence/montenegro.json` (32 spots GPS) comme
+     livré : **ce fichier n'existe ni dans la branche ni dans `main`**. Soit il a été
+     oublié, soit il n'a jamais été produit.
+- **Note** : 5 des 6 photos ne sont référencées nulle part dans la migration — seule
+  `petrovac_mer.jpg` sert de héros. `budva_`, `buljarica_`, `perazica_`,
+  `podgorica_cijevna_chutes` et `podgorica_stara_varos` sont déposées mais non
+  affichées (elles seront utiles pour les sous-destinations).
+
+## [2026-10-30 octies] — Madère passe « Bientôt » : un fonds d'images intégralement généré
+
+Le propriétaire a demandé de mettre **Madère en brouillon** aussi, comme les deux
+articles incohérents de l'entrée précédente. La raison est plus lourde que prévu :
+ce n'est pas le texte qui pose problème, c'est la preuve.
+
+- **Constat (C2PA lu octet par octet sur le bucket public).** Les **cinq** images du
+  fonds `media/destinations/madere/` (`pico_do_arieiro`, `ponta_do_sol`, `porto_moniz`,
+  `achadas_da_cruz`, `fanal_foret`) portent un manifeste signé **« Created by Google
+  Generative AI »**, `digitalSourceType = trainedAlgorithmicMedia`, plus **SynthID**.
+  **Aucune photo réelle de Madère n'existe** dans le bucket. Or ces images servent à
+  prouver un vécu revendiqué en toutes lettres par le pilier (« Septembre 2025, en
+  couple, 8 jours », « on a marché dans la forêt de Fanal », « on s'est baignés à Porto
+  Moniz »). Règle #1 : on n'invente rien. Sur le héros, le panneau porte même deux
+  orthographes du même sommet (« PICO DO ARIEIRO » puis « VEREDA DO AREEIRO »).
+- **Pourquoi les drapeaux seuls ne suffisaient pas.** Madère est une **page pilier**
+  (`cms_pillar_pages`), pas un article. `DestinationPillar` ne connaît pas le mécanisme
+  « Bientôt » (contrairement à `SubDestinationTemplate`), et `buildPillarMetadata`
+  n'appliquait ni `noindex` ni image de partage par défaut : passer `is_active = false`
+  seul aurait rendu une page **HTTP 200 mais vide**, toujours indexable et toujours au
+  sitemap. Il fallait du code.
+- **Ce qui a été fait.**
+  - `lib/unpublished-pages.ts` : `'/destinations/madere'` + `'destinations-madere'`
+    ajoutés (53 → 54 entrées par liste, test mis à jour).
+  - `app/destinations/madere/page.tsx` : garde `isUnpublishedPath` → rend
+    `ComingSoonDestination` au lieu du pilier.
+  - `lib/pillar-metadata.ts` : une page pilier non publiable sort de l'index et sert
+    `DEFAULT_OG_IMAGE`, **jamais** sa `hero` (l'image IA ne part plus en `og:image`).
+  - `lib/home-data.ts` + `components/HomeClient.tsx` : la carte d'accueil Madère et
+    son image IA retirées, y compris des replis codés en dur (l'image ne peut plus
+    être servie même si Supabase est injoignable). La liste `/destinations` et le
+    pied de page étaient déjà couverts par `isUnpublishedPath`.
+  - `components/SlowTravelQuiz.tsx` : le profil « Explorateur Sensoriel » recommandait
+    `/destinations/madere` (page vide) ; il renvoie désormais vers le sur-mesure,
+    même motif que la Sicile.
+  - **Migration `20261030160000_madere_bientot.sql`** : bascule trois drapeaux —
+    `destinations.published=false/status='coming_soon'`,
+    `cms_home_destinations.is_active=false`, `cms_pillar_pages.is_active=false`.
+    **Aucun `DELETE`.** Idempotente, réversible par migration versionnée.
+- **Un quatrième point de fuite, en ligne celui-là.** Le guide « 10 pépites de Madère »
+  reste publié (aimant à contacts, lié depuis `/start`, `/guides` et le sitemap), mais sa
+  zone de partage `seo_og_image` (`cms_editable_zones`) pointait sur la même image IA.
+  Le HTML réellement servi le confirmait :
+  `<meta property="og:image" content="…/madere/pico_do_arieiro.jpg">`. Aucun composant
+  n'affiche cette zone sur la page (le héros lit `hero_bg_image`, absent → repli
+  `/og-default.jpg`). La migration la remet sur `og-default.jpg`, sans toucher au guide.
+  Le `og:image` Madère ne subsiste donc nulle part dans le rendu public.
+- **Non fait ici** : la migration n'est pas appliquée en production (aucun accès DDL
+  depuis ce poste). Le propriétaire l'applique. En attendant, le garde `ComingSoon`
+  côté page est déjà effectif au prochain déploiement, car il lit
+  `lib/unpublished-pages.ts` — la carte d'accueil, elle, attend la migration.
+
+## [2026-10-30 septies] — Deux articles incohérents repassés en brouillon
+
+Le propriétaire a demandé de retirer du site les articles incohérents, **sans rien
+supprimer** : mise en brouillon, et conservation du carnet de terrain Podgorica.
+
+- **Constat (mesure sur le HTML réellement servi, 2026-10-30).** Sur les trois seuls
+  articles publiés, deux portaient des fautes visibles : `bacalhau-gomes-sa-recette`
+  (« déssalé », « éffóchées », « crème fraiche », « Island ») et
+  `poncha-recette-authentique` (« madeiréen », « sucrde », plus un pronom « nous »
+  sujet, banni par le guide de voix). `podgorica-capitale-oubliee-montenegro` est un
+  carnet adossé à un vécu réel : **conservé publié**.
+- **Migration `20261030120000_depublier_articles_incoherents.sql`** : bascule
+  `published = false, status = 'draft'` sur les deux slugs, `published_at` laissé
+  intact (historique de première mise en ligne). **Aucun `DELETE`** — le contenu reste
+  éditable au CMS. Idempotente ; retour arrière par republication.
+- **Vérifié après application** : `cms_blog_posts` = **56 lignes avant comme après**
+  (aucune perte), **1 seul article publié** (Podgorica), 55 brouillons. En ligne :
+  `/blog/bacalhau-gomes-sa-recette` et `/blog/poncha-recette-authentique` → **HTTP 404**,
+  `/blog/podgorica-capitale-oubliee-montenegro` → **HTTP 200**, `/blog` ne liste plus
+  que Podgorica. Le sitemap reste périmé jusqu'au prochain déploiement (généré au
+  build, `revalidate` non explicite sur `app/sitemap.ts`).
+- **À suivre (non traité ici)** : `/a-propos` affiche « 0 Carnets publiés » alors qu'un
+  article reste publié. Les zones CMS `stat_*_value` (7 / 8 / 4) sont `is_active = false`
+  et le bloc rendu vient du code (`app/a-propos/page.tsx`, `STATS`). L'écart entre la
+  valeur en base et le rendu mérite une vérification dédiée.
+- **Audit d'images en ligne — vérification indépendante.** Un rapport d'audit a été
+  annoncé (C2PA sur le fonds Madère, lots `batch-*` sans EXIF, og:image générique).
+  **Confirmé** ici : le manifeste C2PA est présent sur les 5 images Madère du bucket
+  (`Created by Google Generative AI`, `trainedAlgorithmicMedia`, SynthID), et les lots
+  `batch-1778535464596-3.jpg` (Suisse) / `batch-1778535469099-7.jpg` (Bucarest) n'ont
+  **aucun EXIF**. En revanche, les fichiers `rapport-coherence-en-ligne.md`,
+  `scripts/audit-ligne.mjs` et `scripts/audit-c2pa.mjs` **n'existent pas** dans ce
+  dépôt : les constats ne sont pas reproductibles en l'état.
+
 ## [2026-10-30 quinquies] — Connexion Google : un refus redevient diagnosticable
 
 `verifierJetonGoogle` avalait la raison du refus de Google. Son commentaire annonçait

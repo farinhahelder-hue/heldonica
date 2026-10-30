@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
 import { supabase } from '@/lib/supabase-client'
 import DestinationPillar from '@/components/DestinationPillar'
+import ComingSoonDestination from '@/components/ComingSoonDestination'
 import { buildPillarMetadata } from '@/lib/pillar-metadata'
 import { fetchPillarData, fetchSubDestinations, fetchSeasons } from '@/lib/pillar-data'
 import { getPageZones } from '@/lib/cms-zones'
+import { isUnpublishedPath } from '@/lib/unpublished-pages'
 
 // ISR : Next sert le dernier rendu valide si Supabase est momentanement
 // injoignable, ce qui absorbe les incidents transitoires sans contenu hardcode.
@@ -34,8 +36,27 @@ async function getRelatedArticles() {
 }
 
 export default async function MaderePage() {
-  const [data, relatedArticles, zones, subDestinations, seasons] = await Promise.all([
-    fetchPillarData('madere'),
+  // Page pilier « Bientôt » tant qu'elle figure dans lib/unpublished-pages.ts.
+  // Décision du 30/10/2026 : le fonds d'images de l'île est intégralement
+  // généré par IA (C2PA + SynthID) et aucune photo réelle n'existe — le vécu
+  // revendiqué par le texte ne peut pas être prouvé. DestinationPillar ne
+  // connaît pas ce mécanisme (contrairement à SubDestinationTemplate), d'où le
+  // garde explicite ici : sans lui, la page resterait complète et indexable.
+  const data = await fetchPillarData('madere')
+
+  if (isUnpublishedPath('/destinations/madere')) {
+    return (
+      <ComingSoonDestination
+        slug="madere"
+        title={data.name}
+        country={data.country}
+        hero_unsplash_url="/og-default.jpg"
+        zones={await getPageZones('destinations-madere')}
+      />
+    )
+  }
+
+  const [relatedArticles, zones, subDestinations, seasons] = await Promise.all([
     getRelatedArticles(),
     getPageZones('destinations'),
     fetchSubDestinations('madere'),
