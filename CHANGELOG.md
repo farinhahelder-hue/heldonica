@@ -2,6 +2,27 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-30 quinquies] — Connexion Google : un refus redevient diagnosticable
+
+`verifierJetonGoogle` avalait la raison du refus de Google. Son commentaire annonçait
+« Détail utile en journal » — mais le `catch` ne journalisait **rien** : « Wrong recipient »
+(audience erronée, cause la plus probable d'un bouton qui refuse), « Token used too late »
+et « Invalid signature » étaient indistinguables, y compris dans les journaux Vercel. C'est
+le point laissé ouvert par la session précédente, non mesurable depuis l'extérieur.
+
+- **`lib/cms-google-signin.ts`** : le refus est désormais classé (`audience`, `expiration`,
+  `jeton illisible`, `inconnu`) et journalisé en `console.error`. La classification n'est pas
+  un confort : `google-auth-library` glisse le jeton brut dans certains messages d'erreur
+  (`Invalid token signature: <jeton>`, `Wrong number of segments in token: <jeton>`).
+  Journaliser le message tel quel aurait déposé un jeton d'identité vivant hors du dépôt
+  (règle #6). On ne reprend donc jamais le message, seulement sa catégorie.
+- **Tests** : 4 cas de classification + 1 test qui vérifie que le jeton n'apparaît pas dans
+  la trace journalisée. 18/18 sur les deux fichiers Google.
+
+**Vérifié** : garde-fous 17/21 (4 ignorés faute d'identifiants Supabase sur ce poste), tsc 0
+erreur, vitest vert. La raison d'un échec du bouton sera lisible dans les journaux Vercel
+sans jamais y laisser le jeton.
+
 ## [2026-10-30 quater] — Keystore de release : documentation vérifiée
 
 Le `README` mobile annonçait encore un « repli automatique sur le keystore de debug versionné »

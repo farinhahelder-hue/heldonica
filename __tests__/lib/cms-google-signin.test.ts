@@ -16,6 +16,7 @@ import {
   getAllowedEmail,
   getSignInClientId,
   verifierJetonGoogle,
+  classerRefusGoogle,
 } from '@/lib/cms-google-signin';
 
 const ENV_KEYS = ['GOOGLE_SIGNIN_CLIENT_ID', 'GOOGLE_PHOTOS_CLIENT_ID', 'CMS_ALLOWED_EMAIL'] as const;
@@ -135,6 +136,51 @@ describe('cms-google-signin', () => {
 
       expect(verdict.ok).toBe(false);
       expect(verifyIdToken).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('classe un refus en categorie journalisable', () => {
+    it('distingue une audience erronee (client ID du bouton)', () => {
+      expect(classerRefusGoogle(new Error('Wrong recipient, payload audience != requiredAudience'))).toBe('audience');
+    });
+
+    it('distingue une expiration', () => {
+      expect(classerRefusGoogle(new Error('Token used too late, 123 > 456'))).toBe('expiration');
+    });
+
+    it('distingue un jeton illisible', () => {
+      expect(classerRefusGoogle(new Error('Invalid token signature: abc.def.ghi'))).toBe('jeton illisible');
+    });
+
+    it('retombe sur inconnu plutot que de deviner', () => {
+      expect(classerRefusGoogle(new Error('panne reseau'))).toBe('inconnu');
+      expect(classerRefusGoogle(undefined)).toBe('inconnu');
+    });
+  });
+
+  describe('journalisation sure', () => {
+    beforeEach(() => {
+      process.env.GOOGLE_SIGNIN_CLIENT_ID = 'client-123';
+      process.env.CMS_ALLOWED_EMAIL = ADRESSE;
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it('journalise une categorie, jamais le jeton brut', async () => {
+      // google-auth-library peut mettre le jeton dans le message d'erreur :
+      // la journalisation ne doit jamais le reprendre tel quel.
+      const jeton = 'jeton-secret-qui-ne-doit-pas-fuiter';
+      verifyIdToken.mockRejectedValue(new Error(`Invalid token signature: ${jeton}`));
+      const espion = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      const verdict = await verifierJetonGoogle(jeton);
+
+      expect(verdict.ok).toBe(false);
+      expect(espion).toHaveBeenCalledWith('[cms-auth/google] jeton refusé :', 'jeton illisible');
+      const trace = espion.mock.calls.flat().join(' ');
+      expect(trace).not.toContain(jeton);
     });
   });
 });
