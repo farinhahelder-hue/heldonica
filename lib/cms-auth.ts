@@ -96,8 +96,7 @@ function generateRandomHex(bytes = 16): string {
   if (c && typeof c.getRandomValues === 'function') {
     c.getRandomValues(arr);
   } else {
-    // Fallback – not cryptographically secure but better than crashing
-    for (let i = 0; i < bytes; i++) arr[i] = Math.floor(Math.random() * 256);
+    throw new Error('Web Crypto API (getRandomValues) not available');
   }
   return hexEncode(arr.buffer);
 }
