@@ -2,6 +2,31 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-30 duodecies] — Cohérence éditoriale : le garde-fou regardait à côté du pilier
+
+`check-content-coherence` scannait `cms_editable_zones`, `cms_home_destinations`,
+`cms_sub_destinations` et `cms_guide_items` — **mais ni `cms_pillar_pages`, ni
+`cms_seasons`**. Or les deux alimentent des pages publiques actives. Résultat mesuré :
+le pilier Monténégro servait « circuit » et « coup de cœur » depuis #787, et
+`cms_seasons` en portait deux autres depuis des semaines (Monténégro, Roumanie).
+
+- **4 corrections en base**, réunies dans
+  `supabase/migrations/20261030170000_corrections_voix_montenegro_roumanie.sql`
+  (idempotentes : `replace()` + garde `LIKE`) :
+  « les circuits touristiques rapides » → « les itinéraires éclair » ;
+  « Notre coup de cœur au Monténégro » → « L'étape qui nous a le plus marqués » ;
+  « Notre coup de cœur » (saison) → « Notre saison préférée » ;
+  « sont incontournables » → « battent leur plein ».
+- **Le garde-fou étendu** : `cms_pillar_pages` (tagline, hero_subtitle, intro,
+  itinerary, budget_breakdown, faq, verdict, tested_by_heldonica, seo) et
+  `cms_seasons` (note, weather) sont désormais scannés, avec la même distinction
+  fuite active / dette inactive.
+- **Prouvé mordant** : testé contre un faux PostgREST servant deux mots bannis
+  volontaires — les deux sont signalés en `🔴` et le script sort en 1. Un garde-fou
+  qu'on n'a pas vu échouer n'est pas un garde-fou.
+
+Garde-fous 21/21 (17 exécutés).
+
 ## [2026-10-30 undecies] — Monténégro : les 3 sous-destinations ont une page, plus de lien mort
 
 La migration de #787 a inséré 3 lignes dans `cms_sub_destinations` (`podgorica-cijevna`,
