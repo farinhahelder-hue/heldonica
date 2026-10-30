@@ -14,7 +14,7 @@ dossier, j'ai mesuré son ampleur réelle — plus large qu'annoncée :
 | `lib/cms-templates.ts` (l. 390, 505) | `imageUrl`/`url` → `madere/achadas_da_cruz.jpg` | photo de terrain Roumanie (déjà utilisée par #790) |
 | `lib/cms-vault-spots.ts` (l. 575) | image Markdown → `madere/fanal_foret.jpg` | illustration retirée, texte intact |
 | `heldonica-mobile/…/knowledge_vault.json` | même image Markdown | illustration retirée, JSON valide (5 entrées) |
-| **Base** : `cms_blog_posts` (7), `destinations` (3), `cms_editable_zones` (1) | URL `madere/` en `featured_image`/`og_image`/`hero_unsplash_url` | migration `20261030190000` → `/og-default.jpg` |
+| **Base** : `cms_blog_posts` (7), `destinations` (3), `cms_editable_zones` (1) | URL `madere/` en `featured_image`/`og_image`/`hero_unsplash_url` | migration `20261030200000` → `/og-default.jpg` |
 
 Les lignes en base étaient **toutes en brouillon** (`published=false`, `status='draft'` ou
 `'coming_soon'`) : rien n'était affiché, mais republier une fiche aurait ressorti une image

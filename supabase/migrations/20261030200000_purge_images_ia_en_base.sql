@@ -1,4 +1,4 @@
--- Migration 20261030190000_purge_images_ia_en_base.sql
+-- Migration 20261030200000_purge_images_ia_en_base.sql
 -- Purge des références résiduelles aux visuels générés par IA, là où la
 -- migration 20261030180000_purge_refs_images_generees.sql ne les a pas vues.
 --
