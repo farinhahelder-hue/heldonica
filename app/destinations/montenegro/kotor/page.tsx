@@ -25,7 +25,7 @@ const metadata: Metadata = {
     siteName: 'Heldonica',
     locale: 'fr_FR',
     type: 'article',
-    images: ['/images/destinations/montenegro/moraca_millennium.jpg'],
+    images: ['/images/destinations/montenegro/petrovac_mer.jpg'],
   },
 }
 
@@ -84,7 +84,7 @@ export default async function KotorPage() {
         {/* Hero */}
         <section className="relative bg-[#1E1916] py-20 md:py-28 border-b border-[#DED5C6]">
           <div className="absolute inset-0 opacity-35">
-            {Z('hero_image', 'image', '/images/destinations/montenegro/moraca_millennium.jpg', 'w-full h-full object-cover')}
+            {Z('hero_image', 'image', '/images/destinations/montenegro/petrovac_mer.jpg', 'w-full h-full object-cover')}
           </div>
           <div className="relative max-w-4xl mx-auto px-4">
             <span className="inline-block text-[#D8CFC0] text-[11px] uppercase tracking-[0.22em] mb-4">
