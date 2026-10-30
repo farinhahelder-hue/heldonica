@@ -2,6 +2,26 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-30 decies] — Monténégro : refonte pilier, preuves GPS de terrain (Petrovac, Perazića Do, Buljarica), assainissement IA et vidéos web
+
+Extraction et analyse certifiée de 1 636 clichés et 284 vidéos du voyage réel de fin mai 2026 (Nikon D7200 24 Mpx + Pixel 8 Pro 12 Mpx).
+1 413 photos géolocalisées avec GPS de précision, 32 spots d'arrêt documentés dans un registre opposable.
+
+- **Règle n°1 d'Heldonica respectée** : abandon de la check-list touristique sur Kotor (non visitée) et le Durmitor (non visité). Tout le contenu est recentré sur le vécu réel sans fiction.
+- **Camp de base prolongé à Petrovac** : séjour prolongé à Petrovac na Moru, exploration urbex intégrale de l'hôtel brutaliste abandonné AS à Perazića Do (street art jusqu'au dernier étage face à la mer), sentier taillé dans la roche rouge de Crvena Stijena, crique de Lučice et vaste baie sauvage de Buljarica.
+- **Étape Podgorica & Cijevna valorisée** : quartier ottoman de Stara Varoš, pont du Millénium sur la Morača, chutes et canyon calcaire de la Cijevna (Kuća Rakića), halte au belvédère panoramique de Sveti Stefan.
+- **Gastronomie locale certifiée** : table traditionnelle au Restoran Kristal à Podgorica (grand plateau de grillades balkaniques mešano meso, salade Šopska sous sa montagne de fromage blanc râpé, pintes bien fraîches de Nikšićko Pivo).
+- **Logistique et routes réelles** : Citroën C-Elysée blanche immatriculée PG KJ079 louée à Podgorica ; compte-rendu honnête sur la fluidité des axes de l'intérieur face à la saturation étouffante du trafic côtier et la difficulté extrême de stationnement à Budva.
+- **Migration versionnée (20261030150000_update_montenegro_pillar_real_terrain.sql)** :
+  - Met à jour cms_pillar_pages (tagline, intro, itinéraire 6 jours avec arrêts précis, FAQ, verdict, budget) en voix Heldonica B2C stricte (on/	u, 0 ous/
+ous, 0 mot banni).
+  - Initialise les 3 sous-destinations réelles dans cms_sub_destinations (podgorica-cijevna, petrovac-perazica, uljarica-lucice).
+  - Assainit intégralement public.destinations sur montenegro ET sur la ligne non publiée montenegro-podgorica : purge définitive des 3 anciens visuels IA (sahat_kula, sipcanik_winery, stara_varos), remplacés par les vraies photos de terrain.
+- **Preuves et médias réels** :
+  - content/evidence/montenegro.json : registre des 32 spots GPS résolus avec horodatages, coordonnées exactes et boîtiers certifiés.
+  - 9 photos haute définition optimisées dans public/images/destinations/montenegro/ (0 octet IA, 0 C2PA).
+  - 3 boucles vidéo web H.264 720p optimisées (+faststart) dans public/videos/destinations/montenegro/ : kayak en mer vers la chapelle Sveta Nedjelja (3,5 Mo), rooftop brut de l'hôtel abandonné AS (4,3 Mo), et bouillonnement des chutes de la Cijevna (6,6 Mo).
+
 ## [2026-10-30 nonies] — Audit C2PA de toutes les images publiées, et revue de la PR #787
 
 L'audit d'images de Madère a été généralisé : **toutes** les images référencées par

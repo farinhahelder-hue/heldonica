@@ -1,0 +1,593 @@
+{
+  "destination": "Monténégro",
+  "scanned_total": 1636,
+  "gps_verified_photos": 1413,
+  "spots_count": 32,
+  "spots": [
+    {
+      "spot_id": "mne-spot-01",
+      "poi": "",
+      "city": "Opština Kotor",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "Koritni Do, Opština Kotor, Crna Gora / Црна Гора",
+      "lat": 42.583075,
+      "lon": 18.64435,
+      "gmaps_url": "https://www.google.com/maps?q=42.583075,18.644350",
+      "date": "2026:05:27 17:41:06",
+      "photo_count": 2,
+      "sample_photos": [
+        "PXL_20260527_154106822.RAW-01.COVER.jpg",
+        "PXL_20260527_154221021.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-02",
+      "poi": "",
+      "city": "Prijestolnica Cetinje",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "Obod, Prijestolnica Cetinje, Crna Gora / Црна Гора",
+      "lat": 42.53900833333333,
+      "lon": 18.782663888888887,
+      "gmaps_url": "https://www.google.com/maps?q=42.539008,18.782664",
+      "date": "2026:05:27 17:42:33",
+      "photo_count": 2,
+      "sample_photos": [
+        "PXL_20260527_154233399.RAW-01.COVER.jpg",
+        "PXL_20260527_154618009.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-03",
+      "poi": "M-10",
+      "city": "Glavni grad Podgorica",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "M-10, Glavni grad Podgorica, 81002, Crna Gora / Црна Гора",
+      "lat": 42.41155555555555,
+      "lon": 19.176008333333336,
+      "gmaps_url": "https://www.google.com/maps?q=42.411556,19.176008",
+      "date": "2026:05:27 17:46:24",
+      "photo_count": 16,
+      "sample_photos": [
+        "PXL_20260527_154624142.RAW-01.COVER.jpg",
+        "PXL_20260527_154627751.RAW-01.COVER.jpg",
+        "PXL_20260527_154628964.RAW-01.COVER.jpg",
+        "PXL_20260527_154631084.RAW-01.COVER.jpg",
+        "PXL_20260527_154633786.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-04",
+      "poi": "",
+      "city": "Mataguži",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "Mataguži, Opština Zeta, Crna Gora / Црна Гора",
+      "lat": 42.262702777777776,
+      "lon": 19.280894444444442,
+      "gmaps_url": "https://www.google.com/maps?q=42.262703,19.280894",
+      "date": "2026:05:27 17:49:22",
+      "photo_count": 12,
+      "sample_photos": [
+        "PXL_20260527_154922136.RAW-01.COVER.jpg",
+        "PXL_20260527_154928103.RAW-01.COVER.jpg",
+        "PXL_20260527_154946770.RAW-01.COVER.jpg",
+        "PXL_20260527_154949205.RAW-01.COVER.jpg",
+        "PXL_20260527_154952655.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-05",
+      "poi": "",
+      "city": "Gostilj",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "Gostilj, Opština Zeta, 81304, Crna Gora / Црна Гора",
+      "lat": 42.28769166666667,
+      "lon": 19.244455555555557,
+      "gmaps_url": "https://www.google.com/maps?q=42.287692,19.244456",
+      "date": "2026:05:27 17:51:27",
+      "photo_count": 4,
+      "sample_photos": [
+        "PXL_20260527_155127103.RAW-01.COVER.jpg",
+        "PXL_20260527_155131968.RAW-01.COVER.jpg",
+        "PXL_20260527_155137565.RAW-01.COVER.jpg",
+        "PXL_20260527_155139632.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-06",
+      "poi": "Ulica Kuća Rakića 1",
+      "city": "Podgorica",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "Tech Apron, Ulica Kuća Rakića 1, Rakića Kuće, Podgorica, Opština Zeta, 81304, Crna Gora / Црна Гора",
+      "lat": 42.36878055555555,
+      "lon": 19.247225,
+      "gmaps_url": "https://www.google.com/maps?q=42.368781,19.247225",
+      "date": "2026:05:27 18:04:07",
+      "photo_count": 16,
+      "sample_photos": [
+        "PXL_20260527_160407601.RAW-01.COVER.jpg",
+        "PXL_20260601_071818489.RAW-01.COVER.jpg",
+        "PXL_20260601_071916981.RAW-01.COVER.jpg",
+        "PXL_20260601_071923280.RAW-01.COVER.jpg",
+        "PXL_20260601_071932590.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-07",
+      "poi": "4. jula",
+      "city": "Podgorica",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "IDEA, 4. jula, Pobrežje, Stara varoš, Podgorica, Glavni grad Podgorica, 81108, Crna Gora / Црна Гора",
+      "lat": 42.425780555555555,
+      "lon": 19.259597222222222,
+      "gmaps_url": "https://www.google.com/maps?q=42.425781,19.259597",
+      "date": "2026:05:27 19:14:00",
+      "photo_count": 40,
+      "sample_photos": [
+        "PXL_20260527_171400451.RAW-01.MP.COVER.jpg",
+        "PXL_20260527_171402108.RAW-01.MP.COVER.jpg",
+        "PXL_20260527_171648862.RAW-01.COVER.jpg",
+        "PXL_20260527_171657201.RAW-01.COVER.jpg",
+        "PXL_20260527_180112571.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-08",
+      "poi": "Luke Boljevića",
+      "city": "Podgorica",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "Luke Boljevića, Pejton, Stara varoš, Podgorica, Glavni grad Podgorica, 81108, Crna Gora / Црна Гора",
+      "lat": 42.434980555555555,
+      "lon": 19.260558333333332,
+      "gmaps_url": "https://www.google.com/maps?q=42.434981,19.260558",
+      "date": "2026:05:27 20:21:37",
+      "photo_count": 39,
+      "sample_photos": [
+        "PXL_20260527_182137166.RAW-01.COVER.jpg",
+        "PXL_20260527_182144685.RAW-01.COVER.jpg",
+        "PXL_20260527_182149348.RAW-01.COVER.jpg",
+        "PXL_20260527_183038240.RAW-01.COVER.jpg",
+        "PXL_20260527_183749922.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-09",
+      "poi": "Pošta Crne Gore",
+      "city": "Podgorica",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "Pošta Crne Gore, 1, Slobode, Drač, Stara varoš, Podgorica, Glavni grad Podgorica, 81000, Crna Gora / Црна Гора",
+      "lat": 42.43920555555555,
+      "lon": 19.262391666666666,
+      "gmaps_url": "https://www.google.com/maps?q=42.439206,19.262392",
+      "date": "2026:05:27 20:53:11",
+      "photo_count": 70,
+      "sample_photos": [
+        "PXL_20260527_185311423.RAW-01.COVER.jpg",
+        "PXL_20260527_185504736.RAW-01.MP.COVER.jpg",
+        "PXL_20260527_185505743.RAW-01.COVER.jpg",
+        "PXL_20260527_214444601.RAW-01.MP.COVER.jpg",
+        "PXL_20260527_214744668.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-10",
+      "poi": "Njegoševa",
+      "city": "Podgorica",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "40, Njegoševa, Stara varoš, Podgorica, Glavni grad Podgorica, 81110, Crna Gora / Црна Гора",
+      "lat": 42.442652777777774,
+      "lon": 19.262730555555557,
+      "gmaps_url": "https://www.google.com/maps?q=42.442653,19.262731",
+      "date": "2026:05:27 21:02:56",
+      "photo_count": 50,
+      "sample_photos": [
+        "PXL_20260527_190256017.RAW-01.MP.COVER.jpg",
+        "PXL_20260527_190259722.RAW-01.MP.COVER.jpg",
+        "PXL_20260527_190304692.RAW-01.COVER.jpg",
+        "PXL_20260527_190706804.RAW-01.COVER.jpg",
+        "PXL_20260527_190752567.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-11",
+      "poi": "Na Moraču",
+      "city": "Podgorica",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "Na Moraču, Moskovski most, Stara varoš, Podgorica, Glavni grad Podgorica, 81110, Crna Gora / Црна Гора",
+      "lat": 42.44340555555555,
+      "lon": 19.258183333333335,
+      "gmaps_url": "https://www.google.com/maps?q=42.443406,19.258183",
+      "date": "2026:05:27 23:02:48",
+      "photo_count": 22,
+      "sample_photos": [
+        "PXL_20260527_210248828.RAW-01.COVER.jpg",
+        "PXL_20260527_210252671.RAW-01.COVER.jpg",
+        "PXL_20260527_210255336.RAW-01.COVER.jpg",
+        "PXL_20260527_210258502.RAW-01.MP.COVER.jpg",
+        "PXL_20260527_210428430.RAW-01.MP.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-12",
+      "poi": "Brijeg Ćukovića",
+      "city": "Podgorica",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "Brijeg Ćukovića, Drač, Stara varoš, Podgorica, Glavni grad Podgorica, 81100, Crna Gora / Црна Гора",
+      "lat": 42.43682777777777,
+      "lon": 19.265469444444445,
+      "gmaps_url": "https://www.google.com/maps?q=42.436828,19.265469",
+      "date": "2026:05:28 10:43:34",
+      "photo_count": 30,
+      "sample_photos": [
+        "PXL_20260528_084334944.RAW-01.COVER.jpg",
+        "PXL_20260528_084754993.RAW-01.COVER.jpg",
+        "PXL_20260528_084757950.RAW-01.COVER.jpg",
+        "PXL_20260528_085341863.RAW-01.COVER.jpg",
+        "PXL_20260528_090020650.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-13",
+      "poi": "Ulica Kuća Rakića 1",
+      "city": "Podgorica",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "Ulica Kuća Rakića 1, Rakića Kuće, Podgorica, Opština Tuzi, 81304, Crna Gora / Црна Гора",
+      "lat": 42.38391111111111,
+      "lon": 19.278883333333333,
+      "gmaps_url": "https://www.google.com/maps?q=42.383911,19.278883",
+      "date": "2026:05:28 16:53:04",
+      "photo_count": 30,
+      "sample_photos": [
+        "PXL_20260528_145304490.RAW-01.COVER.jpg",
+        "PXL_20260528_145307688.RAW-01.COVER.jpg",
+        "PXL_20260528_150212299.RAW-01.COVER.jpg",
+        "PXL_20260528_150216673.RAW-01.MP.COVER.jpg",
+        "PXL_20260528_150218963.RAW-01.MP.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-14",
+      "poi": "Ulica Kuća Rakića 1",
+      "city": "Podgorica",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "Ulica Kuća Rakića 1, Rakića Kuće, Podgorica, Glavni grad Podgorica, 81304, Crna Gora / Црна Гора",
+      "lat": 42.38090277777778,
+      "lon": 19.276308333333333,
+      "gmaps_url": "https://www.google.com/maps?q=42.380903,19.276308",
+      "date": "2026:05:28 17:30:25",
+      "photo_count": 14,
+      "sample_photos": [
+        "PXL_20260528_153025945.RAW-01.MP.COVER.jpg",
+        "PXL_20260528_153028242.RAW-01.COVER.jpg",
+        "PXL_20260528_153032630.RAW-01.COVER.jpg",
+        "PXL_20260528_153038138.RAW-01.COVER.jpg",
+        "PXL_20260528_153044234.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-15",
+      "poi": "",
+      "city": "Podgorica",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "Malo brdo, Podgorica, Glavni grad Podgorica, 80001, Crna Gora / Црна Гора",
+      "lat": 42.456183333333335,
+      "lon": 19.251177777777777,
+      "gmaps_url": "https://www.google.com/maps?q=42.456183,19.251178",
+      "date": "2026:05:28 19:42:14",
+      "photo_count": 18,
+      "sample_photos": [
+        "PXL_20260528_174214721.RAW-01.MP.COVER.jpg",
+        "PXL_20260528_174219283.RAW-01.COVER.jpg",
+        "PXL_20260528_174230145.RAW-01.COVER.jpg",
+        "PXL_20260528_174237873.RAW-01.MP.COVER.jpg",
+        "PXL_20260528_174239812.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-16",
+      "poi": "Kristal",
+      "city": "Podgorica",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "Kristal, Bracana Bracanovića, Pobrežje, Stara varoš, Podgorica, Glavni grad Podgorica, 81000, Crna Gora / Црна Гора",
+      "lat": 42.43052222222222,
+      "lon": 19.258516666666665,
+      "gmaps_url": "https://www.google.com/maps?q=42.430522,19.258517",
+      "date": "2026:05:28 21:45:11",
+      "photo_count": 8,
+      "sample_photos": [
+        "PXL_20260528_194511666.RAW-01.COVER.jpg",
+        "PXL_20260528_194550105.RAW-01.COVER.jpg",
+        "PXL_20260528_195938579.RAW-01.COVER.jpg",
+        "PXL_20260528_195949017.RAW-01.COVER.jpg",
+        "PXL_20260528_203025432.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-17",
+      "poi": "Mixage",
+      "city": "Budva",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "Mixage, 2, Ulica Mediteranska, Stari grad, Stari Grad, Budva, Opština Budva, 85310, Crna Gora / Црна Гора",
+      "lat": 42.280138888888885,
+      "lon": 18.835880555555555,
+      "gmaps_url": "https://www.google.com/maps?q=42.280139,18.835881",
+      "date": "2026:05:29 12:41:23",
+      "photo_count": 21,
+      "sample_photos": [
+        "PXL_20260529_104123657.RAW-01.COVER.jpg",
+        "PXL_20260529_105838527.RAW-01.COVER.jpg",
+        "PXL_20260529_110053674.RAW-01.COVER.jpg",
+        "PXL_20260529_110156660.RAW-01.COVER.jpg",
+        "PXL_20260529_110201339.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-18",
+      "poi": "",
+      "city": "Sveti Stefan",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "Sveti Stefan, Opština Budva, 85315, Crna Gora / Црна Гора",
+      "lat": 42.248825000000004,
+      "lon": 18.897869444444446,
+      "gmaps_url": "https://www.google.com/maps?q=42.248825,18.897869",
+      "date": "2026:05:29 14:36:56",
+      "photo_count": 15,
+      "sample_photos": [
+        "PXL_20260529_123656264.RAW-01.COVER.jpg",
+        "PXL_20260529_123701370.RAW-01.COVER.jpg",
+        "PXL_20260529_123705695.RAW-01.COVER.jpg",
+        "PXL_20260529_123708455.RAW-01.COVER.jpg",
+        "PXL_20260529_124038435.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-19",
+      "poi": "L ulica",
+      "city": "Sveti Stefan",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "L ulica, Sveti Stefan, Opština Budva, 85315, Crna Gora / Црна Гора",
+      "lat": 42.25259722222222,
+      "lon": 18.89892777777778,
+      "gmaps_url": "https://www.google.com/maps?q=42.252597,18.898928",
+      "date": "2026:05:29 14:46:55",
+      "photo_count": 1,
+      "sample_photos": [
+        "PXL_20260529_124655508.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-20",
+      "poi": "II",
+      "city": "Petrovac centar",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "77, II, Petrovac centar, Opština Budva, 85300, Crna Gora / Црна Гора",
+      "lat": 42.20625833333334,
+      "lon": 18.93968611111111,
+      "gmaps_url": "https://www.google.com/maps?q=42.206258,18.939686",
+      "date": "2026:05:29 15:47:57",
+      "photo_count": 699,
+      "sample_photos": [
+        "PXL_20260529_134757956.RAW-01.COVER.jpg",
+        "PXL_20260529_134759668.RAW-01.COVER.jpg",
+        "PXL_20260529_134803722.RAW-01.COVER.jpg",
+        "PXL_20260529_134805373.RAW-01.COVER.jpg",
+        "PXL_20260529_134959102.RAW-01.MP.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-21",
+      "poi": "X",
+      "city": "Petrovac na Moru",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "X, Petrovac na Moru, Opština Budva, 85300, Crna Gora / Црна Гора",
+      "lat": 42.20615,
+      "lon": 18.934755555555554,
+      "gmaps_url": "https://www.google.com/maps?q=42.206150,18.934756",
+      "date": "2026:05:29 20:52:21",
+      "photo_count": 106,
+      "sample_photos": [
+        "PXL_20260529_185221236.RAW-01.COVER.jpg",
+        "PXL_20260529_185232857.RAW-01.COVER.jpg",
+        "PXL_20260529_185602475.RAW-01.COVER.jpg",
+        "PXL_20260529_185604134.RAW-01.COVER.jpg",
+        "PXL_20260529_185605238.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-22",
+      "poi": "Crvena stijena",
+      "city": "Mirište",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "Crvena stijena, Perazića Do, Mirište, Opština Budva, 85300, Crna Gora / Црна Гора",
+      "lat": 42.20686388888889,
+      "lon": 18.93013611111111,
+      "gmaps_url": "https://www.google.com/maps?q=42.206864,18.930136",
+      "date": "2026:05:29 21:12:52",
+      "photo_count": 9,
+      "sample_photos": [
+        "PXL_20260529_191252737.RAW-01.MP.COVER.jpg",
+        "PXL_20260529_191259651.RAW-01.COVER.jpg",
+        "PXL_20260529_191302906.RAW-01.COVER.jpg",
+        "PXL_20260529_191308752.RAW-01.COVER.jpg",
+        "PXL_20260529_191653063.RAW-01.MP.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-23",
+      "poi": "Free Parking",
+      "city": "Perazića Do",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "Free Parking, M-1, Perazića Do, Opština Budva, 85300, Crna Gora / Црна Гора",
+      "lat": 42.20872222222223,
+      "lon": 18.926180555555558,
+      "gmaps_url": "https://www.google.com/maps?q=42.208722,18.926181",
+      "date": "2026:05:29 21:18:23",
+      "photo_count": 65,
+      "sample_photos": [
+        "PXL_20260529_191823309.NIGHT.RAW-01.COVER.jpg",
+        "PXL_20260529_192453571.NIGHT.RAW-01.COVER.jpg",
+        "PXL_20260529_192507890.RAW-01.COVER.jpg",
+        "PXL_20260530_094436959.RAW-01.COVER.jpg",
+        "PXL_20260530_094457015.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-24",
+      "poi": "",
+      "city": "Perazića Do",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "Perazića Do, Opština Budva, 85300, Crna Gora / Црна Гора",
+      "lat": 42.21277777777778,
+      "lon": 18.924300000000002,
+      "gmaps_url": "https://www.google.com/maps?q=42.212778,18.924300",
+      "date": "2026:05:30 13:14:26",
+      "photo_count": 20,
+      "sample_photos": [
+        "PXL_20260530_111426016.RAW-01.COVER.jpg",
+        "PXL_20260530_111735462.RAW-01.COVER.jpg",
+        "PXL_20260530_111737642.RAW-01.COVER.jpg",
+        "PXL_20260530_111740912.RAW-01.COVER.jpg",
+        "PXL_20260530_124520918.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-25",
+      "poi": "II",
+      "city": "Petrovac centar",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "II, Petrovac centar, Opština Budva, 85300, Crna Gora / Црна Гора",
+      "lat": 42.202194444444444,
+      "lon": 18.938480555555557,
+      "gmaps_url": "https://www.google.com/maps?q=42.202194,18.938481",
+      "date": "2026:05:31 10:46:29",
+      "photo_count": 5,
+      "sample_photos": [
+        "PXL_20260531_084629541.RAW-01.COVER.jpg",
+        "PXL_20260531_084630289.RAW-01.COVER.jpg",
+        "PXL_20260531_084632339.RAW-01.COVER.jpg",
+        "PXL_20260531_084635334.RAW-01.MP.COVER.jpg",
+        "PXL_20260531_084638561.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-26",
+      "poi": "Sveta Nedjelja",
+      "city": "Petrovac na Moru",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "Sveta Nedjelja, II, Petrovac na Moru, Opština Budva, 85300, Crna Gora / Црна Гора",
+      "lat": 42.198052777777775,
+      "lon": 18.93701111111111,
+      "gmaps_url": "https://www.google.com/maps?q=42.198053,18.937011",
+      "date": "2026:05:31 10:56:20",
+      "photo_count": 24,
+      "sample_photos": [
+        "PXL_20260531_085620779.RAW-01.MP.COVER.jpg",
+        "PXL_20260531_085852076.RAW-01.COVER.jpg",
+        "PXL_20260531_085852784.RAW-01.COVER.jpg",
+        "PXL_20260531_085854283.RAW-01.COVER.jpg",
+        "PXL_20260531_085858069.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-27",
+      "poi": "",
+      "city": "Petrovac centar",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "Petrovac centar, Opština Budva, 85300, Crna Gora / Црна Гора",
+      "lat": 42.20206944444445,
+      "lon": 18.95003611111111,
+      "gmaps_url": "https://www.google.com/maps?q=42.202069,18.950036",
+      "date": "2026:05:31 10:56:23",
+      "photo_count": 35,
+      "sample_photos": [
+        "PXL_20260531_085623310.RAW-01.COVER.jpg",
+        "PXL_20260531_085625556.RAW-01.COVER.jpg",
+        "PXL_20260531_085626210.RAW-01.COVER.jpg",
+        "PXL_20260531_085630302.RAW-01.COVER.jpg",
+        "PXL_20260531_085631106.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-28",
+      "poi": "View over the sea, mountain, and Buljarica beach",
+      "city": "Kaluđerac",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "View over the sea, mountain, and Buljarica beach, M-1, Bačvice, Buljarica, Kaluđerac, Opština Budva, 85300, Crna Gora / Црна Гора",
+      "lat": 42.195338888888884,
+      "lon": 18.95573611111111,
+      "gmaps_url": "https://www.google.com/maps?q=42.195339,18.955736",
+      "date": "2026:05:31 15:50:12",
+      "photo_count": 32,
+      "sample_photos": [
+        "PXL_20260531_135012992.RAW-01.MP.COVER.jpg",
+        "PXL_20260531_135017928.RAW-01.COVER.jpg",
+        "PXL_20260531_135040730.RAW-01.COVER.jpg",
+        "PXL_20260531_135459298.RAW-01.MP.COVER.jpg",
+        "PXL_20260531_135506815.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-29",
+      "poi": "Lučice",
+      "city": "Petrovac centar",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "Lučice, VIII, Petrovac centar, Opština Budva, 85300, Crna Gora / Црна Гора",
+      "lat": 42.19808333333333,
+      "lon": 18.951975,
+      "gmaps_url": "https://www.google.com/maps?q=42.198083,18.951975",
+      "date": "2026:05:31 16:29:44",
+      "photo_count": 3,
+      "sample_photos": [
+        "PXL_20260531_142944473.RAW-01.COVER.jpg",
+        "PXL_20260531_143027335.RAW-01.COVER.jpg",
+        "PXL_20260531_143517507.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-30",
+      "poi": "VII",
+      "city": "Petrovac na Moru",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "VII, Petrovac na Moru, Opština Budva, 85300, Crna Gora / Црна Гора",
+      "lat": 42.20436666666667,
+      "lon": 18.94547777777778,
+      "gmaps_url": "https://www.google.com/maps?q=42.204367,18.945478",
+      "date": "2026:05:31 17:18:41",
+      "photo_count": 2,
+      "sample_photos": [
+        "PXL_20260531_151841393.RAW-01.MP.COVER.jpg",
+        "PXL_20260531_152201416.RAW-01.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-31",
+      "poi": "",
+      "city": "Golubovci",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "Golubovci, Opština Zeta, 81304, Crna Gora / Црна Гора",
+      "lat": 42.36568888888889,
+      "lon": 19.246369444444447,
+      "gmaps_url": "https://www.google.com/maps?q=42.365689,19.246369",
+      "date": "2026:06:01 09:04:37",
+      "photo_count": 2,
+      "sample_photos": [
+        "PXL_20260601_070437825.RAW-01.COVER.jpg",
+        "PXL_20260601_072138799.RAW-01.MP.COVER.jpg"
+      ]
+    },
+    {
+      "spot_id": "mne-spot-32",
+      "poi": "",
+      "city": "Mojanovići",
+      "country": "Crna Gora / Црна Гора",
+      "full_address": "Mojanovići, Opština Zeta, 81304, Crna Gora / Црна Гора",
+      "lat": 42.365180555555554,
+      "lon": 19.233158333333332,
+      "gmaps_url": "https://www.google.com/maps?q=42.365181,19.233158",
+      "date": "2026:06:01 09:12:15",
+      "photo_count": 1,
+      "sample_photos": [
+        "PXL_20260601_071215161.RAW-01.COVER.jpg"
+      ]
+    }
+  ]
+}
