@@ -2,7 +2,18 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
-  ## [2026-10-31] — Enrichissement Itinéraires Slow Travel Authentiques : Madère, Colombie, Beausoleil, Savoie & Porto
+  ## [2026-10-31] — Enrichissement Itinéraires Slow Travel Authentiques : Sintra, Óbidos, Batalha-Tomar, Coimbra, Madère, Colombie, Beausoleil, Savoie & Porto
+
+- **Itinéraires Portugal : Sintra, Óbidos, Batalha-Tomar & Coimbra (4 nouvelles destinations slow travel)** :
+  - Découverte et exploitation du disque dur 1 To (`G:\Memorias\Fotos\Portugal Outubro 2015`, 593 photos avec puce GPS matérielle Sony DSC-HX50V) :
+    1. **Sintra & la Serra (`app/destinations/portugal/sintra/page.tsx`)** : 6 étapes (Quinta da Regaleira `38.7960° N, 9.3962° W`, Puits initiatique `38.7945° N, 9.3970° W`, Grottes souterraines `38.7945° N, 9.3956° W`, Sentiers forestiers `38.7953° N, 9.3964° W`, Chalet d'Edla `38.7967° N, 9.3961° W`, Palácio da Pena `38.7962° N, 9.3963° W`).
+    2. **Óbidos & la cité médiévale fortifiée (`app/destinations/portugal/obidos/page.tsx`)** : 3 étapes le long des courtines (Castelo médiéval `39.3637° N, 9.1574° W`, Belvédère des murailles `39.3645° N, 9.1575° W`, Venelles chaulées de blanc `39.3644° N, 9.1501° W`).
+    3. **Batalha & Tomar : l'héritage de pierre (`app/destinations/portugal/batalha-tomar/page.tsx`)** : 4 étapes gothiques et templières (Cloître Royal de Batalha `39.6596° N, 8.8258° W`, Parvis & statue de Nuno Álvares `39.6583° N, 8.8261° W`, Capelas Imperfeitas à ciel ouvert `39.6598° N, 8.8262° W`, Ermida da Conceição à Tomar `39.6057° N, 8.4170° W`).
+    4. **Coimbra à pied & le Mondego (`app/destinations/portugal/coimbra/page.tsx`)** : 3 étapes de la Baixa à l'Alcáçova (Igreja de Santa Cruz `40.2089° N, 8.4250° W`, Arco de Almedina & escaliers Quebra-Costas `40.2089° N, 8.4289° W`, Belvédère de l'Université sur les toits d'argile et le Mondego `40.2118° N, 8.4328° W`).
+  - **Audit visuel de protection (Règles 1 & 5)** : 16 photos de paysages/monuments sélectionnées, filtrées et redressées. Élimination totale de tout cliché familial, selfie ou gros plan de fondateur.
+  - **Garde-fous & Mode brouillon** : Enregistrement dans `lib/unpublished-pages.ts` (`UNPUBLISHED_PATHS` et `UNPUBLISHED_CMS_PAGES`) avec écran « Bientôt » pour le public et mode aperçu `?preview=draft` pour les auteurs.
+  - **Design & Zéro tics** : Style sobre `rounded-sm border border-[#DED5C6] bg-[#FAF7F2]`, zéro ombre SaaS, 100% des textes en `<EditableZone>` avec `Z(...)`. Pré-vol 13/13 vert.
+
 
 - **Itinéraire Portugal : Porto & le berceau du Minho (`app/destinations/portugal/porto/page.tsx`)** :
   - Création de l'itinéraire slow travel complet de 6 étapes réelles entre Porto et Guimarães à partir des archives du voyage d'octobre 2015 (`H:\Portugal\Sd 3`, 157 photos GPS) :
