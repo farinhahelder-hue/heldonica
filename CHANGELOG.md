@@ -2,7 +2,7 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
-## [2026-10-30 undevicies] — Le blocage de migration n'était pas un retard, c'était un angle mort
+## [2026-10-30 vicies] — Le blocage de migration n'était pas un retard, c'était un angle mort
 
 **Constat.** La consigne était de traiter « le blocage de migration ». J'ai d'abord mesuré, plutôt que de supposer. Résultat contre-intuitif : **0 migration en retard**. Les 221 fichiers du dépôt sont tous appliqués en base. Le blocage n'est pas un retard accumulé — c'est un **défaut de processus**.
 
