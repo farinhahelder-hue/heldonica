@@ -74,8 +74,8 @@ describe('outillage garde-fous — scripts du pré-vol', () => {
   });
 
   describe('garde-fous — agrégateur', () => {
-    it('expose les 23 contrôles attendus', () => {
-      expect(CHECKS).toHaveLength(23);
+    it('expose les 24 contrôles attendus', () => {
+      expect(CHECKS).toHaveLength(24);
       expect(CHECKS.map((c) => c.key)).toContain('cms-migrations');
       expect(CHECKS.map((c) => c.key)).toContain('cms-cache');
       expect(CHECKS.map((c) => c.key)).toContain('brand-sync');
@@ -86,6 +86,7 @@ describe('outillage garde-fous — scripts du pré-vol', () => {
       expect(CHECKS.map((c) => c.key)).toContain('cms-emojis');
       expect(CHECKS.map((c) => c.key)).toContain('cms-ai-images');
       expect(CHECKS.map((c) => c.key)).toContain('cms-ai-images-db');
+      expect(CHECKS.map((c) => c.key)).toContain('cms-migrations-appliquees');
       expect(CHECKS.map((c) => c.key)).toContain('cms-hardcode');
       expect(CHECKS.map((c) => c.key)).toContain('content-html-escapes');
       expect(CHECKS.map((c) => c.key)).toContain('apk-signature');

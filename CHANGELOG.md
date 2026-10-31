@@ -2,6 +2,34 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-30 vicies] — Le blocage de migration n'était pas un retard, c'était un angle mort
+
+**Constat.** La consigne était de traiter « le blocage de migration ». J'ai d'abord mesuré, plutôt que de supposer. Résultat contre-intuitif : **0 migration en retard**. Les 221 fichiers du dépôt sont tous appliqués en base. Le blocage n'est pas un retard accumulé — c'est un **défaut de processus**.
+
+Aucun workflow n'exécute `supabase db push` (vérifié : les seules occurrences de « migration » dans `.github/workflows/` sont des commentaires). Fusionner une PR qui porte une migration ne l'applique donc **pas**. Il faut un geste humain, et **rien ne signalait qu'il manquait**.
+
+C'est la cause commune de dizaines de tâches du registre en `waiting_validation`, toutes avec la même mention « MANQUE : appliquer la migration … ». Une même cause, répétée, invisible pour la CI.
+
+`check:cms-migrations` ne pouvait pas la voir : il lit les `from('<table>')` du code et les fichiers du dépôt, jamais la base.
+
+**Corrigé.**
+
+- `supabase/migrations/20261031120000_exposer_migrations_appliquees.sql` : vue `public.migrations_appliquees` exposant le registre réel (`version`, `name`). `supabase_migrations.schema_migrations` n'est pas exposée par PostgREST (PGRST106 : seuls `public` et `graphql_public` le sont), donc la CI ne pouvait pas la lire — pourtant elle possède déjà `SUPABASE_SERVICE_ROLE_KEY`.
+- `scripts/check-cms-migrations-appliquees.mjs` : compare `origin/main` au registre réel. Toute migration de la référence absente de la base → exit 1. Câblé dans `garde-fous.yml` et dans le passage quotidien `controles-base-quotidien.yml`.
+- 9 tests (version de fichier, comparaison, cas limites).
+
+**Trois décisions de conception, chacune contre un faux positif.**
+
+1. **La référence est `origin/main`, pas le répertoire de travail.** Sur une PR, le répertoire *est* la branche de la PR : sa migration, absente de `main`, serait comptée comme non appliquée et la PR échouerait à tort pour son propre travail. Un contrôle qui crie sur les PR légitimes finit par être ignoré.
+2. **Référence introuvable → exit 2 (« ignoré »), jamais un repli silencieux** sur le disque, qui produirait le faux rouge ci-dessus.
+3. **`created_by` écarté de la vue.** Cette colonne contient des adresses e-mail (relevé en base : celle du propriétaire, plus `openhands`). La publier aurait exposé l'adresse du propriétaire via PostgREST — le défaut même corrigé sur la route Google le 30/10.
+
+**Fait durable, mesuré.** Une requête DDL passée par l'API Management **n'écrit rien** dans `supabase_migrations.schema_migrations` (testé : 0 ligne après un `create table`). Appliquer une migration par l'API exige donc d'**inscrire la version soi-même** — sinon le contrôle la croira absente et le restera. C'est voulu : mieux vaut une alerte qu'un faux « tout est appliqué ». Ce geste est écrit dans le message d'échec du contrôle.
+
+**Preuve de morsure.** Une migration présente dans la référence et absente de la base fait échouer le contrôle (exit 1, avec le nom du fichier), puis retour au vert après nettoyage. Le cas legacy `02_enable_rls.sql` (version à 2 chiffres) est couvert par un test : exiger 14 chiffres le faisait disparaître des **deux** côtés, ce qui faussait le compte sans rien signaler.
+
+**Mesuré.** 24/24 garde-fous. 221 migrations de `origin/main`, toutes appliquées. 1 186 tests au total.
+
 ## [2026-10-30 octodecies] — Le garde-fou C2PA ne lisait pas la base : une colonne TABLEAU était passée au travers
 
 **Constat.** En vérifiant si `check:cms-ai-images` couvrait le cas des colonnes de contenu, j'ai
