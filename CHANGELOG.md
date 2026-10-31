@@ -22,7 +22,7 @@ C'est la cause commune de dizaines de tâches du registre en `waiting_validation
 
 1. **La référence est `origin/main`, pas le répertoire de travail.** Sur une PR, le répertoire *est* la branche de la PR : sa migration, absente de `main`, serait comptée comme non appliquée et la PR échouerait à tort pour son propre travail. Un contrôle qui crie sur les PR légitimes finit par être ignoré.
 2. **Référence introuvable → exit 2 (« ignoré »), jamais un repli silencieux** sur le disque, qui produirait le faux rouge ci-dessus.
-3. **`created_by` écarté de la vue.** Cette colonne contient des adresses e-mail (`farinhahelder@gmail.com`, relevé en base). La publier aurait exposé l'adresse du propriétaire via PostgREST — le défaut même corrigé sur la route Google le 30/10.
+3. **`created_by` écarté de la vue.** Cette colonne contient des adresses e-mail (relevé en base : celle du propriétaire, plus `openhands`). La publier aurait exposé l'adresse du propriétaire via PostgREST — le défaut même corrigé sur la route Google le 30/10.
 
 **Fait durable, mesuré.** Une requête DDL passée par l'API Management **n'écrit rien** dans `supabase_migrations.schema_migrations` (testé : 0 ligne après un `create table`). Appliquer une migration par l'API exige donc d'**inscrire la version soi-même** — sinon le contrôle la croira absente et le restera. C'est voulu : mieux vaut une alerte qu'un faux « tout est appliqué ». Ce geste est écrit dans le message d'échec du contrôle.
 
