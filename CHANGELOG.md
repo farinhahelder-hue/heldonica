@@ -2,6 +2,28 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-30 novendecies] — Les visuels IA n'étaient plus cités, mais restaient téléchargeables
+
+**Constat.** En clôturant la tâche de purge (`f09efde2`), j'ai vérifié l'affirmation « reste la suppression des octets du bucket » plutôt que de la croire. Elle était fondée, et plus grave qu'annoncée : les cinq visuels Madère avaient disparu de toutes les colonnes, mais répondaient **HTTP 206** sur
+`/storage/v1/object/public/media/destinations/madere/...`. Un visuel IA retiré des colonnes mais toujours servi est un faux nettoyage — la purge précédente avait traité la base et laissé le stockage.
+
+| Vérification | Avant | Après |
+|---|---|---|
+| Bucket public `media` | 5 objets, **HTTP 206** | 0 objet, **HTTP 400** |
+| Bucket privé `prive` | — | 5 objets, 5,15 Mo |
+| Copie vérifiée | — | SHA-256 identiques, octet pour octet |
+
+**Corrigé.**
+
+- Les octets ont été **copiés** dans le bucket privé `prive` sous `images-ia/`, copie vérifiée octet pour octet (SHA-256), **puis** les originaux retirés du bucket public. Règle n°5 respectée : gardés, jamais supprimés.
+- `scripts/check-cms-ai-images-db.mjs` couvre désormais le **stockage**, pas seulement la base. Un visuel généré encore présent dans le bucket public fait échouer le contrôle (exit 1). Sans cela, la régression revenait sans alerte.
+- `supabase/migrations/20261030210000_...sql` consigne le geste (le stockage ne s'écrit pas en SQL).
+- 6 tests ajoutés (15 au total) : détection dans le stockage, chemin privé, buckets réels, et le cas `podgorica_stara_varos.jpg` (vraie photo) qui ne doit **pas** être confondu avec le visuel généré `stara_varos.jpg`.
+
+**Preuve de morsure.** J'ai re-copié un objet généré dans le bucket public : le contrôle a échoué (exit 1) avec le message exact, puis est revenu au vert après nettoyage. Le garde-fou est prouvé mordant, pas seulement présent.
+
+**Mesuré.** Garde-fous verts. Base : 564 colonnes, 36 680 valeurs, 0 référence IA. Stockage public : 0 visuel généré servi.
+
 ## [2026-10-30 octodecies] — Le garde-fou C2PA ne lisait pas la base : une colonne TABLEAU était passée au travers
 
 **Constat.** En vérifiant si `check:cms-ai-images` couvrait le cas des colonnes de contenu, j'ai

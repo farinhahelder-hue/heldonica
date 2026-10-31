@@ -65,6 +65,22 @@ export const OBJETS_GENERES = [
   'destinations/montenegro/stara_varos.jpg',
 ];
 
+/**
+ * Bucket public où les visuels étaient servis, et bucket privé où leurs octets
+ * sont conservés. La règle du projet (AGENTS.md, règle n°5) est de **dépublier,
+ * jamais supprimer** : l'objet quitte le bucket public et garde sa copie privée.
+ */
+export const BUCKET_PUBLIC = 'media';
+export const BUCKET_PRIVE = 'prive';
+
+/**
+ * Chemin de la copie privée d'un objet généré.
+ * Fonction pure — testable sans base.
+ */
+export function cheminPrive(objet) {
+  return `images-ia/${objet}`;
+}
+
 /** Types de colonnes pouvant contenir une URL. */
 const TYPES_TEXTE = new Set(['text', 'character varying', 'jsonb', 'json']);
 
@@ -173,6 +189,39 @@ async function lire(url, key, cible) {
   return rows;
 }
 
+/**
+ * Vérifie qu'aucun objet généré n'est **servi** par le bucket public.
+ * Fonction pure — testable sans base.
+ * @param {string[]} nomsPublics noms d'objets présents dans le bucket public
+ */
+export function objetsServis(nomsPublics, objets = OBJETS_GENERES) {
+  const ensemble = new Set(nomsPublics);
+  return objets.filter((o) => ensemble.has(o));
+}
+
+async function lireStockage(url, key, bucket) {
+  return lireStockageRecursif(url, key, bucket);
+}
+
+/** Liste récursive d'un bucket (les dossiers n'ont pas de `id`). */
+async function lireStockageRecursif(url, key, bucket, prefixe = '', profondeur = 0) {
+  if (profondeur > 6) return [];
+  const res = await fetch(`${url}/storage/v1/object/list/${bucket}`, {
+    method: 'POST',
+    headers: { ...entetes(key), 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prefix: prefixe, limit: 10000, offset: 0 }),
+  });
+  if (!res.ok) throw new Error(`stockage ${bucket} : HTTP ${res.status}`);
+  const entrees = await res.json();
+  const noms = [];
+  for (const e of entrees) {
+    const chemin = prefixe ? `${prefixe}/${e.name}` : e.name;
+    if (e.id) noms.push(chemin);
+    else noms.push(...(await lireStockageRecursif(url, key, bucket, chemin, profondeur + 1)));
+  }
+  return noms;
+}
+
 async function main() {
   const { url, key } = readEnv();
   if (!url || !key) {
@@ -213,21 +262,48 @@ async function main() {
     console.log(`– ${vuesIgnorees.length} colonne(s) de vue non lisible(s), ignorée(s) : ${vuesIgnorees.join(', ')}`);
   }
 
-  if (fautives.length === 0) {
+  // Le stockage public sert les octets même sans référence en base : un visuel
+  // retiré des colonnes reste téléchargeable tant que l'objet est dans le bucket
+  // public. C'est ce que la purge du 31/10 a corrigé, et ce que ce contrôle
+  // empêche de réapparaître.
+  let servis = [];
+  try {
+    const publics = await lireStockage(url, key, BUCKET_PUBLIC);
+    servis = objetsServis(publics);
+  } catch (e) {
+    console.error(`✗ Lecture du stockage public impossible — ${e.message}.`);
+    process.exit(2);
+  }
+
+  if (fautives.length === 0 && servis.length === 0) {
     console.log(`✓ Aucune URL de visuel généré en base (${cibles.length} colonnes, ${lues} valeurs balayées).`);
+    console.log(`✓ Aucun visuel généré servi par le bucket public « ${BUCKET_PUBLIC} ».`);
     process.exit(0);
   }
 
-  console.error(`✗ ${fautives.length} valeur(s) citant un visuel généré par IA :`);
-  for (const f of fautives) {
-    console.error(`    ${f.table}.${f.colonne} (id ${f.id}) — ${f.objets.join(', ')}`);
+  if (servis.length) {
+    console.error(`✗ ${servis.length} visuel(s) généré(s) encore SERVI(S) par le bucket public « ${BUCKET_PUBLIC} » :`);
+    for (const o of servis) console.error(`    ${o}`);
+    console.error(`
+Ces objets sont téléchargeables publiquement, même sans référence en base. Les
+retirer du bucket public après copie dans « ${BUCKET_PRIVE} » sous ${cheminPrive('<objet>')}
+(AGENTS.md, règle n°5 : dépublier, jamais supprimer).
+`);
   }
-  console.error(`
+
+  if (fautives.length) {
+    console.error(`✗ ${fautives.length} valeur(s) citant un visuel généré par IA :`);
+    for (const f of fautives) {
+      console.error(`    ${f.table}.${f.colonne} (id ${f.id}) — ${f.objets.join(', ')}`);
+    }
+    console.error(`
 Ces objets portent un manifeste C2PA de générateur et ne peuvent pas illustrer un
 voyage vécu (AGENTS.md, règle n°1). Remplacer l'URL par une photo de terrain, ou
 retirer l'image. Ne pas supprimer le texte : la règle du projet est de dépublier,
 pas d'effacer.
 `);
+  }
+
   process.exit(1);
 }
 
