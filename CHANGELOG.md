@@ -4,20 +4,22 @@
 
   ## [2026-10-31] — Enrichissement Itinéraires Slow Travel Authentiques : Sintra, Óbidos, Batalha-Tomar, Coimbra, Madère, Colombie, Beausoleil, Savoie & Porto
 
-- **Carnets de route Slow Travel : Sintra, Óbidos, Batalha-Tomar & Coimbra (`content/articles/*.mdx`)** :
+- **Carnets de route Slow Travel : Alcobaça, Sintra, Óbidos, Batalha-Tomar & Coimbra (`content/articles/*.mdx`)** :
+  - **Alcobaça : la pureté cistercienne et le silence de pierre à deux (`content/articles/alcobaca-abbaye-cistercienne-cloitre-silence.mdx`)** : Abbaye royale de Santa Maria, nef cistercienne dépouillée, tombeau sculpté d'Inês de Castro et cloître du silence de Dom Dinis.
   - **Sintra à contre-courant (`content/articles/sintra-serra-mysteres-slow-travel-couple.mdx`)** : Puits initiatique de la Regaleira, grottes, Chalet d'Edla et Palácio da Pena vu des crêtes.
   - **Óbidos au crépuscule (`content/articles/obidos-remparts-chemins-ronde-slow-travel.mdx`)** : Chemin de ronde sans garde-corps sur les murailles médiévales, tour nord sur l'Estrémadure, ruelles chaulées et ginjinha.
   - **Batalha et Tomar (`content/articles/batalha-tomar-dentelle-pierre-templiers.mdx`)** : Dentelle manuéline du cloître royal, Capelas Imperfeitas ouvertes sur le ciel bleu et ermitage Renaissance sur le coteau de Tomar.
   - **Coimbra à contre-pente (`content/articles/coimbra-ruelles-mondego-fado-slow-travel.mdx`)** : Église Santa Cruz, escalier Quebra-Costas après la porte maure d'Almedina, panorama haut de l'Université sur le fleuve Mondego et fado étudiant.
   - Tous adossés aux photos et coordonnées GPS réelles de la puce Sony DSC-HX50V, avec section d'honnêteté « Ce qu'on a moins aimé », 0 mot banni et voix de marque 100% respectée.
 
-- **Itinéraires Portugal : Sintra, Óbidos, Batalha-Tomar & Coimbra (4 nouvelles destinations slow travel)** :
-  - Découverte et exploitation du disque dur 1 To (`G:\Memorias\Fotos\Portugal Outubro 2015`, 593 photos avec puce GPS matérielle Sony DSC-HX50V) :
-    1. **Sintra & la Serra (`app/destinations/portugal/sintra/page.tsx`)** : 6 étapes (Quinta da Regaleira `38.7960° N, 9.3962° W`, Puits initiatique `38.7945° N, 9.3970° W`, Grottes souterraines `38.7945° N, 9.3956° W`, Sentiers forestiers `38.7953° N, 9.3964° W`, Chalet d'Edla `38.7967° N, 9.3961° W`, Palácio da Pena `38.7962° N, 9.3963° W`).
-    2. **Óbidos & la cité médiévale fortifiée (`app/destinations/portugal/obidos/page.tsx`)** : 3 étapes le long des courtines (Castelo médiéval `39.3637° N, 9.1574° W`, Belvédère des murailles `39.3645° N, 9.1575° W`, Venelles chaulées de blanc `39.3644° N, 9.1501° W`).
-    3. **Batalha & Tomar : l'héritage de pierre (`app/destinations/portugal/batalha-tomar/page.tsx`)** : 4 étapes gothiques et templières (Cloître Royal de Batalha `39.6596° N, 8.8258° W`, Parvis & statue de Nuno Álvares `39.6583° N, 8.8261° W`, Capelas Imperfeitas à ciel ouvert `39.6598° N, 8.8262° W`, Ermida da Conceição à Tomar `39.6057° N, 8.4170° W`).
-    4. **Coimbra à pied & le Mondego (`app/destinations/portugal/coimbra/page.tsx`)** : 3 étapes de la Baixa à l'Alcáçova (Igreja de Santa Cruz `40.2089° N, 8.4250° W`, Arco de Almedina & escaliers Quebra-Costas `40.2089° N, 8.4289° W`, Belvédère de l'Université sur les toits d'argile et le Mondego `40.2118° N, 8.4328° W`).
-  - **Audit visuel de protection (Règles 1 & 5)** : 16 photos de paysages/monuments sélectionnées, filtrées et redressées. Élimination totale de tout cliché familial, selfie ou gros plan de fondateur.
+- **Itinéraires Portugal : Alcobaça, Sintra, Óbidos, Batalha-Tomar & Coimbra (5 destinations slow travel)** :
+  - Découverte et exploitation du disque dur 1 To (`G:\Memorias\Fotos\Portugal Outubro 2015`, photos avec puce GPS matérielle Sony DSC-HX50V) :
+    1. **Alcobaça (`app/destinations/portugal/alcobaca/page.tsx`)** : 4 étapes (Praça 25 de Abril `39.5482° N, 8.9801° W`, Grande nef cistercienne `39.5482° N, 8.9800° W`, Tombeau sculpté d'Inês de Castro `39.5482° N, 8.9800° W`, Claustro do Silêncio de Dom Dinis `39.5480° N, 8.9799° W`). 4 photos déployées dans `public/images/destinations/portugal/alcobaca/`.
+    2. **Sintra & la Serra (`app/destinations/portugal/sintra/page.tsx`)** : 6 étapes (Quinta da Regaleira `38.7960° N, 9.3962° W`, Puits initiatique `38.7945° N, 9.3970° W`, Grottes souterraines `38.7945° N, 9.3956° W`, Sentiers forestiers `38.7953° N, 9.3964° W`, Chalet d'Edla `38.7967° N, 9.3961° W`, Palácio da Pena `38.7962° N, 9.3963° W`).
+    3. **Óbidos & la cité médiévale fortifiée (`app/destinations/portugal/obidos/page.tsx`)** : 3 étapes le long des courtines (Castelo médiéval `39.3637° N, 9.1574° W`, Belvédère des murailles `39.3645° N, 9.1575° W`, Venelles chaulées de blanc `39.3644° N, 9.1501° W`).
+    4. **Batalha & Tomar : l'héritage de pierre (`app/destinations/portugal/batalha-tomar/page.tsx`)** : 4 étapes gothiques et templières (Cloître Royal de Batalha `39.6596° N, 8.8258° W`, Parvis & statue de Nuno Álvares `39.6583° N, 8.8261° W`, Capelas Imperfeitas à ciel ouvert `39.6598° N, 8.8262° W`, Ermida da Conceição à Tomar `39.6057° N, 8.4170° W`).
+    5. **Coimbra à pied & le Mondego (`app/destinations/portugal/coimbra/page.tsx`)** : 3 étapes de la Baixa à l'Alcáçova (Igreja de Santa Cruz `40.2089° N, 8.4250° W`, Arco de Almedina & escaliers Quebra-Costas `40.2089° N, 8.4289° W`, Belvédère de l'Université sur les toits d'argile et le Mondego `40.2118° N, 8.4328° W`).
+  - **Audit visuel de protection (Règles 1 & 5)** : 20 photos de paysages/monuments sélectionnées, filtrées et redressées. Élimination totale de tout cliché familial, selfie ou gros plan de fondateur.
   - **Garde-fous & Mode brouillon** : Enregistrement dans `lib/unpublished-pages.ts` (`UNPUBLISHED_PATHS` et `UNPUBLISHED_CMS_PAGES`) avec écran « Bientôt » pour le public et mode aperçu `?preview=draft` pour les auteurs.
   - **Design & Zéro tics** : Style sobre `rounded-sm border border-[#DED5C6] bg-[#FAF7F2]`, zéro ombre SaaS, 100% des textes en `<EditableZone>` avec `Z(...)`. Pré-vol 13/13 vert.
 
