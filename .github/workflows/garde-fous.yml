@@ -200,6 +200,20 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: npm run check:cms-emojis
 
+      # Le contrôle C2PA lit les FICHIERS de public/ et le code. Celui-ci lit la
+      # BASE. Le 30/10, deux purges ont été annoncées complètes en ne visant que
+      # les colonnes d'image — alors que des URL de visuels générés subsistaient
+      # dans `cms_blog_posts.content`, `cms_pillar_pages.hero`,
+      # `article_revisions.content` (restaurable) et `destinations.gallery_images`
+      # (colonne TABLEAU, invisible à un balayage texte/json). Le script balaie
+      # toute colonne texte, json et tableau du schéma exposé.
+      - name: Images générées en base (C2PA)
+        if: steps.secrets.outputs.presents == 'true'
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npm run check:cms-ai-images-db
+
       # Guillemets échappés par un antislash dans une balise HTML au sein d'un
       # fichier SQL de contenu (`class=\"…\"`). Statique : le seed
       # sql/seed_cms_zones_complete.sql a produit ce défaut en base le 24/10,

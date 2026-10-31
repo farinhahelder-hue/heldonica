@@ -2,6 +2,46 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-10-30 octodecies] — Le garde-fou C2PA ne lisait pas la base : une colonne TABLEAU était passée au travers
+
+**Constat.** En vérifiant si `check:cms-ai-images` couvrait le cas des colonnes de contenu, j'ai
+trouvé la cause racine des purges incomplètes : **le contrôle ne lit que les fichiers de
+`public/` et le code**. Il ne voit jamais la base. Les purges des 30/10 (migrations
+`20261030180000` et `20261030200000`) visaient les colonnes d'**image** ; j'avais moi-même
+complété sur `content` / `hero` / `article_revisions.content`. Mon balayage manuel excluait les
+colonnes de type **tableau** (`text[]`) — et c'est exactement là que se cachait la dernière
+référence.
+
+| Surface | Type | Avant | Après |
+|---|---|---|---|
+| `destinations.gallery_images` (Madère) | `text[]` | 4 visuels générés | 0 (entrées retirées) |
+| `cms_blog_posts.content` | `text` | 3 URL générées | `/og-default.jpg` |
+| `cms_pillar_pages.hero` (Madère) | `text` | 1 URL générée | `/og-default.jpg` |
+| `article_revisions.content` (rev 22) | `text` | URL générées | `/og-default.jpg` |
+
+**Corrigé.**
+
+- `supabase/migrations/20261030210000_purge_images_ia_contenus.sql` — purge complémentaire,
+  appliquée en transaction. La vérification interne balaie désormais texte, json **et tableaux**.
+- `scripts/check-cms-ai-images-db.mjs` — **nouveau garde-fou** : lit la base, pas les fichiers.
+  Il énumère le schéma exposé par PostgREST (racine OpenAPI, 84 objets, 564 colonnes) et balaie
+  toute colonne texte, json et tableau. Aucune liste de colonnes à maintenir : une colonne
+  ajoutée demain est couverte sans toucher au script. Exige une clé **secrète** (la racine
+  OpenAPI la refuse aux clés publiables, et la RLS masque les brouillons — or c'est là que se
+  cachent les références non publiées) ; sans elle, exit 2 (« ignoré », jamais « réussi »).
+- Câblé dans `package.json`, `scripts/garde-fous.mjs` (`needsDb: true`) et
+  `.github/workflows/garde-fous.yml` (derrière `if: steps.secrets.outputs.presents`).
+- `__tests__/scripts/check-cms-ai-images-db.test.ts` — 9 tests sur les fonctions pures :
+  exhaustivité des colonnes, couverture des tableaux, détection.
+
+**Preuve de morsure.** Le nouveau contrôle a trouvé `destinations.gallery_images` — une
+référence que mon balayage manuel avait manquée. Ce n'est pas un garde-fou décoratif : il a
+détecté un défaut réel dès sa première exécution.
+
+**Mesuré.** Garde-fous **23/23** verts. Le garde-fou balaie **564 colonnes, 36 638 valeurs** :
+0 référence IA. Texte intact (article `foret-fanal` : 6 456 caractères, « Paul da Serra » et les
+levadas présents ; révision 22 : 5 840 caractères).
+
 ## [2026-10-30 septendecies] — Clore la dette des visuels IA : 6 références dans le code, 10 lignes en base
 
 **Constat.** L'entrée précédente signalait la dette sans la traiter : « les 5 images Madère IA
