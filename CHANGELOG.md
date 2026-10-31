@@ -2,7 +2,19 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
-  ## [2026-10-31] — Enrichissement Itinéraires Slow Travel Authentiques : Madère, Colombie, Beausoleil & Savoie
+  ## [2026-10-31] — Enrichissement Itinéraires Slow Travel Authentiques : Madère, Colombie, Beausoleil, Savoie & Porto
+
+- **Itinéraire Portugal : Porto & le berceau du Minho (`app/destinations/portugal/porto/page.tsx`)** :
+  - Création de l'itinéraire slow travel complet de 6 étapes réelles entre Porto et Guimarães à partir des archives du voyage d'octobre 2015 (`H:\Portugal\Sd 3`, 157 photos GPS) :
+    1. Miradouro das Virtudes — Coucher de soleil sur les toits et le Douro (`41.1434° N, 8.6104° W`).
+    2. Gare de São Bento — Façade illuminée à l'heure bleue (`41.1450° N, 8.6111° W`).
+    3. Igreja dos Congregados — Azulejos baroques & ruelles hautes (`41.1460° N, 8.6107° W`).
+    4. Terroir de quartier — Francesinha artisanale à São Nicolau (`41.1414° N, 8.6181° W`).
+    5. Guimarães — Le Paço dos Duques de Bragança (`41.4429° N, 8.2930° W`).
+    6. Largo da Oliveira — Place médiévale et berceau de la nation (`41.4429° N, 8.2929° W`).
+  - 6 photos authentiques extraites, auditées visuellement (zéro enfant en ligne, portraits filtrés per Règle 1 et 5), optimisées pour le web et déployées dans `public/images/destinations/portugal/porto/`.
+  - Mode brouillon sécurisé : page maintenue en `unpublished` avec bandeau d'alerte et prévisualisation réservée (`?preview=draft`).
+  - 100% zones éditables avec `<EditableZone>` (gain de 6 textes en dur verrouillé dans le cliquet).
 
 - **Itinéraire Côte d'Azur : Beausoleil en balcon sur la Méditerranée (`app/destinations/cote-d-azur/beausoleil/page.tsx`)** :
   - Création de la page itinéraire 6 étapes de lenteur entre les traverses Belle Époque de Beausoleil et les criques calmes du littoral :
