@@ -27,6 +27,7 @@
     "check:content-known-errors": "node scripts/check-content-known-errors.mjs",
     "check:image-paths": "node scripts/check-image-paths.mjs",
     "check:cms-ai-images": "node scripts/check-cms-ai-images.mjs",
+    "check:cms-ai-images-db": "node scripts/check-cms-ai-images-db.mjs",
     "check:content-evidence": "node scripts/check-content-evidence.mjs",
     "check:design-tics": "node scripts/check-design-tics.mjs",
     "check:cms-emojis": "node scripts/check-cms-emojis.mjs",
