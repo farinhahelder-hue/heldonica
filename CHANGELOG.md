@@ -2,7 +2,20 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
-  ## [2026-10-31] — Enrichissement Itinéraires Slow Travel Authentiques : Sintra, Óbidos, Batalha-Tomar, Coimbra, Madère, Colombie, Beausoleil, Savoie & Porto
+  ## [2026-10-31] — Enrichissement Itinéraires Slow Travel Authentiques : Stoos (Suisse), Alcobaça, Sintra, Óbidos, Batalha-Tomar, Coimbra, Madère, Colombie, Beausoleil, Savoie & Porto
+
+- **Itinéraire & Randonnée alpine Suisse : Stoos & l'arête du Fronalpstock (`app/destinations/suisse/stoos/page.tsx`)** :
+  - Exploitation de l'archive `Suisse - Stoos & Randonnées alpines (Schwyz)-1-001.zip` (50 photos géolocalisées avec Google Pixel prises le 12 juillet 2025 au coucher du soleil) :
+    1. Sommet du Fronalpstock à 1922 m (`46.9694° N, 8.6366° E`) : vue panoramique plongeante sur les bras d'émeraude du lac des Quatre-Cantons.
+    2. L'éperon rocheux et la cabane de guet (`46.9665° N, 8.6370° E`) : à-pic herbeux face au couloir du lac d'Uri.
+    3. L'arête médiane du Stoos Ridge Trail (`46.9625° N, 8.6454° E`) : sentier funambule entre herbe d'alpage et falaises.
+    4. Versant sud aux rayons rasants (`46.9614° N, 8.6509° E`) : lumière oblique de 20h00 à travers la brume des sommets.
+    5. L'heure dorée sur les pentes herbeuses (`46.9614° N, 8.6534° E`) : combes d'altitude et chalets miniatures.
+    6. Le belvédère du soir (`46.9576° N, 8.6604° E`) : table de bois sur la falaise face aux Alpes uranaises pourpres.
+  - **Audit visuel de protection (Règles 1 & 5)** : 6 photographies panoramiques de paysages purs sélectionnées, optimisées et déployées dans `public/images/destinations/suisse/stoos/`. Élimination stricte des selfies de couple et portraits au téléobjectif.
+  - **Garde-fous & Mode brouillon** : Enregistrement dans `lib/unpublished-pages.ts` (`/destinations/suisse/stoos` et `destinations-suisse-stoos`) avec écran « Bientôt » pour le public et accès aperçu `?preview=draft`.
+  - **Mise à jour de l'article Stoos (`content/articles/stoos-crete-suisse-slow-travel.mdx`)** : Remplacement des images distantes par les clichés locaux haute définition, suppression du mot banni « astuce » au profit de « repère d'horaire ». Pré-vol 13/13 vert.
+
 
 - **Carnets de route Slow Travel : Alcobaça, Sintra, Óbidos, Batalha-Tomar & Coimbra (`content/articles/*.mdx`)** :
   - **Alcobaça : la pureté cistercienne et le silence de pierre à deux (`content/articles/alcobaca-abbaye-cistercienne-cloitre-silence.mdx`)** : Abbaye royale de Santa Maria, nef cistercienne dépouillée, tombeau sculpté d'Inês de Castro et cloître du silence de Dom Dinis.
