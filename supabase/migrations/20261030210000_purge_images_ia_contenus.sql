@@ -26,6 +26,24 @@
 -- Aucun `DELETE`, aucun texte retiré : seule l'URL de l'image change, vers
 -- `/og-default.jpg` (image propre, sans marqueur C2PA — vérifié). Réversible.
 --
+-- ── Complément du 2026-10-31 : le STOCKAGE, pas seulement la base ───────────
+-- Retirer les URL des colonnes ne suffit pas : tant que l'objet vit dans le
+-- bucket PUBLIC `media`, il reste téléchargeable. Mesuré le 31/10 : les cinq
+-- visuels Madère n'étaient plus cités en base et répondaient pourtant HTTP 206
+-- sur /storage/v1/object/public/media/... Un visuel IA supprimé des colonnes
+-- mais toujours servi est un faux nettoyage.
+--
+-- Conformément à la règle n°5 (dépublier, jamais supprimer), les octets ont été
+-- COPIÉS dans le bucket privé `prive` sous `images-ia/<même chemin>` — copie
+-- vérifiée octet pour octet (SHA-256 identiques) — puis les originaux ont été
+-- retirés du bucket public. Après : HTTP 400 sur le bucket public, 5 objets
+-- (5,15 Mo) conservés dans `prive`.
+--
+-- Ce geste de stockage ne peut pas être écrit en SQL (il passe par l'API
+-- Storage) : il est consigné ici et vérifié par le garde-fou
+-- `check-cms-ai-images-db.mjs`, qui refuse désormais tout objet généré encore
+-- présent dans le bucket public.
+--
 -- Les neuf visuels générés connus (manifeste C2PA « Created by Google
 -- Generative AI », digitalSourceType = trainedAlgorithmicMedia) :
 --   Madère     : achadas_da_cruz, fanal_foret, pico_do_arieiro, ponta_do_sol, porto_moniz

@@ -3,6 +3,10 @@ import {
   ciblesDepuisSchema,
   objetsDansValeur,
   lignesFautives,
+  objetsServis,
+  cheminPrive,
+  BUCKET_PUBLIC,
+  BUCKET_PRIVE,
   OBJETS_GENERES,
 } from '../../scripts/check-cms-ai-images-db.mjs';
 
@@ -101,6 +105,50 @@ describe('check-cms-ai-images-db — balayage de la base', () => {
     it('ne remonte rien sur des lignes propres', () => {
       const cible = { table: 'cms_blog_posts', colonne: 'content', cle: 'id', estVue: false };
       expect(lignesFautives(cible, [{ id: 1, content: 'Un récit de terrain sans image fabriquée.' }])).toEqual([]);
+    });
+  });
+
+  /**
+   * Un visuel retiré des colonnes reste **téléchargeable** tant que son objet est
+   * dans le bucket public. Le 31/10/2026, les cinq visuels Madère n'étaient plus
+   * cités nulle part en base et répondaient pourtant HTTP 206. Ce contrôle ferme
+   * ce trou : la base ne suffit pas, il faut regarder le stockage.
+   */
+  describe('objetsServis — stockage public', () => {
+    it('détecte un objet généré encore servi', () => {
+      const servis = objetsServis([
+        'destinations/madere/porto_moniz.jpg',
+        'images/destinations/madere/photo-terrain.jpg',
+      ]);
+      expect(servis).toEqual(['destinations/madere/porto_moniz.jpg']);
+    });
+
+    it('ne signale rien quand le bucket public est propre', () => {
+      expect(objetsServis(['images/destinations/madere/photo-terrain.jpg', 'og-default.jpg'])).toEqual([]);
+    });
+
+    it('détecte les neuf objets, pas seulement Madère', () => {
+      const servis = objetsServis(OBJETS_GENERES);
+      expect(servis).toHaveLength(9);
+    });
+
+    it('ne confond pas une photo de terrain au nom proche', () => {
+      // `podgorica_stara_varos.jpg` est une vraie photo (sans marqueur C2PA) ;
+      // le visuel généré s'appelle `stara_varos.jpg`. Le chemin exact protège.
+      expect(objetsServis(['destinations/montenegro/podgorica_stara_varos.jpg'])).toEqual([]);
+    });
+  });
+
+  describe('cheminPrive — règle « dépublier, jamais supprimer »', () => {
+    it('place la copie sous le préfixe images-ia/ du bucket privé', () => {
+      expect(cheminPrive('destinations/madere/porto_moniz.jpg')).toBe(
+        'images-ia/destinations/madere/porto_moniz.jpg',
+      );
+    });
+
+    it('nomme les buckets réellement utilisés', () => {
+      expect(BUCKET_PUBLIC).toBe('media');
+      expect(BUCKET_PRIVE).toBe('prive');
     });
   });
 });
