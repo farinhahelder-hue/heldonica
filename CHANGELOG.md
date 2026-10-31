@@ -2,6 +2,48 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+  ## [2026-10-31] — Enrichissement Itinéraires Slow Travel Authentiques : Madère, Colombie, Beausoleil & Savoie
+
+- **Itinéraire Côte d'Azur : Beausoleil en balcon sur la Méditerranée (`app/destinations/cote-d-azur/beausoleil/page.tsx`)** :
+  - Création de la page itinéraire 6 étapes de lenteur entre les traverses Belle Époque de Beausoleil et les criques calmes du littoral :
+    1. Beausoleil — Les ruelles hautes & l'oranger en fruits (`43.7471° N, 7.4302° E`).
+    2. Terrasses du littoral — Descente vers la crique entre pins et eucalyptus (`43.7459° N, 7.4325° E`).
+    3. Anse du Larvotto — La plage déserte & le ressac sous la falaise au crépuscule (`43.7463° N, 7.4324° E`).
+    4. Sentier du littoral / Mareterra — Crépuscule pourpre le long de la digue (`43.7475° N, 7.4353° E`).
+    5. Place du Casino — Lueurs nocturnes sous les palmiers de la place (`43.7394° N, 7.4275° E`).
+    6. Port Hercule — Nuit sur le port & clapotis des amarres (`43.7370° N, 7.4247° E`).
+  - 6 photos authentiques extraites de l'archive `G:\Backup december 2023 Realme 8 G5` (Album 11, novembre 2023), auditées visuellement (zéro humain, zéro visage), optimisées et intégrées dans `public/images/destinations/cote-d-azur/beausoleil/`.
+  - Enregistré en mode brouillon sécurisé dans `lib/unpublished-pages.ts` (`/destinations/cote-d-azur/beausoleil` accessible via `?preview=draft`).
+- **Itinéraire Savoie : Aillon-le-Jeune & le massif des Bauges sous la neige (`app/destinations/savoie/aillon-le-jeune/page.tsx`)** :
+  - Création de la page itinéraire 4 étapes hivernales :
+    1. Aillon-le-Jeune — Le bourg sous la neige & la silhouette de l'église (`45.6184° N, 6.0814° E`).
+    2. Hameau d'Aillon — L'abri à bois d'affouage & la mémoire paysanne (`45.6184° N, 6.0814° E`).
+    3. Fermes des Bauges — Vergers endormis & fermes traditionnelles (`45.6184° N, 6.0814° E`).
+    4. Le Margériaz — La forêt de sapins du Margériaz dans la brume alpine (`45.6080° N, 6.1017° E`).
+  - 4 photos authentiques issues de `G:\Viagem Madeira Dezembro 2022 Janeiro 2023\DCIM\111D3400` (Album 6, février 2021), auditées visuellement (photos de famille/luge écartées conformément à la Règle 5).
+  - Enregistré en mode brouillon sécurisé dans `lib/unpublished-pages.ts` (`/destinations/savoie/aillon-le-jeune` accessible via `?preview=draft`).
+- **Audit de protection infantile (Règle 5) sur les archives Paris (Albums 3, 7, 8, 9)** :
+  - L'inspection visuelle systématique des clichés parisiens de 2019-2022 montre qu'il s'agit d'archives familiales privées (bébé/enfants, anniversaires, poussettes).
+  - En application stricte de la Règle 5 (« Aucune photo d'enfant en ligne ») et de la décision du fondateur du 19/10/2026, `/destinations/paris` et `/destinations/idf/paris` sont maintenues en mode « Bientôt » jusqu'à versement d'une archive urbaine neutre.
+- **Itinéraire Colombie : Cartago & l'Eje Cafetero (`app/destinations/colombie/cartago/page.tsx`)** :
+  - Transformation du gabarit générique en itinéraire slow travel complet de 6 étapes réelles entre Cartago (Valle del Cauca) et Salento (Quindío) :
+    1. Cartago — Éveil au marché & dégustation fromagère (Queso Paipa, Siete Cueros, pan de bono à `4.7395° N, 75.9107° O`).
+    2. Río La Vieja & Piedra de Moler — Le pont suspendu et les forêts de bambou guadua (`4.7086° N, 75.8570° O`).
+    3. Quimbaya — Pause café filtre & douceur locale dans un bistrot de village (`4.6239° N, 75.7681° O`).
+    4. El Roble — Halte paysanne, galettes de maïs et fromage frais (`4.6627° N, 75.5964° O`).
+    5. Boquía — Crépuscule sur les crêtes de la cordillère centrale (`4.6392° N, 75.5659° O`).
+    6. Salento — Nuit calme sur la Plaza de Bolívar éclairée (`4.6371° N, 75.5694° O`).
+  - Intégration de 6 photographies authentiques issues de l'archive `G:\Camera` (Album 1, 2-8 décembre 2019) avec coordonnées GPS EXIF réelles, auditées visuellement selon la Règle 5 (zéro photo d'enfant en ligne, zéro selfie rapproché) et redressées à la verticale : `public/images/destinations/colombie/cartago/etape[1-6]_*.jpg`.
+  - Mode brouillon sécurisé : page maintenue en `unpublished` avec bandeau d'alerte et prévisualisation réservée (`?preview=draft` / `?preview=true`).
+  - Toutes les zones textuelles câblées via `<EditableZone>` (zéro texte en dur, cliquet `check-cms-hardcode` préservé à 0 hausse).
+- **Itinéraire Madère : 7 jours en couple (`app/destinations/madere/itineraire-7-jours/page.tsx`)** :
+  - Enrichissement de l'itinéraire 7 étapes avec 6 photographies authentiques (`public/images/destinations/madere/itinerary/`) issues des archives de décembre 2022 / janvier 2023 (`G:\Viagem Madeira Dezembro 2022 Janeiro 2023`).
+  - Points GPS réels vérifiés (Funchal, Ponta de São Lourenço, Santana, Porto Moniz, Ribeira Brava, Pico do Arieiro).
+- **Garde-fous & Qualité** :
+  - `npm run preflight` : 13/13 contrôles réussis.
+  - `node scripts/check-cms-hardcode.mjs` : 0 régression sur 171 fichiers.
+  - `npx tsc --noEmit` : 0 erreur TypeScript.
+
   ## [2026-10-27 septies] — Automatisation Jules GitHub Actions, Remplacement In-House de Bravo, Métriques Instagram, Moteur SEO Geo & Studio Vectoriel de Sceaux
 
 - **Dispatcher de Tâches Jules via GitHub Actions (`.github/workflows/dispatch-jules.yml`, `scripts/dispatch_jules_action.mjs`)** :
