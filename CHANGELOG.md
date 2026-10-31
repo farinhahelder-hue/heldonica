@@ -4,14 +4,12 @@
 
   ## [2026-10-31] — Enrichissement Itinéraires Slow Travel Authentiques : Sintra, Óbidos, Batalha-Tomar, Coimbra, Madère, Colombie, Beausoleil, Savoie & Porto
 
-- **Carnet de route Slow Travel : Sintra à contre-courant (`content/articles/sintra-serra-mysteres-slow-travel-couple.mdx`)** :
-  - Rédaction d'un carnet de route immersif et vérifié sur le terrain à Sintra :
-    1. Descente dans les 9 cercles de calcaire du puits initiatique de la Regaleira (`38.7945° N, 9.3970° W`).
-    2. Labyrinthe des grottes granitiques et pierres plates à fleur d'eau.
-    3. Sentiers forestiers sous la canopée vers le Chalet d'Edla en écorce de liège (`38.7967° N, 9.3961° W`).
-    4. Observation du Palácio da Pena depuis les crêtes de Cruz Alta sans les files d'attente (`38.7962° N, 9.3963° W`).
-  - Intégration de la section sincère « Ce qu'on a moins aimé » (saturation des tuk-tuks en ville basse, billets combinés onéreux, dalles de calçadas très glissantes sous la bruine).
-  - Respect scrupuleux de la voix Heldonica (pronoms « on » / « tu », 0 mot banni, 0 portrait d'enfant).
+- **Carnets de route Slow Travel : Sintra, Óbidos, Batalha-Tomar & Coimbra (`content/articles/*.mdx`)** :
+  - **Sintra à contre-courant (`content/articles/sintra-serra-mysteres-slow-travel-couple.mdx`)** : Puits initiatique de la Regaleira, grottes, Chalet d'Edla et Palácio da Pena vu des crêtes.
+  - **Óbidos au crépuscule (`content/articles/obidos-remparts-chemins-ronde-slow-travel.mdx`)** : Chemin de ronde sans garde-corps sur les murailles médiévales, tour nord sur l'Estrémadure, ruelles chaulées et ginjinha.
+  - **Batalha et Tomar (`content/articles/batalha-tomar-dentelle-pierre-templiers.mdx`)** : Dentelle manuéline du cloître royal, Capelas Imperfeitas ouvertes sur le ciel bleu et ermitage Renaissance sur le coteau de Tomar.
+  - **Coimbra à contre-pente (`content/articles/coimbra-ruelles-mondego-fado-slow-travel.mdx`)** : Église Santa Cruz, escalier Quebra-Costas après la porte maure d'Almedina, panorama haut de l'Université sur le fleuve Mondego et fado étudiant.
+  - Tous adossés aux photos et coordonnées GPS réelles de la puce Sony DSC-HX50V, avec section d'honnêteté « Ce qu'on a moins aimé », 0 mot banni et voix de marque 100% respectée.
 
 - **Itinéraires Portugal : Sintra, Óbidos, Batalha-Tomar & Coimbra (4 nouvelles destinations slow travel)** :
   - Découverte et exploitation du disque dur 1 To (`G:\Memorias\Fotos\Portugal Outubro 2015`, 593 photos avec puce GPS matérielle Sony DSC-HX50V) :
