@@ -45,6 +45,18 @@ const VOCABULARY_CORRECTIONS: Record<string, string> = {
   'super': 'remarquable',
 };
 
+// ⚡ Bolt Performance Optimization:
+// What: Pre-compile regular expressions for vocabulary corrections at module level.
+// Why: Instantiating new RegExp() inside the `applyBrandCorrections` callback for every
+//      correction, on every subtitle edit, forces the JS engine to parse and compile
+//      regexes synchronously, which can block the main thread.
+// Impact: O(1) compilation time instead of O(N). Avoids runtime compilation overhead during rendering/typing.
+// Measurement: Profiling will show no time spent in RegExp constructor during typing.
+const COMPILED_CORRECTIONS = Object.entries(VOCABULARY_CORRECTIONS).map(([original, replacement]) => ({
+  regex: new RegExp(`\\b${original}\\b`, 'gi'),
+  replacement
+}));
+
 // ===== Main Component =====
 export default function SubtitlesEditor() {
   const [state, setState] = useState<VideoSubtitlesState>({
@@ -86,8 +98,7 @@ export default function SubtitlesEditor() {
   // Apply brand voice corrections
   const applyBrandCorrections = useCallback((text: string): string => {
     let corrected = text;
-    Object.entries(VOCABULARY_CORRECTIONS).forEach(([original, replacement]) => {
-      const regex = new RegExp(`\\b${original}\\b`, 'gi');
+    COMPILED_CORRECTIONS.forEach(({ regex, replacement }) => {
       corrected = corrected.replace(regex, replacement);
     });
     return corrected;
