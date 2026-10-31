@@ -4,6 +4,15 @@
 
   ## [2026-10-31] — Enrichissement Itinéraires Slow Travel Authentiques : Sintra, Óbidos, Batalha-Tomar, Coimbra, Madère, Colombie, Beausoleil, Savoie & Porto
 
+- **Carnet de route Slow Travel : Sintra à contre-courant (`content/articles/sintra-serra-mysteres-slow-travel-couple.mdx`)** :
+  - Rédaction d'un carnet de route immersif et vérifié sur le terrain à Sintra :
+    1. Descente dans les 9 cercles de calcaire du puits initiatique de la Regaleira (`38.7945° N, 9.3970° W`).
+    2. Labyrinthe des grottes granitiques et pierres plates à fleur d'eau.
+    3. Sentiers forestiers sous la canopée vers le Chalet d'Edla en écorce de liège (`38.7967° N, 9.3961° W`).
+    4. Observation du Palácio da Pena depuis les crêtes de Cruz Alta sans les files d'attente (`38.7962° N, 9.3963° W`).
+  - Intégration de la section sincère « Ce qu'on a moins aimé » (saturation des tuk-tuks en ville basse, billets combinés onéreux, dalles de calçadas très glissantes sous la bruine).
+  - Respect scrupuleux de la voix Heldonica (pronoms « on » / « tu », 0 mot banni, 0 portrait d'enfant).
+
 - **Itinéraires Portugal : Sintra, Óbidos, Batalha-Tomar & Coimbra (4 nouvelles destinations slow travel)** :
   - Découverte et exploitation du disque dur 1 To (`G:\Memorias\Fotos\Portugal Outubro 2015`, 593 photos avec puce GPS matérielle Sony DSC-HX50V) :
     1. **Sintra & la Serra (`app/destinations/portugal/sintra/page.tsx`)** : 6 étapes (Quinta da Regaleira `38.7960° N, 9.3962° W`, Puits initiatique `38.7945° N, 9.3970° W`, Grottes souterraines `38.7945° N, 9.3956° W`, Sentiers forestiers `38.7953° N, 9.3964° W`, Chalet d'Edla `38.7967° N, 9.3961° W`, Palácio da Pena `38.7962° N, 9.3963° W`).
