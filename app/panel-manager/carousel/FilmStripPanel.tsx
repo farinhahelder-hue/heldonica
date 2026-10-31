@@ -161,6 +161,7 @@ export default function FilmStripPanel({
                   e.stopPropagation()
                   onSlideDelete(slide.id)
                 }}
+                aria-label="Supprimer la diapositive"
                 className="absolute right-1 bottom-1 w-5 h-5 rounded-full bg-stone-200 text-stone-500 text-xs hover:bg-red-100 hover:text-red-500 transition-colors"
               >
                 ×
