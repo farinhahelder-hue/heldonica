@@ -75,6 +75,19 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: npm run check:cms-drift
 
+      # Le dépôt et la base sont-ils d'accord sur les migrations APPLIQUÉES ?
+      # C'est ici que ce contrôle a le plus de valeur : `garde-fous.yml` ne lit
+      # la base que sur PR ou push `main`, donc une migration appliquée à la
+      # main (ou oubliée) n'y est vue qu'à l'occasion d'un commit. Ce passage
+      # quotidien relit la base telle qu'elle est, sans commit nécessaire.
+      - name: Migrations appliquées (dépôt ↔ base)
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          git fetch --no-tags --depth=1 origin +refs/heads/main:refs/remotes/origin/main || true
+          npm run check:cms-migrations-appliquees
+
       # Voix éditoriale et mots bannis en production (contenu réellement servi).
       - name: Cohérence éditoriale
         env:
