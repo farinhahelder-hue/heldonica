@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireCmsAuth } from '@/lib/cms-auth'
+import { revalidateCmsTarget } from '@/lib/revalidate'
 
 function getSupabase() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -66,6 +67,7 @@ export async function POST(req: NextRequest) {
         message: 'Normalisation effectuee avec succes',
         normalizedCount: cmsBlogPostsUpdated,
       })
+    await revalidateCmsTarget({ page: 'blog' })
     }
 
     // Creating a category
@@ -88,6 +90,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    await revalidateCmsTarget({ page: 'blog' })
     return NextResponse.json({ success: true, category: newCategory })
   } catch (err) {
     console.error('[CMS Categories POST] Error:', err)
@@ -146,6 +149,7 @@ export async function PATCH(req: NextRequest) {
       }
     }
 
+    await revalidateCmsTarget({ page: 'blog' })
     return NextResponse.json({ success: true, category: updatedCategory })
   } catch (err) {
     console.error('[CMS Categories PATCH] Error:', err)
@@ -179,6 +183,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    await revalidateCmsTarget({ page: 'blog' })
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('[CMS Categories DELETE] Error:', err)

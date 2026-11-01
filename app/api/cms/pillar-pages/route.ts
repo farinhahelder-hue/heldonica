@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireCmsAuth } from '@/lib/cms-auth'
+import { revalidateCmsTarget } from '@/lib/revalidate'
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -68,6 +69,7 @@ export async function PATCH(req: NextRequest) {
 
   const { error } = await supabase.from('cms_pillar_pages').update(updates).eq('slug', slug)
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  await revalidateCmsTarget({ page: `destinations-${slug}`, type: 'destination' })
   return NextResponse.json({ success: true })
 }
 

@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 import { NextRequest, NextResponse } from 'next/server'
 import { requireCmsAuth } from '@/lib/cms-auth'
+import { revalidateCmsTarget } from '@/lib/revalidate'
 
 function getSupabase() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -77,6 +78,7 @@ export async function POST(request: NextRequest) {
 
     if (error) throw error
 
+    await revalidateCmsTarget({ page: 'temoignages' })
     return NextResponse.json({ success: true, testimonial: data })
   } catch (error: any) {
     console.error('Error creating testimonial:', error)
@@ -106,6 +108,7 @@ export async function PUT(request: NextRequest) {
 
     if (error) throw error
 
+    await revalidateCmsTarget({ page: 'temoignages' })
     return NextResponse.json({ success: true, testimonial: data })
   } catch (error: any) {
     console.error('Error updating testimonial:', error)
@@ -133,6 +136,7 @@ export async function DELETE(request: NextRequest) {
 
     if (error) throw error
 
+    await revalidateCmsTarget({ page: 'temoignages' })
     return NextResponse.json({ success: true })
   } catch (error: any) {
     console.error('Error deleting testimonial:', error)

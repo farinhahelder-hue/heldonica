@@ -7,6 +7,26 @@ export interface RevalidateOptions {
 }
 
 /**
+ * Slugs des destinations de premier niveau, telles que servies par
+ * `app/destinations/<slug>/page.tsx`.
+ *
+ * Sert à lever l'ambiguïté des clés de page CMS : la clé joint la destination et
+ * la sous-destination par un tiret, mais certains slugs en contiennent eux-mêmes
+ * un. `destinations-cote-d-azur-beausoleil` doit donner
+ * `/destinations/cote-d-azur/beausoleil` ; un découpage sur le premier tiret
+ * produit `/destinations/cote/d-azur-beausoleil`, une URL qui n'existe pas et
+ * dont la revalidation ne fait donc rien.
+ *
+ * À tenir à jour quand une destination de premier niveau est ajoutée : sans son
+ * entrée ici, ses sous-pages retombent sur le découpage au premier tiret.
+ */
+const DESTINATIONS_RACINES: readonly string[] = [
+  'alentejo', 'carte', 'colombie', 'compare', 'cote-d-azur', 'grece', 'idf',
+  'lisbonne', 'madere', 'montenegro', 'normandie', 'paris', 'portugal',
+  'roumanie', 'sardaigne', 'savoie', 'sicile', 'suisse', 'zurich',
+];
+
+/**
  * Convertit un identifiant de page CMS (ex: 'destinations-madere-funchal')
  * en chemin d'URL publique Next.js (ex: '/destinations/madere/funchal').
  */
@@ -15,16 +35,33 @@ export function pageToPath(page: string): string {
   if (p === 'home' || p === 'index' || p === 'accueil') return '/';
   if (p === 'global') return '/';
 
-  // Si commence par destinations-
+  // Clés de guide : 'guides-top-10-pepites-madere' -> '/guides/top-10-pepites-madere'.
+  // Sans cette branche, la clé tombait sur '/guides-<slug>', une URL inexistante.
+  if (p.startsWith('guides-')) return `/guides/${p.slice('guides-'.length)}`;
+
   if (p.startsWith('destinations-')) {
-    const parts = p.replace(/^destinations-/, '').split('-');
+    const reste = p.slice('destinations-'.length);
+
+    // La racine la plus longue qui préfixe `reste` gagne : c'est ce qui distingue
+    // 'cote-d-azur/beausoleil' de 'cote/d-azur-beausoleil'.
+    const racine = DESTINATIONS_RACINES
+      .filter((r) => reste === r || reste.startsWith(`${r}-`))
+      .sort((a, b) => b.length - a.length)[0];
+
+    if (racine) {
+      const sous = reste.slice(racine.length).replace(/^-/, '');
+      return sous ? `/destinations/${racine}/${sous}` : `/destinations/${racine}`;
+    }
+
+    // Clé inconnue : découpage au premier tiret, faute de mieux.
+    const parts = reste.split('-');
     if (parts.length === 1) return `/destinations/${parts[0]}`;
     if (parts.length === 2) return `/destinations/${parts[0]}/${parts[1]}`;
-    if (parts.length >= 3) return `/destinations/${parts[0]}/${parts.slice(1).join('-')}`;
+    return `/destinations/${parts[0]}/${parts.slice(1).join('-')}`;
   }
 
   // Autres pages avec tirets
-  if (p === 'destinations-carte' || p === 'carte') return '/destinations/carte';
+  if (p === 'carte') return '/destinations/carte';
   if (p === 'travel-planning' || p === 'travel-planning-form') return `/${p}`;
   if (p === 'slow-travel' || p === 'temoignages' || p === 'mentions-legales') return `/${p}`;
   if (p === 'politique-confidentialite' || p === 'politique-affiliation') return `/${p}`;
