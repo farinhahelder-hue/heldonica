@@ -4,8 +4,8 @@
         android:shortcutId="hub_outils"
         android:enabled="true"
         android:icon="@android:drawable/ic_menu_compass"
-        android:shortcutShortLabel="Hub Outils"
-        android:shortcutLongLabel="Hub Outils (Search Console, GA4, Meta, Jules)">
+        android:shortcutShortLabel="@string/shortcut_hub_court"
+        android:shortcutLongLabel="@string/shortcut_hub_long">
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="fr.heldonica.mobile"
@@ -17,8 +17,8 @@
         android:shortcutId="creer_recit"
         android:enabled="true"
         android:icon="@android:drawable/ic_menu_camera"
-        android:shortcutShortLabel="Créer un récit"
-        android:shortcutLongLabel="Créer un récit ou carrousel (Google Photos)">
+        android:shortcutShortLabel="@string/shortcut_creer_court"
+        android:shortcutLongLabel="@string/shortcut_creer_long">
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="fr.heldonica.mobile"
@@ -30,8 +30,8 @@
         android:shortcutId="studio_cms"
         android:enabled="true"
         android:icon="@android:drawable/ic_menu_edit"
-        android:shortcutShortLabel="Studio CMS"
-        android:shortcutLongLabel="Studio CMS 3.0 (Blocs, Hotspot, RAG)">
+        android:shortcutShortLabel="@string/shortcut_cms_court"
+        android:shortcutLongLabel="@string/shortcut_cms_long">
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="fr.heldonica.mobile"
@@ -43,8 +43,8 @@
         android:shortcutId="taches_agents"
         android:enabled="true"
         android:icon="@android:drawable/ic_menu_agenda"
-        android:shortcutShortLabel="Tâches Agents"
-        android:shortcutLongLabel="Registre des Tâches (Jules &amp; Gemini)">
+        android:shortcutShortLabel="@string/shortcut_taches_court"
+        android:shortcutLongLabel="@string/shortcut_taches_long">
         <intent
             android:action="android.intent.action.VIEW"
             android:targetPackage="fr.heldonica.mobile"
