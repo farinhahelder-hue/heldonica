@@ -101,3 +101,13 @@ jobs:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: npm run check:cms-emojis
+
+      # Ajouté le 01/11/2026 avec le retrait de la clé de service des exécutions
+      # sur pull request : c'était le seul contrôle lisant la base qui n'avait
+      # pas d'autre passage que `garde-fous.yml`. Sans cette entrée, le retrait
+      # lui aurait fait perdre toute couverture.
+      - name: Images générées en base (C2PA)
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: npm run check:cms-ai-images-db
