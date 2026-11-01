@@ -4,6 +4,9 @@ import { useState } from 'react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import Breadcrumb from '@/components/Breadcrumb';
+import { useZoneTexts } from '@/components/inline-edit/useZoneTexts';
+
+const PAGE = 'retour-experience';
 
 export default function RetourExperiencePage() {
   const [formData, setFormData] = useState({
@@ -16,6 +19,35 @@ export default function RetourExperiencePage() {
 
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState('');
+
+  const t = useZoneTexts(PAGE, {
+    badge: 'Carnet de retour',
+    title: 'Votre retour d’expérience',
+    intro:
+      'On accorde une importance capitale à l’authenticité de nos retours. Si on a conçu votre voyage, racontez-nous ce que vous avez vraiment vécu : vos moments forts, vos pépites et vos éventuelles remarques.',
+    success_title: 'Merci pour votre retour précieux !',
+    success_text:
+      'Votre témoignage a bien été transmis. On le relit avec attention avant de le publier sur le site pour inspirer de futurs couples de voyageurs.',
+    error_generic: 'Une erreur est survenue.',
+    error_network: 'Impossible d’envoyer votre retour. Réessayez plus tard.',
+    label_names: 'Vos prénoms *',
+    placeholder_names: 'Ex : Claire & Julien',
+    label_location: 'Ville ou Région',
+    placeholder_location: 'Ex : Lyon, Bruxelles, Genève',
+    label_destination: 'Destination vécue *',
+    placeholder_destination: 'Ex : Madère (Nord), Monténégro, Roumanie',
+    label_rating: 'Note globale',
+    rating_5: '★★★★★ (Inoubliable / Exceptionnel)',
+    rating_4: '★★★★ (Très réussi)',
+    rating_3: '★★★ (Satisfaisant)',
+    rating_2: '★★ (Mitigé)',
+    rating_1: '★ (Décevant)',
+    label_quote: 'Votre témoignage détaillé *',
+    placeholder_quote:
+      'Comment s’est passé votre séjour ? Qu’avez-vous pensé de l’accompagnement et du carnet de route sur mesure ?',
+    btn_loading: 'Envoi en cours...',
+    btn_submit: 'Envoyer mon témoignage',
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,13 +64,13 @@ export default function RetourExperiencePage() {
       const data = await res.json();
       if (!res.ok) {
         setStatus('error');
-        setErrorMessage(data.error || 'Une erreur est survenue.');
+        setErrorMessage(data.error || t.error_generic);
       } else {
         setStatus('success');
       }
     } catch {
       setStatus('error');
-      setErrorMessage('Impossible d’envoyer votre retour. Réessayez plus tard.');
+      setErrorMessage(t.error_network);
     }
   };
 
@@ -51,20 +83,20 @@ export default function RetourExperiencePage() {
         <main className="container max-w-2xl py-12 px-4 sm:px-6">
           <div className="bg-[#FAF7F2] rounded-sm p-8 md:p-12 border border-[#DED5C6]">
             <span className="text-xs uppercase tracking-[0.2em] text-eucalyptus font-semibold mb-2 block">
-              Carnet de retour
+              {t.badge}
             </span>
             <h1 className="text-3xl md:text-4xl font-serif text-stone-900 mb-4">
-              Votre retour d’expérience
+              {t.title}
             </h1>
             <p className="text-sm md:text-base text-stone-600 mb-8 leading-relaxed">
-              On accorde une importance capitale à l’authenticité de nos retours. Si on a conçu votre voyage, racontez-nous ce que vous avez vraiment vécu : vos moments forts, vos pépites et vos éventuelles remarques.
+              {t.intro}
             </p>
 
             {status === 'success' ? (
               <div className="p-6 rounded-sm bg-emerald-50 border border-emerald-200 text-emerald-900 space-y-3 animate-in fade-in duration-300">
-                <h3 className="font-bold text-lg font-serif">Merci pour votre retour précieux !</h3>
+                <h3 className="font-bold text-lg font-serif">{t.success_title}</h3>
                 <p className="text-sm text-emerald-800 leading-relaxed">
-                  Votre témoignage a bien été transmis. On le relit avec attention avant de le publier sur le site pour inspirer de futurs couples de voyageurs.
+                  {t.success_text}
                 </p>
               </div>
             ) : (
@@ -78,12 +110,12 @@ export default function RetourExperiencePage() {
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">
-                      Vos prénoms *
+                      {t.label_names}
                     </label>
                     <input
                       type="text"
                       required
-                      placeholder="Ex : Claire & Julien"
+                      placeholder={t.placeholder_names}
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       className="w-full px-4 py-3 rounded-sm border border-[#DED5C6] text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus"
@@ -92,11 +124,11 @@ export default function RetourExperiencePage() {
 
                   <div>
                     <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">
-                      Ville ou Région
+                      {t.label_location}
                     </label>
                     <input
                       type="text"
-                      placeholder="Ex : Lyon, Bruxelles, Genève"
+                      placeholder={t.placeholder_location}
                       value={formData.location}
                       onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                       className="w-full px-4 py-3 rounded-sm border border-[#DED5C6] text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus"
@@ -107,12 +139,12 @@ export default function RetourExperiencePage() {
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">
-                      Destination vécue *
+                      {t.label_destination}
                     </label>
                     <input
                       type="text"
                       required
-                      placeholder="Ex : Madère (Nord), Monténégro, Roumanie"
+                      placeholder={t.placeholder_destination}
                       value={formData.destination}
                       onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
                       className="w-full px-4 py-3 rounded-sm border border-[#DED5C6] text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus"
@@ -121,30 +153,30 @@ export default function RetourExperiencePage() {
 
                   <div>
                     <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">
-                      Note globale
+                      {t.label_rating}
                     </label>
                     <select
                       value={formData.rating}
                       onChange={(e) => setFormData({ ...formData, rating: Number(e.target.value) })}
                       className="w-full px-4 py-3 rounded-sm border border-[#DED5C6] text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus bg-[#FAF7F2]"
                     >
-                      <option value={5}>★★★★★ (Inoubliable / Exceptionnel)</option>
-                      <option value={4}>★★★★ (Très réussi)</option>
-                      <option value={3}>★★★ (Satisfaisant)</option>
-                      <option value={2}>★★ (Mitigé)</option>
-                      <option value={1}>★ (Décevant)</option>
+                      <option value={5}>{t.rating_5}</option>
+                      <option value={4}>{t.rating_4}</option>
+                      <option value={3}>{t.rating_3}</option>
+                      <option value={2}>{t.rating_2}</option>
+                      <option value={1}>{t.rating_1}</option>
                     </select>
                   </div>
                 </div>
 
                 <div>
                   <label className="block text-xs font-bold text-stone-700 uppercase tracking-wider mb-2">
-                    Votre témoignage détaillé *
+                    {t.label_quote}
                   </label>
                   <textarea
                     required
                     rows={5}
-                    placeholder="Comment s'est passé votre séjour ? Qu'avez-vous pensé de l'accompagnement et du carnet de route sur mesure ?"
+                    placeholder={t.placeholder_quote}
                     value={formData.quote}
                     onChange={(e) => setFormData({ ...formData, quote: e.target.value })}
                     className="w-full px-4 py-3 rounded-sm border border-[#DED5C6] text-sm focus:outline-none focus:ring-2 focus:ring-eucalyptus/30 focus:border-eucalyptus leading-relaxed"
@@ -156,7 +188,7 @@ export default function RetourExperiencePage() {
                   disabled={status === 'loading'}
                   className="w-full py-3.5 px-6 bg-stone-900 hover:bg-stone-800 text-white font-semibold text-sm rounded-sm transition disabled:opacity-50"
                 >
-                  {status === 'loading' ? 'Envoi en cours...' : 'Envoyer mon témoignage'}
+                  {status === 'loading' ? t.btn_loading : t.btn_submit}
                 </button>
               </form>
             )}

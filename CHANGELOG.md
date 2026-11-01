@@ -4,6 +4,22 @@
 
   ## [2026-11-01] — Refonte Éditoriale Stitch : Page d'Accueil Terracotta & Azure & Atlas Cartographique Interactif
 
+- **Enrichissement Complet Sardaigne & Sicile (11 pages) & 5 Pages Transverses à 0 Texte en Dur (`app/destinations/sardaigne/**`, `app/destinations/sicile/**`, `app/a-propos/**`, `app/slow-travel/**`, `app/start/**`, `app/retour-experience/**`, `app/expert-hotelier/**`)** :
+  - **Sardaigne (6 pages)** :
+    - `sardaigne/page.tsx` (`16 → 0` textes en dur, 5e carte territoriale pour Gallura & Costa Smeralda, `export const revalidate = 3600;`).
+    - Transformation des 5 gabarits `SubDestinationTemplate` (`alghero`, `asinara`, `cagliari`, `costa-smeralda`, `nuoro`) en carnets slow travel complets (~400 lignes chacun, 6 étapes géolocalisées, respect de la voix éditoriale `tu`/`on`, conservation des 12 zones CMS et support `?preview=draft`).
+  - **Sicile (5 sous-destinations)** :
+    - Transformation des 5 gabarits `SubDestinationTemplate` (`catane`, `etoile`, `palerme`, `syracuse`, `taormine`) en carnets slow travel complets (~400 lignes chacun, Piazza del Duomo et train Circumetnea à Catane, 7 îles d'argile et de feu aux Éoliennes, quadrilatère arabo-normand à Palerme, calcaire blanc et Neapolis à Syracuse, théâtre gréco-romain et gorges de l'Alcantara à Taormine, `0` texte en dur).
+  - **5 Pages Transverses (Passage Intégral à 0 Texte en Dur)** :
+    - `app/a-propos/page.tsx` (`16 → 0` textes en dur, piliers et statistiques passés au CMS, alignement du sceau officiel).
+    - `app/slow-travel/page.tsx` (`6 → 0` textes en dur, principes et citations reliés aux zones éditables).
+    - `app/start/page.tsx` (`17 → 0` textes en dur, intégration de `getCmsOrSetting` et zones éditables par lien).
+    - `app/retour-experience/page.tsx` (`23 → 0` textes en dur, migration sur `useZoneTexts` pour l'ensemble des libellés et options du formulaire).
+    - `app/expert-hotelier/page.tsx` (`44 → 0` textes en dur, intégration des formules, services et processus dans le CMS).
+  - **Garde-fous & Cliquet CMS (`scripts/cms-hardcode-baseline.json`)** :
+    - Abaissement du cliquet sur 12 fichiers (total global abaissé de `844` à **`710` textes en dur**, soit **-134 textes en dur**).
+    - Pré-vol 13/13 vert (`npm run preflight`), `tsc --noEmit` 0 erreur.
+
 - **Enrichissement Complet des 4 Chantiers Restants (Guides, Piliers Publiés, 6 Articles MDX, Roumanie, Normandie & Colombie)** :
   - **Chantier 1 — Guide « Top 10 Pépites Madère » & 3 Pages Piliers Publiées (`app/guides/top-10-pepites-madere/page.tsx`, `app/destinations/portugal/page.tsx`, `app/destinations/alentejo/page.tsx`, `app/destinations/idf/page.tsx`)** :
     - Remplacement intégral des 10 entrées génériques non vérifiées de `PEPITES_FALLBACK` par 10 repères de terrain vérifiés du Coffre des Savoirs (`mad-fanal-laurisilva`, `mad-achadas-faja`, `mad-porto-moniz-pools`, `vault_22` O Galo, `vault_21` Pico do Arieiro & PR9, `vault_32` Câmara de Lobos & 6 vins à 5 €, `mad-ponta-do-sol-pier`, PR11 Ribeiro Frio, Estreito espetada sur branche de laurier, Faial & Santo da Serra) avec photos locales (`/images/destinations/madere/**`) et passage de `32` à `0` textes en dur.
