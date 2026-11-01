@@ -3,7 +3,7 @@ import { getPageZones } from '@/lib/cms-zones';
 import { buildPageMetadata } from '@/lib/page-metadata';
 import QuizClient from './QuizClient';
 
-export const revalidate = 300;
+export const revalidate = 86400;
 
 const metadata: Metadata = {
   title: 'Quiz : Quel voyageur es-tu ? | Heldonica',

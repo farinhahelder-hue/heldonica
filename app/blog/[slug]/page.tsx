@@ -74,7 +74,7 @@ interface Props {
   searchParams: Promise<{ preview_token?: string }>
 }
 
-export const revalidate = 3600
+export const revalidate = 86400
 
 export async function generateStaticParams() {
   const slugs = await getAllSlugs()

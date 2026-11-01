@@ -233,12 +233,17 @@ export async function getInstagramProfile() {
   }
 
   try {
-    const fields = 'id,username,account_type,media_count';
+    const fields = 'id,username,name,profile_picture_url,followers_count,follows_count,media_count,account_type';
     const response = await fetch(
-      `${INSTAGRAM_GRAPH_API_BASE}/me?fields=${fields}&access_token=${config.accessToken}`
+      `${INSTAGRAM_GRAPH_API_BASE}/${config.businessAccountId}?fields=${fields}&access_token=${config.accessToken}`
     );
-
-    return await response.json();
+    if (response.ok) {
+      return await response.json();
+    }
+    const meResponse = await fetch(
+      `${INSTAGRAM_GRAPH_API_BASE}/me?fields=id,username,account_type,media_count&access_token=${config.accessToken}`
+    );
+    return await meResponse.json();
   } catch (error) {
     console.error('Failed to get Instagram profile:', error);
     return null;

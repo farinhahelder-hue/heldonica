@@ -22,7 +22,7 @@ import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.ZoneId
 
-/** Une photo choisie, avec le lieu que Timeline en a déduit (modifiable avant l'ajout). */
+/** Une photo choisie, avec le lieu que Timeline ou Vision en a déduit (modifiable avant l'ajout). */
 private data class PhotoChoisie(
     val uri: Uri,
     val jour: String?,
@@ -32,20 +32,18 @@ private data class PhotoChoisie(
 )
 
 /**
- * Onglet Rédaction : compléter un brouillon depuis le téléphone.
+ * Onglet Rédaction : enrichir ou compléter un article/carnet depuis le téléphone.
  *
- * 1. choisir un brouillon (jamais un article publié) ;
- * 2. dicter ses notes, l'IA remplace les `[À TOI : …]` que les notes couvrent ;
- * 3. ajouter des photos : l'historique Google Timeline (export JSON) retrouve où
- *    on était à l'heure de chaque photo, le sélecteur Android ayant retiré le GPS.
- *
- * Rien n'est publié d'ici : l'enregistrement ne touche qu'au contenu.
+ * 1. choisir un article (brouillon ou publié) ;
+ * 2. dicter ses notes réelles, l'IA remplace les `[À TOI : …]` et polit la voix de marque ;
+ * 3. ajouter des photos : l'historique Google Timeline ou l'IA Vision retrouve le lieu et décrit la scène.
  */
 @Composable
 fun RedactionScreen() {
     val contexte = LocalContext.current
     val scope = rememberCoroutineScope()
 
+    var filtreStatut by remember { mutableStateOf("all") }
     var brouillons by remember { mutableStateOf<List<Brouillon>?>(null) }
     var choisi by remember { mutableStateOf<Brouillon?>(null) }
     var contenu by remember { mutableStateOf("") }
@@ -64,19 +62,18 @@ fun RedactionScreen() {
     fun charger() {
         occupe = true
         scope.launch {
-            RedactionClient.listerBrouillons(contexte)
+            RedactionClient.listerBrouillons(contexte, filtreStatut)
                 .onSuccess { brouillons = it; message = null }
                 .onFailure { message = it.message }
             occupe = false
         }
     }
-    LaunchedEffect(Unit) { charger() }
+    LaunchedEffect(filtreStatut) { charger() }
 
     val choisirTimeline = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (uri == null) return@rememberLauncherForActivityResult
         scope.launch {
             occupe = true
-            // Lecture et analyse hors du fil principal : l'export pèse des dizaines de Mo.
             val lus = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
                 runCatching {
                     contexte.contentResolver.openInputStream(uri)?.bufferedReader()?.use { it.readText() }
@@ -104,7 +101,6 @@ fun RedactionScreen() {
                 return@launch
             }
             val ajoutees = uris.mapIndexed { n, uri ->
-                // Nominatim n'accepte qu'une requête par seconde.
                 if (n > 0) kotlinx.coroutines.delay(1100)
                 val brut = RedactionClient.dateExif(contexte, uri)
                 val instant = TimelineGoogle.instantExif(brut)
@@ -119,26 +115,71 @@ fun RedactionScreen() {
 
     val b = choisi
     if (b == null) {
-        // ---- Liste des brouillons ----
+        // ---- Liste des articles / carnets ----
         Column(Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Brouillons à compléter", fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+                Text("Articles & Carnets", fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
                 OutlinedButton(onClick = { charger() }, enabled = !occupe) { Text("Actualiser") }
             }
+
+            // Filtres par statut
+            Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                FilterChip(
+                    selected = (filtreStatut == "all"),
+                    onClick = { filtreStatut = "all" },
+                    label = { Text("Tous", fontSize = 12.sp) }
+                )
+                FilterChip(
+                    selected = (filtreStatut == "draft"),
+                    onClick = { filtreStatut = "draft" },
+                    label = { Text("Brouillons", fontSize = 12.sp) }
+                )
+                FilterChip(
+                    selected = (filtreStatut == "published"),
+                    onClick = { filtreStatut = "published" },
+                    label = { Text("En ligne (publiés)", fontSize = 12.sp) }
+                )
+            }
+
             message?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             if (occupe) LinearProgressIndicator(Modifier.fillMaxWidth())
+
             LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(brouillons.orEmpty()) { br ->
-                    // clickable plutôt que Card(onClick) : ce dernier est encore expérimental.
                     Card(modifier = Modifier.fillMaxWidth().clickable {
                         choisi = br; contenu = br.contenu; modifie = false
                         notes = ""; proposition = null; photos = emptyList(); message = null
                     }) {
                         Column(Modifier.padding(12.dp)) {
-                            Text(br.titre.ifBlank { "(sans titre)" }, fontWeight = FontWeight.SemiBold)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    br.titre.ifBlank { "(sans titre)" },
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 15.sp,
+                                    modifier = Modifier.weight(1f)
+                                )
+                                Surface(
+                                    shape = MaterialTheme.shapes.small,
+                                    color = if (br.published) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer,
+                                    modifier = Modifier.padding(start = 8.dp)
+                                ) {
+                                    Text(
+                                        if (br.published) "🟢 En ligne" else "🟡 Brouillon",
+                                        fontSize = 10.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                    )
+                                }
+                            }
                             Text(
-                                if (br.lacunes > 0) "${br.lacunes} à écrire" else "Aucune lacune",
-                                fontSize = 13.sp
+                                if (br.lacunes > 0) "${br.lacunes} lacune(s) [À TOI] à combler" else "Récit complet • Prêt à enrichir",
+                                fontSize = 12.sp,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(top = 4.dp)
                             )
                         }
                     }
@@ -148,16 +189,37 @@ fun RedactionScreen() {
         return
     }
 
-    // ---- Un brouillon ouvert ----
+    // ---- Un article ouvert ----
     val lacunes = RedactionBrouillon.lacunes(contenu)
     Column(
         Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
-            TextButton(onClick = { if (modifie) confirmerRetour = true else { choisi = null; charger() } }) { Text("← Brouillons") }
-            Text(b.titre.ifBlank { "(sans titre)" }, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
+            TextButton(onClick = { if (modifie) confirmerRetour = true else { choisi = null; charger() } }) { Text("← Liste") }
+            Column(Modifier.weight(1f)) {
+                Text(b.titre.ifBlank { "(sans titre)" }, fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(
+                    if (b.published) "🟢 En ligne sur heldonica.fr" else "🟡 Brouillon",
+                    fontSize = 11.sp,
+                    color = MaterialTheme.colorScheme.outline
+                )
+            }
         }
+
+        FilledTonalButton(
+            onClick = {
+                contexte.startActivity(
+                    android.content.Intent(contexte, EditeurActivity::class.java).putExtra(
+                        EditeurActivity.EXTRA_CHEMIN, "/panel-manager?section=articles&articleId=${b.id}"
+                    )
+                )
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("⚡ Ouvrir dans le Studio CMS 3.0 (Blocs & Hotspots)", fontSize = 12.sp)
+        }
+
         if (confirmerRetour) {
             AlertDialog(
                 onDismissRequest = { confirmerRetour = false },
@@ -169,13 +231,14 @@ fun RedactionScreen() {
                 dismissButton = { TextButton(onClick = { confirmerRetour = false }) { Text("Rester") } }
             )
         }
+
         message?.let { Text(it, color = MaterialTheme.colorScheme.primary) }
         if (occupe) LinearProgressIndicator(Modifier.fillMaxWidth())
 
         Card(Modifier.fillMaxWidth()) {
             Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
-                    if (lacunes.isEmpty()) "Plus aucune lacune [À TOI]." else "${lacunes.size} lacune(s) à écrire :",
+                    if (lacunes.isEmpty()) "Aucune lacune [À TOI]." else "${lacunes.size} lacune(s) à écrire :",
                     fontWeight = FontWeight.SemiBold
                 )
                 lacunes.forEach { Text("• $it", fontSize = 13.sp) }
@@ -185,14 +248,14 @@ fun RedactionScreen() {
         }
 
         // ---- Notes + IA ----
-        Text("Ce que vous avez vécu", fontWeight = FontWeight.SemiBold)
+        Text("Notes de terrain & vécu", fontWeight = FontWeight.SemiBold)
         OutlinedTextField(
             value = notes, onValueChange = { notes = it },
             modifier = Modifier.fillMaxWidth(), minLines = 4,
-            placeholder = { Text("Dicte ici (micro du clavier) : odeurs, lumière, prix payé, ce qu'on a moins aimé…") }
+            placeholder = { Text("Dicte ici (micro du clavier) : odeurs, lumière, textures, ce que tu as ressenti…") }
         )
         Button(
-            enabled = !occupe && lacunes.isNotEmpty() && notes.trim().length >= 30,
+            enabled = !occupe && (lacunes.isNotEmpty() || contenu.isNotBlank()) && notes.trim().length >= 15,
             onClick = {
                 occupe = true; message = null
                 scope.launch {
@@ -202,7 +265,7 @@ fun RedactionScreen() {
                     occupe = false
                 }
             }
-        ) { Text("✨ Compléter avec mes notes") }
+        ) { Text("✨ Compléter / Enrichir avec mes notes (IA)") }
 
         proposition?.let { p ->
             Card(Modifier.fillMaxWidth()) {
@@ -225,20 +288,23 @@ fun RedactionScreen() {
 
         HorizontalDivider()
 
-        // ---- Photos + Timeline ----
-        Text("Photos", fontWeight = FontWeight.SemiBold)
+        // ---- Photos + Timeline / Vision ----
+        Text("Photos du carnet", fontWeight = FontWeight.SemiBold)
         Text(
-            if (sejours.isEmpty()) "Timeline non chargée : le lieu sera à écrire pour chaque photo."
+            if (sejours.isEmpty()) "Timeline non chargée : tu peux identifier chaque photo via l'IA Vision ou saisir le lieu."
             else "Timeline : ${sejours.size} séjours chargés.",
             fontSize = 13.sp
         )
-        OutlinedButton(onClick = { choisirTimeline.launch(arrayOf("*/*")) }, enabled = !occupe) {
-            Text("📍 Charger l'export Timeline (JSON)")
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedButton(onClick = { choisirTimeline.launch(arrayOf("*/*")) }, enabled = !occupe, modifier = Modifier.weight(1f)) {
+                Text("📍 Timeline (JSON)", fontSize = 11.sp)
+            }
+            Button(
+                onClick = { choisirPhotos.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
+                enabled = !occupe,
+                modifier = Modifier.weight(1f)
+            ) { Text("🖼 Choisir photos", fontSize = 11.sp) }
         }
-        OutlinedButton(
-            onClick = { choisirPhotos.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) },
-            enabled = !occupe
-        ) { Text("🖼 Choisir des photos") }
 
         photos.forEachIndexed { i, ph ->
             Card(Modifier.fillMaxWidth()) {
@@ -247,16 +313,45 @@ fun RedactionScreen() {
                     OutlinedTextField(
                         value = ph.lieu,
                         onValueChange = { v -> photos = photos.toMutableList().also { it[i] = ph.copy(lieu = v, lieuDeTimeline = false) } },
-                        label = { Text(if (ph.lieuDeTimeline) "Lieu (d'après Timeline — à vérifier)" else "Lieu (à écrire)") },
+                        label = { Text(if (ph.lieuDeTimeline) "Lieu (Timeline)" else "Lieu") },
                         modifier = Modifier.fillMaxWidth(), singleLine = true
                     )
                     OutlinedTextField(
                         value = ph.alt,
                         onValueChange = { v -> photos = photos.toMutableList().also { it[i] = ph.copy(alt = v) } },
-                        label = { Text("Ce que montre la photo") },
+                        label = { Text("Description de la photo") },
                         modifier = Modifier.fillMaxWidth(), singleLine = true
                     )
-                    TextButton(onClick = { photos = photos.filterIndexed { j, _ -> j != i } }) { Text("Retirer") }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        OutlinedButton(
+                            onClick = {
+                                scope.launch {
+                                    occupe = true
+                                    RedactionClient.identifierParVision(contexte, ph.uri)
+                                        .onSuccess { (lieuDetecte, descDetectee) ->
+                                            photos = photos.toMutableList().also { list ->
+                                                val lieuFinal = if (ph.lieu.isBlank()) lieuDetecte else ph.lieu
+                                                val altFinal = if (ph.alt.isBlank()) descDetectee else ph.alt
+                                                list[i] = ph.copy(lieu = lieuFinal, alt = altFinal, lieuDeTimeline = false)
+                                            }
+                                            message = "Photo identifiée par IA Vision : $lieuDetecte"
+                                        }
+                                        .onFailure { err ->
+                                            message = "Échec Vision IA : ${err.message}"
+                                        }
+                                    occupe = false
+                                }
+                            },
+                            enabled = !occupe
+                        ) {
+                            Text("🔍 Identifier (IA Vision)", fontSize = 11.sp)
+                        }
+                        TextButton(onClick = { photos = photos.filterIndexed { j, _ -> j != i } }) { Text("Retirer") }
+                    }
                 }
             }
         }
@@ -278,13 +373,14 @@ fun RedactionScreen() {
                                 }
                                 contenu = RedactionBrouillon.ajouterPhotos(contenu, blocs)
                                 modifie = true; photos = emptyList(); sansEnfant = false
-                                message = "${blocs.size} photo(s) ajoutée(s) au brouillon. Pense à enregistrer."
+                                message = "${blocs.size} photo(s) ajoutée(s) au carnet. Pense à enregistrer."
                             }
                             .onFailure { message = it.message }
                         occupe = false
                     }
-                }
-            ) { Text("Ajouter ${photos.size} photo(s) au brouillon") }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) { Text("Ajouter ${photos.size} photo(s) au carnet") }
         }
 
         HorizontalDivider()
@@ -294,11 +390,15 @@ fun RedactionScreen() {
                 occupe = true
                 scope.launch {
                     RedactionClient.enregistrer(contexte, b.id, contenu)
-                        .onSuccess { modifie = false; message = "Enregistré. L'article reste en brouillon." }
+                        .onSuccess {
+                            modifie = false
+                            message = if (b.published) "Enregistré et mis à jour en ligne sur heldonica.fr !" else "Enregistré. L'article reste en brouillon."
+                        }
                         .onFailure { message = it.message }
                     occupe = false
                 }
-            }
-        ) { Text(if (modifie) "💾 Enregistrer le brouillon" else "Rien à enregistrer") }
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) { Text(if (modifie) "💾 Enregistrer les modifications" else "Rien à enregistrer") }
     }
 }

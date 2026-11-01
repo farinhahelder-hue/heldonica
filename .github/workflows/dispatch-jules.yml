@@ -1,0 +1,95 @@
+name: Dispatcher Jules (Google Agent)
+
+on:
+  workflow_dispatch:
+    inputs:
+      title:
+        description: "Titre de la tâche Jules (ex: fix: corriger alignement cartouche E-E-A-T)"
+        required: true
+        type: string
+      prompt:
+        description: "Description détaillée et instructions pour Jules"
+        required: true
+        type: string
+      branch:
+        description: "Branche de départ"
+        required: false
+        default: "main"
+        type: string
+      task_id:
+        description: "ID de la tâche dans agent_tasks (optionnel)"
+        required: false
+        default: ""
+        type: string
+
+  # Déclenchement automatique depuis un commentaire d'Issue : /jules <instructions>
+  issue_comment:
+    types: [created]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+jobs:
+  dispatch_jules:
+    # Exécuter si workflow_dispatch OU si commentaire commence par /jules
+    if: |
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/jules'))
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Configurer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Déterminer le titre et les instructions
+        id: params
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "title=${{ github.event.inputs.title }}" >> $GITHUB_OUTPUT
+            echo "branch=${{ github.event.inputs.branch }}" >> $GITHUB_OUTPUT
+            echo "task_id=${{ github.event.inputs.task_id }}" >> $GITHUB_OUTPUT
+          else
+            # Extrait le commentaire après /jules
+            CLEAN_PROMPT=$(echo "${{ github.event.comment.body }}" | sed 's/^\/jules[[:space:]]*//')
+            ISSUE_TITLE="${{ github.event.issue.title }}"
+            echo "title=Issue #${{ github.event.issue.number }} : $ISSUE_TITLE" >> $GITHUB_OUTPUT
+            echo "branch=main" >> $GITHUB_OUTPUT
+            echo "task_id=" >> $GITHUB_OUTPUT
+            echo "prompt<<EOF" >> $GITHUB_ENV
+            echo "$CLEAN_PROMPT" >> $GITHUB_ENV
+            echo "EOF" >> $GITHUB_ENV
+          fi
+
+      - name: Lancer la session Jules
+        id: dispatch
+        env:
+          JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
+          TASK_TITLE: ${{ steps.params.outputs.title }}
+          TASK_PROMPT: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.prompt || env.prompt }}
+          TASK_BRANCH: ${{ steps.params.outputs.branch }}
+          TASK_ID: ${{ steps.params.outputs.task_id }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node scripts/dispatch_jules_action.mjs
+
+      - name: Répondre sur l'issue GitHub
+        if: github.event_name == 'issue_comment' && steps.dispatch.outputs.session_url != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const sessionUrl = process.env.SESSION_URL;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `🤖 **Tâche Google Jules lancée avec succès !**\n\n🔗 Session active : [Ouvrir dans Jules](${sessionUrl})`
+            });
+        env:
+          SESSION_URL: ${{ steps.dispatch.outputs.session_url }}

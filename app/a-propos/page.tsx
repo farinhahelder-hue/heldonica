@@ -6,10 +6,11 @@ import Link from 'next/link'
 import Image from 'next/image'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import { getPageZones } from '@/lib/cms-zones'
+import { getCmsOrSetting } from '@/lib/content-loader'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { getAllPosts } from '@/lib/blog-supabase'
 import { buildPageMetadata } from '@/lib/page-metadata'
-import { Footprints, Feather, PenTool, BookOpen, Map, Gift, type LucideIcon } from 'lucide-react'
+import { Footprints, Feather, PenTool, BookOpen, Map, Gift } from 'lucide-react'
 
 const metadata: Metadata = {
   title: 'À propos | Heldonica',
@@ -55,45 +56,30 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata('a-propos', metadata)
 }
 
-
-export const revalidate = 3600
-
-// L'Organization complet (TravelAgency, areaServed, adresse) est deja emis une
-// fois pour toutes par app/layout.tsx. Le bloc nu ci-dessous etait un doublon :
-// les deux balises coexistaient sur /a-propos (releve 2026-10-26).
-
-const PILLIERS: { Icon: LucideIcon; titre: string; description: string }[] = [
-  {
-    Icon: Footprints,
-    titre: 'Lent, pas lazy',
-    description: 'Ralentir pour mieux voir. Prendre le temps de comprendre un quartier, une culture, une cuisine. Le voyage qui compte vraiment demande de la présence, pas une liste à cocher.',
-  },
-  {
-    Icon: Feather,
-    titre: 'Vrai, pas parfait',
-    description: 'Le voyage qu\'on te raconte, on l\'a vécu. Les adresses où le patron te reconnaît, les sentiers qui n\'existent sur aucune carte, les erreurs qui deviennent des histoires qu\'on garde.',
-  },
-  {
-    Icon: PenTool,
-    titre: 'Sur mesure, pas en série',
-    description: "On ne vend pas des destinations. On conçoit des expériences. Chaque voyage est construit avec toi — tes envies, ton rythme, tes contraintes. Pas un copier-coller.",
-  },
-]
+export const revalidate = 86400
 
 export default async function AProposPage() {
   const zones = await getPageZones('a-propos')
 
   const posts = await getAllPosts().catch(() => [])
-  // Comptes reels, sans repli inventé : une lecture vide doit se voir (0).
   const carnetCount = posts.length
-  const destinationsCount = new Set(posts.map((post) => post.destination).filter(Boolean)).size
-  const categoriesCount = new Set(posts.map((post) => post.category).filter(Boolean)).size
 
-  const STATS = [
-    { valeur: String(carnetCount), label: 'Carnets publiés' },
-    { valeur: String(destinationsCount), label: 'Destinations couvertes' },
-    { valeur: String(categoriesCount), label: 'Rubriques éditoriales' },
-  ]
+  const Z = (
+    zone: string,
+    fallback: string,
+    as?: any,
+    className?: string,
+    type?: 'text' | 'textarea' | 'html' | 'image'
+  ) => (
+    <EditableZone
+      page="a-propos"
+      zone={zone}
+      fallback={fallback}
+      as={as}
+      className={className}
+      type={type}
+    />
+  )
 
   return (
     <InlineEditProvider page="a-propos" initialZones={zones}>
@@ -147,29 +133,43 @@ export default async function AProposPage() {
                 <div className="pt-6 border-t border-[#DED5C6]/60 flex items-center gap-4">
                   <Image
                     src="/images/branding/logo-seal-transparent.png"
-                    alt="Sceau officiel Heldonica"
+                    alt={getCmsOrSetting('seal_alt', '', 'Sceau officiel Heldonica')}
                     width={80}
                     height={80}
                     className="w-16 h-16 md:w-20 md:h-20 object-contain opacity-90 flex-shrink-0"
                   />
                   <div>
-                    <p className="font-serif italic text-mahogany text-base md:text-lg">« Deux regards. Un seul terrain. »</p>
-                    <p className="text-xs uppercase tracking-[0.16em] text-charcoal/60 mt-0.5">Le duo fondateur</p>
+                    {Z('seal_quote', '« Deux regards. Un seul terrain. »', 'p', 'font-serif italic text-mahogany text-base md:text-lg')}
+                    {Z('seal_author', 'Le duo fondateur', 'p', 'text-xs uppercase tracking-[0.16em] text-charcoal/60 mt-0.5')}
                   </div>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 gap-4">
-                {STATS.map((stat, i) => (
-                  <div key={i} className="bg-[#EFE9DF] rounded-sm p-6 border border-[#DED5C6] text-center">
-                    <EditableZone page="a-propos" zone={`stat_${i + 1}_value`} fallback={stat.valeur}
-                      className="text-4xl md:text-5xl font-serif font-normal text-mahogany mb-1 block"
-                    />
-                    <EditableZone page="a-propos" zone={`stat_${i + 1}_label`} fallback={stat.label}
-                      className="text-charcoal/60 text-[11px] uppercase tracking-[0.16em] block"
-                    />
-                  </div>
-                ))}
+                <div className="bg-[#EFE9DF] rounded-sm p-6 border border-[#DED5C6] text-center">
+                  <EditableZone page="a-propos" zone="stat_1_value" fallback="7+"
+                    className="text-4xl md:text-5xl font-serif font-normal text-mahogany mb-1 block"
+                  />
+                  <EditableZone page="a-propos" zone="stat_1_label" fallback="Pays habités"
+                    className="text-charcoal/60 text-[11px] uppercase tracking-[0.16em] block"
+                  />
+                </div>
+                <div className="bg-[#EFE9DF] rounded-sm p-6 border border-[#DED5C6] text-center">
+                  <EditableZone page="a-propos" zone="stat_2_value" fallback={`${carnetCount}`}
+                    className="text-4xl md:text-5xl font-serif font-normal text-mahogany mb-1 block"
+                  />
+                  <EditableZone page="a-propos" zone="stat_2_label" fallback="Carnets publiés"
+                    className="text-charcoal/60 text-[11px] uppercase tracking-[0.16em] block"
+                  />
+                </div>
+                <div className="bg-[#EFE9DF] rounded-sm p-6 border border-[#DED5C6] text-center">
+                  <EditableZone page="a-propos" zone="stat_3_value" fallback="4"
+                    className="text-4xl md:text-5xl font-serif font-normal text-mahogany mb-1 block"
+                  />
+                  <EditableZone page="a-propos" zone="stat_3_label" fallback="Langues parlées dans ce duo"
+                    className="text-charcoal/60 text-[11px] uppercase tracking-[0.16em] block"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -186,17 +186,33 @@ export default async function AProposPage() {
             />
             
             <div className="grid md:grid-cols-3 gap-6">
-              {PILLIERS.map(({ Icon, titre, description }, i) => (
-                <div key={i} className="bg-[#FAF7F2] rounded-sm p-8 border border-[#DED5C6]">
-                  <Icon aria-hidden="true" strokeWidth={1.25} className="w-8 h-8 text-eucalyptus mb-5" />
-                  <EditableZone page="a-propos" zone={`pillar_${i + 1}_title`} fallback={titre}
-                    className="text-xl font-serif font-normal text-mahogany mb-3 block"
-                  />
-                  <EditableZone page="a-propos" zone={`pillar_${i + 1}_text`} type="textarea" fallback={description}
-                    className="text-charcoal/70 text-sm leading-relaxed block"
-                  />
-                </div>
-              ))}
+              <div className="bg-[#FAF7F2] rounded-sm p-8 border border-[#DED5C6]">
+                <Footprints aria-hidden="true" strokeWidth={1.25} className="w-8 h-8 text-eucalyptus mb-5" />
+                <EditableZone page="a-propos" zone="pillar_1_title" fallback="Lent, pas lazy"
+                  className="text-xl font-serif font-normal text-mahogany mb-3 block"
+                />
+                <EditableZone page="a-propos" zone="pillar_1_text" type="textarea" fallback="Ralentir pour mieux voir. Prendre le temps de comprendre un quartier, une culture, une cuisine. Le voyage qui compte vraiment demande de la présence, pas une liste à cocher."
+                  className="text-charcoal/70 text-sm leading-relaxed block"
+                />
+              </div>
+              <div className="bg-[#FAF7F2] rounded-sm p-8 border border-[#DED5C6]">
+                <Feather aria-hidden="true" strokeWidth={1.25} className="w-8 h-8 text-eucalyptus mb-5" />
+                <EditableZone page="a-propos" zone="pillar_2_title" fallback="Vrai, pas parfait"
+                  className="text-xl font-serif font-normal text-mahogany mb-3 block"
+                />
+                <EditableZone page="a-propos" zone="pillar_2_text" type="textarea" fallback="Le voyage qu'on te raconte, on l'a vécu. Les adresses où le patron te reconnaît, les sentiers qui n'existent sur aucune carte, les erreurs qui deviennent des histoires qu'on garde."
+                  className="text-charcoal/70 text-sm leading-relaxed block"
+                />
+              </div>
+              <div className="bg-[#FAF7F2] rounded-sm p-8 border border-[#DED5C6]">
+                <PenTool aria-hidden="true" strokeWidth={1.25} className="w-8 h-8 text-eucalyptus mb-5" />
+                <EditableZone page="a-propos" zone="pillar_3_title" fallback="Sur mesure, pas en série"
+                  className="text-xl font-serif font-normal text-mahogany mb-3 block"
+                />
+                <EditableZone page="a-propos" zone="pillar_3_text" type="textarea" fallback="On ne vend pas des destinations. On conçoit des expériences. Chaque voyage est construit avec toi — tes envies, ton rythme, tes contraintes. Pas un copier-coller."
+                  className="text-charcoal/70 text-sm leading-relaxed block"
+                />
+              </div>
             </div>
           </div>
         </section>
@@ -258,12 +274,12 @@ export default async function AProposPage() {
         <section className="py-20 md:py-28 bg-[#EFE9DF] border-t border-[#E2D9C8]">
           <div className="max-w-3xl mx-auto px-6 text-center">
             <blockquote className="text-2xl md:text-3xl font-serif font-normal text-mahogany leading-relaxed mb-8">
-              &ldquo;<EditableZone page="a-propos" zone="quote_text" type="textarea" fallback="On n'a pas de témoignages clients. On a des années de route, des carnets remplis d'adresses dénichées, et une méthode éprouvée sur le terrain. C'est nos preuves." className="inline" />&rdquo;
+              <EditableZone page="a-propos" zone="quote_text" type="textarea" fallback="« On n'a pas de témoignages clients. On a des années de route, des carnets remplis d'adresses dénichées, et une méthode éprouvée sur le terrain. C'est nos preuves. »" className="inline" />
             </blockquote>
             <p className="text-charcoal/60 text-sm">
-              Des questions ? Écris-nous à{' '}
+              <EditableZone page="a-propos" zone="footer_contact_prefix" fallback="Des questions ? Écris-nous à" className="inline" />{' '}
               <a href="mailto:contact@heldonica.fr" className="text-mahogany hover:underline font-medium">
-                contact@heldonica.fr
+                <EditableZone page="a-propos" zone="footer_contact_email" fallback="contact@heldonica.fr" className="inline" />
               </a>
             </p>
           </div>

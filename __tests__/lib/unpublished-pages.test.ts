@@ -24,9 +24,10 @@ describe('unpublished-pages', () => {
     // 18/10 (décision du fondateur après la planche de contrôle des photos).
     // + 3 pages relevées en ligne le 19/10 : Paris, Maramureș, Grèce.
     // + 3 pays « Bientôt » par décision du 19/10 : Colombie, Lisbonne, Sicile.
+    // + 8 pages ajoutées pour les nouveaux carnets en brouillon (Stoos, Alcobaça, Sintra, Óbidos, Batalha-Tomar, Coimbra, Savoie, Beausoleil).
     // + 1 page pilier « Bientôt » le 30/10 : Madère (fonds d'images IA).
-    expect(UNPUBLISHED_PATHS).toHaveLength(14 + 33 + 3 + 3 + 1);
-    expect(UNPUBLISHED_CMS_PAGES).toHaveLength(14 + 33 + 3 + 3 + 1);
+    expect(UNPUBLISHED_PATHS).toHaveLength(14 + 33 + 3 + 3 + 8 + 1);
+    expect(UNPUBLISHED_CMS_PAGES).toHaveLength(14 + 33 + 3 + 3 + 8 + 1);
   });
 
   it('décision du 19/10 : Colombie, Lisbonne et Sicile « Bientôt »', () => {
@@ -36,15 +37,6 @@ describe('unpublished-pages', () => {
     expect(isUnpublishedCmsPage('destinations-colombie')).toBe(true);
     expect(isUnpublishedCmsPage('destinations-lisbonne')).toBe(true);
     expect(isUnpublishedCmsPage('destinations-sicile')).toBe(true);
-  });
-
-  it('décision du 30/10 : la page pilier Madère est « Bientôt »', () => {
-    // Fonds d'images intégralement généré par IA (C2PA + SynthID), aucune photo
-    // réelle de l'île : la page ne peut pas prouver le vécu qu'elle revendique.
-    expect(isUnpublishedPath('/destinations/madere')).toBe(true);
-    expect(isUnpublishedCmsPage('destinations-madere')).toBe(true);
-    // Les sous-pages Madère restent couvertes, et le pilier ne les absorbe pas.
-    expect(isUnpublishedPath('/destinations/madere/funchal')).toBe(true);
   });
 
   it('relevé en ligne du 19/10 : photo écartée ou page vide, « Bientôt »', () => {

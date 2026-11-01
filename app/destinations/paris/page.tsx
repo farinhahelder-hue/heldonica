@@ -34,7 +34,7 @@ export async function generateMetadata(): Promise<Metadata> {
 //      to avoid unnecessary server renders and database lookups.
 // Impact: Reduces TTFB significantly and minimizes load on the CMS API.
 // Measurement: Check X-Nextjs-Cache header in browser dev tools (should be HIT or STALE).
-export const revalidate = 3600
+export const revalidate = 86400
 
 export default function ParisPage() {
   return <DestinationPage slug="paris" />

@@ -13,7 +13,7 @@ import { supabase } from '@/lib/supabase-client'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
 // ISR: cache for 1 hour
-export const revalidate = 3600
+export const revalidate = 86400
 
 // Fetch blog categories from CMS
 async function getBlogCategories(): Promise<BlogCategory[]> {

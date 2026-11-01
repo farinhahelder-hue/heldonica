@@ -5,10 +5,11 @@ import Link from 'next/link'
 import Image from 'next/image'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import { getPageZones } from '@/lib/cms-zones'
+import { getCmsOrSetting } from '@/lib/content-loader'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const revalidate = 300;
+export const revalidate = 86400
 
 const metadata: Metadata = {
   title: 'Tous nos liens | Heldonica',
@@ -20,46 +21,20 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata('start', metadata)
 }
 
-
-const LINKS = [
-  {
-    categoryZone: 'cat_1',
-    fallbackCat: 'Blog',
-    items: [
-      { labelZone: 'link_1_label', fallbackLabel: 'Tous les carnets de voyage', href: '/blog', descZone: 'link_1_desc', fallbackDesc: 'Récits slow travel, destinations authentiques' },
-      { labelZone: 'link_2_label', fallbackLabel: 'Guides pratiques', href: '/blog?categorie=Guides Pratiques', descZone: 'link_2_desc', fallbackDesc: 'Itinéraires, conseils, pépites testées' },
-      { labelZone: 'link_3_label', fallbackLabel: 'Destinations', href: '/destinations', descZone: 'link_3_desc', fallbackDesc: 'Madère, Roumanie, Monténégro, Grèce...' },
-    ],
-  },
-  {
-    categoryZone: 'cat_2',
-    fallbackCat: 'Services',
-    items: [
-      { labelZone: 'link_4_label', fallbackLabel: 'Travel planning sur mesure', href: '/travel-planning', descZone: 'link_4_desc', fallbackDesc: 'Conçois ton voyage avec nous' },
-      { labelZone: 'link_6_label', fallbackLabel: 'À propos', href: '/a-propos', descZone: 'link_6_desc', fallbackDesc: 'Notre histoire, notre philosophie' },
-    ],
-  },
-  {
-    categoryZone: 'cat_3',
-    fallbackCat: 'Gratuits',
-    items: [
-      { labelZone: 'link_7_label', fallbackLabel: 'Guide Top 10 Madère', href: '/guides/top-10-pepites-madere', descZone: 'link_7_desc', fallbackDesc: 'Les meilleures adresses testées sur place' },
-      { labelZone: 'link_8_label', fallbackLabel: 'Quiz Slow Travel', href: '/slow-travel', descZone: 'link_8_desc', fallbackDesc: 'Quel voyageur es-tu ?' },
-    ],
-  },
-  {
-    categoryZone: 'cat_4',
-    fallbackCat: 'Contact',
-    items: [
-      { labelZone: 'link_9_label', fallbackLabel: 'Nous contacter', href: '/contact', descZone: 'link_9_desc', fallbackDesc: 'Une question ? On répond sous 48h' },
-      { labelZone: 'link_10_label', fallbackLabel: 'Instagram', href: 'https://www.instagram.com/heldonica/', external: true, descZone: 'link_10_desc', fallbackDesc: '@heldonica' },
-      { labelZone: 'link_11_label', fallbackLabel: 'Newsletter', href: '#newsletter', descZone: 'link_11_desc', fallbackDesc: 'Reçois les pépites chaque semaine' },
-    ],
-  },
-]
-
 export default async function StartPage() {
   const zones = await getPageZones('start')
+
+  const ArrowIcon = () => (
+    <svg className="w-5 h-5 text-stone-300 group-hover:text-eucalyptus group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+    </svg>
+  )
+
+  const ExternalIcon = () => (
+    <svg className="inline-block ml-2 w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+    </svg>
+  )
 
   return (
     <InlineEditProvider page="start" initialZones={zones}>
@@ -70,7 +45,7 @@ export default async function StartPage() {
             <div className="mb-6">
               <Image
                 src="/favicon.svg"
-                alt="Heldonica"
+                alt={getCmsOrSetting('logo_alt', '', 'Heldonica')}
                 width={64}
                 height={64}
                 className="mx-auto"
@@ -88,43 +63,178 @@ export default async function StartPage() {
         <section className="pb-16 md:pb-24">
           <div className="max-w-2xl mx-auto px-6">
             <div className="space-y-10">
-              {LINKS.map((section, i) => (
-                <div key={i}>
-                  <EditableZone page="start" zone={section.categoryZone} fallback={section.fallbackCat}
-                    className="text-sm font-bold text-stone-500 uppercase tracking-wider mb-4 block"
-                  />
-                  <div className="space-y-3">
-                    {section.items.map((link, j) => (
-                      <Link
-                        key={j}
-                        href={link.external ? link.href : link.href}
-                        target={link.external ? '_blank' : undefined}
-                        rel={link.external ? 'noopener noreferrer' : undefined}
-                        className="block bg-[#FAF7F2] rounded-sm p-5 border border-stone-100 hover:border-[#DED5C6] transition-all group"
-                      >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <p className="font-semibold text-stone-900 group-hover:text-eucalyptus transition-colors">
-                              <EditableZone page="start" zone={link.labelZone} fallback={link.fallbackLabel} className="inline" />
-                              {link.external && (
-                                <svg className="inline-block ml-2 w-4 h-4 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                </svg>
-                              )}
-                            </p>
-                            <EditableZone page="start" zone={link.descZone} fallback={link.fallbackDesc}
-                              className="text-sm text-stone-500 mt-1 block"
-                            />
-                          </div>
-                          <svg className="w-5 h-5 text-stone-300 group-hover:text-eucalyptus group-hover:translate-x-1 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                          </svg>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
+              {/* Catégorie 1 : Blog */}
+              <div>
+                <EditableZone page="start" zone="cat_1" fallback="Blog"
+                  className="text-sm font-bold text-stone-500 uppercase tracking-wider mb-4 block"
+                />
+                <div className="space-y-3">
+                  <Link href="/blog" className="block bg-[#FAF7F2] rounded-sm p-5 border border-stone-100 hover:border-[#DED5C6] transition-all group">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-stone-900 group-hover:text-eucalyptus transition-colors">
+                          <EditableZone page="start" zone="link_1_label" fallback="Tous les carnets de voyage" className="inline" />
+                        </p>
+                        <EditableZone page="start" zone="link_1_desc" fallback="Récits slow travel, destinations authentiques"
+                          className="text-sm text-stone-500 mt-1 block"
+                        />
+                      </div>
+                      <ArrowIcon />
+                    </div>
+                  </Link>
+
+                  <Link href="/blog?categorie=Guides Pratiques" className="block bg-[#FAF7F2] rounded-sm p-5 border border-stone-100 hover:border-[#DED5C6] transition-all group">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-stone-900 group-hover:text-eucalyptus transition-colors">
+                          <EditableZone page="start" zone="link_2_label" fallback="Guides pratiques" className="inline" />
+                        </p>
+                        <EditableZone page="start" zone="link_2_desc" fallback="Itinéraires, conseils, pépites testées"
+                          className="text-sm text-stone-500 mt-1 block"
+                        />
+                      </div>
+                      <ArrowIcon />
+                    </div>
+                  </Link>
+
+                  <Link href="/destinations" className="block bg-[#FAF7F2] rounded-sm p-5 border border-stone-100 hover:border-[#DED5C6] transition-all group">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-stone-900 group-hover:text-eucalyptus transition-colors">
+                          <EditableZone page="start" zone="link_3_label" fallback="Destinations" className="inline" />
+                        </p>
+                        <EditableZone page="start" zone="link_3_desc" fallback="Madère, Roumanie, Monténégro, Grèce..."
+                          className="text-sm text-stone-500 mt-1 block"
+                        />
+                      </div>
+                      <ArrowIcon />
+                    </div>
+                  </Link>
                 </div>
-              ))}
+              </div>
+
+              {/* Catégorie 2 : Services */}
+              <div>
+                <EditableZone page="start" zone="cat_2" fallback="Services"
+                  className="text-sm font-bold text-stone-500 uppercase tracking-wider mb-4 block"
+                />
+                <div className="space-y-3">
+                  <Link href="/travel-planning" className="block bg-[#FAF7F2] rounded-sm p-5 border border-stone-100 hover:border-[#DED5C6] transition-all group">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-stone-900 group-hover:text-eucalyptus transition-colors">
+                          <EditableZone page="start" zone="link_4_label" fallback="Travel planning sur mesure" className="inline" />
+                        </p>
+                        <EditableZone page="start" zone="link_4_desc" fallback="Conçois ton voyage avec nous"
+                          className="text-sm text-stone-500 mt-1 block"
+                        />
+                      </div>
+                      <ArrowIcon />
+                    </div>
+                  </Link>
+
+                  <Link href="/a-propos" className="block bg-[#FAF7F2] rounded-sm p-5 border border-stone-100 hover:border-[#DED5C6] transition-all group">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-stone-900 group-hover:text-eucalyptus transition-colors">
+                          <EditableZone page="start" zone="link_6_label" fallback="À propos" className="inline" />
+                        </p>
+                        <EditableZone page="start" zone="link_6_desc" fallback="Notre histoire, notre philosophie"
+                          className="text-sm text-stone-500 mt-1 block"
+                        />
+                      </div>
+                      <ArrowIcon />
+                    </div>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Catégorie 3 : Gratuits */}
+              <div>
+                <EditableZone page="start" zone="cat_3" fallback="Gratuits"
+                  className="text-sm font-bold text-stone-500 uppercase tracking-wider mb-4 block"
+                />
+                <div className="space-y-3">
+                  <Link href="/guides/top-10-pepites-madere" className="block bg-[#FAF7F2] rounded-sm p-5 border border-stone-100 hover:border-[#DED5C6] transition-all group">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-stone-900 group-hover:text-eucalyptus transition-colors">
+                          <EditableZone page="start" zone="link_7_label" fallback="Guide Top 10 Madère" className="inline" />
+                        </p>
+                        <EditableZone page="start" zone="link_7_desc" fallback="Les meilleures adresses testées sur place"
+                          className="text-sm text-stone-500 mt-1 block"
+                        />
+                      </div>
+                      <ArrowIcon />
+                    </div>
+                  </Link>
+
+                  <Link href="/slow-travel" className="block bg-[#FAF7F2] rounded-sm p-5 border border-stone-100 hover:border-[#DED5C6] transition-all group">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-stone-900 group-hover:text-eucalyptus transition-colors">
+                          <EditableZone page="start" zone="link_8_label" fallback="Quiz Slow Travel" className="inline" />
+                        </p>
+                        <EditableZone page="start" zone="link_8_desc" fallback="Quel voyageur es-tu ?"
+                          className="text-sm text-stone-500 mt-1 block"
+                        />
+                      </div>
+                      <ArrowIcon />
+                    </div>
+                  </Link>
+                </div>
+              </div>
+
+              {/* Catégorie 4 : Contact */}
+              <div>
+                <EditableZone page="start" zone="cat_4" fallback="Contact"
+                  className="text-sm font-bold text-stone-500 uppercase tracking-wider mb-4 block"
+                />
+                <div className="space-y-3">
+                  <Link href="/contact" className="block bg-[#FAF7F2] rounded-sm p-5 border border-stone-100 hover:border-[#DED5C6] transition-all group">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-stone-900 group-hover:text-eucalyptus transition-colors">
+                          <EditableZone page="start" zone="link_9_label" fallback="Nous contacter" className="inline" />
+                        </p>
+                        <EditableZone page="start" zone="link_9_desc" fallback="Une question ? On répond sous 48h"
+                          className="text-sm text-stone-500 mt-1 block"
+                        />
+                      </div>
+                      <ArrowIcon />
+                    </div>
+                  </Link>
+
+                  <Link href="https://www.instagram.com/heldonica/" target="_blank" rel="noopener noreferrer" className="block bg-[#FAF7F2] rounded-sm p-5 border border-stone-100 hover:border-[#DED5C6] transition-all group">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-stone-900 group-hover:text-eucalyptus transition-colors">
+                          <EditableZone page="start" zone="link_10_label" fallback="Instagram" className="inline" />
+                          <ExternalIcon />
+                        </p>
+                        <EditableZone page="start" zone="link_10_desc" fallback="@heldonica"
+                          className="text-sm text-stone-500 mt-1 block"
+                        />
+                      </div>
+                      <ArrowIcon />
+                    </div>
+                  </Link>
+
+                  <Link href="#newsletter" className="block bg-[#FAF7F2] rounded-sm p-5 border border-stone-100 hover:border-[#DED5C6] transition-all group">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="font-semibold text-stone-900 group-hover:text-eucalyptus transition-colors">
+                          <EditableZone page="start" zone="link_11_label" fallback="Newsletter" className="inline" />
+                        </p>
+                        <EditableZone page="start" zone="link_11_desc" fallback="Reçois les pépites chaque semaine"
+                          className="text-sm text-stone-500 mt-1 block"
+                        />
+                      </div>
+                      <ArrowIcon />
+                    </div>
+                  </Link>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -140,7 +250,7 @@ export default async function StartPage() {
             <form className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
               <input
                 type="email"
-                placeholder="ton@email.fr"
+                placeholder={getCmsOrSetting('newsletter_placeholder', '', 'ton@email.fr')}
                 required
                 className="flex-1 px-5 py-3.5 bg-stone-800 border border-stone-700 rounded-sm text-white placeholder-stone-500 focus:outline-none focus:border-eucalyptus transition-colors"
               />

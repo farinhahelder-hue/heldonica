@@ -8,7 +8,7 @@ import EditableZone from '@/components/inline-edit/EditableZone'
 import { getPageZones } from '@/lib/cms-zones'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const revalidate = 300;
+export const revalidate = 86400;
 
 const PAGE = "guides";
 const GUIDES = [

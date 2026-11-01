@@ -3,7 +3,7 @@ import TravelPlanningClient from './TravelPlanningClient'
 import { getPageZones } from '@/lib/cms-zones'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const revalidate = 300;
+export const revalidate = 86400;
 
 const metadata: Metadata = {
   title: 'Travel Planning sur mesure | Heldonica',

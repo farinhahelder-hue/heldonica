@@ -9,75 +9,122 @@ import { getPageZones } from '@/lib/cms-zones'
 import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { buildPageMetadata } from '@/lib/page-metadata'
-import { getAllPosts, getExcerpt } from '@/lib/blog-supabase'
 
-const PAGE = "destinations-alentejo";
-const FAQS: { q: string; a: string }[] = [
-  { q: "Quand partir dans l'Alentejo pour le slow travel ?", a: "Les meilleures périodes sont mars-mai et septembre-novembre. Températures agréables (20-28°C), vignobles en fleur ou vendanges, hors des sentiers battus." },
-  { q: "Combien de jours pour découvrir l'Alentejo ?", a: "Comptez minimum 4-5 jours pour faire Évora et Monsaraz. 7-10 jours permettent d'explorer la Rota das Aldeias Históricas et les vignobles du sud." },
-  { q: "Comment se déplacer dans l'Alentejo ?", a: "Location de voiture indispensable. Les distances sont grandes et les transports en commun rares. Les routes sont bonnes, le trafic faible — idéal pour un road trip lent." },
-  { q: "Budget moyen par jour dans l'Alentejo ?", a: "Comptez 70-120€/jour en milieu de gamme (hébergement + repas + activités). L'Alentejo est moins cher que le littoral Algarve." },
-];
+export const revalidate = 86400
+
+const PAGE = 'destinations-alentejo'
 
 const metadata: Metadata = {
-  title: "Alentejo : Guide Slow Travel Complet | Heldonica",
-  description: "Guide pilier Alentejo : quand partir, où dormir, vignobles, villages de pierre et itinéraire slow. 2 séjours vécus par le duo Heldonica.",
+  title: 'Alentejo : Guide Slow Travel Complet | Heldonica',
+  description:
+    'Guide pilier Alentejo : Évora, Monsaraz, vin de Talha, rizières de Comporta et cabanes sur pilotis de Carrasqueira. Séjours vécus par le duo Heldonica.',
   alternates: {
-    canonical: "https://www.heldonica.fr/destinations/alentejo",
+    canonical: 'https://www.heldonica.fr/destinations/alentejo',
   },
   openGraph: {
-    title: "Alentejo : Guide Slow Travel Complet | Heldonica",
-    description: "L’Alentejo en slow travel : plains, vignobles et villages de pierre. Notre guide terrain.",
+    title: 'Alentejo : Guide Slow Travel Complet | Heldonica',
+    description:
+      'L’Alentejo en slow travel : plaines de chênes-lièges, vin de Talha à Monsaraz et rizières de Comporta. Notre guide terrain.',
     images: [
       {
-        url: '/og-default.jpg',
+        url: '/images/destinations/portugal/obidos/etape2_obidos_panorama.jpg',
         width: 1200,
         height: 630,
-        alt: "Alentejo — vignobles et plains dorées",
+        alt: 'Alentejo — vignobles et plaines dorées',
       },
     ],
     locale: 'fr_FR',
-    type: "website",
+    type: 'website',
   },
-};
+}
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata('destinations-alentejo', metadata)
 }
 
-
 export default async function AlentejoPage() {
   const zones = await getPageZones(PAGE)
-  const allPosts = await getAllPosts().catch(() => [])
-  const relatedPosts = allPosts
-    .filter((post) => `${post.title} ${post.destination || ''}`.toLowerCase().includes('alentejo'))
-    .slice(0, 3)
 
-  const Z = (zone: string, type: 'text' | 'textarea' | 'html', fallback: string, className?: string, as?: any) => (
-    <EditableZone page={PAGE} zone={zone} type={type} fallback={fallback} className={className} as={as} />
+  const Z = (
+    zone: string,
+    type: 'text' | 'textarea' | 'html',
+    fallback: string,
+    className?: string,
+    as?: any
+  ) => (
+    <EditableZone
+      page={PAGE}
+      zone={zone}
+      type={type}
+      fallback={fallback}
+      className={className}
+      as={as}
+    />
   )
+
+  const faqJsonLdSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name:
+          zones[`${PAGE}__faq_1_q`] ?? "Quand partir dans l'Alentejo pour le slow travel ?",
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text:
+            zones[`${PAGE}__faq_1_a`] ??
+            'Les meilleures périodes sont mars-mai et septembre-novembre : températures douces (20 à 26 °C), floraison printanière ou vendanges en septembre, loin de la chaleur estivale.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name:
+          zones[`${PAGE}__faq_2_q`] ?? "Combien de jours pour découvrir l'Alentejo ?",
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text:
+            zones[`${PAGE}__faq_2_a`] ??
+            "Compte au minimum 4 à 5 jours pour relier Évora, Monsaraz et les vignobles de Vidigueira. Une semaine complète permet d'ajouter le littoral de Comporta et le port sur pilotis de Carrasqueira.",
+        },
+      },
+      {
+        '@type': 'Question',
+        name: zones[`${PAGE}__faq_3_q`] ?? "Comment se déplacer dans l'Alentejo ?",
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text:
+            zones[`${PAGE}__faq_3_a`] ??
+            'La voiture est indispensable pour relier les villages perchés et les quintas, puis le vélo est idéal autour des rizières de Comporta et de Carrasqueira.',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: zones[`${PAGE}__faq_4_q`] ?? "Budget moyen par jour dans l'Alentejo ?",
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text:
+            zones[`${PAGE}__faq_4_a`] ??
+            "Compte 70 à 120 € par jour en maison d'hôtes (monte alentejano) avec repas en tasca de village et dégustations en quinta.",
+        },
+      },
+    ],
+  }
 
   return (
     <InlineEditProvider page={PAGE} initialZones={zones}>
       <Script
         id="tourist-destination-jsonld"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: "{\"@context\":\"https://schema.org\",\"@type\":\"TouristDestination\",\"name\":\"Alentejo\",\"description\":\"Région du sud du Portugal entre le Tage et l’Algarve. Plains, vignobles, liège et villages de pierre. Destination slow travel idéale pour lovers de terroir et de silence.\",\"url\":\"https://www.heldonica.fr/destinations/alentejo\",\"address\":{\"@type\":\"PostalAddress\",\"addressCountry\":\"PT\",\"addressRegion\":\"Alentejo\"},\"geo\":{\"@type\":\"GeoCoordinates\",\"latitude\":38.5667,\"longitude\":-7.9},\"touristType\":[\"Gourmet\",\"Nature lover\",\"Slow traveler\"],\"bestSeasonToVisit\":[\"March\",\"April\",\"May\",\"September\",\"October\",\"November\"]}" }}
+        dangerouslySetInnerHTML={{
+          __html:
+            '{"@context":"https://schema.org","@type":"TouristDestination","name":"Alentejo","description":"Région du sud du Portugal entre le Tage et l’Algarve. Plaines de chênes-lièges, vin de Talha, Monsaraz, Évora et rizières de Comporta.","url":"https://www.heldonica.fr/destinations/alentejo","address":{"@type":"PostalAddress","addressCountry":"PT","addressRegion":"Alentejo"},"geo":{"@type":"GeoCoordinates","latitude":38.5667,"longitude":-7.9},"touristType":["Gourmet","Nature lover","Slow traveler"],"bestSeasonToVisit":["March","April","May","September","October","November"]}',
+        }}
       />
       <Script
         id="faq-jsonld"
         type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'FAQPage',
-            mainEntity: FAQS.map((f) => ({
-              '@type': 'Question',
-              name: f.q,
-              acceptedAnswer: { '@type': 'Answer', text: f.a },
-            })),
-          }),
-        }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLdSchema) }}
       />
       <Header />
       <Script id="ga4-destination-view" strategy="lazyOnload">{`
@@ -89,7 +136,7 @@ export default async function AlentejoPage() {
         {/* ── HERO ── */}
         <section className="relative min-h-[64vh] flex items-end overflow-hidden bg-[#241D1A] border-b border-[#DED5C6]">
           <Image
-            src="/og-default.jpg"
+            src="/images/destinations/portugal/obidos/etape2_obidos_panorama.jpg"
             alt=""
             fill
             className="object-cover opacity-55"
@@ -100,21 +147,29 @@ export default async function AlentejoPage() {
 
           <div className="absolute left-6 top-6 md:left-16 md:top-10">
             <span className="inline-block rounded-sm bg-[#241D1A]/80 border border-[#E6DEC8]/30 px-3 py-1 text-[10px] font-medium uppercase tracking-[0.2em] text-[#E6DEC8]">
-              {Z('hero_badge', 'text', "Carnet de terrain", undefined, 'span')}
+              {Z('hero_badge', 'text', 'Carnet de terrain', undefined, 'span')}
             </span>
           </div>
 
           <div className="relative z-10 px-6 md:px-16 pb-12 md:pb-20 max-w-4xl">
             <p className="text-[#E6DEC8]/85 text-[11px] font-medium tracking-[0.22em] uppercase mb-3">
-              {Z('hero_label', 'text', "Destination Portugal", undefined, 'span')}
+              {Z('hero_label', 'text', 'Destination Portugal', undefined, 'span')}
             </p>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-normal text-[#FAF7F2] mb-4 leading-tight">
-              {Z('hero_title', 'text', "Alentejo : le slow travel absolu", undefined, 'span')}
+              {Z('hero_title', 'text', 'Alentejo : le slow travel absolu', undefined, 'span')}
               <br />
-              <span className="text-[#E6DEC8] italic">{Z('hero_subtitle', 'text', "au cœur du Portugal", undefined, 'span')}</span>
+              <span className="text-[#E6DEC8] italic">
+                {Z('hero_subtitle', 'text', 'entre terres de liège et océan', undefined, 'span')}
+              </span>
             </h1>
             <p className="text-[#E6DEC8]/85 text-base md:text-lg leading-relaxed max-w-2xl">
-              {Z('hero_description', 'textarea', "Plaines infinies, vignobles à perte de vue, villages de pierre figés dans le temps. L’Alentejo, c’est le Portugal qu’on cherche quand on veut échapper aux foules.", undefined, 'span')}
+              {Z(
+                'hero_description',
+                'textarea',
+                'Plaines dorées bordées de chênes-lièges, vin de Talha élevé en jarres d’argile à Monsaraz et cabanes de pêcheurs sur pilotis à Carrasqueira. L’Alentejo, c’est le Portugal qui prend son temps.',
+                undefined,
+                'span'
+              )}
             </p>
           </div>
         </section>
@@ -123,20 +178,38 @@ export default async function AlentejoPage() {
         <section className="py-16 md:py-24 bg-[#F7F3EC] border-b border-[#DED5C6]">
           <div className="max-w-4xl mx-auto px-6">
             <p className="text-eucalyptus text-[11px] font-medium tracking-[0.2em] uppercase mb-4">
-              {Z('intro_label', 'text', "Récit de terrain", undefined, 'span')}
+              {Z('intro_label', 'text', 'Récit de terrain', undefined, 'span')}
             </p>
             <h2 className="text-3xl md:text-4xl font-serif font-normal text-mahogany mb-8">
-              {Z('intro_title', 'text', "Pourquoi l’Alentejo nous a conquis", undefined, 'span')}
+              {Z('intro_title', 'text', 'Pourquoi l’Alentejo nous a conquis', undefined, 'span')}
             </h2>
             <div className="prose prose-lg max-w-none prose-stone">
               <p className="text-charcoal/85 leading-relaxed text-lg">
-                {Z('intro_1', 'html', "<strong class=\"text-mahogany\">La première fois</strong>, on a traversé l’Alentejo en vitesse, direction l’Algarve. Grosse erreur. On a traversé des siècles d’histoire, des plaines qui donnaient le vertige, des villages où le temps semblait s’être arrêté — et on n’y a même pas posé pied.", undefined, 'span')}
+                {Z(
+                  'intro_1',
+                  'html',
+                  '<strong class="text-mahogany">La première fois</strong>, on a traversé l’Alentejo trop vite en filant vers le sud. Grosse erreur : on a longé des collines de chênes-lièges numérotés à la craie blanche et des villages fortifiés sur leurs éperons d’ardoise sans prendre le temps de couper le moteur.',
+                  undefined,
+                  'span'
+                )}
               </p>
               <p className="text-charcoal/80 leading-relaxed">
-                {Z('intro_2', 'html', "<strong class=\"text-mahogany\">La deuxième fois</strong>, on a pris 5 jours. Juste l’Alentejo central. Évora, Monsaraz, les vignobles de Vidigueira, les routes sans autre voiture à l’horizon. C’est là qu’on a compris : l’Alentejo, c’est le Portugal <em>vraiment</em>.", undefined, 'span')}
+                {Z(
+                  'intro_2',
+                  'html',
+                  '<strong class="text-mahogany">La deuxième fois</strong>, on a posé nos sacs cinq jours entre l’Alentejo central et le littoral de Comporta : Évora au lever du jour, Monsaraz au crépuscule, les caves de Vidigueira et les rizières de Carrasqueira à vélo.',
+                  undefined,
+                  'span'
+                )}
               </p>
               <p className="text-charcoal/80 leading-relaxed">
-                {Z('intro_3', 'html', "Ce qu’on y a trouvé : du bon vin à 3€, des restaurants de village où le patron cuisine tout lui-même, des champs de liège à perte de vue, et ce silence qu’on cherche tous sans jamais oser le dire.", undefined, 'span')}
+                {Z(
+                  'intro_3',
+                  'html',
+                  'Ce qu’on y a vécu : la dégustation du vin de Talha vinifié dans des amphores d’argile héritées de l’époque romaine, les cigognes posées au bord des canaux de rizières, les tascas de village où l’açorda alentejana arrive brûlante à table, et des plages de dunes sans aucun immeuble à l’horizon.',
+                  undefined,
+                  'span'
+                )}
               </p>
             </div>
           </div>
@@ -145,38 +218,52 @@ export default async function AlentejoPage() {
         {/* ── INFOS PRATIQUES ── */}
         <section className="py-12 bg-[#EFE9DF] border-b border-[#DED5C6]">
           <div className="max-w-5xl mx-auto px-6">
-            <p className="text-eucalyptus text-[11px] font-medium tracking-[0.2em] uppercase mb-6 text-center">Bon à savoir</p>
+            <p className="text-eucalyptus text-[11px] font-medium tracking-[0.2em] uppercase mb-6 text-center">
+              {Z('quick_kicker', 'text', 'Bon à savoir', undefined, 'span')}
+            </p>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
               <div className="text-center rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-4">
                 <p className="text-[10px] text-charcoal/60 uppercase tracking-[0.16em] mb-1">
-                  {Z('quick_1_label', 'text', "Meilleure période", undefined, 'span')}
+                  {Z('quick_1_label', 'text', 'Meilleure période', undefined, 'span')}
                 </p>
                 <p className="text-lg font-serif text-mahogany">
-                  {Z('quick_1_value', 'html', "Mars–Juin<br /><span class=\"text-eucalyptus\">Sept–Nov</span>", undefined, 'span')}
+                  {Z(
+                    'quick_1_value',
+                    'html',
+                    'Mars–Juin<br /><span class="text-eucalyptus">Sept–Nov</span>',
+                    undefined,
+                    'span'
+                  )}
                 </p>
               </div>
               <div className="text-center rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-4">
                 <p className="text-[10px] text-charcoal/60 uppercase tracking-[0.16em] mb-1">
-                  {Z('quick_2_label', 'text', "Durée idéale", undefined, 'span')}
+                  {Z('quick_2_label', 'text', 'Durée idéale', undefined, 'span')}
                 </p>
                 <p className="text-lg font-serif text-mahogany">
-                  {Z('quick_2_value', 'html', "5–7 jours", undefined, 'span')}
+                  {Z('quick_2_value', 'html', '5–7 jours', undefined, 'span')}
                 </p>
               </div>
               <div className="text-center rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-4">
                 <p className="text-[10px] text-charcoal/60 uppercase tracking-[0.16em] mb-1">
-                  {Z('quick_3_label', 'text', "Budget/jour", undefined, 'span')}
+                  {Z('quick_3_label', 'text', 'Budget/jour', undefined, 'span')}
                 </p>
                 <p className="text-lg font-serif text-mahogany">
-                  {Z('quick_3_value', 'html', "80–130€", undefined, 'span')}
+                  {Z('quick_3_value', 'html', '80–130€', undefined, 'span')}
                 </p>
               </div>
               <div className="text-center rounded-sm border border-[#DED5C6] bg-[#FAF7F2] p-4">
                 <p className="text-[10px] text-charcoal/60 uppercase tracking-[0.16em] mb-1">
-                  {Z('quick_4_label', 'text', "Langue", undefined, 'span')}
+                  {Z('quick_4_label', 'text', 'Langue', undefined, 'span')}
                 </p>
                 <p className="text-lg font-serif text-mahogany">
-                  {Z('quick_4_value', 'html', "Portugais<br /><span class=\"text-eucalyptus\">+ français</span>", undefined, 'span')}
+                  {Z(
+                    'quick_4_value',
+                    'html',
+                    'Portugais<br /><span class="text-eucalyptus">+ français</span>',
+                    undefined,
+                    'span'
+                  )}
                 </p>
               </div>
             </div>
@@ -186,93 +273,149 @@ export default async function AlentejoPage() {
         {/* ── NOS PÉPITES ── */}
         <section className="py-16 md:py-24 bg-[#F7F3EC] border-b border-[#DED5C6]">
           <div className="max-w-5xl mx-auto px-6">
-            <p className="text-eucalyptus text-[11px] font-medium tracking-[0.2em] uppercase mb-4 text-center">Ce qu'on a vécu</p>
+            <p className="text-eucalyptus text-[11px] font-medium tracking-[0.2em] uppercase mb-4 text-center">
+              {Z('pepites_kicker', 'text', "Ce qu'on a vécu", undefined, 'span')}
+            </p>
             <h2 className="text-3xl md:text-4xl font-serif font-normal text-mahogany mb-12 text-center">
-              Nos pépites dénichées
+              {Z('pepites_section_title', 'text', 'Nos pépites dénichées', undefined, 'span')}
             </h2>
             <div className="grid md:grid-cols-2 gap-8">
               <div className="bg-[#FAF7F2] rounded-sm p-6 border border-[#DED5C6]">
                 <div className="flex items-start gap-4 mb-4">
                   <div className="w-11 h-11 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] flex items-center justify-center shrink-0">
-                    {Z('pepite_1_emoji', 'text', "Landmark", "w-5 h-5 text-eucalyptus", 'span')}
+                    {Z('pepite_1_emoji', 'text', 'Landmark', 'w-5 h-5 text-eucalyptus', 'span')}
                   </div>
                   <div>
                     <h3 className="text-xl font-serif font-normal text-mahogany mb-1">
-                      {Z('pepite_1_title', 'text', "Évora", undefined, 'span')}
+                      {Z('pepite_1_title', 'text', 'Évora au lever du jour', undefined, 'span')}
                     </h3>
                     <p className="text-xs text-eucalyptus font-medium uppercase tracking-[0.14em]">
-                      {Z('pepite_1_subtitle', 'text', "La ville UNESCO à taille humaine", undefined, 'span')}
+                      {Z('pepite_1_subtitle', 'text', 'La cité UNESCO à taille humaine', undefined, 'span')}
                     </p>
                   </div>
                 </div>
                 <p className="text-charcoal/80 text-sm leading-relaxed mb-4">
-                  {Z('pepite_1_desc', 'textarea', "Capitale de l’Alentejo, classée UNESCO. On a aimé déambuler dans les ruelles avant 9h, visiter la chapelle des Ossements à la première heure (quasi déserte), et manger une açorda alentejana dans une tasca de la place principale.", undefined, 'span')}
+                  {Z(
+                    'pepite_1_desc',
+                    'textarea',
+                    'Capitale historique de l’Alentejo. On a aimé marcher sous les arcades de la Praça do Giraldo avant 9h00, longer les arches de l’aqueduc Água de Prata encastrées dans les maisons blanchies à la chaux, et partager une açorda alentejana à l’ail et à la coriandre.',
+                    undefined,
+                    'span'
+                  )}
                 </p>
                 <p className="text-xs text-mahogany/85 italic border-t border-[#DED5C6] pt-3">
-                  {Z('pepite_1_verdict', 'textarea', "Verdict Heldonica : À faire le matin, avant les bus de touristes.", undefined, 'span')}
+                  {Z(
+                    'pepite_1_verdict',
+                    'textarea',
+                    'Verdict Heldonica : Arpente la vieille ville entre 8h et 10h30 avant l’arrivée des excursions depuis Lisbonne.',
+                    undefined,
+                    'span'
+                  )}
                 </p>
               </div>
               <div className="bg-[#FAF7F2] rounded-sm p-6 border border-[#DED5C6]">
                 <div className="flex items-start gap-4 mb-4">
                   <div className="w-11 h-11 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] flex items-center justify-center shrink-0">
-                    {Z('pepite_2_emoji', 'text', "Castle", "w-5 h-5 text-eucalyptus", 'span')}
+                    {Z('pepite_2_emoji', 'text', 'Castle', 'w-5 h-5 text-eucalyptus', 'span')}
                   </div>
                   <div>
                     <h3 className="text-xl font-serif font-normal text-mahogany mb-1">
-                      {Z('pepite_2_title', 'text', "Monsaraz", undefined, 'span')}
+                      {Z('pepite_2_title', 'text', 'Monsaraz & le vin de Talha', undefined, 'span')}
                     </h3>
                     <p className="text-xs text-eucalyptus font-medium uppercase tracking-[0.14em]">
-                      {Z('pepite_2_subtitle', 'text', "Le village perché sur la plaine", undefined, 'span')}
+                      {Z('pepite_2_subtitle', 'text', 'Promontoire d’ardoise face à l’Alqueva', undefined, 'span')}
                     </p>
                   </div>
                 </div>
                 <p className="text-charcoal/80 text-sm leading-relaxed mb-4">
-                  {Z('pepite_2_desc', 'textarea', "Un des plus beaux villages du Portugal. Ruelles étroites, château en ruine avec vue sur l’Estrémadure espagnole, et ce silence le soir quand les derniers touristes repartent.", undefined, 'span')}
+                  {Z(
+                    'pepite_2_desc',
+                    'textarea',
+                    'Perché au-dessus du grand lac d’Alqueva, ce bourg clos de remparts d’ardoise retrouve un silence complet dès la tombée du jour. C’est là qu’on a dégusté le vin de Talha, vinifié dans de grandes jarres d’argile poreuse selon la méthode romaine.',
+                    undefined,
+                    'span'
+                  )}
                 </p>
                 <p className="text-xs text-mahogany/85 italic border-t border-[#DED5C6] pt-3">
-                  {Z('pepite_2_verdict', 'textarea', "Verdict Heldonica : Restez y dormir, pas qu’une journée.", undefined, 'span')}
+                  {Z(
+                    'pepite_2_verdict',
+                    'textarea',
+                    'Verdict Heldonica : Reste dormir intra-muros ou dans un monte au pied de la colline pour observer le ciel étoilé de la réserve Dark Sky Alqueva.',
+                    undefined,
+                    'span'
+                  )}
                 </p>
               </div>
               <div className="bg-[#FAF7F2] rounded-sm p-6 border border-[#DED5C6]">
                 <div className="flex items-start gap-4 mb-4">
                   <div className="w-11 h-11 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] flex items-center justify-center shrink-0">
-                    {Z('pepite_3_emoji', 'text', "Wine", "w-5 h-5 text-eucalyptus", 'span')}
+                    {Z('pepite_3_emoji', 'text', 'Wine', 'w-5 h-5 text-eucalyptus', 'span')}
                   </div>
                   <div>
                     <h3 className="text-xl font-serif font-normal text-mahogany mb-1">
-                      {Z('pepite_3_title', 'text', "Rota dos Vinhos", undefined, 'span')}
+                      {Z('pepite_3_title', 'text', 'Quintas de Vidigueira & Redondo', undefined, 'span')}
                     </h3>
                     <p className="text-xs text-eucalyptus font-medium uppercase tracking-[0.14em]">
-                      {Z('pepite_3_subtitle', 'text', "La route des vignobles", undefined, 'span')}
+                      {Z('pepite_3_subtitle', 'text', 'La route des vignerons indépendants', undefined, 'span')}
                     </p>
                   </div>
                 </div>
                 <p className="text-charcoal/80 text-sm leading-relaxed mb-4">
-                  {Z('pepite_3_desc', 'textarea', "On a fait la rota entre Vidigueira et Redondo. Dégustations dans des quintas familiales, vin à 4€ la bouteille sur place, et des hôtes qui te racontent trois générations de tradition viticole.", undefined, 'span')}
+                  {Z(
+                    'pepite_3_desc',
+                    'textarea',
+                    'Entre Vidigueira et Redondo, on a poussé la porte de petites adegas familiales entourées d’oliviers et de chênes-lièges : dégustation directe au chai, bouteilles entre 5 et 9 € sur place, et récits de trois générations de vignerons.',
+                    undefined,
+                    'span'
+                  )}
                 </p>
                 <p className="text-xs text-mahogany/85 italic border-t border-[#DED5C6] pt-3">
-                  {Z('pepite_3_verdict', 'textarea', "Verdict Heldonica : Prévoyez un conducteur désigné ou un copilote.", undefined, 'span')}
+                  {Z(
+                    'pepite_3_verdict',
+                    'textarea',
+                    'Verdict Heldonica : Prévois de dormir directement dans une quinta viticole pour profiter du dîner au domaine sans reprendre le volant.',
+                    undefined,
+                    'span'
+                  )}
                 </p>
               </div>
               <div className="bg-[#FAF7F2] rounded-sm p-6 border border-[#DED5C6]">
                 <div className="flex items-start gap-4 mb-4">
                   <div className="w-11 h-11 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] flex items-center justify-center shrink-0">
-                    {Z('pepite_4_emoji', 'text', "Waves", "w-5 h-5 text-eucalyptus", 'span')}
+                    {Z('pepite_4_emoji', 'text', 'Waves', 'w-5 h-5 text-eucalyptus', 'span')}
                   </div>
                   <div>
                     <h3 className="text-xl font-serif font-normal text-mahogany mb-1">
-                      {Z('pepite_4_title', 'text', "Praia Fluvial de Granja", undefined, 'span')}
+                      {Z(
+                        'pepite_4_title',
+                        'text',
+                        'Comporta & le port sur pilotis de Carrasqueira',
+                        undefined,
+                        'span'
+                      )}
                     </h3>
                     <p className="text-xs text-eucalyptus font-medium uppercase tracking-[0.14em]">
-                      {Z('pepite_4_subtitle', 'text', "Les plages rivières secrètes", undefined, 'span')}
+                      {Z('pepite_4_subtitle', 'text', 'Rizières, cigognes et dunes atlantiques', undefined, 'span')}
                     </p>
                   </div>
                 </div>
                 <p className="text-charcoal/80 text-sm leading-relaxed mb-4">
-                  {Z('pepite_4_desc', 'textarea', "L’Alentejo intérieur a des plages fluviales qu’on n’attendait pas. On a trouvé notre coin préféré près de Granja — une plage sur la rivière avec des eaux claires, des gens du coin, et aucun touriste.", undefined, 'span')}
+                  {Z(
+                    'pepite_4_desc',
+                    'textarea',
+                    'Sur la façade atlantique de l’Alentejo, on a roulé à vélo entre les rizières vertes bordées de cigognes jusqu’au port palafittique de Carrasqueira : un lacis de passerelles en bois irrégulières sur la vase de l’estuaire du Sado, suivi d’une marche sur les dunes de Praia do Pego.',
+                    undefined,
+                    'span'
+                  )}
                 </p>
                 <p className="text-xs text-mahogany/85 italic border-t border-[#DED5C6] pt-3">
-                  {Z('pepite_4_verdict', 'textarea', "Verdict Heldonica : Demande aux locaux, ils indiquent les meilleures adresses.", undefined, 'span')}
+                  {Z(
+                    'pepite_4_verdict',
+                    'textarea',
+                    'Verdict Heldonica : Rejoins le port sur pilotis de Carrasqueira une heure avant le coucher du soleil à marée montante.',
+                    undefined,
+                    'span'
+                  )}
                 </p>
               </div>
             </div>
@@ -282,54 +425,98 @@ export default async function AlentejoPage() {
         {/* ── OÙ DORMIR ── */}
         <section className="py-16 md:py-24 bg-[#EFE9DF] border-b border-[#DED5C6]">
           <div className="max-w-5xl mx-auto px-6">
-            <p className="text-eucalyptus text-[11px] font-medium tracking-[0.2em] uppercase mb-4 text-center">Hébergement</p>
+            <p className="text-eucalyptus text-[11px] font-medium tracking-[0.2em] uppercase mb-4 text-center">
+              {Z('accom_kicker', 'text', 'Hébergement', undefined, 'span')}
+            </p>
             <h2 className="text-3xl md:text-4xl font-serif font-normal text-mahogany mb-4 text-center">
-              Où dormir selon ton style
+              {Z('accom_section_title', 'text', 'Où dormir selon ton style', undefined, 'span')}
             </h2>
             <p className="text-charcoal/75 text-center mb-12 max-w-xl mx-auto">
-              L'Alentejo offre des options pour tous les budgets. Nous, on a testé ces trois-là.
+              {Z(
+                'accom_section_subtitle',
+                'textarea',
+                "L'Alentejo offre des refuges ruraux à l'écart des grands axes. Voici les trois typologies qu'on privilégie.",
+                undefined,
+                'span'
+              )}
             </p>
             <div className="grid md:grid-cols-3 gap-6">
               <div className="bg-[#FAF7F2] rounded-sm p-6 border border-[#DED5C6]">
                 <div className="w-10 h-10 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] flex items-center justify-center mb-4">
-                  {Z('accom_1_emoji', 'text', "Leaf", "w-5 h-5 text-eucalyptus", 'span')}
+                  {Z('accom_1_emoji', 'text', 'Leaf', 'w-5 h-5 text-eucalyptus', 'span')}
                 </div>
                 <h3 className="text-lg font-serif font-normal text-mahogany mb-2">
-                  {Z('accom_1_title', 'text', "Montes Alentejanos", undefined, 'span')}
+                  {Z('accom_1_title', 'text', 'Montes Alentejanos', undefined, 'span')}
                 </h3>
                 <p className="text-sm text-charcoal/80 mb-4 leading-relaxed">
-                  {Z('accom_1_desc', 'textarea', "Pour ceux qui veulent être au milieu de la plaine. On a dormi dans un monte rénové près de Monsaraz — oliviers, piscine, silence total.", undefined, 'span')}
+                  {Z(
+                    'accom_1_desc',
+                    'textarea',
+                    'Anciennes fermes blanchies à la chaux bordées de bleu ou d’ocre, isolées au milieu des oliviers et des chênes-lièges près de Monsaraz.',
+                    undefined,
+                    'span'
+                  )}
                 </p>
                 <p className="text-xs text-charcoal/65 border-t border-[#DED5C6] pt-3">
-                  {Z('accom_1_tip', 'textarea', "Notre conseil : réservez minimum 3 nuits, le temps de décompresser.", undefined, 'span')}
+                  {Z(
+                    'accom_1_tip',
+                    'textarea',
+                    'Notre conseil : pose tes valises au moins 3 nuits au même endroit pour laisser le rythme ralentir.',
+                    undefined,
+                    'span'
+                  )}
                 </p>
               </div>
               <div className="bg-[#FAF7F2] rounded-sm p-6 border border-[#DED5C6]">
                 <div className="w-10 h-10 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] flex items-center justify-center mb-4">
-                  {Z('accom_2_emoji', 'text', "Building2", "w-5 h-5 text-eucalyptus", 'span')}
+                  {Z('accom_2_emoji', 'text', 'Building2', 'w-5 h-5 text-eucalyptus', 'span')}
                 </div>
                 <h3 className="text-lg font-serif font-normal text-mahogany mb-2">
-                  {Z('accom_2_title', 'text', "Hôtel de village", undefined, 'span')}
+                  {Z('accom_2_title', 'text', 'Maisons d’hôtes de village', undefined, 'span')}
                 </h3>
                 <p className="text-sm text-charcoal/80 mb-4 leading-relaxed">
-                  {Z('accom_2_desc', 'textarea', "À Évora ou à Monsaraz même. Pratique pour explorer à pied, et souvent dans des bâtiments historiques restaurés avec goût.", undefined, 'span')}
+                  {Z(
+                    'accom_2_desc',
+                    'textarea',
+                    'À Évora ou dans les ruelles fortifiées de Monsaraz. Idéal pour sortir dîner à pied le soir et arpenter les remparts dès 8h00.',
+                    undefined,
+                    'span'
+                  )}
                 </p>
                 <p className="text-xs text-charcoal/65 border-t border-[#DED5C6] pt-3">
-                  {Z('accom_2_tip', 'textarea', "Notre conseil : privilégiez les établissements avec petit-déjeuner inclus.", undefined, 'span')}
+                  {Z(
+                    'accom_2_tip',
+                    'textarea',
+                    'Notre conseil : choisis une maison avec cour intérieure ombragée et pain alentejano frais au petit-déjeuner.',
+                    undefined,
+                    'span'
+                  )}
                 </p>
               </div>
               <div className="bg-[#FAF7F2] rounded-sm p-6 border border-[#DED5C6]">
                 <div className="w-10 h-10 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] flex items-center justify-center mb-4">
-                  {Z('accom_3_emoji', 'text', "Grape", "w-5 h-5 text-eucalyptus", 'span')}
+                  {Z('accom_3_emoji', 'text', 'Grape', 'w-5 h-5 text-eucalyptus', 'span')}
                 </div>
                 <h3 className="text-lg font-serif font-normal text-mahogany mb-2">
-                  {Z('accom_3_title', 'text', "Quintas viticoles", undefined, 'span')}
+                  {Z('accom_3_title', 'text', 'Quintas viticoles', undefined, 'span')}
                 </h3>
                 <p className="text-sm text-charcoal/80 mb-4 leading-relaxed">
-                  {Z('accom_3_desc', 'textarea', "Dormir chez le viticulteur, c’est possible. On a testé une quinta près de Vidigueira avec dégustation privée incluse dans le prix de la chambre.", undefined, 'span')}
+                  {Z(
+                    'accom_3_desc',
+                    'textarea',
+                    'Dormir directement chez le vigneron autour de Vidigueira ou d’Estremoz, avec visite des chais d’amphores et dégustation en fin de journée.',
+                    undefined,
+                    'span'
+                  )}
                 </p>
                 <p className="text-xs text-charcoal/65 border-t border-[#DED5C6] pt-3">
-                  {Z('accom_3_tip', 'textarea', "Notre conseil : contactez directement pour les meilleurs tarifs.", undefined, 'span')}
+                  {Z(
+                    'accom_3_tip',
+                    'textarea',
+                    'Notre conseil : réserve en direct auprès du domaine pour éviter les commissions des plateformes.',
+                    undefined,
+                    'span'
+                  )}
                 </p>
               </div>
             </div>
@@ -339,37 +526,57 @@ export default async function AlentejoPage() {
         {/* ── COMMENT SE DÉPLACER ── */}
         <section className="py-16 md:py-24 bg-[#F7F3EC] border-b border-[#DED5C6]">
           <div className="max-w-4xl mx-auto px-6">
-            <p className="text-eucalyptus text-[11px] font-medium tracking-[0.2em] uppercase mb-4 text-center">Logistique</p>
+            <p className="text-eucalyptus text-[11px] font-medium tracking-[0.2em] uppercase mb-4 text-center">
+              {Z('transport_kicker', 'text', 'Logistique', undefined, 'span')}
+            </p>
             <h2 className="text-3xl md:text-4xl font-serif font-normal text-mahogany mb-8 text-center">
-              Comment se déplacer
+              {Z('transport_section_title', 'text', 'Comment se déplacer', undefined, 'span')}
             </h2>
             <div className="space-y-5">
               <div className="flex gap-4 p-6 bg-[#FAF7F2] rounded-sm border border-[#DED5C6]">
                 <div className="w-10 h-10 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] flex items-center justify-center shrink-0">
-                  {Z('transport_1_emoji', 'text', "Car", "w-5 h-5 text-eucalyptus", 'span')}
+                  {Z('transport_1_emoji', 'text', 'Car', 'w-5 h-5 text-eucalyptus', 'span')}
                 </div>
                 <div>
                   <h3 className="text-lg font-serif font-normal text-mahogany mb-2">
-                    {Z('transport_1_title', 'text', "Location de voiture", undefined, 'span')}
+                    {Z('transport_1_title', 'text', 'Voiture sur les routes secondaires & vélo à Comporta', undefined, 'span')}
                   </h3>
                   <p className="text-charcoal/80 text-sm leading-relaxed">
-                    {Z('transport_1_desc', 'html', "<strong>Indispensable.</strong> Les distances sont grandes (Évora → Monsaraz = 1h30), les taxis rares, les bus limités. Louez une petite citadine : les routes sont bonnes, le trafic quasi nul.", undefined, 'span')}
+                    {Z(
+                      'transport_1_desc',
+                      'html',
+                      '<strong>Indispensable entre les villages.</strong> Les distances sont vastes (Évora à Monsaraz demande 50 minutes par les départementales bordées de chênes-lièges). Une fois à Comporta, pose la voiture et loue un vélo pour longer les rizières jusqu’à Carrasqueira.',
+                      undefined,
+                      'span'
+                    )}
                   </p>
                   <p className="text-xs text-charcoal/65 mt-2">
-                    {Z('transport_1_tip', 'textarea', "Notre conseil : réservez depuis l'aéroport de Lisbonne, compter 30-40€/jour.", undefined, 'span')}
+                    {Z(
+                      'transport_1_tip',
+                      'textarea',
+                      "Notre conseil : récupère une citadine à Lisbonne après tes jours piétons dans la capitale (compte 30 à 40 € par jour).",
+                      undefined,
+                      'span'
+                    )}
                   </p>
                 </div>
               </div>
               <div className="flex gap-4 p-6 bg-[#FAF7F2] rounded-sm border border-[#DED5C6]">
                 <div className="w-10 h-10 rounded-sm bg-[#EFE9DF] border border-[#DED5C6] flex items-center justify-center shrink-0">
-                  {Z('transport_2_emoji', 'text', "Bus", "w-5 h-5 text-eucalyptus", 'span')}
+                  {Z('transport_2_emoji', 'text', 'Bus', 'w-5 h-5 text-eucalyptus', 'span')}
                 </div>
                 <div>
                   <h3 className="text-lg font-serif font-normal text-mahogany mb-2">
-                    {Z('transport_2_title', 'text', "Bus régionaux", undefined, 'span')}
+                    {Z('transport_2_title', 'text', 'Train Intercidades & cars Rede Expressos', undefined, 'span')}
                   </h3>
                   <p className="text-charcoal/80 text-sm leading-relaxed">
-                    {Z('transport_2_desc', 'html', "Sans voiture, les Rede Expressos relient les grandes villes. Mais pour les villages, c’est compliqué.", undefined, 'span')}
+                    {Z(
+                      'transport_2_desc',
+                      'html',
+                      'Sans voiture, le train CP relie Lisbonne-Oriente à Évora en 1h30, et les cars Rede Expressos desservent les bourgs principaux, mais les hameaux et quintas restent difficiles d’accès.',
+                      undefined,
+                      'span'
+                    )}
                   </p>
                 </div>
               </div>
@@ -381,16 +588,28 @@ export default async function AlentejoPage() {
         <section className="py-16 md:py-24 bg-[#2A1D18] text-[#F7F3EC]">
           <div className="max-w-3xl mx-auto px-6 text-center">
             <h2 className="text-3xl md:text-4xl font-serif font-normal mb-4">
-              {Z('cta_title', 'text', "Tu veux qu’on conçoive ton séjour dans l’Alentejo sur mesure ?", undefined, 'span')}
+              {Z(
+                'cta_title',
+                'text',
+                'Tu veux qu’on conçoive ton séjour dans l’Alentejo sur mesure ?',
+                undefined,
+                'span'
+              )}
             </h2>
             <p className="text-[#E6DEC8]/80 mb-8 max-w-xl mx-auto leading-relaxed">
-              {Z('cta_text', 'textarea', "On te construit un itinéraire basé sur nos séjours réels. Vignobles, villages, plages rivières — selon ton rythme.", undefined, 'span')}
+              {Z(
+                'cta_text',
+                'textarea',
+                'On te construit un itinéraire fondé sur nos séjours réels : quintas de vin de Talha, villages perchés et rizières de Comporta — à ton rythme.',
+                undefined,
+                'span'
+              )}
             </p>
             <Link
               href="/travel-planning"
               className="inline-flex items-center gap-2 rounded-sm bg-action px-8 py-3.5 text-xs uppercase tracking-[0.16em] font-medium text-[#FAF7F2] transition-colors hover:bg-action-fonce"
             >
-              Dis-nous ton projet
+              {Z('cta_button', 'text', 'Confier mon projet', undefined, 'span')}
             </Link>
           </div>
         </section>
@@ -399,43 +618,87 @@ export default async function AlentejoPage() {
         <section className="py-16 md:py-24 bg-[#EFE9DF] border-b border-[#DED5C6]">
           <div className="max-w-3xl mx-auto px-6">
             <h2 className="text-2xl md:text-3xl font-serif font-normal text-mahogany mb-8 text-center">
-              Questions fréquentes
+              {Z('faq_section_title', 'text', 'Questions fréquentes', undefined, 'span')}
             </h2>
             <div className="space-y-3">
-              <details key={0} className="bg-[#FAF7F2] rounded-sm p-5 border border-[#DED5C6] group">
+              <details className="bg-[#FAF7F2] rounded-sm p-5 border border-[#DED5C6] group">
                 <summary className="font-medium text-mahogany cursor-pointer list-none flex justify-between items-center">
-                  <span>{Z('faq_1_q', 'text', "Quand partir dans l'Alentejo pour le slow travel ?", undefined, 'span')}</span>
+                  <span>
+                    {Z(
+                      'faq_1_q',
+                      'text',
+                      "Quand partir dans l'Alentejo pour le slow travel ?",
+                      undefined,
+                      'span'
+                    )}
+                  </span>
                   <span className="text-eucalyptus group-open:rotate-45 transition-transform">+</span>
                 </summary>
                 <p className="mt-3 text-charcoal/75 text-sm leading-relaxed">
-                  {Z('faq_1_a', 'textarea', "Les meilleures périodes sont mars-mai et septembre-novembre. Températures agréables (20-28°C), vignobles en fleur ou vendanges, hors des sentiers battus.", undefined, 'span')}
+                  {Z(
+                    'faq_1_a',
+                    'textarea',
+                    'Les meilleures périodes sont mars-mai et septembre-novembre : températures douces (20 à 26 °C), floraison printanière ou vendanges en septembre, loin de la chaleur estivale.',
+                    undefined,
+                    'span'
+                  )}
                 </p>
               </details>
-              <details key={1} className="bg-[#FAF7F2] rounded-sm p-5 border border-[#DED5C6] group">
+              <details className="bg-[#FAF7F2] rounded-sm p-5 border border-[#DED5C6] group">
                 <summary className="font-medium text-mahogany cursor-pointer list-none flex justify-between items-center">
-                  <span>{Z('faq_2_q', 'text', "Combien de jours pour découvrir l'Alentejo ?", undefined, 'span')}</span>
+                  <span>
+                    {Z(
+                      'faq_2_q',
+                      'text',
+                      "Combien de jours pour découvrir l'Alentejo ?",
+                      undefined,
+                      'span'
+                    )}
+                  </span>
                   <span className="text-eucalyptus group-open:rotate-45 transition-transform">+</span>
                 </summary>
                 <p className="mt-3 text-charcoal/75 text-sm leading-relaxed">
-                  {Z('faq_2_a', 'textarea', "Comptez minimum 4-5 jours pour faire Évora et Monsaraz. 7-10 jours permettent d'explorer la Rota das Aldeias Históricas et les vignobles du sud.", undefined, 'span')}
+                  {Z(
+                    'faq_2_a',
+                    'textarea',
+                    "Compte au minimum 4 à 5 jours pour relier Évora, Monsaraz et les vignobles de Vidigueira. Une semaine complète permet d'ajouter le littoral de Comporta et le port sur pilotis de Carrasqueira.",
+                    undefined,
+                    'span'
+                  )}
                 </p>
               </details>
-              <details key={2} className="bg-[#FAF7F2] rounded-sm p-5 border border-[#DED5C6] group">
+              <details className="bg-[#FAF7F2] rounded-sm p-5 border border-[#DED5C6] group">
                 <summary className="font-medium text-mahogany cursor-pointer list-none flex justify-between items-center">
-                  <span>{Z('faq_3_q', 'text', "Comment se déplacer dans l'Alentejo ?", undefined, 'span')}</span>
+                  <span>
+                    {Z('faq_3_q', 'text', "Comment se déplacer dans l'Alentejo ?", undefined, 'span')}
+                  </span>
                   <span className="text-eucalyptus group-open:rotate-45 transition-transform">+</span>
                 </summary>
                 <p className="mt-3 text-charcoal/75 text-sm leading-relaxed">
-                  {Z('faq_3_a', 'textarea', "Location de voiture indispensable. Les distances sont grandes et les transports en commun rares. Les routes sont bonnes, le trafic faible — idéal pour un road trip lent.", undefined, 'span')}
+                  {Z(
+                    'faq_3_a',
+                    'textarea',
+                    'La voiture est indispensable pour relier les villages perchés et les quintas, puis le vélo est idéal autour des rizières de Comporta et de Carrasqueira.',
+                    undefined,
+                    'span'
+                  )}
                 </p>
               </details>
-              <details key={3} className="bg-[#FAF7F2] rounded-sm p-5 border border-[#DED5C6] group">
+              <details className="bg-[#FAF7F2] rounded-sm p-5 border border-[#DED5C6] group">
                 <summary className="font-medium text-mahogany cursor-pointer list-none flex justify-between items-center">
-                  <span>{Z('faq_4_q', 'text', "Budget moyen par jour dans l'Alentejo ?", undefined, 'span')}</span>
+                  <span>
+                    {Z('faq_4_q', 'text', "Budget moyen par jour dans l'Alentejo ?", undefined, 'span')}
+                  </span>
                   <span className="text-eucalyptus group-open:rotate-45 transition-transform">+</span>
                 </summary>
                 <p className="mt-3 text-charcoal/75 text-sm leading-relaxed">
-                  {Z('faq_4_a', 'textarea', "Comptez 70-120€/jour en milieu de gamme (hébergement + repas + activités). L'Alentejo est moins cher que le littoral Algarve.", undefined, 'span')}
+                  {Z(
+                    'faq_4_a',
+                    'textarea',
+                    "Compte 70 à 120 € par jour en maison d'hôtes (monte alentejano) avec repas en tasca de village et dégustations en quinta.",
+                    undefined,
+                    'span'
+                  )}
                 </p>
               </details>
             </div>
@@ -445,43 +708,98 @@ export default async function AlentejoPage() {
         {/* ── RELATED ARTICLES ── */}
         <section className="py-16 md:py-24 bg-[#F7F3EC] border-b border-[#DED5C6]">
           <div className="max-w-5xl mx-auto px-6">
-            <p className="text-eucalyptus text-[11px] font-medium tracking-[0.2em] uppercase mb-4 text-center">Pour aller plus loin</p>
+            <p className="text-eucalyptus text-[11px] font-medium tracking-[0.2em] uppercase mb-4 text-center">
+              {Z('related_kicker', 'text', 'Pour aller plus loin', undefined, 'span')}
+            </p>
             <h2 className="text-2xl md:text-3xl font-serif font-normal text-mahogany mb-8 text-center">
-              Nos carnets liés
+              {Z('related_section_title', 'text', 'Nos carnets liés', undefined, 'span')}
             </h2>
-            {relatedPosts.length > 0 ? (
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {relatedPosts.map((post) => (
-                  <Link key={post.slug} href={`/blog/${post.slug}`} className="group block bg-[#FAF7F2] rounded-sm overflow-hidden border border-[#DED5C6] hover:border-mahogany/40 transition-colors">
-                    <div className="relative aspect-[4/3] bg-[#EFE9DF]">
-                      {post.featured_image ? (
-                        <Image
-                          src={post.featured_image}
-                          alt={post.alt_text || post.title}
-                          fill
-                          className="object-cover"
-                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        />
-                      ) : null}
-                    </div>
-                    <div className="p-5">
-                      <p className="text-[11px] uppercase tracking-[0.16em] text-eucalyptus font-medium mb-1">
-                        {post.category}
-                      </p>
-                      <h3 className="font-serif font-normal text-mahogany group-hover:text-eucalyptus transition-colors">
-                        {post.title}
-                      </h3>
-                      <p className="mt-2 text-sm text-charcoal/65 line-clamp-2">
-                        {getExcerpt(post, 110)}
-                      </p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            ) : null}
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <Link
+                href="/destinations/portugal/lisbonne"
+                className="group block bg-[#FAF7F2] rounded-sm overflow-hidden border border-[#DED5C6] hover:border-mahogany/40 transition-colors"
+              >
+                <div className="relative aspect-[4/3] bg-[#EFE9DF]">
+                  <Image
+                    src="/images/destinations/portugal/sintra/etape1_sintra_regaleira.jpg"
+                    alt={Z('article_1_alt', 'text', 'Collines et ruelles du Portugal', undefined, 'span') as any}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  />
+                </div>
+                <div className="p-5">
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-eucalyptus font-medium mb-1">
+                    {Z('article_1_label', 'text', 'Portugal', undefined, 'span')}
+                  </p>
+                  <h3 className="font-serif font-normal text-mahogany group-hover:text-eucalyptus transition-colors">
+                    {Z(
+                      'article_1_title',
+                      'text',
+                      'Lisbonne à pied : ruelles d’Alfama et miradouros',
+                      undefined,
+                      'span'
+                    )}
+                  </h3>
+                </div>
+              </Link>
+              <Link
+                href="/destinations/portugal/obidos"
+                className="group block bg-[#FAF7F2] rounded-sm overflow-hidden border border-[#DED5C6] hover:border-mahogany/40 transition-colors"
+              >
+                <div className="relative aspect-[4/3] bg-[#EFE9DF]">
+                  <Image
+                    src="/images/destinations/portugal/obidos/etape1_obidos_castelo.jpg"
+                    alt={Z('article_2_alt', 'text', 'Remparts et maisons blanchies à la chaux', undefined, 'span') as any}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  />
+                </div>
+                <div className="p-5">
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-eucalyptus font-medium mb-1">
+                    {Z('article_2_label', 'text', 'Découvertes Locales', undefined, 'span')}
+                  </p>
+                  <h3 className="font-serif font-normal text-mahogany group-hover:text-eucalyptus transition-colors">
+                    {Z('article_2_title', 'text', 'Óbidos : le chemin de ronde à 8h00', undefined, 'span')}
+                  </h3>
+                </div>
+              </Link>
+              <Link
+                href="/destinations/portugal/alcobaca"
+                className="group block bg-[#FAF7F2] rounded-sm overflow-hidden border border-[#DED5C6] hover:border-mahogany/40 transition-colors"
+              >
+                <div className="relative aspect-[4/3] bg-[#EFE9DF]">
+                  <Image
+                    src="/images/destinations/portugal/alcobaca/etape4_alcobaca_cloitre.jpg"
+                    alt={Z('article_3_alt', 'text', 'Cloître du Silence à Alcobaça', undefined, 'span') as any}
+                    fill
+                    className="object-cover"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                  />
+                </div>
+                <div className="p-5">
+                  <p className="text-[11px] uppercase tracking-[0.16em] text-eucalyptus font-medium mb-1">
+                    {Z('article_3_label', 'text', 'Patrimoine & Terroir', undefined, 'span')}
+                  </p>
+                  <h3 className="font-serif font-normal text-mahogany group-hover:text-eucalyptus transition-colors">
+                    {Z(
+                      'article_3_title',
+                      'text',
+                      'Alcobaça : abbaye cistercienne et Cloître du Silence',
+                      undefined,
+                      'span'
+                    )}
+                  </h3>
+                </div>
+              </Link>
+            </div>
             <div className="mt-8 text-center">
-              <Link href="/blog" className="text-xs uppercase tracking-[0.16em] text-mahogany font-medium border-b border-mahogany/40 pb-1 hover:border-mahogany">
-                Voir tous nos carnets
+              <Link
+                href="/blog"
+                className="text-xs uppercase tracking-[0.16em] text-mahogany font-medium border-b border-mahogany/40 pb-1 hover:border-mahogany"
+              >
+                {Z('related_all_link', 'text', 'Voir tous nos carnets', undefined, 'span')}
               </Link>
             </div>
           </div>

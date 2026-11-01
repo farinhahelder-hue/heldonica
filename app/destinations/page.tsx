@@ -5,7 +5,7 @@ import { getPageZones } from '@/lib/cms-zones';
 import Script from 'next/script';
 import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const revalidate = 300;
+export const revalidate = 86400;
 export const dynamicParams = true;
 
 const metadata: Metadata = {

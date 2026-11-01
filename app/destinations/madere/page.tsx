@@ -9,7 +9,7 @@ import { isUnpublishedPath } from '@/lib/unpublished-pages'
 
 // ISR : Next sert le dernier rendu valide si Supabase est momentanement
 // injoignable, ce qui absorbe les incidents transitoires sans contenu hardcode.
-export const revalidate = 300
+export const revalidate = 86400
 
 export async function generateMetadata() {
   const data = await fetchPillarData('madere')

@@ -6,6 +6,7 @@ import androidx.exifinterface.media.ExifInterface
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -15,7 +16,13 @@ import org.json.JSONObject
 import java.io.File
 import java.util.concurrent.TimeUnit
 
-data class Brouillon(val id: String, val titre: String, val contenu: String) {
+data class Brouillon(
+    val id: String,
+    val titre: String,
+    val contenu: String,
+    val published: Boolean = false,
+    val slug: String = ""
+) {
     val lacunes: Int get() = RedactionBrouillon.nombreDeLacunes(contenu)
 }
 
@@ -47,17 +54,23 @@ object RedactionClient {
         runCatching { JSONObject(corps).optString("error") }.getOrNull()?.takeIf { it.isNotBlank() }
             ?: "HTTP $code"
 
-    suspend fun listerBrouillons(context: Context): Result<List<Brouillon>> = withContext(Dispatchers.IO) {
+    suspend fun listerBrouillons(context: Context, filtre: String = "all"): Result<List<Brouillon>> = withContext(Dispatchers.IO) {
         runCatching {
             val req = Request.Builder()
-                .url("${base()}/api/cms/articles?status=draft&limit=50")
+                .url("${base()}/api/cms/articles?status=$filtre&limit=50")
                 .header("x-cms-auth", mdp(context)).get().build()
             http.newCall(req).execute().use { r ->
                 val corps = r.body?.string().orEmpty()
                 if (!r.isSuccessful) throw Exception(erreur(corps, r.code))
                 val arr = JSONObject(corps).optJSONArray("articles") ?: JSONArray()
                 (0 until arr.length()).map { arr.getJSONObject(it) }.map {
-                    Brouillon(it.optString("id"), it.optString("title"), it.optString("content"))
+                    Brouillon(
+                        id = it.optString("id"),
+                        titre = it.optString("title"),
+                        contenu = it.optString("content"),
+                        published = it.optBoolean("published", false),
+                        slug = it.optString("slug")
+                    )
                 }
             }
         }
@@ -127,8 +140,6 @@ object RedactionClient {
             runCatching {
                 if (uris.size > 10) throw Exception("10 photos maximum par ajout.")
                 for (uri in uris) {
-                    // Le type réel de la photo, pas « jpeg » pour tout : un PNG ou un
-                    // WebP déposé sous un faux type s'afficherait mal sur le site.
                     val mime = context.contentResolver.getType(uri)?.takeIf { it.startsWith("image/") } ?: "image/jpeg"
                     if (mime == "image/heic" || mime == "image/heif") {
                         throw Exception("Format HEIC non pris en charge par le site : passe l'appareil photo en JPEG.")
@@ -166,6 +177,31 @@ object RedactionClient {
                 }
             }.also { temporaires.forEach { runCatching { it.delete() } } }
         }
+
+    /** Analyse une photo avec l'IA Vision du CMS (/api/cms/ai-vision) pour déduire lieu et description. */
+    suspend fun identifierParVision(context: Context, uri: Uri): Result<Pair<String, String>> = withContext(Dispatchers.IO) {
+        runCatching {
+            val bytes = context.contentResolver.openInputStream(uri)?.use { it.readBytes() }
+                ?: throw Exception("Impossible de lire la photo")
+            val body = MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("image", "photo.jpg", bytes.toRequestBody("image/jpeg".toMediaType()))
+                .build()
+            val req = Request.Builder()
+                .url("${base()}/api/cms/ai-vision")
+                .header("x-cms-auth", mdp(context))
+                .post(body)
+                .build()
+            http.newCall(req).execute().use { r ->
+                val corps = r.body?.string().orEmpty()
+                if (!r.isSuccessful) throw Exception(erreur(corps, r.code))
+                val json = JSONObject(corps)
+                val lieu = json.optString("suggestedPlace", "")
+                val desc = json.optString("fullText", "").ifBlank { json.optString("description", "") }
+                Pair(lieu, desc)
+            }
+        }
+    }
 
     /** Date de prise de vue EXIF (« 2026:08:28 09:14:00 »), ou null. */
     fun dateExif(context: Context, uri: Uri): String? = runCatching {

@@ -11,7 +11,9 @@ import EditableZone from '@/components/inline-edit/EditableZone'
 import { createServiceClient } from '@/lib/supabase'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const revalidate = 300;
+export const revalidate = 86400
+
+const PAGE = 'top-10-pepites-madere'
 
 // ─── Métadonnées SEO dynamiques (depuis site_settings si dispo) ──────────────
 const metadata: Metadata = {
@@ -32,10 +34,10 @@ const metadata: Metadata = {
   },
   openGraph: {
     title: 'Guide Top 10 Pépites Madère | Heldonica',
-    description: "10 meilleures adresses testées à Madère. Télécharge gratuitement le guide.",
+    description: '10 meilleures adresses testées à Madère. Télécharge gratuitement le guide.',
     images: [
       {
-        url: '/og-default.jpg',
+        url: '/images/destinations/madere/fanal_foret.jpg',
         width: 1200,
         height: 630,
         alt: 'Guide Top 10 Pépites Madère',
@@ -50,93 +52,18 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata('guides-top-10-pepites-madere', metadata)
 }
 
+interface GuideItemRow {
+  rank: number
+  title: string
+  type: string
+  description: string
+  secret: string | null
+  image_url: string | null
+}
 
-// ─── Données statiques de fallback (si Supabase indisponible) ─────────────────
-const PEPITES_FALLBACK = [
-  {
-    rank: 1,
-    title: 'Restaurant Quinta do Fogo',
-    type: 'Restaurant',
-    description: "Le meilleur poisson grillé de l'île, avec vue sur les vignobles. Le propriétaire sait tout sur chaque plat.",
-    secret: "Demande le vin de Madère de la maison — ils le servent en carafe et c'est une tuerie.",
-    image_url: null,
-  },
-  {
-    rank: 2,
-    title: 'Levada dos Tornos',
-    type: 'Randonnée',
-    description: 'La plus belle levada, entre forêt luxuriante et panoramas vertigineux. 12 km, sans difficulté.',
-    secret: 'Commence tôt le matin pour avoir les selfies sans personne.',
-    image_url: null,
-  },
-  {
-    rank: 3,
-    title: 'Porto Moniz Natural Pools',
-    type: 'Nature',
-    description: "Piscines volcaniques naturelles, turquoise, à couper le souffle. Moins connu que les autres coins.",
-    secret: "Va au coucher du soleil — les couleurs sont irréelles et il n'y a presque personne.",
-    image_url: null,
-  },
-  {
-    rank: 4,
-    title: 'Café do Pirata',
-    type: 'Café',
-    description: 'Le meilleur café de Funchal, caché dans une ruelle. Torréfaction locale, pastries maison.',
-    secret: "Prends le cortado — c'est leur spécialité et il n'est pas sur la carte.",
-    image_url: null,
-  },
-  {
-    rank: 5,
-    title: 'Miradouro Pico do Arieiro',
-    type: 'Vue',
-    description: "Le troisième plus haut sommet de Madère. On y arrive par une route sinueuse, mais la vue...",
-    secret: "Parcours le tunnel jusqu'au Pico Ruivo si tu es chaud — c'est là-haut que tout se passe.",
-    image_url: null,
-  },
-  {
-    rank: 6,
-    title: 'Fábrica de Arte',
-    type: 'Art & Culture',
-    description: "Galerie d'art improvisée dans une ancienne usine. Expositions rotate, ambiance unique.",
-    secret: "Il y a un café caché derrière la galerie — c'est là que les locaux vont.",
-    image_url: null,
-  },
-  {
-    rank: 7,
-    title: 'Praia de Seixal',
-    type: 'Plage',
-    description: 'La seule plage de sable noir de Madère. Sauvage, tranquille, perdue.',
-    secret: "Il y a un bar juste au-dessus de la plage — les bières sont froides et la vue est identique.",
-    image_url: null,
-  },
-  {
-    rank: 8,
-    title: 'Monte Palace Tropical Garden',
-    type: 'Jardin',
-    description: "Les jardins les plus fous de Madère. Des milliers d'espèces, des cascades, des cygnes.",
-    secret: "Le lever du soleil depuis le belvédère est un moment qu'on n'oublie pas.",
-    image_url: null,
-  },
-  {
-    rank: 9,
-    title: 'Wine Bar do Funchal',
-    type: 'Bar à vin',
-    description: 'Sélection de vins de Madère (les vrais, les doux) avec des amuse-bouches qui vont avec.',
-    secret: 'Le propriétaire fait des dégustations privées pour ceux qui demandent gentiment.',
-    image_url: null,
-  },
-  {
-    rank: 10,
-    title: 'Anfiteatro do Faial',
-    type: 'Vue',
-    description: "Un point de vue inconnu des touristes, face à la baie de Funchal. On y va pour le coucher du soleil.",
-    secret: "Il y a un petit marché artisanal le dimanche matin — on y trouve des choses impossibles à trouver ailleurs.",
-    image_url: null,
-  },
-]
-
-// ─── Fetch Supabase avec fallback ─────────────────────────────────────────────
-async function getGuideItems() {
+// ─── Fetch Supabase avec repli terrain vérifié ────────────────────────────────
+async function getGuideItems(): Promise<Map<number, GuideItemRow>> {
+  const map = new Map<number, GuideItemRow>()
   try {
     const supabase = createServiceClient()
     const { data, error } = await supabase
@@ -146,64 +73,450 @@ async function getGuideItems() {
       .eq('is_active', true)
       .order('rank', { ascending: true })
 
-    if (error || !data || data.length === 0) {
-      return PEPITES_FALLBACK
+    if (!error && data) {
+      for (const row of data) {
+        map.set(row.rank, row)
+      }
     }
-    return data
   } catch {
-    return PEPITES_FALLBACK
+    // Repli silencieux sur les fiches vérifiées du Coffre des Savoirs
   }
+  return map
 }
 
 // ─── Fetch image hero depuis CMS zones ────────────────────────────────────────
 async function getHeroImage() {
   try {
     const supabase = createServiceClient()
-    const { data } = await supabase
+    const { data, error } = await supabase
       .from('cms_editable_zones')
       .select('value')
       .eq('page', 'top-10-pepites-madere')
       .eq('zone_key', 'hero_bg_image')
       .eq('is_active', true)
       .maybeSingle()
-    return data?.value || '/og-default.jpg'
+    if (error) return '/images/destinations/madere/fanal_foret.jpg'
+    return data?.value || '/images/destinations/madere/fanal_foret.jpg'
   } catch {
-    return '/og-default.jpg'
+    return '/images/destinations/madere/fanal_foret.jpg'
   }
 }
 
 export default async function Top10PepitesMaderePage() {
-  const zones = await getPageZones('top-10-pepites-madere')
+  const zones = await getPageZones(PAGE)
 
-  const [pepites, heroImage] = await Promise.all([
+  const [dbItems, heroImage] = await Promise.all([
     getGuideItems(),
     getHeroImage(),
   ])
 
+  const Z = (
+    zone: string,
+    type: 'text' | 'textarea' | 'html',
+    fallback: string,
+    className?: string,
+    as?: any
+  ) => (
+    <EditableZone
+      page={PAGE}
+      zone={zone}
+      type={type}
+      fallback={fallback}
+      className={className}
+      as={as}
+    />
+  )
+
+  const verifiedItems = [
+    {
+      rank: 1,
+      image: dbItems.get(1)?.image_url || '/images/destinations/madere/fanal_foret.jpg',
+      typeNode: Z(
+        'pepite_1_type',
+        'text',
+        dbItems.get(1)?.type || 'Forêt primaire UNESCO',
+        undefined,
+        'span'
+      ),
+      titleNode: Z(
+        'pepite_1_title',
+        'text',
+        dbItems.get(1)?.title || 'Forêt de Fanal (Paul da Serra, 1 150 m)',
+        undefined,
+        'span'
+      ),
+      descNode: Z(
+        'pepite_1_desc',
+        'textarea',
+        dbItems.get(1)?.description ||
+          "Des lauriers centenaires (Ocotea foetens) tordus par les alizés au-dessus du plateau de Paul da Serra. Quand la brume atlantique traverse les clairières vers 10h, le silence est complet.",
+        undefined,
+        'span'
+      ),
+      secretNode: Z(
+        'pepite_1_secret',
+        'textarea',
+        dbItems.get(1)?.secret ||
+          "Monte par l'ER209 dès le matin et éloigne-toi de 300 mètres du parking principal : les plus beaux troncs moussus se trouvent sur le versant nord.",
+        undefined,
+        'span'
+      ),
+    },
+    {
+      rank: 2,
+      image: dbItems.get(2)?.image_url || '/images/destinations/madere/achadas_da_cruz.jpg',
+      typeNode: Z(
+        'pepite_2_type',
+        'text',
+        dbItems.get(2)?.type || 'Fajã volcanique & Téléphérique',
+        undefined,
+        'span'
+      ),
+      titleNode: Z(
+        'pepite_2_title',
+        'text',
+        dbItems.get(2)?.title || "Fajã da Quebrada Nova (Achadas da Cruz)",
+        undefined,
+        'span'
+      ),
+      descNode: Z(
+        'pepite_2_desc',
+        'textarea',
+        dbItems.get(2)?.description ||
+          "Un téléphérique agricole à 98 % d'inclinaison plonge sur 450 mètres de falaise basaltique jusqu'à une langue de terre cultivée au ras du ressac atlantique, sans aucune voiture en bas.",
+        undefined,
+        'span'
+      ),
+      secretNode: Z(
+        'pepite_2_secret',
+        'textarea',
+        dbItems.get(2)?.secret ||
+          "Présente-toi à l'ouverture de la cabine à 8h00 (billet aller-retour à 3 € en espèces) et vérifie l'absence de vent fort avant de rouler jusqu'au promontoire.",
+        undefined,
+        'span'
+      ),
+    },
+    {
+      rank: 3,
+      image: dbItems.get(3)?.image_url || '/images/destinations/madere/porto_moniz.jpg',
+      typeNode: Z(
+        'pepite_3_type',
+        'text',
+        dbItems.get(3)?.type || 'Vasques de basalte & Baignade',
+        undefined,
+        'span'
+      ),
+      titleNode: Z(
+        'pepite_3_title',
+        'text',
+        dbItems.get(3)?.title || 'Vasques volcaniques de Cachalote et Seixal',
+        undefined,
+        'span'
+      ),
+      descNode: Z(
+        'pepite_3_desc',
+        'textarea',
+        dbItems.get(3)?.description ||
+          "La houle du nord-ouest franchit les digues naturelles de lave noire pour renouveler l'eau salée des bassins à chaque marée haute, face à l'îlot volcanique de Mole.",
+        undefined,
+        'span'
+      ),
+      secretNode: Z(
+        'pepite_3_secret',
+        'textarea',
+        dbItems.get(3)?.secret ||
+          "Évite le complexe bétonné payant en milieu de journée : privilégie les vasques brutes gratuites de Cachalote avant 9h30 ou la plage de sable noir volcanique du Porto do Seixal.",
+        undefined,
+        'span'
+      ),
+    },
+    {
+      rank: 4,
+      image: dbItems.get(4)?.image_url || '/images/destinations/madere/itinerary/etape4_funchal_bananeraies.jpg',
+      typeNode: Z(
+        'pepite_4_type',
+        'text',
+        dbItems.get(4)?.type || 'Table de pêcheur à Funchal',
+        undefined,
+        'span'
+      ),
+      titleNode: Z(
+        'pepite_4_title',
+        'text',
+        dbItems.get(4)?.title || 'Restaurant O Galo dans la Zona Velha',
+        undefined,
+        'span'
+      ),
+      descNode: Z(
+        'pepite_4_desc',
+        'textarea',
+        dbItems.get(4)?.description ||
+          "Dans les ruelles pavées de la vieille ville de Funchal, cette table familiale fonctionne sans carte imprimée : le patron présente directement la pêche du matin et les légumes de son potager de montagne.",
+        undefined,
+        'span'
+      ),
+      secretNode: Z(
+        'pepite_4_secret',
+        'textarea',
+        dbItems.get(4)?.secret ||
+          "Compte 25 à 30 € par personne avec un vin blanc sec de Madère et laisse le patron de quarante ans de métier te conseiller le poisson grillé du jour.",
+        undefined,
+        'span'
+      ),
+    },
+    {
+      rank: 5,
+      image: dbItems.get(5)?.image_url || '/images/destinations/madere/pico_do_arieiro.jpg',
+      typeNode: Z(
+        'pepite_5_type',
+        'text',
+        dbItems.get(5)?.type || 'Crête alpine & Randonnée PR9',
+        undefined,
+        'span'
+      ),
+      titleNode: Z(
+        'pepite_5_title',
+        'text',
+        dbItems.get(5)?.title || 'Pico do Arieiro (1 818 m) & Levada do Caldeirão Verde',
+        undefined,
+        'span'
+      ),
+      descNode: Z(
+        'pepite_5_desc',
+        'textarea',
+        dbItems.get(5)?.description ||
+          "L'aube au-dessus de la mer de nuages au Pico do Arieiro, suivie de la marche sous tunnel végétal le long du canal de la Levada do Caldeirão Verde (PR9) où l'eau ruisselle sur le basalte.",
+        undefined,
+        'span'
+      ),
+      secretNode: Z(
+        'pepite_5_secret',
+        'textarea',
+        dbItems.get(5)?.secret ||
+          "Fais le Caldeirão Verde un mardi matin à l'aube avec une lampe frontale et réserve ta taxe d'accès régionale (4,50 € via Simplifica) la veille.",
+        undefined,
+        'span'
+      ),
+    },
+    {
+      rank: 6,
+      image: dbItems.get(6)?.image_url || '/images/destinations/madere/itinerary/etape7_cabo_girao_faja.jpg',
+      typeNode: Z(
+        'pepite_6_type',
+        'text',
+        dbItems.get(6)?.type || 'Cave & Poncha traditionnelle',
+        undefined,
+        'span'
+      ),
+      titleNode: Z(
+        'pepite_6_title',
+        'text',
+        dbItems.get(6)?.title || 'Câmara de Lobos : poncha au caralhinho & vins de Madère',
+        undefined,
+        'span'
+      ),
+      descNode: Z(
+        'pepite_6_desc',
+        'textarea',
+        dbItems.get(6)?.description ||
+          "Le port d'attache des barques colorées xavelhas qui pêchent l'espada preta de nuit, et le berceau historique de la poncha battue à l'aguardente de canne, miel et citron.",
+        undefined,
+        'span'
+      ),
+      secretNode: Z(
+        'pepite_6_secret',
+        'textarea',
+        dbItems.get(6)?.secret ||
+          "Pousse la porte d'une cave viticole du bourg pour la dégustation commentée de 6 vins de Madère (Sercial, Verdelho, Bual, Malmsey) à 5 €.",
+        undefined,
+        'span'
+      ),
+    },
+    {
+      rank: 7,
+      image: dbItems.get(7)?.image_url || '/images/destinations/madere/ponta_do_sol.jpg',
+      typeNode: Z(
+        'pepite_7_type',
+        'text',
+        dbItems.get(7)?.type || 'Jetée basaltique & Heure dorée',
+        undefined,
+        'span'
+      ),
+      titleNode: Z(
+        'pepite_7_title',
+        'text',
+        dbItems.get(7)?.title || 'Vieux pont de pierre de Ponta do Sol & Anjos',
+        undefined,
+        'span'
+      ),
+      descNode: Z(
+        'pepite_7_desc',
+        'textarea',
+        dbItems.get(7)?.description ||
+          "Encaissée entre deux parois basaltiques sur la côte sud, la vieille jetée de Ponta do Sol capte la lumière rasante de fin d'après-midi face à la houle atlantique.",
+        undefined,
+        'span'
+      ),
+      secretNode: Z(
+        'pepite_7_secret',
+        'textarea',
+        dbItems.get(7)?.secret ||
+          "Gare-toi au parking amont avant le tunnel routier dès 17h30 pour descendre à pied sur l'arche de pierre et commander un bolo do caco chaud au beurre d'ail.",
+        undefined,
+        'span'
+      ),
+    },
+    {
+      rank: 8,
+      image: dbItems.get(8)?.image_url || '/images/destinations/madere/itinerary/etape5_monte_flore.jpg',
+      typeNode: Z(
+        'pepite_8_type',
+        'text',
+        dbItems.get(8)?.type || 'Belvédère en forêt & Truites',
+        undefined,
+        'span'
+      ),
+      titleNode: Z(
+        'pepite_8_title',
+        'text',
+        dbItems.get(8)?.title || 'Ribeiro Frio & Vereda dos Balcões (PR11)',
+        undefined,
+        'span'
+      ),
+      descNode: Z(
+        'pepite_8_desc',
+        'textarea',
+        dbItems.get(8)?.description ||
+          "À 860 mètres d'altitude dans la vallée fraîche de Ribeiro Frio, un sentier plat de 1,5 km le long de la Levada da Serra mène à un promontoire rocheux ouvert sur toute la chaîne centrale.",
+        undefined,
+        'span'
+      ),
+      secretNode: Z(
+        'pepite_8_secret',
+        'textarea',
+        dbItems.get(8)?.secret ||
+          "Arrive à 8h00 avant que les nuages d'alizés ne remontent de la côte nord vers 10h30 : les pinsons endémiques de Madère (Fringilla maderensis) se posent sur le parapet.",
+        undefined,
+        'span'
+      ),
+    },
+    {
+      rank: 9,
+      image: dbItems.get(9)?.image_url || '/images/destinations/madere/itinerary/etape3_terroir_canico.jpg',
+      typeNode: Z(
+        'pepite_9_type',
+        'text',
+        dbItems.get(9)?.type || 'Terroir & Braises de vigne',
+        undefined,
+        'span'
+      ),
+      titleNode: Z(
+        'pepite_9_title',
+        'text',
+        dbItems.get(9)?.title || "Estreito de Câmara de Lobos : l'espetada sur branche de laurier",
+        undefined,
+        'span'
+      ),
+      descNode: Z(
+        'pepite_9_desc',
+        'textarea',
+        dbItems.get(9)?.description ||
+          "Entre 400 et 600 mètres d'altitude au milieu des vignes en treilles basses (latadas), les grillardins d'Estreito saisissent le bœuf frotté à l'ail et au gros sel sur une branche de laurier vert.",
+        undefined,
+        'span'
+      ),
+      secretNode: Z(
+        'pepite_9_secret',
+        'textarea',
+        dbItems.get(9)?.secret ||
+          "Accompagne la brochette de cubes de polenta dorés au saindoux (milho frito) après une marche tranquille sur la Levada do Norte.",
+        undefined,
+        'span'
+      ),
+    },
+    {
+      rank: 10,
+      image: dbItems.get(10)?.image_url || '/images/destinations/madere/itinerary/etape1_ponta_lourenco.jpg',
+      typeNode: Z(
+        'pepite_10_type',
+        'text',
+        dbItems.get(10)?.type || 'Village de montagne & Miel de canne',
+        undefined,
+        'span'
+      ),
+      titleNode: Z(
+        'pepite_10_title',
+        'text',
+        dbItems.get(10)?.title || "Faial & Santo da Serra : cafés de village et marché du dimanche",
+        undefined,
+        'span'
+      ),
+      descNode: Z(
+        'pepite_10_desc',
+        'textarea',
+        dbItems.get(10)?.description ||
+          "Au pied du piton basaltique du Penha d'Águia (590 m) à Faial ou sur le plateau boisé de Santo da Serra (700 m), on retrouve la vie agricole insulaire loin des hôtels côtiers.",
+        undefined,
+        'span'
+      ),
+      secretNode: Z(
+        'pepite_10_secret',
+        'textarea',
+        dbItems.get(10)?.secret ||
+          "Le dimanche matin à Santo da Serra, goûte un Prego no Bolo do Caco avec un verre de cidre fermier (sidra da Madeira) sous les bâches des producteurs.",
+        undefined,
+        'span'
+      ),
+    },
+  ]
+
   return (
-    <InlineEditProvider page="top-10-pepites-madere" initialZones={zones}>
+    <InlineEditProvider page={PAGE} initialZones={zones}>
       <Header />
       <main className="min-h-screen bg-cloud-dancer">
         <section className="relative bg-stone-950 text-white py-20 md:py-28 overflow-hidden">
-          <div className="absolute inset-0 opacity-30" style={{ backgroundImage: `url(${heroImage})`, backgroundSize: 'cover', backgroundPosition: 'center' }} />
+          <div
+            className="absolute inset-0 opacity-30"
+            style={{
+              backgroundImage: `url(${heroImage})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+            }}
+          />
           <div className="relative max-w-4xl mx-auto px-6 text-center">
             <span className="inline-block px-4 py-1.5 bg-amber-500/20 text-amber-400 text-xs font-semibold rounded-full uppercase tracking-wider mb-6">
               <EditableZone page="top-10-pepites-madere" zone="hero_badge" fallback="Guide gratuit" />
             </span>
             <h1 className="text-3xl md:text-5xl lg:text-6xl font-serif font-bold leading-tight mb-6">
-              <EditableZone page="top-10-pepites-madere" zone="hero_title_line1" fallback="Top 10 Pépites" className="inline" />
+              <EditableZone
+                page="top-10-pepites-madere"
+                zone="hero_title_line1"
+                fallback="Top 10 Pépites"
+                className="inline"
+              />
               <br />
               <span className="text-amber-400">
-                <EditableZone page="top-10-pepites-madere" zone="hero_title_line2" fallback="à Madère" className="inline" />
+                <EditableZone
+                  page="top-10-pepites-madere"
+                  zone="hero_title_line2"
+                  fallback="à Madère"
+                  className="inline"
+                />
               </span>
             </h1>
-            <EditableZone page="top-10-pepites-madere" zone="hero_text" type="textarea"
-              fallback="Ce qu'on a testé, aimé, et qu'on te recommande sans hésiter. Restaurants, sentiers, vues, coins photo — tout ce qu'on aurait aimé savoir avant d'y aller."
+            <EditableZone
+              page="top-10-pepites-madere"
+              zone="hero_text"
+              type="textarea"
+              fallback="Ce qu'on a testé, aimé, et qu'on te recommande sans hésiter. Restaurants de pêcheurs, levadas, fajãs volcaniques et belvédères — tout ce qu'on aurait aimé savoir avant d'y aller."
               className="text-stone-300 text-lg md:text-xl leading-relaxed max-w-2xl mx-auto mb-8 block"
             />
 
             <div className="bg-[#FAF7F2]/5 backdrop-blur-sm rounded-sm p-6 md:p-8 border border-white/10 max-w-md mx-auto">
-              <EditableZone page="top-10-pepites-madere" zone="hero_download_label" fallback="Télécharge gratuitement"
+              <EditableZone
+                page="top-10-pepites-madere"
+                zone="hero_download_label"
+                fallback="Télécharge gratuitement"
                 className="text-amber-400 font-semibold mb-3 block"
               />
               <GuideDownloadForm variant="hero" />
@@ -214,12 +527,18 @@ export default async function Top10PepitesMaderePage() {
         <section className="py-16 md:py-20 bg-[#FAF7F2]">
           <div className="max-w-3xl mx-auto px-6">
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-stone-900 mb-6 text-center">
-              <EditableZone page="top-10-pepites-madere" zone="intro_title" fallback="On a passé 3 semaines à Madère.\nVoici ce qu'on en a retiré."
+              <EditableZone
+                page="top-10-pepites-madere"
+                zone="intro_title"
+                fallback="On a arpenté Madère du nord au sud. Voici ce qu'on en a retiré."
                 className="inline"
               />
             </h2>
-            <EditableZone page="top-10-pepites-madere" zone="intro_text" type="textarea"
-                  fallback="Madère, c'est l'inverse du tourisme de masse. C'est des routes qui serpentent dans des forêts luxuriantes, des villages où le temps s'est arrêté, des restaurants où le propriétaire te raconte l'histoire de chaque plat.\n\nOn a testé, on s'est perdus, on a trouvé des trucs géniaux. Et maintenant, on te les partage. Gratuitement."
+            <EditableZone
+              page="top-10-pepites-madere"
+              zone="intro_text"
+              type="textarea"
+              fallback="Madère est l'inverse du tourisme de masse quand on accepte de se lever tôt et de quitter la voie rapide. Ce sont des routes qui serpentent dans la forêt primaire de Laurisilva, des fajãs au pied des falaises basaltiques et des tables où le patron te présente la pêche du matin sans carte imprimée."
               className="text-stone-600 leading-relaxed text-lg block"
             />
           </div>
@@ -232,16 +551,16 @@ export default async function Top10PepitesMaderePage() {
             </h2>
 
             <div className="space-y-6">
-              {pepites.map((pep) => (
+              {verifiedItems.map((pep) => (
                 <div
                   key={pep.rank}
                   className="bg-[#FAF7F2] rounded-sm p-6 md:p-8 border border-stone-100 transition-shadow"
                 >
                   <div className="flex items-start gap-5">
-                    {pep.image_url ? (
+                    {pep.image ? (
                       <img
-                        src={pep.image_url}
-                        alt={pep.title}
+                        src={pep.image}
+                        alt=""
                         className="flex-shrink-0 w-20 h-20 rounded-sm object-cover"
                         loading="lazy"
                       />
@@ -252,21 +571,25 @@ export default async function Top10PepitesMaderePage() {
                     )}
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <span className="text-xs font-semibold text-eucalyptus uppercase tracking-wider">{pep.type}</span>
-                        {pep.image_url && (
-                          <span className="text-xs font-bold text-amber-800 bg-amber-100 rounded-full px-2 py-0.5">#{pep.rank}</span>
-                        )}
+                        <span className="text-xs font-semibold text-eucalyptus uppercase tracking-wider">
+                          {pep.typeNode}
+                        </span>
+                        <span className="text-xs font-bold text-amber-800 bg-amber-100 rounded-full px-2 py-0.5">
+                          #{pep.rank}
+                        </span>
                       </div>
-                      <h3 className="text-xl font-serif font-bold text-stone-900 mb-2">{pep.title}</h3>
-                      <p className="text-stone-600 leading-relaxed mb-4">{pep.description}</p>
-                      {pep.secret && (
-                        <div className="bg-amber-50 rounded-sm p-4 border-l-4 border-amber-400">
-                          <p className="text-sm">
-                            <span className="font-semibold text-amber-800">Le secret :</span>{' '}
-                            <span className="text-stone-700">{pep.secret}</span>
-                          </p>
-                        </div>
-                      )}
+                      <h3 className="text-xl font-serif font-bold text-stone-900 mb-2">
+                        {pep.titleNode}
+                      </h3>
+                      <p className="text-stone-600 leading-relaxed mb-4">{pep.descNode}</p>
+                      <div className="bg-amber-50 rounded-sm p-4 border-l-4 border-amber-400">
+                        <p className="text-sm">
+                          <span className="font-semibold text-amber-800">
+                            {Z('secret_label', 'text', 'Repère terrain :', undefined, 'span')}
+                          </span>{' '}
+                          <span className="text-stone-700">{pep.secretNode}</span>
+                        </p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -278,15 +601,22 @@ export default async function Top10PepitesMaderePage() {
         <section className="py-16 md:py-20 bg-[#FAF7F2]">
           <div className="max-w-4xl mx-auto px-6">
             <h2 className="text-2xl md:text-3xl font-serif font-bold text-stone-900 mb-4 text-center">
-              <EditableZone page="top-10-pepites-madere" zone="map_title" fallback="Situe les pépites sur la carte" />
+              <EditableZone
+                page="top-10-pepites-madere"
+                zone="map_title"
+                fallback="Situe les pépites sur la carte"
+              />
             </h2>
-            <EditableZone page="top-10-pepites-madere" zone="map_text" type="textarea"
-              fallback="Madère fait 57 km de long, et pourtant il faut compter 1h30 pour traverser du sud au nord. Repère les distances avant de caler ton programme."
+            <EditableZone
+              page="top-10-pepites-madere"
+              zone="map_text"
+              type="textarea"
+              fallback="Madère fait 57 km de long, et pourtant il faut compter 1h30 pour traverser du sud au nord par les cols. Repère les distances avant de caler ton programme."
               className="text-stone-600 leading-relaxed text-center max-w-2xl mx-auto mb-8 block"
             />
             <DestinationMapEmbed
               query="Madère, Portugal"
-              label="Madère"
+              label={zones['top-10-pepites-madere__map_label'] ?? 'Madère'}
               destination="madere"
             />
           </div>
@@ -294,14 +624,23 @@ export default async function Top10PepitesMaderePage() {
 
         <section className="py-16 md:py-20 bg-stone-950 text-white">
           <div className="max-w-2xl mx-auto px-6 text-center">
-            <EditableZone page="top-10-pepites-madere" zone="cta_title" fallback="Tu pars à Madère ?"
+            <EditableZone
+              page="top-10-pepites-madere"
+              zone="cta_title"
+              fallback="Tu pars à Madère ?"
               className="text-2xl md:text-3xl font-serif font-bold mb-4 block"
             />
-            <EditableZone page="top-10-pepites-madere" zone="cta_text" fallback="Le guide complet avec toutes les adresses, les maps, et les repères pour éviter les pièges. Gratuit."
+            <EditableZone
+              page="top-10-pepites-madere"
+              zone="cta_text"
+              fallback="Le guide complet avec toutes les adresses, les cartes et les repères horaires pour éviter la foule. Gratuit."
               className="text-stone-400 leading-relaxed mb-8 block"
             />
             <GuideDownloadForm variant="inline" />
-            <EditableZone page="top-10-pepites-madere" zone="cta_footnote" fallback="10 pages, PDF, sans engagement."
+            <EditableZone
+              page="top-10-pepites-madere"
+              zone="cta_footnote"
+              fallback="10 pages, PDF, sans engagement."
               className="text-stone-500 text-sm mt-4 block"
             />
           </div>
@@ -310,7 +649,11 @@ export default async function Top10PepitesMaderePage() {
         <section className="py-16 md:py-20 bg-[#FAF7F2]">
           <div className="max-w-4xl mx-auto px-6">
             <h2 className="text-2xl font-serif font-bold text-stone-900 mb-8 text-center">
-              <EditableZone page="top-10-pepites-madere" zone="related_title" fallback="Continue à explorer" />
+              <EditableZone
+                page="top-10-pepites-madere"
+                zone="related_title"
+                fallback="Continue à explorer"
+              />
             </h2>
             <div className="grid md:grid-cols-2 gap-6">
               <Link
@@ -318,9 +661,16 @@ export default async function Top10PepitesMaderePage() {
                 className="bg-[#F7F3EC] rounded-sm p-6 border border-stone-100 transition-shadow group"
               >
                 <h3 className="text-lg font-semibold text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">
-                  <EditableZone page="top-10-pepites-madere" zone="related_1_title" fallback="Guide complet Madère" />
+                  <EditableZone
+                    page="top-10-pepites-madere"
+                    zone="related_1_title"
+                    fallback="Guide complet Madère"
+                  />
                 </h3>
-                <EditableZone page="top-10-pepites-madere" zone="related_1_desc" fallback="Tout ce qu'il faut savoir pour préparer ton voyage."
+                <EditableZone
+                  page="top-10-pepites-madere"
+                  zone="related_1_desc"
+                  fallback="Tout ce qu'il faut savoir pour préparer ton voyage."
                   className="text-sm text-stone-500 block"
                 />
               </Link>
@@ -329,9 +679,16 @@ export default async function Top10PepitesMaderePage() {
                 className="bg-[#F7F3EC] rounded-sm p-6 border border-stone-100 transition-shadow group"
               >
                 <h3 className="text-lg font-semibold text-stone-900 mb-2 group-hover:text-eucalyptus transition-colors">
-                  <EditableZone page="top-10-pepites-madere" zone="related_2_title" fallback="Carnets de voyage" />
+                  <EditableZone
+                    page="top-10-pepites-madere"
+                    zone="related_2_title"
+                    fallback="Carnets de voyage"
+                  />
                 </h3>
-                <EditableZone page="top-10-pepites-madere" zone="related_2_desc" fallback="Nos récits depuis le terrain, destinations réelles."
+                <EditableZone
+                  page="top-10-pepites-madere"
+                  zone="related_2_desc"
+                  fallback="Nos récits depuis le terrain, destinations réelles."
                   className="text-sm text-stone-500 block"
                 />
               </Link>

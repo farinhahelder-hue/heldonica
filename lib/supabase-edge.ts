@@ -38,9 +38,21 @@ export function isSupabaseConfigured(): boolean {
  * Retourne true/false si le CMS a explicitement défini la valeur,
  * ou null si non configuré / erreur (laisser le défaut du middleware décider).
  */
+let maintenanceCache: { value: boolean | null; expiresAt: number } | null = null;
+const MAINTENANCE_CACHE_TTL_MS = 60_000;
+
 export async function getMaintenanceMode(): Promise<boolean | null> {
   if (!isSupabaseConfigured()) {
     return null;
+  }
+
+  const now = Date.now();
+  if (
+    process.env.NODE_ENV !== 'test' &&
+    maintenanceCache &&
+    now < maintenanceCache.expiresAt
+  ) {
+    return maintenanceCache.value;
   }
 
   try {
@@ -50,7 +62,7 @@ export async function getMaintenanceMode(): Promise<boolean | null> {
         ...authHeaders(supabaseServiceKey!),
         'Prefer': 'single object'
       },
-      next: { revalidate: 30 }
+      next: { revalidate: 60, tags: ['site-settings'] }
     });
 
     if (!response.ok) {
@@ -62,9 +74,12 @@ export async function getMaintenanceMode(): Promise<boolean | null> {
     const row = Array.isArray(data) ? data[0] : data;
     const value = row?.value;
 
-    if (value === 'true' || value === '1' || value === true)  return true;
-    if (value === 'false' || value === '0' || value === false) return false;
-    return null; // valeur inconnue → laisser le défaut décider
+    let resolved: boolean | null = null;
+    if (value === 'true' || value === '1' || value === true) resolved = true;
+    else if (value === 'false' || value === '0' || value === false) resolved = false;
+
+    maintenanceCache = { value: resolved, expiresAt: now + MAINTENANCE_CACHE_TTL_MS };
+    return resolved;
   } catch {
     return null; // Supabase injoignable → laisser le défaut décider
   }

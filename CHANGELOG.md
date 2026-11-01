@@ -2,6 +2,356 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+  ## [2026-11-01] — Refonte Éditoriale Stitch : Page d'Accueil Terracotta & Azure & Atlas Cartographique Interactif
+
+- **Enrichissement Complet Sardaigne & Sicile (11 pages) & 5 Pages Transverses à 0 Texte en Dur (`app/destinations/sardaigne/**`, `app/destinations/sicile/**`, `app/a-propos/**`, `app/slow-travel/**`, `app/start/**`, `app/retour-experience/**`, `app/expert-hotelier/**`)** :
+  - **Sardaigne (6 pages)** :
+    - `sardaigne/page.tsx` (`16 → 0` textes en dur, 5e carte territoriale pour Gallura & Costa Smeralda, `export const revalidate = 3600;`).
+    - Transformation des 5 gabarits `SubDestinationTemplate` (`alghero`, `asinara`, `cagliari`, `costa-smeralda`, `nuoro`) en carnets slow travel complets (~400 lignes chacun, 6 étapes géolocalisées, respect de la voix éditoriale `tu`/`on`, conservation des 12 zones CMS et support `?preview=draft`).
+  - **Sicile (5 sous-destinations)** :
+    - Transformation des 5 gabarits `SubDestinationTemplate` (`catane`, `etoile`, `palerme`, `syracuse`, `taormine`) en carnets slow travel complets (~400 lignes chacun, Piazza del Duomo et train Circumetnea à Catane, 7 îles d'argile et de feu aux Éoliennes, quadrilatère arabo-normand à Palerme, calcaire blanc et Neapolis à Syracuse, théâtre gréco-romain et gorges de l'Alcantara à Taormine, `0` texte en dur).
+  - **5 Pages Transverses (Passage Intégral à 0 Texte en Dur)** :
+    - `app/a-propos/page.tsx` (`16 → 0` textes en dur, piliers et statistiques passés au CMS, alignement du sceau officiel).
+    - `app/slow-travel/page.tsx` (`6 → 0` textes en dur, principes et citations reliés aux zones éditables).
+    - `app/start/page.tsx` (`17 → 0` textes en dur, intégration de `getCmsOrSetting` et zones éditables par lien).
+    - `app/retour-experience/page.tsx` (`23 → 0` textes en dur, migration sur `useZoneTexts` pour l'ensemble des libellés et options du formulaire).
+    - `app/expert-hotelier/page.tsx` (`44 → 0` textes en dur, intégration des formules, services et processus dans le CMS).
+  - **Garde-fous & Cliquet CMS (`scripts/cms-hardcode-baseline.json`)** :
+    - Abaissement du cliquet sur 12 fichiers (total global abaissé de `844` à **`710` textes en dur**, soit **-134 textes en dur**).
+    - Pré-vol 13/13 vert (`npm run preflight`), `tsc --noEmit` 0 erreur.
+
+- **Enrichissement Complet des 4 Chantiers Restants (Guides, Piliers Publiés, 6 Articles MDX, Roumanie, Normandie & Colombie)** :
+  - **Chantier 1 — Guide « Top 10 Pépites Madère » & 3 Pages Piliers Publiées (`app/guides/top-10-pepites-madere/page.tsx`, `app/destinations/portugal/page.tsx`, `app/destinations/alentejo/page.tsx`, `app/destinations/idf/page.tsx`)** :
+    - Remplacement intégral des 10 entrées génériques non vérifiées de `PEPITES_FALLBACK` par 10 repères de terrain vérifiés du Coffre des Savoirs (`mad-fanal-laurisilva`, `mad-achadas-faja`, `mad-porto-moniz-pools`, `vault_22` O Galo, `vault_21` Pico do Arieiro & PR9, `vault_32` Câmara de Lobos & 6 vins à 5 €, `mad-ponta-do-sol-pier`, PR11 Ribeiro Frio, Estreito espetada sur branche de laurier, Faial & Santo da Serra) avec photos locales (`/images/destinations/madere/**`) et passage de `32` à `0` textes en dur.
+    - Enrichissement des pages piliers publiées **Portugal** (`13 → 0` textes en dur, 6 cartes de territoires illustrées, alignement voix `tu`/`on`), **Alentejo** (`22 → 0` textes en dur, fiche `vault_23` Comporta, port sur pilotis de Carrasqueira, vin de Talha en amphores à Monsaraz, Évora) et **Île-de-France** (`21 → 0` textes en dur, fiches `vault_34` Petite Ceinture 14e, `vault_35` Canal Saint-Martin & rue Sainte-Marthe, `vault_45` Mouffetard & Singh'Nature, `vault_51` Fontainebleau Denecourt n° 2, Versailles 8h00 Grille de la Reine, Giverny voie verte).
+  - **Chantier 2 — Enrichissement des 6 Articles MDX Courts du Blog (`content/articles/*.mdx`)** :
+    - `stoos-crete-suisse-slow-travel.mdx` (47 → 108 lignes : chronologie horodatée du 12/07/2025 de 17h27 à 20h33, coordonnées GPS, funiculaire 110 %, 28 dB, Alpkäse à Furggeli).
+    - `madere-slow-travel-fanal-achadas.mdx` (60 → 108 lignes : lauriers *Ocotea foetens*, téléphérique d'Achadas da Cruz à 98 % / 3 €, vasques du Cachalote & plage noire du Seixal, PR9 & Faial *mel de cana*, Câmara de Lobos, Estreito & *O Galo*).
+    - `coimbra-ruelles-mondego-fado-slow-travel.mdx`, `obidos-remparts-chemins-ronde-slow-travel.mdx`, `alcobaca-abbaye-cistercienne-cloitre-silence.mdx`, `batalha-tomar-dentelle-pierre-templiers.mdx` : passage à >100 lignes chacun, conversion intégrale `nous`/`vous` → `on`/`tu`, correction de la coquille `imported'Angleterre`, ajout des tableaux récapitulatifs pratiques et repères architecturaux vérifiés.
+  - **Chantier 3 — Roumanie : Timișoara & les 3 Itinéraires 5, 7 et 10 Jours (`app/destinations/roumanie/timisoara/page.tsx`, `itineraire-5-jours/page.tsx`, `itineraire-7-jours/page.tsx`, `itineraire-10-jours/page.tsx`)** :
+    - Ajout de `export const revalidate = 3600;` et du mode aperçu `?preview=draft`, enrichissement de Timișoara avec `vault_49` (Piața Unirii, Cuib d'Arte, quartier Fabric, Piața Victoriei, canal Bega), passage des 4 fichiers à `0` texte en dur (contre `30`, `28`, `37` et `51` auparavant, soit -146 textes en dur) et alignement sur août 2026 (`0 CONTREDIT` sur `check-content-evidence.mjs`).
+  - **Chantier 4 — Normandie & Colombie (`app/destinations/normandie/**`, `app/destinations/colombie/**`)** :
+    - Refonte des 2 pages piliers (`normandie/page.tsx` `13 → 0` et `colombie/page.tsx` `14 → 0`) et transformation des 6 derniers gabarits `SubDestinationTemplate` de 66 lignes (`normandie/le-havre`, `normandie/cote-albatre`, `normandie/pays-dauge`, `colombie/bogota`, `colombie/cali`, `colombie/medellin`) en carnets slow travel complets (~400 lignes chacun, 6 étapes géolocalisées, conservation des 12 zones CMS historiques `hero_image`, `intro_text`, `local_tip`, `local_tip_kicker`, `highlight_1..3_emoji/title/description`, support `?preview=draft` et `0` texte en dur).
+  - **Garde-fous & Cliquet CMS (`scripts/cms-hardcode-baseline.json`)** :
+    - Abaissement du cliquet sur 14 fichiers supplémentaires (total global abaissé de `1120` à **`844` textes en dur**, soit **-276 textes en dur** sur ce lot).
+
+- **Enrichissement Complet des 3 Lots de Contenu Destination & Résolution des Contradictions Terrain (`app/destinations/roumanie/**`, `app/destinations/madere/**`, `app/destinations/portugal/lisbonne/page.tsx`, `app/destinations/zurich/page.tsx`, `app/destinations/idf/**`)** :
+  - **Lot 1 — Roumanie (6 sous-pages + résolution des 9 contradictions de dates)** :
+    - Refonte des 6 gabarits `SubDestinationTemplate` (`brasov`, `sibiu`, `transylvanie`, `maramures`, `apuseni`, `cluj`) en carnets slow travel complets (~473 lignes chacun) adossés aux fiches `VAULT_SPOTS` (`vault_37`, `vault_40..42`, `vault_49`, `vault_59`, `vault_61`, `vault_62`) et aux photos locales d'août 2026 (`IMG_20260827_*.jpg`).
+    - Alignement strict des dates terrain sur août 2026 (`content/evidence/roumanie.json`) dans `itineraire-5-jours/page.tsx`, `itineraire-7-jours/page.tsx`, `maramures/page.tsx` et `timisoara/page.tsx` : **0 contradiction photo** sur `check-content-evidence.mjs` (contre 9 auparavant).
+  - **Lot 2 — Madère (7 sous-pages restantes)** :
+    - Refonte des 7 sous-destinations (`camara-de-lobos`, `ribeiro-frio`, `faial`, `sao-vicente`, `portela`, `estreito`, `santos`) en carnets slow travel complets (~522 lignes chacun) adossés aux fiches `VAULT_SPOTS` (`vault_21`, `vault_22`, `vault_29`, `vault_32`, `vault_39`, `vault_46`, `vault_50`, `vault_57`, `vault_58`) et aux photos locales de `public/images/destinations/madere/` : barques *xavelhas* et dégustation de 6 vins de Madère à 5 €, forêt primaire de Laurisilva UNESCO (PR10/PR11), rencontre autour de la *poncha* à Faial après le PR9, plage basaltique du Seixal, belvédère de Portela et distillerie à vapeur de 1927, vignobles en *latadas* et *espetada* sur branche de laurier à Estreito, marché agricole du dimanche et cidre fermier à Santo da Serra.
+  - **Lot 3 — Lisbonne, Zurich & Île-de-France (5 pages)** :
+    - **Lisbonne (`app/destinations/portugal/lisbonne/page.tsx`)** : carnet complet adossé aux fiches `vault_56` et `vault_91` (*bica* à 0,80 € dans les *travessas* d'Alfama, rencontre avec dona Maria dans les escaliers de la Mouraria, *guitarra portuguesa* à 12 cordes, Miradouro da Senhora do Monte et ferry du Tage vers Cacilhas à 1,50 €).
+    - **Guide publié de Zurich (`app/destinations/zurich/page.tsx`)** : enrichissement complet de la page publiée avec les fiches vérifiées `vault_47`, `vault_48`, `vault_68`, `vault_80..83` (descente en bouée sur la Limmat de Wipkingerpark à Glanzenberg sur 11 km avec portage obligatoire de 150 m au barrage d'Hönggerwehr, seuils de sécurité débit `< 60 m³/s` et eau `> 18 °C`, *Badi* centenaires et *Barfussbar* au Frauenbadi, marché de Bürkliplatz, Lindenhof et échappées vers Stoos et Stein am Rhein), tout en conservant les 27 zones CMS historiques de `destinations-zurich`.
+    - **3 carnets Île-de-France (`app/destinations/idf/fontainebleau/page.tsx`, `giverny/page.tsx`, `versailles/page.tsx`)** : enrichissement avec la fiche `vault_51` (accès Transilien ligne R en 40 min, sentier bleu Denecourt n° 2 et gorges d'Apremont ; voie verte de Vernon à Giverny et ouverture de 9h00 au Jardin d'Eau ; entrée de 8h00 par la Grille de la Reine à Versailles, Potager du Roi de 1683 et Hameau de la Reine).
+  - **Garde-fous & Cliquet CMS (`scripts/cms-hardcode-baseline.json`)** :
+    - Abaissement du cliquet de textes en dur sur 17 fichiers (passage de `6` à `0` sur chacune des 17 sous-pages enrichies, total abaissé à `1120`).
+    - Pré-vol 13/13 vert (`npm run preflight`), `tsc --noEmit` 0 erreur, 30/30 tests unitaires vitest passés.
+
+- **Enrichissement des 8 Sous-Destinations Madère, Monténégro & Roumanie en Carnets Complets (pp/destinations/madere/**, pp/destinations/montenegro/kotor/page.tsx, pp/destinations/roumanie/bucarest/page.tsx)** :
+  - **6 carnets Madère (chadas-da-cruz, ponta-do-sol, porto-moniz, cabo-girao, unchal, cote-est)** : transformation des gabarits génériques (SubDestinationTemplate, 66 lignes) en carnets slow travel complets (~420-520 lignes) adossés aux fiches vérifiées du Coffre des Savoirs (mad-achadas-faja, mad-ponta-do-sol-pier, mad-porto-moniz-pools, ault_22, ault_29, ault_32, ault_39) et aux photos locales géolocalisées (/images/destinations/madere/**), avec support ?preview=draft, conservation des 12 zones CMS historiques (hero_image, intro_text, local_tip, local_tip_kicker, highlight_1..3_emoji/title/description) et 0 texte en dur.
+  - **Carnet Monténégro — Kotor (pp/destinations/montenegro/kotor/page.tsx)** : ajout de export const revalidate = 3600, mode ?preview=draft, étapes intérieures illustrées (stara_varos.jpg, sahat_kula.jpg, sipcanik_winery.jpg), retrait des mots bannis en quarantaine et réduction du compteur de textes en dur de 30 à 0 dans scripts/cms-hardcode-baseline.json.
+  - **Carnet Roumanie — Bucarest (pp/destinations/roumanie/bucarest/page.tsx)** : refonte de la sous-page publiée en carnet slow travel complet adossé aux 4 photos locales du 27 août 2026 (IMG_20260827_*.jpg) et à la fiche ault_36 (cloîtres de Stavropoleos et Schitu Dârvari, villas de Cotroceni, rue en escaliers Xenofon, 184 hectares du delta urbain de Văcărești).
+
+- **Optimisation Consommation Vercel (Fluid Active CPU & ISR Writes)** :
+  - **Allongement des fenêtres ISR (`export const revalidate`)** sur 26 routes pour stopper les régénérations serveur inutiles tout en préservant l'invalidation instantanée à l'enregistrement CMS (`revalidateCmsTarget` / `revalidateTag`) :
+    - Pages éditoriales (`app/page.tsx`, `app/atlas/page.tsx`, `app/slow-travel/page.tsx`, `app/temoignages/page.tsx`, `app/destinations/**`, `app/guides/**`, `app/travel-planning/**`, `app/expert-hotelier/page.tsx`, `app/contact/page.tsx`, `app/quiz/page.tsx`, `app/start/page.tsx`, `app/organisateur/page.tsx`, `app/merci/page.tsx`, `app/api/cms/maps/[slug]/route.ts`) : passage de `60s`/`300s` à **`3600s` (1 heure)**.
+    - Pages légales statiques (`app/mentions-legales/page.tsx`, `app/politique-confidentialite/page.tsx`, `app/politique-affiliation/page.tsx`) : passage de `300s` à **`86400s` (24 heures)**.
+  - **Cache serveur & client CMS (`lib/cms-zones.ts`, `components/inline-edit/InlineEditProvider.tsx`, `lib/supabase-edge.ts`)** :
+    - `lib/cms-zones.ts` : fenêtre `unstable_cache` portée de `300s` à `3600s` (invalidée par tag `cms-zones` à chaque écriture).
+    - `InlineEditProvider.tsx` : suppression du `fetch('/api/cms/zones')` client redondant lorsqu'une page préchargée côté serveur (`initialZones !== undefined`) possède un dictionnaire initial vide `{}`.
+    - `lib/supabase-edge.ts` : ajout d'un cache mémoire court (TTL 60s hors environnement de test) sur `getMaintenanceMode()` dans l'isolat Edge afin d'éviter un appel réseau Supabase à chaque requête publique.
+
+
+- **Enrichissement Destination Suisse & Carnet Alpin Stoos (`app/destinations/suisse/page.tsx`, `app/destinations/suisse/stoos/page.tsx`)** :
+  - **Refonte Éditoriale du Hub Suisse (`app/destinations/suisse/page.tsx`)** :
+    - Remplacement de l'ancien fallback par un portail complet slow travel adossé aux relevés réels de l'archive `Suisse - Stoos & Randonnées alpines (Schwyz)-1-001.zip` (50 photos géolocalisées, 2 vidéos, prises le 12 juillet 2025).
+    - Hero immersif avec photo locale authentique (`/images/destinations/suisse/stoos/etape1_stoos_panorama_lac.jpg`), données d'altitude (1 922 m), mobilité douce (CFF/SBB et Stoosbahn 110%) et badge terrain vérifié.
+    - Navigation d'étapes vers Stoos, Zurich et le Grand Atlas Cartographique.
+    - Cartes d'itinéraires détaillées (Stoos Ridge Trail 6,5 km, niveau T2, 2h45-3h15) et Zurich au fil de l'eau.
+    - 3 Règles d'or helvétiques : horaires décalés après 16h30, villages 100% piétons sans moteur, approvisionnement direct dans les alpages (Alpkäse).
+    - Données structurées JSON-LD `TouristDestination` et `FAQPage` conformes schema.org.
+  - **Enrichissement Fiche Technique Stoos (`app/destinations/suisse/stoos/page.tsx`)** :
+    - Fiche technique de crête : altitude sommet (1 922 m), distance (6,5 km), durée (2h45 à 3h15), mesure acoustique crépusculaire (28 dB à 20h contre 65 dB en vallée).
+    - Chronologie précise des 6 étapes horodatées (17h27 sommet, 18h08 cabane éperon, 19h01 arête médiane, 19h22 versant sud, 20h20 alpages du soir, 20h33 belvédère couchant) et coordonnées GPS Pixel.
+    - Section Terroir & Alpages : fabrication de l'Alpkäse d'estive et pain de seigle.
+    - Remplacement de l'image externe de repli par la photo locale vérifiée dans `DestinationPage.tsx`.
+  - **Garde-fous & Tests** :
+    - 100% des textes visibles sous `EditableZone` / `Z(...)` (baseline CMS hardcode maintenue à 0).
+    - 0 mot banni, 0 tic visuel SaaS.
+    - Pré-vol 13/13 vert (`npm run preflight`).
+    - Suite de tests unitaires `__tests__/lib/unpublished-pages.test.ts` verte (10/10 passés).
+
+
+- **Refonte Éditoriale de la Page d'Accueil (`components/HomeClient.tsx`)** :
+  - Intégration de la direction artistique et des composants Stitch :
+    1. **Hero immersif & Manifeste** : Accroche typographique Playfair Display « On ferme les ordis. On part. On revient avec des pépites qu’on n’avait pas cherchées. », micro-badge curateurs indépendants, barre de métriques vécues (40 pays arpentés, 100+ pépites secrètes, 12 pays habités, 100% vécu en duo), cachet « 0% tourisme de masse » et vignette photo en direct.
+    2. **Filtres rapides de destination** : Pastilles interactives (Madère, Monténégro, Roumanie, Suisse, Portugal) avec bascule directe.
+    3. **Histoire du duo & Règles d'or** : Portraits de terrain d'« Elle » et « Lui » (respect strict de la Règle 5, zéro visage ni selfie) adossés aux 3 piliers (Testé sur nos pas, Économie locale, Rythme juste).
+    4. **Destinations & Carnets vécus (format magazine)** : Mise en avant avec photos vérifiées de terrain, fiche d'étape et bouton direct « Adapter pour moi » vers le travel planning.
+    5. **Offre Travel Planning & Tarification transparente** : Processus en 3 étapes (Échange, Feuille de route optimisée, Carnet secret & Support direct), aperçu du livrable mobile et deux formules claires (Formule Escapade 180 € / Formule Grand Tour 340 €).
+    6. **Diagnostic voyageur interactif** : 4 profils (Aventure & Reliefs, Histoire & Cités, Criques & Silence, Slow Dolce Vita) avec recommandations directes.
+    7. **Espace Hébergeurs B2B** : Mise en valeur du modèle direct 0% commission pour maisons d'hôtes et refuges de charme.
+    8. **Bannière d'accès à l'Atlas interactif** et formulaire « Lettre de Route ».
+  - **Garde-fous & CMS** : 100% des textes visibles passent par `<EditableZone>` et le helper `Z(...)`. Baisse des textes en dur hors CMS verrouillée dans `scripts/cms-hardcode-baseline.json`.
+
+- **Création du Grand Atlas Cartographique Interactif (`components/InteractiveAtlas.tsx`, `components/DynamicAtlas.tsx`, `app/atlas/page.tsx`)** :
+  - **Carte Leaflet stylisée Terracotta** : 24 pépites géolocalisées avec coordonnées GPS précises, altitudes, tracés vectoriels pointillés par territoire (Madère, Monténégro, Roumanie, Sicile & Pouilles, Suisse Stoos, Portugal Sintra & Óbidos).
+  - **Panneau latéral d'inspection** : Vignette photo de terrain, durée conseillée, accès véhicule, citation d'« Elle » & « Lui », bouton de copie rapide des coordonnées GPS et lien vers le carnet complet.
+  - **Comparatif interactif des Camps de Base & Hébergements Vérifiés** : Tableau complet filtrable par destination et typologie (Masseria, Maison d'hôtes, Villa falaise, Campement, Refuge alpin), triable par ★ Slow Score ou budget par nuit.
+  - **Exportation GPX** : Téléchargement dynamique d'un bundle GPX formaté avec les waypoints des 24 pépites.
+  - **Intégration Next.js sans SSR (`DynamicAtlas.tsx`)** pour isoler Leaflet côté client sans warning d'hydratation.
+
+- **Tokens Design System (`tailwind.config.ts`)** :
+  - Ajout des nuances `terracotta` (`#9A442D`, `#E07A5F`, `#7C2E19`), `azure` (`#4F5F79`, `#1D2D44`, `#D0E0FF`), `warm-sand` (`#F4F1DE`) et `alabaster` (`#FAF9F5`).
+  - Respect scrupuleux des garde-fous : 0 emoji décoratif dans le code, 0 classe de carte SaaS générique (`rounded-2xl` / ombres lourdes sur blanc), conformité totale `check-design-tics` et pré-vol 13/13 vert.
+
+  ## [2026-10-31] — Enrichissement Itinéraires Slow Travel Authentiques : Stoos (Suisse), Alcobaça, Sintra, Óbidos, Batalha-Tomar, Coimbra, Madère, Colombie, Beausoleil, Savoie & Porto
+
+- **Itinéraire & Randonnée alpine Suisse : Stoos & l'arête du Fronalpstock (`app/destinations/suisse/stoos/page.tsx`)** :
+  - Exploitation de l'archive `Suisse - Stoos & Randonnées alpines (Schwyz)-1-001.zip` (50 photos géolocalisées avec Google Pixel prises le 12 juillet 2025 au coucher du soleil) :
+    1. Sommet du Fronalpstock à 1922 m (`46.9694° N, 8.6366° E`) : vue panoramique plongeante sur les bras d'émeraude du lac des Quatre-Cantons.
+    2. L'éperon rocheux et la cabane de guet (`46.9665° N, 8.6370° E`) : à-pic herbeux face au couloir du lac d'Uri.
+    3. L'arête médiane du Stoos Ridge Trail (`46.9625° N, 8.6454° E`) : sentier funambule entre herbe d'alpage et falaises.
+    4. Versant sud aux rayons rasants (`46.9614° N, 8.6509° E`) : lumière oblique de 20h00 à travers la brume des sommets.
+    5. L'heure dorée sur les pentes herbeuses (`46.9614° N, 8.6534° E`) : combes d'altitude et chalets miniatures.
+    6. Le belvédère du soir (`46.9576° N, 8.6604° E`) : table de bois sur la falaise face aux Alpes uranaises pourpres.
+  - **Audit visuel de protection (Règles 1 & 5)** : 6 photographies panoramiques de paysages purs sélectionnées, optimisées et déployées dans `public/images/destinations/suisse/stoos/`. Élimination stricte des selfies de couple et portraits au téléobjectif.
+  - **Garde-fous & Mode brouillon** : Enregistrement dans `lib/unpublished-pages.ts` (`/destinations/suisse/stoos` et `destinations-suisse-stoos`) avec écran « Bientôt » pour le public et accès aperçu `?preview=draft`.
+  - **Mise à jour de l'article Stoos (`content/articles/stoos-crete-suisse-slow-travel.mdx`)** : Remplacement des images distantes par les clichés locaux haute définition, suppression du mot banni « astuce » au profit de « repère d'horaire ». Pré-vol 13/13 vert.
+
+
+- **Carnets de route Slow Travel : Alcobaça, Sintra, Óbidos, Batalha-Tomar & Coimbra (`content/articles/*.mdx`)** :
+  - **Alcobaça : la pureté cistercienne et le silence de pierre à deux (`content/articles/alcobaca-abbaye-cistercienne-cloitre-silence.mdx`)** : Abbaye royale de Santa Maria, nef cistercienne dépouillée, tombeau sculpté d'Inês de Castro et cloître du silence de Dom Dinis.
+  - **Sintra à contre-courant (`content/articles/sintra-serra-mysteres-slow-travel-couple.mdx`)** : Puits initiatique de la Regaleira, grottes, Chalet d'Edla et Palácio da Pena vu des crêtes.
+  - **Óbidos au crépuscule (`content/articles/obidos-remparts-chemins-ronde-slow-travel.mdx`)** : Chemin de ronde sans garde-corps sur les murailles médiévales, tour nord sur l'Estrémadure, ruelles chaulées et ginjinha.
+  - **Batalha et Tomar (`content/articles/batalha-tomar-dentelle-pierre-templiers.mdx`)** : Dentelle manuéline du cloître royal, Capelas Imperfeitas ouvertes sur le ciel bleu et ermitage Renaissance sur le coteau de Tomar.
+  - **Coimbra à contre-pente (`content/articles/coimbra-ruelles-mondego-fado-slow-travel.mdx`)** : Église Santa Cruz, escalier Quebra-Costas après la porte maure d'Almedina, panorama haut de l'Université sur le fleuve Mondego et fado étudiant.
+  - Tous adossés aux photos et coordonnées GPS réelles de la puce Sony DSC-HX50V, avec section d'honnêteté « Ce qu'on a moins aimé », 0 mot banni et voix de marque 100% respectée.
+
+- **Itinéraires Portugal : Alcobaça, Sintra, Óbidos, Batalha-Tomar & Coimbra (5 destinations slow travel)** :
+  - Découverte et exploitation du disque dur 1 To (`G:\Memorias\Fotos\Portugal Outubro 2015`, photos avec puce GPS matérielle Sony DSC-HX50V) :
+    1. **Alcobaça (`app/destinations/portugal/alcobaca/page.tsx`)** : 4 étapes (Praça 25 de Abril `39.5482° N, 8.9801° W`, Grande nef cistercienne `39.5482° N, 8.9800° W`, Tombeau sculpté d'Inês de Castro `39.5482° N, 8.9800° W`, Claustro do Silêncio de Dom Dinis `39.5480° N, 8.9799° W`). 4 photos déployées dans `public/images/destinations/portugal/alcobaca/`.
+    2. **Sintra & la Serra (`app/destinations/portugal/sintra/page.tsx`)** : 6 étapes (Quinta da Regaleira `38.7960° N, 9.3962° W`, Puits initiatique `38.7945° N, 9.3970° W`, Grottes souterraines `38.7945° N, 9.3956° W`, Sentiers forestiers `38.7953° N, 9.3964° W`, Chalet d'Edla `38.7967° N, 9.3961° W`, Palácio da Pena `38.7962° N, 9.3963° W`).
+    3. **Óbidos & la cité médiévale fortifiée (`app/destinations/portugal/obidos/page.tsx`)** : 3 étapes le long des courtines (Castelo médiéval `39.3637° N, 9.1574° W`, Belvédère des murailles `39.3645° N, 9.1575° W`, Venelles chaulées de blanc `39.3644° N, 9.1501° W`).
+    4. **Batalha & Tomar : l'héritage de pierre (`app/destinations/portugal/batalha-tomar/page.tsx`)** : 4 étapes gothiques et templières (Cloître Royal de Batalha `39.6596° N, 8.8258° W`, Parvis & statue de Nuno Álvares `39.6583° N, 8.8261° W`, Capelas Imperfeitas à ciel ouvert `39.6598° N, 8.8262° W`, Ermida da Conceição à Tomar `39.6057° N, 8.4170° W`).
+    5. **Coimbra à pied & le Mondego (`app/destinations/portugal/coimbra/page.tsx`)** : 3 étapes de la Baixa à l'Alcáçova (Igreja de Santa Cruz `40.2089° N, 8.4250° W`, Arco de Almedina & escaliers Quebra-Costas `40.2089° N, 8.4289° W`, Belvédère de l'Université sur les toits d'argile et le Mondego `40.2118° N, 8.4328° W`).
+  - **Audit visuel de protection (Règles 1 & 5)** : 20 photos de paysages/monuments sélectionnées, filtrées et redressées. Élimination totale de tout cliché familial, selfie ou gros plan de fondateur.
+  - **Garde-fous & Mode brouillon** : Enregistrement dans `lib/unpublished-pages.ts` (`UNPUBLISHED_PATHS` et `UNPUBLISHED_CMS_PAGES`) avec écran « Bientôt » pour le public et mode aperçu `?preview=draft` pour les auteurs.
+  - **Design & Zéro tics** : Style sobre `rounded-sm border border-[#DED5C6] bg-[#FAF7F2]`, zéro ombre SaaS, 100% des textes en `<EditableZone>` avec `Z(...)`. Pré-vol 13/13 vert.
+
+
+- **Itinéraire Portugal : Porto & le berceau du Minho (`app/destinations/portugal/porto/page.tsx`)** :
+  - Création de l'itinéraire slow travel complet de 6 étapes réelles entre Porto et Guimarães à partir des archives du voyage d'octobre 2015 (`H:\Portugal\Sd 3`, 157 photos GPS) :
+    1. Miradouro das Virtudes — Coucher de soleil sur les toits et le Douro (`41.1434° N, 8.6104° W`).
+    2. Gare de São Bento — Façade illuminée à l'heure bleue (`41.1450° N, 8.6111° W`).
+    3. Igreja dos Congregados — Azulejos baroques & ruelles hautes (`41.1460° N, 8.6107° W`).
+    4. Terroir de quartier — Francesinha artisanale à São Nicolau (`41.1414° N, 8.6181° W`).
+    5. Guimarães — Le Paço dos Duques de Bragança (`41.4429° N, 8.2930° W`).
+    6. Largo da Oliveira — Place médiévale et berceau de la nation (`41.4429° N, 8.2929° W`).
+  - 6 photos authentiques extraites, auditées visuellement (zéro enfant en ligne, portraits filtrés per Règle 1 et 5), optimisées pour le web et déployées dans `public/images/destinations/portugal/porto/`.
+  - Mode brouillon sécurisé : page maintenue en `unpublished` avec bandeau d'alerte et prévisualisation réservée (`?preview=draft`).
+  - 100% zones éditables avec `<EditableZone>` (gain de 6 textes en dur verrouillé dans le cliquet).
+
+- **Itinéraire Côte d'Azur : Beausoleil en balcon sur la Méditerranée (`app/destinations/cote-d-azur/beausoleil/page.tsx`)** :
+  - Création de la page itinéraire 6 étapes de lenteur entre les traverses Belle Époque de Beausoleil et les criques calmes du littoral :
+    1. Beausoleil — Les ruelles hautes & l'oranger en fruits (`43.7471° N, 7.4302° E`).
+    2. Terrasses du littoral — Descente vers la crique entre pins et eucalyptus (`43.7459° N, 7.4325° E`).
+    3. Anse du Larvotto — La plage déserte & le ressac sous la falaise au crépuscule (`43.7463° N, 7.4324° E`).
+    4. Sentier du littoral / Mareterra — Crépuscule pourpre le long de la digue (`43.7475° N, 7.4353° E`).
+    5. Place du Casino — Lueurs nocturnes sous les palmiers de la place (`43.7394° N, 7.4275° E`).
+    6. Port Hercule — Nuit sur le port & clapotis des amarres (`43.7370° N, 7.4247° E`).
+  - 6 photos authentiques extraites de l'archive `G:\Backup december 2023 Realme 8 G5` (Album 11, novembre 2023), auditées visuellement (zéro humain, zéro visage), optimisées et intégrées dans `public/images/destinations/cote-d-azur/beausoleil/`.
+  - Enregistré en mode brouillon sécurisé dans `lib/unpublished-pages.ts` (`/destinations/cote-d-azur/beausoleil` accessible via `?preview=draft`).
+- **Itinéraire Savoie : Aillon-le-Jeune & le massif des Bauges sous la neige (`app/destinations/savoie/aillon-le-jeune/page.tsx`)** :
+  - Création de la page itinéraire 4 étapes hivernales :
+    1. Aillon-le-Jeune — Le bourg sous la neige & la silhouette de l'église (`45.6184° N, 6.0814° E`).
+    2. Hameau d'Aillon — L'abri à bois d'affouage & la mémoire paysanne (`45.6184° N, 6.0814° E`).
+    3. Fermes des Bauges — Vergers endormis & fermes traditionnelles (`45.6184° N, 6.0814° E`).
+    4. Le Margériaz — La forêt de sapins du Margériaz dans la brume alpine (`45.6080° N, 6.1017° E`).
+  - 4 photos authentiques issues de `G:\Viagem Madeira Dezembro 2022 Janeiro 2023\DCIM\111D3400` (Album 6, février 2021), auditées visuellement (photos de famille/luge écartées conformément à la Règle 5).
+  - Enregistré en mode brouillon sécurisé dans `lib/unpublished-pages.ts` (`/destinations/savoie/aillon-le-jeune` accessible via `?preview=draft`).
+- **Audit de protection infantile (Règle 5) sur les archives Paris (Albums 3, 7, 8, 9)** :
+  - L'inspection visuelle systématique des clichés parisiens de 2019-2022 montre qu'il s'agit d'archives familiales privées (bébé/enfants, anniversaires, poussettes).
+  - En application stricte de la Règle 5 (« Aucune photo d'enfant en ligne ») et de la décision du fondateur du 19/10/2026, `/destinations/paris` et `/destinations/idf/paris` sont maintenues en mode « Bientôt » jusqu'à versement d'une archive urbaine neutre.
+- **Itinéraire Colombie : Cartago & l'Eje Cafetero (`app/destinations/colombie/cartago/page.tsx`)** :
+  - Transformation du gabarit générique en itinéraire slow travel complet de 6 étapes réelles entre Cartago (Valle del Cauca) et Salento (Quindío) :
+    1. Cartago — Éveil au marché & dégustation fromagère (Queso Paipa, Siete Cueros, pan de bono à `4.7395° N, 75.9107° O`).
+    2. Río La Vieja & Piedra de Moler — Le pont suspendu et les forêts de bambou guadua (`4.7086° N, 75.8570° O`).
+    3. Quimbaya — Pause café filtre & douceur locale dans un bistrot de village (`4.6239° N, 75.7681° O`).
+    4. El Roble — Halte paysanne, galettes de maïs et fromage frais (`4.6627° N, 75.5964° O`).
+    5. Boquía — Crépuscule sur les crêtes de la cordillère centrale (`4.6392° N, 75.5659° O`).
+    6. Salento — Nuit calme sur la Plaza de Bolívar éclairée (`4.6371° N, 75.5694° O`).
+  - Intégration de 6 photographies authentiques issues de l'archive `G:\Camera` (Album 1, 2-8 décembre 2019) avec coordonnées GPS EXIF réelles, auditées visuellement selon la Règle 5 (zéro photo d'enfant en ligne, zéro selfie rapproché) et redressées à la verticale : `public/images/destinations/colombie/cartago/etape[1-6]_*.jpg`.
+  - Mode brouillon sécurisé : page maintenue en `unpublished` avec bandeau d'alerte et prévisualisation réservée (`?preview=draft` / `?preview=true`).
+  - Toutes les zones textuelles câblées via `<EditableZone>` (zéro texte en dur, cliquet `check-cms-hardcode` préservé à 0 hausse).
+- **Itinéraire Madère : 7 jours en couple (`app/destinations/madere/itineraire-7-jours/page.tsx`)** :
+  - Enrichissement de l'itinéraire 7 étapes avec 6 photographies authentiques (`public/images/destinations/madere/itinerary/`) issues des archives de décembre 2022 / janvier 2023 (`G:\Viagem Madeira Dezembro 2022 Janeiro 2023`).
+  - Points GPS réels vérifiés (Funchal, Ponta de São Lourenço, Santana, Porto Moniz, Ribeira Brava, Pico do Arieiro).
+- **Garde-fous & Qualité** :
+  - `npm run preflight` : 13/13 contrôles réussis.
+  - `node scripts/check-cms-hardcode.mjs` : 0 régression sur 171 fichiers.
+  - `npx tsc --noEmit` : 0 erreur TypeScript.
+
+  ## [2026-10-27 septies] — Automatisation Jules GitHub Actions, Remplacement In-House de Bravo, Métriques Instagram, Moteur SEO Geo & Studio Vectoriel de Sceaux
+
+- **Dispatcher de Tâches Jules via GitHub Actions (`.github/workflows/dispatch-jules.yml`, `scripts/dispatch_jules_action.mjs`)** :
+  - Lancement manuel via `workflow_dispatch` (titre, prompt, branche, liaison avec la table Supabase `agent_tasks`).
+  - Lancement automatique depuis les commentaires GitHub Issues : un simple commentaire `/jules <instructions>` sur une issue ou PR déclenche l'agent Google Jules et répond avec le lien direct de session (`https://jules.google.com/session/<id>`).
+  - Génération de récapitulatif d'exécution Markdown dans `$GITHUB_STEP_SUMMARY` et mise à jour de la table `agent_tasks` (`in_progress`, `claimed_by = 'jules'`).
+- **Remplacement In-House de Bravo Studio (`heldonica-mobile/`, `components/PwaInstallPrompt.tsx`)** :
+  - Écosystème 100% in-house et 0€ : application Android native Kotlin (`heldonica-mobile/`) avec Photo Picker sans scope invasif, géocodage inverse OpenStreetMap Nominatim et upload direct Supabase Media.
+  - Déploiement CI automatisé de l'APK via `.github/workflows/build-apk.yml` et `release-apk.yml` (zéro secret compilé dans le bytecode dex).
+  - Composant Web `PwaInstallPrompt.tsx` : invitation douce à l'installation sur smartphone (PWA standalone, mode hors-ligne) sans passer par des plateformes tierces payantes.
+- **Tableau de Bord & Métriques Instagram en Direct (`app/panel-manager/instagram/InstagramManagerSection.tsx`)** :
+  - Intégration de 4 KPI en temps réel : abonnés officiels, total des publications, commentaires modérés et score de conformité de la voix slow travel.
+  - Grille visuelle des 6 dernières publications avec permaliens, photos, décompte des likes (❤️) et commentaires (💬).
+- **Moteur SEO Geo & Données Structurées Schema.org Étendues (`lib/seo-geo.ts`, `components/seo/DestinationJsonLd.tsx`)** :
+  - Support complet de `TouristDestination`, `TouristTrip`, `Place` et `GeoCoordinates` (latitude, longitude, altitude).
+  - Générateur de balises méta conformes au standard W3C et OpenGraph (`geo.position`, `ICBM`, `geo.placename`, `place:location:latitude`, `place:location:longitude`).
+  - Calcul de distance orthodromique (formule de Haversine) et estimation du temps de marche slow travel (4 km/h à plat + 1h pour 300m D+).
+  - Sécurisation stricte contre les injections XSS dans les balises JSON-LD via échappement unicode `\u003c`.
+- **Générateur Vectoriel de Sceaux & Monogrammes (`lib/logo-generator.ts`, `components/admin/LogoStudioModal.tsx`)** :
+  - 4 styles géométriques haute résolution : Sceau Circulaire Officiel (double filet gravé, texte courbé, crête et soleil levant), Écusson Minéral, Rose des Vents Artisanale, Monogramme Typographique épuré.
+  - Personnalisation complète : nom de marque, sous-titre, coordonnées GPS réelles, millésime et palettes chromatiques (Encre & Or, Eucalyptus & Cuivre, Vert Forêt & Terre Cuite, Bleu Ardoise).
+  - Export instantané en fichier `.svg`, copie du code vectoriel et application directe en tant que logo officiel du site.
+- **Répertoire Typographique & Packs d'Icônes (`lib/brand-customization.ts`)** :
+  - 4 combinaisons de polices slow travel (*Héritage Éditorial*, *Grand Romain & Alpin*, *Solitude Poétique*, *Minéral & Gravure Ancienne*).
+  - 3 packs d'icônes dédiés (*Ligne Fine Artisanale 1.5px*, *Minéral & Silhouette 2px*, *Sceau Botanique*).
+- **Vérifications & Tests** :
+  - 29/29 tests au vert (`DestinationJsonLd.test.tsx`, `seo-geo.test.ts`, `logo-generator.test.ts`, `SanityKillerCms3.test.tsx`).
+  - `npm run preflight` : 13/13 contrôles réussis.
+  - `npm run typecheck` : 0 erreur.
+
+## [2026-10-27 sexies] — Heldonica CMS 3.0 : UX Impeccable, Simulateur Mobile APK, Studio des Gabarits Hors-Pair & Anti-IA Radical
+
+- **Simulateur Responsive Tactile Mobile APK / Tablette / Bureau (`BlockCanvas.tsx`)** :
+  - Sélecteur de viewport 3 modes dans la barre secondaire du canvas (`Bureau`, `Tablette 768px`, `Mobile APK 390px`).
+  - En mode `Mobile APK` : simulation fidèle d'un smartphone moderne (coque sombre arrondie `rounded-[2.75rem]`, encoche haut-parleur, barre de balayage tactile inférieure) permettant aux rédacteurs de vérifier instantanément le rendu pour l'application mobile et les smartphones sans déploiement.
+- **Historique de Modification Lossless Undo / Redo (`BlockCanvas.tsx`)** :
+  - Pile d'historique complète (`undoStack` et `redoStack` jusqu'à 30 états mémorisés).
+  - Raccourcis clavier universels (`Ctrl+Z` / `Cmd+Z` pour Annuler, `Ctrl+Y` / `Cmd+Shift+Z` pour Rétablir) sans interférer avec la saisie textuelle native.
+  - Boutons tactiles interactifs d'annulation/rétablissement dans la barre d'outils avec état désactivé automatique.
+- **Studio des Gabarits 3.0 & Personnalisation Sensorielle Hors-Pair (`lib/cms-templates.ts`, `BlockCanvas.tsx`)** :
+  - Sélecteur de **Saisons & Teintes de terrain** (`SEASON_PRESETS` : Printemps sauvage, Été d'altitude, Automne flamboyant, Hiver feutré) avec snippets sensoriels et dates réalistes.
+  - Sélecteur d'**Atmosphères & Lumière naturelle** (`ATMOSPHERE_PRESETS` : Brume d'aube, Crépuscule & Pierre chaude, Crête & Silence minéral, Falaises & Océan, Forêt ancienne).
+  - Préréglages d'optiques réelles (`CAMERA_PRESETS` : Nikon D7200 35mm f/1.8 DX, Nikon Zoom 18-105mm, Pixel RAW sans filtre IA).
+  - Gestion des Gabarits Personnalisés : enregistrement dans `localStorage` (`heldonica_user_templates_v1`), suppression, et boutons d'**Export JSON (`heldonica_gabarits_*.json`)** et d'**Import JSON** pour partage et sauvegarde hors-ligne.
+- **Compteur de Mots & Métriques de Lecture Lente en Temps Réel (`BlockCanvas.tsx`)** :
+  - Décompte instantané des mots sur tous les blocs (paragraphes, titres, pépites du Coffre, récits de photos de terrain).
+  - Calcul du temps de lecture slow travel attentive (base 170 mots/min).
+- **Cartouche de Terrain Certifié E-E-A-T Public Conforme au Cliquet CMS (`app/blog/[slug]/page.tsx`)** :
+  - Cartouche de terrain façon carnet de route imprimé avec liaisons complètes aux zones éditables du CMS (`<EditableZone page="blog" zone="..." fallback="..." />`).
+  - Zéro hardcode visible (100% conforme à `check-cms-hardcode.mjs`).
+- **Garantie Zéro Look IA & Alignement Voix de Marque (`lib/cms-templates.ts`)** :
+  - Remplacement strict de tous les pronoms interdits (`notre`, `votre`, `nos`) par `on` pour le duo, `tu` pour le lecteur, garantissant une authenticité humaine absolue.
+  - Éradication de tout cliché marketing générique.
+- **Vérifications & Garde-fous** :
+  - `npm run preflight` : 13/13 contrôles réussis au vert.
+  - `npm run typecheck` : 0 erreur TypeScript (`tsc --noEmit`).
+  - Vitest : 21/21 tests unitaires et intégration au vert (`SanityKillerCms3.test.tsx`, `cms-templates.test.ts`).
+
+## [2026-10-27 quinquies] — Heldonica CMS 3.0 : Studio des Gabarits 3.0, Cartouche E-E-A-T Nikon D7200 & Thèmes Minéraux Slow Travel
+
+  - **Studio des Gabarits 3.0 & Personnalisation Interactive (`BlockCanvas.tsx`, `lib/cms-templates.ts`)** :
+    - Transformation de la modale basique en véritable **Studio de Composition éditoriale 2 colonnes** (`max-w-5xl`) :
+      - *Colonne gauche* : Personnalisation dynamique de destination/étape (`templateDestination`, ex: « Stoos, Suisse »), filtres thématiques par pilules tactiles (`Tous`, `Récits & Immersion`, `Guides & Étapes`, `Hébergements`, `Essais Visuels`), et sélection active parmi les 7 gabarits Slow Travel avec temps de lecture estimé et tags.
+      - *Colonne droite* : Prévisualisation en direct (`Live Layout Preview`) via `<BlockRenderer blocks={previewTemplateBlocks} />`, avec injection en temps réel du territoire saisi et compteur de blocs configurés.
+      - *Actions 1-clic* : Boutons d'insertion directe « Remplacer tout le carnet (X blocs) » ou « Ajouter à la suite (+X blocs) ».
+  - **Générateur de Cartouche de Terrain Certifié E-E-A-T (`BlockCanvas.tsx`, `components/PhotoEvidenceBlock.tsx`)** :
+    - Bouton d'action directe `🏷️ Cartouche de Terrain` dans la barre d'outils du canvas.
+    - Modale de configuration et certification humaine E-E-A-T (zéro tics IA, zéro partenariat commercial) :
+      - *Lieu exact & Altitude* (ex: Stoos, crête du Fronalpstock, 1 922 m).
+      - *Moment & Saison constatée* (ex: Printemps — mai 2026).
+      - *Météo & Lumière naturelle* (ex: Brume dissipée à 07h45, 9°C, vent léger).
+      - *Boîtier & Optique réels* avec raccourcis 1-clic : **Nikon D7200 • Nikkor 35mm f/1.8 DX**, **Nikon Zoom 18-105mm VR**, **Pixel 8 Pro RAW**.
+      - *Mobilités douces* (accès train/funiculaire + marche attentive).
+      - *Charte d'indépendance* (100% autofinancé par le duo).
+    - Insertion instantanée au format Parchemin naturel en tête de carnet ou à la suite.
+    - Support du champ `cameraInfo` sur `PhotoEvidenceBlock`, `PhotoEvidenceEditor` et `lib/cms-blocks-converter.ts`.
+  - **Palette de Thèmes Minéraux & Papiers d'Artisans (`types/cms-blocks.ts`, `BlockRenderer.tsx`)** :
+    - Extension du type `BlockTheme` : `'sand' | 'parchment' | 'terracotta' | 'forest_fog' | 'chalk' | 'gold_accent' | 'dark' | 'default'`.
+    - Rendu artisanal Slow Travel sans cartes SaaS agressives : Parchemin doux (`#F9F7F1`), Terre cuite (`#FDF6F0` bordure `#C86446`), Brume de forêt (`#F2F5F3`), Sable minéral (`#FAF7F2`), Craie pure et Accent doré subtil.
+    - Sélecteur de thème étendu dans le tiroir de réglages avancés de chaque bloc.
+  - **Vérifications & Garde-fous** :
+    - 20/20 tests unitaires et intégration au vert (`__tests__/components/SanityKillerCms3.test.tsx`, `BlockRenderer.test.tsx`, `cms-templates.test.ts`).
+    - `npm run typecheck` 0 erreur.
+    - `npm run preflight` 13/13 contrôles réussis.
+
+  - **Omnisearch Command Palette (`Cmd+K`) (`components/admin/OmnisearchPalette.tsx`, `app/panel-manager/CmsAdminClient.tsx`)** :
+    - Palette universelle déclenchable au clavier (`Cmd+K` / `Ctrl+K`) avec recherche temps réel ultra-rapide et indexation multi-domaines :
+      - *⚡ Actions Rapides & Navigation* : Sections d'administration, raccourcis Time Machine, Tour de Contrôle Agents IA, création d'article.
+      - *📄 Articles & Carnets de Route* : Recherche dans tous les articles en base (titres, slugs, extraits, catégories) avec ouverture instantanée dans l'éditeur.
+      - *💎 Coffre des Savoirs RAG* : Recherche en direct dans les 78+ fiches de terrain certifiées (ex: Stoos, Ponta do Sol, Muotathal) avec insertion 1-clic sous forme de bloc `vault_spot`.
+      - *🧩 Blocs CMS Modulaires* : Filtrage et insertion directe des 12 types de blocs (Heading, Paragraphe, Photo Hotspot, Preuve photo, Sommaire, Carte, Hébergement, etc.).
+    - Navigation au clavier complète (`↑/↓`, `Entrée`, `Échap`), filtres d'onglets rapides, raccourcis d'action et esthétique Slow Travel soignée.
+  - **In-Between Fast Block Inserter (`BlockCanvas.tsx`)** :
+    - Séparateur d'insertion interactif (`InserterDivider`) positionné avant le premier bloc, entre chaque bloc et en fin de document.
+    - Ligne subtile révélée au survol avec bouton `+ Insérer un bloc` déployant une grille de sélection rapide avec recherche instantanée.
+    - Insertion à l'index exact avec sélection automatique et focus synchronisé sur le nouveau bloc.
+  - **Utilisabilité Tactile & Intégration Mobile APK (`heldonica-mobile`, `CmsAdminClient.tsx`, `BlockCanvas.tsx`)** :
+    - **Omnisearch Mobile & FAB Flottant** : Bouton d'accès direct dans le header et Floating Action Button (FAB) tactile permettant de déclencher l'Omnisearch d'une seule touche sur Pixel 8 Pro sans clavier physique.
+    - **Carte 1-clic dans l'écran Créer (`CreerScreen.kt`)** : Carte « ⚡ Studio CMS 3.0 (Sanity Killer) » ouvrant directement l'espace éditorial `/panel-manager?section=articles` avec session sans mot de passe.
+    - **Passerelle Rédaction ➔ Studio Visuel (`RedactionScreen.kt`)** : Bouton « ⚡ Ouvrir dans le Studio CMS 3.0 (Blocs & Hotspots) » sur chaque carnet en cours, injectant immédiatement l'article dans l'éditeur via `?articleId=...`.
+    - **Séparateurs tactiles inter-blocs (`BlockCanvas.tsx`)** : `InserterDivider` discoverable sur écran tactile (`opacity-60 sm:opacity-0`).
+    - **Déploiement APK validé** : Compilation `assembleDebug` réussie (44,2 Mo) via JDK 17 Temurin et installation directe via ADB (`Streamed Install Success`) sur Google Pixel 8 Pro (`39151FDJG000Z0`). Tunnels inversés (3000, 8440, 8470) opérationnels.
+  - **Visual Time Machine & Live Device Preview (`RevisionsDrawer.tsx`)** :
+    - Transformation du comparateur de révisions en véritable machine à remonter le temps visuelle, similaire à l'inspecteur d'historique de Sanity Studio.
+    - Bascule instantanée entre la vue *Diff blocs* (détail technique des ajouts/modifications/suppressions) et la vue *Aperçu visuel* (rendu en direct du contenu archivé via `BlockRenderer`).
+    - Cadre adaptatif avec bascule *Bureau* / *Mobile (375px)* pour inspecter l'expérience lecteur de chaque version avant restauration.
+  - **Vérifications & Garde-fous** :
+    - Suite de tests unitaire `__tests__/components/SanityKillerCms3.test.tsx` et `RevisionsDrawer.test.tsx` (9 tests passants en 3,9s).
+    - `npm run typecheck` strict sans erreur (0 faute de typage).
+    - `npm run preflight` 13/13 vert (parité marque TS/Python, cliquet texte en dur, zéro tic visuel).
+
+  ## [2026-10-27 ter] — Heldonica CMS 3.0 « Sanity Killer » : Hotspot Focal Dynamique, Visual Click-to-Edit & In-Field IA
+
+  - **Point Focal & Hotspot Visuel Intelligent (`HotspotPicker.tsx`, `types/cms-blocks.ts`, `ImageBlock.tsx`)** :
+    - Reproduction et amélioration de la fonctionnalité phare de Sanity Studio : sélection interactive du point focal `(x, y)` directement sur les clichés de terrain (`ImageBlock` et `PhotoEvidenceBlock`).
+    - 6 presets photographiques 1-clic : *Centre*, *Visage / Sujet haut*, *Sommet / Ciel*, *Premier plan / Sol*, *Tiers gauche*, *Tiers droit*.
+    - Visualisation comparative en temps réel dans les 3 ratios clés : **16:9** (Bannière Desktop), **1:1** (Carrousel / Instagram), **9:16** (Reel / Mobile vertical) garantissant que le sujet n'est jamais tronqué.
+    - Application CSS automatique `object-position: X% Y%` sur le rendu public et sérialisation lossless dans `lib/cms-blocks-converter.ts`.
+  - **Visual Editing & Click-to-Edit Bi-directionnel (`BlockRenderer.tsx`, `CmsAdminClient.tsx`, `BlockCanvas.tsx`)** :
+    - En mode aperçu direct côte-à-côte (Split-Screen), chaque bloc dans le rendu lecteur porte `data-cms-block-id`.
+    - Un simple clic sur un paragraphe, une photo ou une pépite dans la prévisualisation défile et met immédiatement en surbrillance (`ring-2 ring-amber-500`) le bloc correspondant dans le canvas d'édition de gauche.
+  - **In-Field Gemini Vision Copilot (`BlockCanvas.tsx`)** :
+    - Bouton « 🧠 Cadrage IA » directement dans le HotspotPicker pour suggérer le point focal et renseigner les textes d'accessibilité via l'IA Vision.
+  - **Validation & Intégrité** :
+    - Nouvelle suite de tests dédiée `__tests__/components/SanityKillerCms3.test.tsx` (4 tests verts en 151ms).
+    - `npm run typecheck` (0 erreur), `npm run preflight` 13/13 vert (zéro tic visuel, conformité cliquet texte en dur).
+
+  ## [2026-10-27 bis] — Édition des Pages & Articles Existants : Photos, IA Vision et Rédaction Assistée
+
+  - **Édition de tous les articles (`RedactionScreen.kt`, `RedactionClient.kt`)** :
+    - Filtre rapide par statut (`Tous`, `Brouillons`, `En ligne`) permettant d'ouvrir et d'enrichir **n'importe quel carnet existant** (les 8 articles publiés en production ou les brouillons).
+    - Détection automatique des lacunes `[À TOI : …]` et dictée vocale des sensations réelles.
+    - Assistance IA (`/api/cms/ai-assist`) respectant la voix de marque Heldonica (zéro mot banni, réalité vécue) avec avertissement sur les ajouts non sourcés.
+    - Enregistrement immédiat via `PUT /api/cms/articles/:id` avec recalcul automatique du temps de lecture et revalidation de cache.
+  - **Reconnaissance IA Vision des Photos (`RedactionClient.identifierParVision`)** :
+    - Ajout du bouton « 🔍 Identifier (IA Vision) » sur chaque photo choisie dans Google Photos : envoie l'image au serveur (`/api/cms/ai-vision`) pour déduire automatiquement le lieu et générer la description de la photo si l'EXIF ou la Timeline manquent.
+    - Respect absolu de la règle #5 (case à cocher obligatoire garantissant l'absence d'enfants avant tout téléversement).
+  - **Navigation directe depuis l'écran Créer (`CreerScreen.kt`, `StudioActivity.kt`)** :
+    - Ajout des cartes « ✍️ Rédiger ou enrichir un carnet (Photos & IA) » (bascule vers l'onglet Rédaction) et « 📄 Éditer les pages du site (Destinations & Zones) » (ouvre directement `/panel-manager/pages` avec session sans mot de passe).
+
+  ## [2026-10-27] — Studio Musique & Vidéo : Storyboards Gemini sans Flow & Presets 1-clic Veo / MusicFX
+
+  - **Flux Vidéo Dual-Track (`CatalogueVideo.kt`, `CreerScreen.kt`)** :
+    - **Piste 1 : Storyboard Gemini Direct (sans Google Flow / 0€)** : découpage vertical 9:16 complet en 4 plans par Gemini 2.5 Flash via `/api/cms/ai-video-storyboard` (mouvement de caméra, description visuelle, voix off/narration, musique Heldonica recommandée). Bouton 1-clic « Monter (Media3) » ouvrant directement le studio de montage local avec la piste audio préchargée, sans aucun copier-coller ni dépendance web Google Labs.
+    - **Piste 2 : Presets cinématographiques Google Flow (Veo 3.1)** : 6 styles pré-calibrés 1-toucher (`Sentier Brumeux`, `Boutique Hôtel & Lin`, `Falaises & Océan`, `Train Panoramique`, `César au Rubicon`, `Sénat Romain`) avec copie presse-papier automatique et ouverture directe.
+  - **Studio Musique (`CatalogueMusique.kt`, `app/api/cms/music-tracks`)** :
+    - 3 pistes originales slow travel embarquées en assets locaux (`atrium_lin_brut.mp3`, `golden_hour_marbre.mp3`, `echappee_slow_luxury.mp3`) écoutables en pré-écoute et injectables en 1 clic dans le montage. Presets pour Google MusicFX.
+  - **Correction d'intégrité** : dédoublonnage du traitement `EXTRA_PISTE_MUSIQUE` dans `MainActivity.kt`.
+  - **Déploiement & Vérifications** : compilation `assembleDebug` réussie (13 exécutées, 26 up-to-date) ; installation validée par ADB sur Pixel 8 Pro (`39151FDJG000Z0`) ; tunnels ADB reverse actifs (3000, 8440, 8470) ; `npm run preflight` 13/13 réussi.
+
+  ## [2026-10-26 bis] — Câblage Heldonica Mobile & Heldonica Brain II pour Google Pixel 8 Pro
+
+  - **Espace unifié « Créer » (`CreerScreen.kt`)** : nouvel écran d'accueil par défaut de `heldonica-mobile` (7 onglets). Permet la sélection photo/carrousel depuis Google Photos (Photo Picker Android natif), l'analyse d'images par vision IA (`/api/cms/ai-vision`), la génération de légendes avec Heldonica Brain II ou le modèle local, l'accès direct aux carnets et à la médiathèque `/panel-manager/photos`.
+  - **Câblage Heldonica Brain II (`BrainClient.kt`, `MainActivity.kt`)** : priorité donnée au tunnel USB direct `http://127.0.0.1:8440` (`adb reverse tcp:8440 tcp:8440`) pour des inférences instantanées sur la GTX 1660 Ti, avec repli automatique sur le réseau Wi-Fi LAN et le Cloud Relay `/api/ai/mobile-brain`.
+  - **Dynamisme matériel** : adaptation automatique de l'interface au modèle de smartphone détecté (`Pixel 8 Pro` au lieu de mentions en dur « Poco »).
+  - **Scripts d'installation & de reverse proxy** : mise à jour de `INSTALLER_SUR_TELEPHONE.bat` sur le Bureau (APK 40.5 Mo) avec reverse tunnel automatique (ports 8440, 8470, 3000) et script dédié `CONNECTER_PIXEL8PRO_AU_BRAIN.bat`. Déploiement dans `ci-artifacts/app-debug.apk` pour téléchargement direct sans fil depuis la console locale (port 8480).
+  - **Vérifications** : tests unitaires JVM Kotlin (`StudioTabsTest`) verts ; compilation Gradle `assembleDebug` réussie (APK 40.5 Mo) ; `npm run preflight` 13/13 vert ; `tsc` 0 erreur.
+
 ## [2026-11-01 unvicies] — Le contenu « incohérent » était un résidu de coaching exposé par l'API
 
 **Constat.** La demande portait sur « trop de contenu incohérent ». J'ai cherché du contenu mal écrit. J'ai trouvé autre chose : une **fuite de données**.

@@ -27,26 +27,46 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 
 /**
- * Coque Studio Heldonica (slice 1) : un seul point d'entrée, quatre onglets.
+ * Coque Studio Heldonica (slice 1) : un seul point d'entrée, sept onglets.
  *
- * - Cerveau : console Brain en vue web (connexion manuelle, aucun secret stocké).
+ * - Créer : écran unifié de création (Google Photos, carnets, vidéo, musique, CMS).
+ * - Cerveau : console Brain en vue web.
+ * - Tâches : registre des tâches multi-agents.
+ * - Rédaction : éditeur de carnets et articles existants assisté par IA.
  * - CMS : ouvre EditeurActivity (session cookie déjà gérée là-bas).
- * - Studio / Insta : écrans d'attente câblés aux slices 2 et 3.
+ * - Studio / Insta : écrans terrain et génération.
+ * - Hub : accès direct aux consoles Google, Meta, YouTube, Jules et outils SEO.
  */
 class StudioActivity : ComponentActivity() {
 
     companion object {
         const val TAG = "HeldonicaStudio"
+        const val EXTRA_ONGLET = "extra_onglet"
     }
+
+    private val ongletSelectionne = mutableStateOf(OngletStudio.parDefaut())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        traiterIntent(intent)
         setContent { EcranStudio() }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        traiterIntent(intent)
+    }
+
+    private fun traiterIntent(targetIntent: Intent?) {
+        targetIntent?.getStringExtra(EXTRA_ONGLET)?.let { brut ->
+            ongletSelectionne.value = OngletStudio.depuisChaine(brut)
+        }
     }
 
     @Composable
     private fun EcranStudio() {
-        var onglet by remember { mutableStateOf(OngletStudio.parDefaut()) }
+        var onglet by remember { ongletSelectionne }
         val contexte = LocalContext.current
         Column(Modifier.fillMaxSize()) {
             ScrollableTabRow(selectedTabIndex = onglet.ordinal) {
@@ -59,6 +79,57 @@ class StudioActivity : ComponentActivity() {
                 }
             }
             when (onglet) {
+                OngletStudio.CREER -> CreerScreen(
+                    onPhoto = { carrousel, ouvrirDirect ->
+                        contexte.startActivity(
+                            Intent(contexte, MainActivity::class.java).apply {
+                                putExtra(MainActivity.EXTRA_ECRAN, "publier")
+                                putExtra(MainActivity.EXTRA_CARROUSEL, carrousel)
+                                putExtra(MainActivity.EXTRA_OUVRIR_PICKER, ouvrirDirect)
+                            }
+                        )
+                    },
+                    onMontage = {
+                        contexte.startActivity(
+                            Intent(contexte, MainActivity::class.java)
+                                .putExtra(MainActivity.EXTRA_ECRAN, "montage")
+                        )
+                    },
+                    onMontageAvecPiste = { pisteId ->
+                        contexte.startActivity(
+                            Intent(contexte, MainActivity::class.java)
+                                .putExtra(MainActivity.EXTRA_ECRAN, "montage")
+                                .putExtra(MainActivity.EXTRA_PISTE_MUSIQUE, pisteId)
+                        )
+                    },
+                    onCarnet = {
+                        contexte.startActivity(
+                            Intent(contexte, MainActivity::class.java)
+                                .putExtra(MainActivity.EXTRA_ECRAN, "carnet")
+                        )
+                    },
+                    onCarrouselSite = {
+                        contexte.startActivity(
+                            Intent(contexte, EditeurActivity::class.java)
+                                .putExtra(EditeurActivity.EXTRA_CHEMIN, "/panel-manager/carousel")
+                        )
+                    },
+                    onCms = {
+                        contexte.startActivity(
+                            Intent(contexte, EditeurActivity::class.java)
+                                .putExtra(EditeurActivity.EXTRA_CHEMIN, "/panel-manager?section=articles")
+                        )
+                    },
+                    onCerveau = { onglet = OngletStudio.CERVEAU },
+                    onRedaction = { onglet = OngletStudio.REDACTION },
+                    onPagesSite = {
+                        contexte.startActivity(
+                            Intent(contexte, EditeurActivity::class.java)
+                                .putExtra(EditeurActivity.EXTRA_CHEMIN, "/panel-manager/pages")
+                        )
+                    },
+                    onHub = { onglet = OngletStudio.HUB }
+                )
                 OngletStudio.CERVEAU -> CerveauScreen()
                 OngletStudio.TACHES -> TachesScreen()
                 OngletStudio.REDACTION -> RedactionScreen()
@@ -66,7 +137,7 @@ class StudioActivity : ComponentActivity() {
                     // L'éditeur gère déjà mot de passe + cookie : on le réutilise tel quel.
                     contexte.startActivity(
                         Intent(contexte, EditeurActivity::class.java).putExtra(
-                            EditeurActivity.EXTRA_CHEMIN, "/panel-manager"
+                            EditeurActivity.EXTRA_CHEMIN, "/panel-manager?section=articles"
                         )
                     )
                     onglet = OngletStudio.parDefaut()
@@ -77,6 +148,15 @@ class StudioActivity : ComponentActivity() {
                     contexte.startActivity(Intent(contexte, MainActivity::class.java))
                     onglet = OngletStudio.parDefaut()
                 }
+                OngletStudio.HUB -> HubScreen(
+                    onNaviguerCms = { chemin ->
+                        contexte.startActivity(
+                            Intent(contexte, EditeurActivity::class.java).apply {
+                                putExtra(EditeurActivity.EXTRA_CHEMIN, chemin)
+                            }
+                        )
+                    }
+                )
             }
         }
     }

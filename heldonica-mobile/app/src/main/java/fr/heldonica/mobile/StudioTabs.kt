@@ -4,15 +4,24 @@ package fr.heldonica.mobile
  * Onglets de la coque Studio : logique pure, testable en JVM sans émulateur.
  */
 enum class OngletStudio(val titre: String, val emoji: String) {
+    CREER("Créer", "✨"),
     CERVEAU("Cerveau", "\uD83E\uDDE0"),
     TACHES("Tâches", "⚡"),
     REDACTION("Rédaction", "✍️"),
     CMS("CMS", "\uD83D\uDCDD"),
     STUDIO("Memoria", "\uD83C\uDFDB"),
-    INSTA("Terrain", "\uD83D\uDCF8");
+    INSTA("Terrain", "\uD83D\uDCF8"),
+    HUB("Hub Outils", "\uD83D\uDE80");
 
     companion object {
-        fun parDefaut(): OngletStudio = CERVEAU
+        fun parDefaut(): OngletStudio = CREER
+
+        /**
+         * Résout un onglet depuis une chaîne (intent extra, raccourci lanceur ou CLI).
+         * Tolérant à la casse ("hub" -> HUB), retourne l'onglet par défaut si invalide.
+         */
+        fun depuisChaine(nom: String?): OngletStudio =
+            values().firstOrNull { it.name.equals(nom?.trim(), ignoreCase = true) } ?: parDefaut()
     }
 }
 
