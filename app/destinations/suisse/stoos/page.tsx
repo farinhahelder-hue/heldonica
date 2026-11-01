@@ -547,7 +547,7 @@ export default async function StoosPage({ searchParams }: Props) {
         <section className="max-w-3xl mx-auto px-6 py-6">
           <div className="bg-[#FAF7F2] border border-[#DED5C6] rounded-sm p-6 sm:p-8">
             <span className="text-xs uppercase tracking-[0.2em] text-[#9A442D] font-semibold">
-              {Z('terroir_badge', 'text', 'Terroir & Circuits Courts')}
+              {Z('terroir_badge', 'text', 'Terroir & Producteurs d Alpage')}
             </span>
             <h2 className="font-serif text-xl sm:text-2xl text-[#2C2416] font-normal mt-1 mb-3">
               {Z('terroir_title', 'text', 'L Alpkäse de Stoos : l herbe transformée en sel et crème')}
@@ -596,7 +596,7 @@ export default async function StoosPage({ searchParams }: Props) {
                   {Z(
                     'carnet_point2_text',
                     'text',
-                    'Monter sur les crêtes après 16h30. Les touristes de la journée redescendent vers la plaine et le sentier devient désert pour le coucher de soleil.'
+                    'Monter sur les crêtes après 16h30. Les marcheurs de la journée redescendent vers la plaine et le sentier devient désert pour le coucher de soleil.'
                   )}
                 </span>
               </li>
