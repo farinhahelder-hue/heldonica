@@ -27,9 +27,16 @@
 --     depuis le tableau de bord ou via la cle service, pour archivage.
 --
 -- Aucune autre table n'est touchee. `ai_context` en particulier reste ouverte
--- en lecture : le service Heldonica Brain II la lit avec la cle anon, et la
--- fermer le casserait. Cette decision est volontaire et documentee ici pour
--- qu'une session future ne la « corrige » pas par erreur.
+-- en lecture, et ce n'est PAS un oubli : sa migration de creation
+-- (20260903191920_ai_context_table.sql) ecrit noir sur blanc
+-- « RLS : lecture publique (les agents lisent) ». C'est le fil conducteur que
+-- Claude, Gemini, Jules et le service Heldonica Brain II lisent en debut de
+-- session avec la cle anon. La fermer casserait cet usage.
+-- Son seul defaut reel — un secret — a ete mesure : la valeur de
+-- glossary_maintenance_bypass est TRONQUEE par conception et ne contient pas
+-- le vrai jeton (comparaison programmatique : False). Aucune des 35 cles ne
+-- contient de secret exploitable. Decision : ne pas la fermer.
+-- Une session future ne doit donc PAS « corriger » ai_context par symetrie.
 --
 -- Idempotent : rejouer la migration ne change rien.
 
