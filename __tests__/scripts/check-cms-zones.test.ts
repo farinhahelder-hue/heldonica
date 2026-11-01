@@ -134,4 +134,76 @@ describe('check-cms-zones — lecture de la base impossible', () => {
       expect(r.stdout).toContain('✓ Aucune zone active à valeur vide');
     }, 30_000);
   });
+
+  /**
+   * Le 2026-11-01, 76 pages de destination ont été réécrites et le gabarit
+   * partagé `SubDestinationTemplate` a disparu au profit de code autonome. Deux
+   * défauts du contrôle en sont sortis, que ces tests fixent :
+   *
+   *   1. `<EditableZone page={PAGE} zone="intro_text">` n'était pas résolu : la
+   *      zone ressortait orpheline alors que la page la rendait (le helper
+   *      `Z(...)` de la même page, lui, était bien lu).
+   *   2. Une page en quarantaine (lib/unpublished-pages.ts) rend « Bientôt » :
+   *      ses zones ne sont pas orphelines, elles sont en attente. Les compter
+   *      comme orphelines faisait échouer le contrôle à chaque réécriture.
+   *
+   * On lance le vrai script contre un serveur local : seule la base est simulée.
+   */
+  describe('check-cms-zones — page={PAGE}, et pages en quarantaine', () => {
+    let serveur: Server;
+    let url: string;
+    let lignes: unknown[];
+
+    beforeAll(async () => {
+      serveur = createServer((_req, res) => {
+        res.setHeader('Connection', 'close');
+        res.writeHead(200, { 'content-type': 'application/json' });
+        res.end(JSON.stringify(lignes));
+        setImmediate(() => res.socket?.destroy());
+      });
+      serveur.keepAliveTimeout = 1;
+      await new Promise<void>((r) => serveur.listen(0, '127.0.0.1', r));
+      const addr = serveur.address();
+      url = `http://127.0.0.1:${typeof addr === 'object' && addr ? addr.port : 0}`;
+    });
+
+    afterAll(async () => {
+      serveur.closeAllConnections?.();
+      await new Promise<void>((r) => serveur.close(() => r()));
+    });
+
+    it('résout <EditableZone page={PAGE} zone="…"> : la zone n\'est pas orpheline', async () => {
+      // `app/destinations/roumanie/bucarest/page.tsx` écrit
+      // `<EditableZone page={PAGE} zone="intro_text" …/>` avec
+      // `const PAGE = 'destinations-roumanie-bucarest'`. Avant le correctif,
+      // cette ligne échappait à la passe 1 et la zone sortait orpheline.
+      lignes = [{ page: 'destinations-roumanie-bucarest', zone_key: 'intro_text', value: 'Un récit.' }];
+      const r = await lancer(url);
+
+      expect(r.stdout).not.toContain('ORPHELINES NOUVELLES');
+      expect(r.status).toBe(0);
+    }, 30_000);
+
+    it('une zone non lue d\'une page en quarantaine est « en attente », non bloquante', async () => {
+      // `destinations-idf-paris` figure dans UNPUBLISHED_CMS_PAGES : la page
+      // rend « Bientôt », donc ses zones ne sont pas rendues — sans être
+      // orphelines pour autant.
+      lignes = [{ page: 'destinations-idf-paris', zone_key: 'zone_jamais_lue_du_tout', value: 'x' }];
+      const r = await lancer(url);
+
+      expect(r.stdout).toContain('en ATTENTE');
+      expect(r.stdout).not.toContain('ORPHELINES NOUVELLES');
+      expect(r.status).toBe(0);
+    }, 30_000);
+
+    it('une zone non lue d\'une page PUBLIÉE reste une orpheline bloquante', async () => {
+      // Le correctif ne doit pas éteindre le garde-fou : hors quarantaine, une
+      // zone qu'aucun composant ne lit doit toujours faire échouer le contrôle.
+      lignes = [{ page: 'destinations-zurich', zone_key: 'zone_jamais_lue_du_tout', value: 'x' }];
+      const r = await lancer(url);
+
+      expect(r.stdout).toContain('ORPHELINES NOUVELLES');
+      expect(r.status).toBe(1);
+    }, 30_000);
+  });
 });

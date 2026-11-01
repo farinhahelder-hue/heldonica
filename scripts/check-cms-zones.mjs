@@ -196,11 +196,20 @@ function collectReaders() {
         }
       }
 
-      // 1. <Editable(?:Zone|Icon) page="x" zone=...>
+      // 1. <Editable(?:Zone|Icon) page="x" zone=...> — et `page={PAGE}`, la page
+      //    portée par la constante du fichier. Sans ce second cas, un fichier
+      //    qui écrit `page={PAGE} zone="intro_text"` n'était pas vu : la zone
+      //    ressortait orpheline alors que la page la rend. Constat du 2026-11-01 :
+      //    30 zones sur funchal, bucarest, zurich et apuseni étaient ainsi
+      //    comptées à tort (le helper `Z(...)` de la même page, lui, était lu —
+      //    d'où un mélange de clés détectées et non détectées dans un même
+      //    fichier).
       for (const m of src.matchAll(
-        /<Editable(?:Zone|Icon)\s+page="([^"]+)"\s+zone=(?:"([^"]+)"|\{`([^`]+)`\}|\{([^}]+)\})/g
+        /<Editable(?:Zone|Icon)\s+page=(?:"([^"]+)"|\{PAGE\})\s+zone=(?:"([^"]+)"|\{`([^`]+)`\}|\{([^}]+)\})/g
       )) {
-        const [, page, literal, template, expression] = m;
+        const [, literalPage, literal, template, expression] = m;
+        const page = literalPage || filePage;
+        if (!page) continue;
         if (literal) {
           exact.add(`${page}__${literal}`);
         } else if (template) {
@@ -210,7 +219,13 @@ function collectReaders() {
           if (!patterns.has(page)) patterns.set(page, []);
           patterns.get(page).push(new RegExp('^' + parts.join('.+') + '$'));
         } else if (expression) {
-          // `zone={s.zone}` : non résoluble statiquement.
+          // `zone={s.zone}` : non résoluble statiquement. On ne le signale que
+          // pour une page LITTÉRALE : `page={PAGE} zone={zone}` est la
+          // définition d'un helper local (`const Z = (zone, …) => <EditableZone
+          // page={PAGE} zone={zone}/>`), dont les appels sont déjà résolus par
+          // la passe 0 bis. Marquer la page entière « indéterminée » à cause de
+          // sa propre définition masquerait ses vraies orphelines.
+          if (!literalPage) continue;
           if (!unresolved.has(page)) unresolved.set(page, new Set());
           unresolved.get(page).add(file);
         }
@@ -498,11 +513,38 @@ function isRead(page, zoneKey) {
 
 const decl = readDeclaration();
 
+/**
+ * Pages dont le contenu est en quarantaine : elles rendent `ComingSoonDestination`
+ * (« Bientôt ») au lieu de leur gabarit, tant qu'elles figurent dans
+ * `lib/unpublished-pages.ts`. Leur zones ne sont donc PAS rendues au visiteur —
+ * mais ce n'est pas une orpheline au sens de ce script : la page existe, elle
+ * est simplement hors ligne, et retirer son entrée du registre la remet en
+ * service avec son contenu intact.
+ *
+ * Sans cette distinction, chaque réécriture de page brouillon faisait échouer le
+ * contrôle : le 2026-11-01, 76 pages réécrites par plusieurs agents ont fait
+ * passer 282 zones « en attente » pour des orphelines. Le contrôle
+ * `check-content-pages` applique déjà cette règle (« dette assumée, non
+ * bloquante ») ; on l'aligne ici, en gardant la dette VISIBLE dans la sortie.
+ */
+const PAGES_QUARANTAINE = (() => {
+  try {
+    const s = readFileSync('lib/unpublished-pages.ts', 'utf8');
+    const bloc = s.match(/UNPUBLISHED_CMS_PAGES[^=]*=\s*\[([\s\S]*?)\n\]/);
+    if (!bloc) return new Set();
+    return new Set([...bloc[1].matchAll(/'([^']+)'/g)].map((m) => m[1]));
+  } catch {
+    return new Set();
+  }
+})();
+
 const orphans = [];
 const indeterminate = [];
+const enAttente = [];
 for (const r of rows) {
   if (isRead(r.page, r.zone_key)) continue;
   if (readers.unresolved.has(r.page)) indeterminate.push(r);
+  else if (PAGES_QUARANTAINE.has(r.page)) enAttente.push(r);
   else orphans.push(r);
 }
 
@@ -553,6 +595,20 @@ if (indeterminate.length) {
     console.log(`    ${p} (${indeterminate.filter((r) => r.page === p).length})`);
     for (const f of readers.unresolved.get(p)) console.log(`        ${f}`);
   }
+  console.log('');
+}
+
+if (enAttente.length) {
+  const pages = [...new Set(enAttente.map((r) => r.page))].sort();
+  console.log(
+    `ℹ ${enAttente.length} zone(s) en ATTENTE sur ${pages.length} page(s) en quarantaine ` +
+    `(noindex, hors sitemap, page « Bientôt ») — dette assumée, non bloquante :`
+  );
+  for (const p of pages) {
+    console.log(`    ${p} (${enAttente.filter((r) => r.page === p).length})`);
+  }
+  console.log('    Ces zones ne sont pas orphelines : retirer la page de lib/unpublished-pages.ts');
+  console.log('    les remet en service. Elles restent listées pour que la dette ne disparaisse pas.');
   console.log('');
 }
 
