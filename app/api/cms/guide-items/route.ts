@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireCmsAuth } from '@/lib/cms-auth'
+import { revalidateCmsTarget } from '@/lib/revalidate'
 
 function getSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -68,8 +69,14 @@ export async function PATCH(req: NextRequest) {
   if (rank !== undefined) updates.rank = rank
   if (is_active !== undefined) updates.is_active = is_active
 
-  const { error } = await supabase.from('cms_guide_items').update(updates).eq('id', id)
+  const { data, error } = await supabase
+    .from('cms_guide_items')
+    .update(updates)
+    .eq('id', id)
+    .select('guide_slug')
+    .single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (data?.guide_slug) await revalidateCmsTarget({ page: `guides-${data.guide_slug}` })
   return NextResponse.json({ success: true })
 }
 
@@ -93,6 +100,7 @@ export async function POST(req: NextRequest) {
     .single()
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  await revalidateCmsTarget({ page: `guides-${guide_slug}` })
   return NextResponse.json({ success: true, id: data.id })
 }
 
@@ -108,7 +116,13 @@ export async function DELETE(req: NextRequest) {
   const id = searchParams.get('id')
   if (!id) return NextResponse.json({ error: 'Missing id' }, { status: 400 })
 
-  const { error } = await supabase.from('cms_guide_items').update({ is_active: false }).eq('id', id)
+  const { data, error } = await supabase
+    .from('cms_guide_items')
+    .update({ is_active: false })
+    .eq('id', id)
+    .select('guide_slug')
+    .single()
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  if (data?.guide_slug) await revalidateCmsTarget({ page: `guides-${data.guide_slug}` })
   return NextResponse.json({ success: true })
 }

@@ -2,6 +2,22 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+  ## [2026-11-01] — Une correction au CMS n'attend plus 24 h (revalidation des routes destinations, témoignages, guides, piliers, catégories de blog)
+
+- **Le défaut** : les pages publiques portent `export const revalidate = 86400` (24 h), et cinq routes du CMS écrivaient en base **sans jamais appeler `revalidateCmsTarget`**. Une correction faite au CMS restait donc invisible jusqu'à l'expiration du cache — soit jusqu'à 24 h — et rien ne le signalait : une page figée ressemble exactement à une page fraîche. C'est le mécanisme décrit par le garde-fou `check:cms-cache`, resté ouvert côté écriture.
+- **Routes câblées** (`await revalidateCmsTarget(...)` après l'écriture, jamais avant, donc jamais sur un échec Supabase) :
+  - `app/api/cms/destinations/route.ts` — POST, PATCH, DELETE (la vue `destinations_public` sert `/destinations/<slug>`).
+  - `app/api/cms/testimonials/route.ts` — POST, PATCH, DELETE → `/temoignages`.
+  - `app/api/cms/guide-items/route.ts` — POST, PATCH, DELETE → `/guides/<slug>`. PATCH et DELETE ne reçoivent que l'`id` : le `guide_slug` est désormais lu dans la même requête (`.select('guide_slug')`), sans requête supplémentaire.
+  - `app/api/cms/pillar-pages/route.ts` — PATCH/POST → `/destinations/<slug>` (`lib/pillar-data` lit `cms_pillar_pages`).
+  - `app/api/cms/blog-categories/route.ts` — normalisation, POST, PATCH, DELETE → `/blog`.
+  - Non câblés volontairement : `cms_pricing_plans` et `cms_newsletter`, qu'aucune page publique ne lit (vérifié).
+- **`lib/revalidate.ts` — `pageToPath` ne traduisait pas deux formes de clés réellement présentes en base.** Un chemin inexistant ne fait pas échouer `revalidatePath` : la revalidation est sans effet, en silence.
+  - `guides-top-10-pepites-madere` donnait `/guides-top-10-pepites-madere` au lieu de `/guides/top-10-pepites-madere` (clés `guides-merci`, `guides-top-10-pepites-madere` réellement utilisées par les pages).
+  - `destinations-cote-d-azur-beausoleil` donnait `/destinations/cote/d-azur-beausoleil` : le découpage au premier tiret casse toute racine contenant un tiret. Une liste explicite `DESTINATIONS_RACINES` (relevée sur `app/destinations/`) lève l'ambiguïté ; une racine inconnue retombe sur l'ancien comportement.
+- **Tests** : `__tests__/lib/revalidate-paths.test.ts` (6 cas), `__tests__/lib/revalidate-target.test.ts` (6 cas, chemins réellement passés à `revalidatePath`), `__tests__/api/cms-destinations-revalidation.test.ts` (4 cas, la route appelle bien la revalidation après écriture et pas sur échec). Le dernier est **mordant** : retirer l'appel du POST le fait échouer.
+- **Vérifié** : `tsc --noEmit` 0 erreur ; `vitest run` 146 fichiers / 1201 tests verts ; `npm run garde-fous` 18/24 réussis, 6 ignorés faute d'identifiants Supabase, **0 échec** ; `next build` 175/175 pages, 0 erreur.
+
   ## [2026-11-01] — Refonte Éditoriale Stitch : Page d'Accueil Terracotta & Azure & Atlas Cartographique Interactif
 
 - **Enrichissement Complet Sardaigne & Sicile (11 pages) & 5 Pages Transverses à 0 Texte en Dur (`app/destinations/sardaigne/**`, `app/destinations/sicile/**`, `app/a-propos/**`, `app/slow-travel/**`, `app/start/**`, `app/retour-experience/**`, `app/expert-hotelier/**`)** :

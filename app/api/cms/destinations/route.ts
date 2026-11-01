@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { requireCmsAuth } from '@/lib/cms-auth'
+import { revalidateCmsTarget } from '@/lib/revalidate'
 
 function getSupabase() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -78,6 +79,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    await revalidateCmsTarget({ page: `destinations-${slug}`, type: 'destination' })
     return NextResponse.json({ success: true, destination: data })
   } catch (err) {
     console.error('[CMS Destinations POST] Error:', err)
@@ -117,6 +119,10 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    await revalidateCmsTarget({
+      page: data?.slug ? `destinations-${data.slug}` : 'destinations',
+      type: 'destination',
+    })
     return NextResponse.json({ success: true, destination: data })
   } catch (err) {
     console.error('[CMS Destinations PATCH] Error:', err)
@@ -150,6 +156,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 500 })
     }
 
+    await revalidateCmsTarget({ type: 'destination' })
     return NextResponse.json({ success: true })
   } catch (err) {
     console.error('[CMS Destinations DELETE] Error:', err)
