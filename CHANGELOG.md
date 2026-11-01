@@ -2,6 +2,31 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+  ## [2026-11-01] — Refonte Éditoriale Stitch : Page d'Accueil Terracotta & Azure & Atlas Cartographique Interactif
+
+- **Refonte Éditoriale de la Page d'Accueil (`components/HomeClient.tsx`)** :
+  - Intégration de la direction artistique et des composants Stitch :
+    1. **Hero immersif & Manifeste** : Accroche typographique Playfair Display « On ferme les ordis. On part. On revient avec des pépites qu’on n’avait pas cherchées. », micro-badge curateurs indépendants, barre de métriques vécues (40 pays arpentés, 100+ pépites secrètes, 12 pays habités, 100% vécu en duo), cachet « 0% tourisme de masse » et vignette photo en direct.
+    2. **Filtres rapides de destination** : Pastilles interactives (Madère, Monténégro, Roumanie, Suisse, Portugal) avec bascule directe.
+    3. **Histoire du duo & Règles d'or** : Portraits de terrain d'« Elle » et « Lui » (respect strict de la Règle 5, zéro visage ni selfie) adossés aux 3 piliers (Testé sur nos pas, Économie locale, Rythme juste).
+    4. **Destinations & Carnets vécus (format magazine)** : Mise en avant avec photos vérifiées de terrain, fiche d'étape et bouton direct « Adapter pour moi » vers le travel planning.
+    5. **Offre Travel Planning & Tarification transparente** : Processus en 3 étapes (Échange, Feuille de route optimisée, Carnet secret & Support direct), aperçu du livrable mobile et deux formules claires (Formule Escapade 180 € / Formule Grand Tour 340 €).
+    6. **Diagnostic voyageur interactif** : 4 profils (Aventure & Reliefs, Histoire & Cités, Criques & Silence, Slow Dolce Vita) avec recommandations directes.
+    7. **Espace Hébergeurs B2B** : Mise en valeur du modèle direct 0% commission pour maisons d'hôtes et refuges de charme.
+    8. **Bannière d'accès à l'Atlas interactif** et formulaire « Lettre de Route ».
+  - **Garde-fous & CMS** : 100% des textes visibles passent par `<EditableZone>` et le helper `Z(...)`. Baisse des textes en dur hors CMS verrouillée dans `scripts/cms-hardcode-baseline.json`.
+
+- **Création du Grand Atlas Cartographique Interactif (`components/InteractiveAtlas.tsx`, `components/DynamicAtlas.tsx`, `app/atlas/page.tsx`)** :
+  - **Carte Leaflet stylisée Terracotta** : 24 pépites géolocalisées avec coordonnées GPS précises, altitudes, tracés vectoriels pointillés par territoire (Madère, Monténégro, Roumanie, Sicile & Pouilles, Suisse Stoos, Portugal Sintra & Óbidos).
+  - **Panneau latéral d'inspection** : Vignette photo de terrain, durée conseillée, accès véhicule, citation d'« Elle » & « Lui », bouton de copie rapide des coordonnées GPS et lien vers le carnet complet.
+  - **Comparatif interactif des Camps de Base & Hébergements Vérifiés** : Tableau complet filtrable par destination et typologie (Masseria, Maison d'hôtes, Villa falaise, Campement, Refuge alpin), triable par ★ Slow Score ou budget par nuit.
+  - **Exportation GPX** : Téléchargement dynamique d'un bundle GPX formaté avec les waypoints des 24 pépites.
+  - **Intégration Next.js sans SSR (`DynamicAtlas.tsx`)** pour isoler Leaflet côté client sans warning d'hydratation.
+
+- **Tokens Design System (`tailwind.config.ts`)** :
+  - Ajout des nuances `terracotta` (`#9A442D`, `#E07A5F`, `#7C2E19`), `azure` (`#4F5F79`, `#1D2D44`, `#D0E0FF`), `warm-sand` (`#F4F1DE`) et `alabaster` (`#FAF9F5`).
+  - Respect scrupuleux des garde-fous : 0 emoji décoratif dans le code, 0 classe de carte SaaS générique (`rounded-2xl` / ombres lourdes sur blanc), conformité totale `check-design-tics` et pré-vol 13/13 vert.
+
   ## [2026-10-31] — Enrichissement Itinéraires Slow Travel Authentiques : Stoos (Suisse), Alcobaça, Sintra, Óbidos, Batalha-Tomar, Coimbra, Madère, Colombie, Beausoleil, Savoie & Porto
 
 - **Itinéraire & Randonnée alpine Suisse : Stoos & l'arête du Fronalpstock (`app/destinations/suisse/stoos/page.tsx`)** :

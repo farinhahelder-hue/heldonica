@@ -23,6 +23,19 @@ const config: Config = {
           DEFAULT: 'color-mix(in srgb, var(--color-action, #6B2D1F) calc(<alpha-value> * 100%), transparent)',
           fonce: 'color-mix(in srgb, var(--color-action-fonce, #4F2016) calc(<alpha-value> * 100%), transparent)',
         },
+        // Stitch Redesign — Palette Terracotta, Azure & Papier Coton
+        'terracotta': {
+          DEFAULT: '#9A442D',
+          light: '#E07A5F',
+          dark: '#7C2E19',
+        },
+        'azure': {
+          DEFAULT: '#4F5F79',
+          dark: '#1D2D44',
+          light: '#D0E0FF',
+        },
+        'warm-sand': '#F4F1DE',
+        'alabaster': '#FAF9F5',
       },
       fontFamily: {
         serif: ['var(--font-heading, "Playfair Display")', 'Georgia', 'serif'],
