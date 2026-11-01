@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Premier fichier de chaînes du projet.
+
+  Il existe parce que `res/xml/shortcuts.xml` portait ses libellés en texte
+  littéral. AAPT l'accepte pour `android:label`, mais refuse pour
+  `shortcutShortLabel` et `shortcutLongLabel`, qui exigent une référence de
+  ressource : huit erreurs « is incompatible with attribute … (attr)
+  reference », et `processDebugResources` en échec. L'APK ne se construisait
+  plus du tout.
+
+  Les libellés courts tiennent volontairement en ~10 caractères et les longs en
+  ~25, comme le recommande Android : au-delà, le lanceur tronque.
+-->
+<resources>
+    <string name="shortcut_hub_court">Hub Outils</string>
+    <string name="shortcut_hub_long">Hub Outils (Search Console, GA4, Meta, Jules)</string>
+
+    <string name="shortcut_creer_court">Créer un récit</string>
+    <string name="shortcut_creer_long">Créer un récit ou carrousel (Google Photos)</string>
+
+    <string name="shortcut_cms_court">Studio CMS</string>
+    <string name="shortcut_cms_long">Studio CMS 3.0 (Blocs, Hotspot, RAG)</string>
+
+    <string name="shortcut_taches_court">Tâches Agents</string>
+    <string name="shortcut_taches_long">Registre des Tâches (Jules &amp; Gemini)</string>
+</resources>
