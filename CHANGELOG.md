@@ -2,6 +2,18 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+  ## [2026-11-01 ter] — Le garde-fou des zones orphelines redevient vrai : 324 alertes → 12 vraies zones mortes, désactivées sans rien supprimer
+
+- **Le symptôme** : le contrôle « Zones et tables CMS » est passé au rouge le 01/11 vers 20 h, alors qu'il était vert à 13 h 30 le même jour — même base (2 240 zones actives), même script. Ce qui avait changé, c'est le **code** : 76 pages de destination réécrites le 01/11 par plusieurs agents (28 111 insertions) ont remplacé le gabarit partagé `SubDestinationTemplate` (66 lignes) par du code autonome (jusqu'à 522 lignes). Le gabarit rendait `cta_*`, `related_title`, `highlight_*`, `day_*` ; les pages réécrites ne les rendent plus.
+- **Trois causes distinctes, pas une** — 324 zones signalées, aucune ne méritait le même traitement :
+  1. **Bug du contrôle (30 zones)** : `scripts/check-cms-zones.mjs` ne résolvait que `<EditableZone page="litteral" …>` et le helper local `Z(...)`. La forme `<EditableZone page={PAGE} zone="intro_text" …>` — la constante `PAGE` du fichier — échappait à la passe 1. Résultat incohérent dans un même fichier : `intro_kicker` (rendu via `Z(...)`) détecté, `intro_text` (rendu via JSX direct) compté orphelin. Corrigé.
+  2. **Pages en quarantaine (282 zones)** : elles figurent dans `lib/unpublished-pages.ts` et rendent `ComingSoonDestination` (« Bientôt »). Leur contenu n'est pas publié — ce ne sont pas des orphelines, mais des zones **en attente**. Le contrôle les compte désormais séparément, en les listant (dette visible, non bloquante), comme le fait déjà `check-content-pages` (« dette assumée »).
+  3. **Vraies zones mortes (12 zones, 2 pages PUBLIÉES)** : migration `20261101160000`, `is_active = false`, **aucune suppression** (règle du propriétaire).
+     - `destinations-roumanie-bucarest` : `cta_kicker`, `cta_title`, `cta_text`, `cta_button_1`, `cta_button_2`, `related_title` — la section CTA/« même veine » du gabarit disparu. Ses boutons n'ont pas d'URL en base (elles étaient codées en dur dans le gabarit) : les recâbler produirait des boutons morts.
+     - `expert-hotelier` : `cas_1_tags`, `cas_2_tags`, `cas_clients_badge`, `cas_clients_text`, `cas_clients_title`, `hero_cta_2` — le bloc témoignages/études de cas était masqué **délibérément** depuis le 19/10/2026 (`SHOW_CASE_STUDIES = false`, « tant que le fondateur n'a pas confirmé qu'il s'agit de vrais clients »). Règle n°1 : on n'invente rien. La réécriture du 01/11 a supprimé le bloc masqué ; on ne le réaffiche pas.
+- **Preuves** : `npm run check:cms-zones` contre la base de production → 12 orphelines (2 pages publiées), 282 en attente, 0 zone vide ; 3 tests ajoutés (`page={PAGE}` résolu, quarantaine non bloquante, orpheline sur page publiée toujours bloquante) — **prouvés mordants** : sans le correctif du script, 2 d'entre eux échouent.
+- **Fichiers** : `scripts/check-cms-zones.mjs`, `__tests__/scripts/check-cms-zones.test.ts`, `supabase/migrations/20261101160000_desactiver_zones_orphelines_pages_publiees.sql`.
+
   ## [2026-11-01] — Une correction au CMS n'attend plus 24 h (revalidation des routes destinations, témoignages, guides, piliers, catégories de blog)
 
 - **Le défaut** : les pages publiques portent `export const revalidate = 86400` (24 h), et cinq routes du CMS écrivaient en base **sans jamais appeler `revalidateCmsTarget`**. Une correction faite au CMS restait donc invisible jusqu'à l'expiration du cache — soit jusqu'à 24 h — et rien ne le signalait : une page figée ressemble exactement à une page fraîche. C'est le mécanisme décrit par le garde-fou `check:cms-cache`, resté ouvert côté écriture.
