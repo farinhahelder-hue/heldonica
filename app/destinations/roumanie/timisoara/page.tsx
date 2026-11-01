@@ -15,7 +15,7 @@ const PAGE = 'destinations-roumanie-timisoara'
 const metadata: Metadata = {
   title: 'Timișoara slow travel | Guide Heldonica',
   description:
-    'Timișoara, capitale européenne de la culture 2023 : architecture baroque, scène culturelle vivante et cafés de quartier. Notre guide slow travel.',
+    'Timișoara, capitale européenne de la culture : architecture baroque, scène culturelle vivante et cafés de quartier. Notre guide slow travel.',
   alternates: {
     canonical: `${SITE_URL}/destinations/roumanie/timisoara`,
   },
@@ -31,7 +31,7 @@ const metadata: Metadata = {
   twitter: {
     card: 'summary_large_image',
     title: 'Timișoara slow travel | Guide Heldonica',
-    description: 'Capitale européenne de la culture 2023. Bars, cours cachées, architecture baroque — notre guide.',
+    description: 'capitale européenne de la culture. Bars, cours cachées, architecture baroque — notre guide.',
     images: [`${SITE_URL}/og-default.jpg`],
     creator: '@heldonica',
   },
@@ -85,7 +85,7 @@ export default async function TimisoaraPage() {
               {Z('hero_title', 'text', "Timișoara", undefined, 'span')}
             </h1>
             <p className="text-lg md:text-xl text-[#E2D9C8] max-w-2xl leading-relaxed">
-              {Z('hero_description', 'textarea', "Première ville d'Europe à avoir eu l'éclairage électrique. Première ville de la révolution roumaine. Capitale européenne de la culture 2023. Et pourtant, presque personne ne s'y arrête.", undefined, 'span')}
+              {Z('hero_description', 'textarea', "Première ville d'Europe à avoir eu l'éclairage électrique. Première ville de la révolution roumaine. capitale européenne de la culture. Et pourtant, presque personne ne s'y arrête.", undefined, 'span')}
             </p>
             <div className="mt-8 flex flex-wrap gap-4">
               <Link
@@ -128,7 +128,7 @@ export default async function TimisoaraPage() {
                 {Z('intro_1', 'textarea', "On est arrivés à Timișoara par hasard, en route vers Bucarest. On est restés quatre jours. La ville a cette qualité rare : elle ne se donne pas d'emblée. Il faut traîner dans le Fabric le soir, s'asseoir sur la place Unirii avec un café, tourner dans les ruelles du vieux centre.", undefined, 'span')}
               </p>
               <p>
-                {Z('intro_2', 'textarea', "Timișoara est roumaine, mais elle parle hongrois, serbe et allemand dans la même phrase. C'est une ville de carrefour, d'influences mêlées, d'histoire dense. Et depuis 2023, capitale européenne de la culture qui a investi dans ses scènes alternatives sans perdre son âme de quartier.", undefined, 'span')}
+                {Z('intro_2', 'textarea', "Timișoara est roumaine, mais elle parle hongrois, serbe et allemand dans la même phrase. C'est une ville de carrefour, d'influences mêlées, d'histoire dense. Désignée capitale européenne de la culture, elle a investi dans ses scènes alternatives sans perdre son âme de quartier.", undefined, 'span')}
               </p>
             </div>
           </section>
