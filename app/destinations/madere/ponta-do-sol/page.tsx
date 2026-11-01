@@ -26,7 +26,7 @@ const metadata: Metadata = {
     description:
       'Le vieux débarcadère en arche de pierre de Ponta do Sol, les bananeraies en terrasses et la lumière dorée du soir à Madère.',
     type: 'website',
-    images: [`${SITE_URL}/images/destinations/madere/ponta_do_sol.jpg`],
+    images: [`${SITE_URL}/og-default.jpg`],
     locale: 'fr_FR',
     siteName: 'Heldonica',
   },
@@ -56,7 +56,7 @@ export default async function PontadoSolPage({ searchParams }: Props) {
         slug="madere-ponta-do-sol"
         title={zones.title || 'Ponta-do-Sol'}
         country="Madère"
-        hero_unsplash_url="/images/destinations/madere/ponta_do_sol.jpg"
+        hero_unsplash_url="/og-default.jpg"
         zones={zones}
       />
     );
@@ -106,7 +106,7 @@ export default async function PontadoSolPage({ searchParams }: Props) {
             {Z(
               'hero_image',
               'image',
-              '/images/destinations/madere/ponta_do_sol.jpg',
+              '/og-default.jpg',
               'w-full h-full object-cover object-center opacity-75'
             )}
           </div>
@@ -383,7 +383,7 @@ export default async function PontadoSolPage({ searchParams }: Props) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
                 <div className="relative h-64 md:h-auto min-h-[260px]">
                   <Image
-                    src="/images/destinations/madere/ponta_do_sol.jpg"
+                    src="/og-default.jpg"
                     alt=""
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"

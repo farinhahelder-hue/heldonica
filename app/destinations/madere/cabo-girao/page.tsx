@@ -417,7 +417,7 @@ export default async function CaboGiraoPage({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
                 <div className="relative h-64 md:h-auto min-h-[260px]">
                   <Image
-                    src="/images/destinations/madere/ponta_do_sol.jpg"
+                    src="/og-default.jpg"
                     alt=""
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"

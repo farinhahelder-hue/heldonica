@@ -329,7 +329,7 @@ export default async function FaialPage({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
                 <div className="relative h-64 md:h-auto min-h-[260px]">
                   <Image
-                    src="/images/destinations/madere/fanal_foret.jpg"
+                    src="/og-default.jpg"
                     alt=""
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"
@@ -417,7 +417,7 @@ export default async function FaialPage({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
                 <div className="relative h-64 md:h-auto min-h-[260px]">
                   <Image
-                    src="/images/destinations/madere/porto_moniz.jpg"
+                    src="/og-default.jpg"
                     alt=""
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"

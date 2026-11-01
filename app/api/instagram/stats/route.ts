@@ -24,7 +24,7 @@ export async function GET() {
           {
             id: 'demo-1',
             caption: 'Achadas da Cruz par le téléphérique le plus raide d’Europe. Silence absolu et embruns de l’Atlantique.',
-            media_url: '/images/destinations/madere/achadas_da_cruz.jpg',
+            media_url: '/og-default.jpg',
             like_count: 124,
             comments_count: 18,
             timestamp: new Date(Date.now() - 86400000 * 2).toISOString(),
@@ -32,7 +32,7 @@ export async function GET() {
           {
             id: 'demo-2',
             caption: 'Fanal dans la brume : laurisylve millénaire classée UNESCO et lumière filtrante au petit matin.',
-            media_url: '/images/destinations/madere/fanal_foret.jpg',
+            media_url: '/og-default.jpg',
             like_count: 186,
             comments_count: 24,
             timestamp: new Date(Date.now() - 86400000 * 5).toISOString(),
@@ -40,7 +40,7 @@ export async function GET() {
           {
             id: 'demo-3',
             caption: 'Pico do Arieiro au lever du soleil : mer de nuages à 1 818 mètres d’altitude.',
-            media_url: '/images/destinations/madere/pico_do_arieiro.jpg',
+            media_url: '/og-default.jpg',
             like_count: 210,
             comments_count: 31,
             timestamp: new Date(Date.now() - 86400000 * 8).toISOString(),

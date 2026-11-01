@@ -136,7 +136,7 @@ export default async function PortugalPage() {
   const territoryCards = [
     {
       href: '/destinations/madere',
-      image: '/images/destinations/madere/fanal_foret.jpg',
+      image: '/og-default.jpg',
       tag: Z('card_1_tag', 'text', 'Île Atlantique · Nature UNESCO', undefined, 'span'),
       title: Z('card_1_title', 'text', 'Madère (13 carnets de terrain)', undefined, 'span'),
       desc: Z(

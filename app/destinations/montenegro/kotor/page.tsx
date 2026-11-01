@@ -10,6 +10,8 @@ import { buildPageMetadata } from '@/lib/page-metadata'
 import ComingSoonDestination from '@/components/ComingSoonDestination'
 import { isUnpublishedCmsPage } from '@/lib/unpublished-pages'
 
+export const revalidate = 86400
+
 const PAGE = 'destinations-montenegro-kotor'
 
 const metadata: Metadata = {

@@ -37,7 +37,7 @@ const metadata: Metadata = {
     description: '10 meilleures adresses testées à Madère. Télécharge gratuitement le guide.',
     images: [
       {
-        url: '/images/destinations/madere/fanal_foret.jpg',
+        url: '/og-default.jpg',
         width: 1200,
         height: 630,
         alt: 'Guide Top 10 Pépites Madère',
@@ -95,10 +95,10 @@ async function getHeroImage() {
       .eq('zone_key', 'hero_bg_image')
       .eq('is_active', true)
       .maybeSingle()
-    if (error) return '/images/destinations/madere/fanal_foret.jpg'
-    return data?.value || '/images/destinations/madere/fanal_foret.jpg'
+    if (error) return '/og-default.jpg'
+    return data?.value || '/og-default.jpg'
   } catch {
-    return '/images/destinations/madere/fanal_foret.jpg'
+    return '/og-default.jpg'
   }
 }
 
@@ -130,7 +130,7 @@ export default async function Top10PepitesMaderePage() {
   const verifiedItems = [
     {
       rank: 1,
-      image: dbItems.get(1)?.image_url || '/images/destinations/madere/fanal_foret.jpg',
+      image: dbItems.get(1)?.image_url || '/og-default.jpg',
       typeNode: Z(
         'pepite_1_type',
         'text',
@@ -164,7 +164,7 @@ export default async function Top10PepitesMaderePage() {
     },
     {
       rank: 2,
-      image: dbItems.get(2)?.image_url || '/images/destinations/madere/achadas_da_cruz.jpg',
+      image: dbItems.get(2)?.image_url || '/og-default.jpg',
       typeNode: Z(
         'pepite_2_type',
         'text',
@@ -198,7 +198,7 @@ export default async function Top10PepitesMaderePage() {
     },
     {
       rank: 3,
-      image: dbItems.get(3)?.image_url || '/images/destinations/madere/porto_moniz.jpg',
+      image: dbItems.get(3)?.image_url || '/og-default.jpg',
       typeNode: Z(
         'pepite_3_type',
         'text',
@@ -266,7 +266,7 @@ export default async function Top10PepitesMaderePage() {
     },
     {
       rank: 5,
-      image: dbItems.get(5)?.image_url || '/images/destinations/madere/pico_do_arieiro.jpg',
+      image: dbItems.get(5)?.image_url || '/og-default.jpg',
       typeNode: Z(
         'pepite_5_type',
         'text',
@@ -334,7 +334,7 @@ export default async function Top10PepitesMaderePage() {
     },
     {
       rank: 7,
-      image: dbItems.get(7)?.image_url || '/images/destinations/madere/ponta_do_sol.jpg',
+      image: dbItems.get(7)?.image_url || '/og-default.jpg',
       typeNode: Z(
         'pepite_7_type',
         'text',
