@@ -2,6 +2,57 @@
 
   Toutes les modifications du projet sont consignées ici pour assurer la coordination entre sessions et maintenir la traçabilité des évolutions.
 
+## [2026-11-01 unvicies] — Le contenu « incohérent » était un résidu de coaching exposé par l'API
+
+**Constat.** La demande portait sur « trop de contenu incohérent ». J'ai cherché du contenu mal écrit. J'ai trouvé autre chose : une **fuite de données**.
+
+La table `temoignages` — sans le préfixe `cms_` — contient 5 témoignages de **coaching professionnel** attribués à une dénommée « Monica » : Directrice Marketing, DRH, *Philosophical Counselling*. Le site est un média de **slow travel**. Ce contenu appartient à un ancien projet.
+
+Ces 5 lignes sont **lisibles anonymement** : `GET /rest/v1/temoignages` avec la clé publiable renvoie HTTP 200 et 5 lignes.
+
+**Pourquoi c'était invisible.** Aucun composant ne lit cette table — ni `app/`, ni `components/`, ni `lib/`, ni le mobile. Les seules occurrences de ce nom sont dans `docs/` et ce CHANGELOG. La page `/temoignages` lit `cms_testimonials`, l'unique source (`lib/testimonials.ts`). La table n'a **aucune migration de création** : elle a été créée à la main. Et la migration `20261018160000` a désactivé les 5 faux témoignages de `cms_testimonials` — en **oubliant cette table homonyme**. Le nom presque identique est précisément ce qui a permis l'oubli.
+
+**Corrigé — sans rien supprimer.**
+
+- `supabase/migrations/20261101110000_fermer_lecture_publique_temoignages_orpheline.sql` : retire la seule politique `Public read temoignages` (SELECT, `USING visible = true`). La politique `Service role full access temoignages` est **conservée** — elle est déjà bornée à `auth.role() = 'service_role'`, elle ne fuit rien. Aucune ligne n'est supprimée, la table n'est ni renommée ni supprimée.
+
+**Vérifié par exécution, pas par relecture.** Postgres 15 en conteneur, état de production reconstitué (table, 5 lignes, 2 politiques, GRANT `anon`) :
+
+| Contrôle | Avant | Après |
+|---|---|---|
+| `anon` lit la table | **5 lignes** | **0** (bloqué) |
+| `service_role` lit la table | 5 | **5** (intact) |
+| Lignes en base | 5 | **5** (rien supprimé) |
+
+La migration est idempotente (3 applications, aucune erreur). Son garde-fou **mord** : privée de son `DROP`, elle échoue (`Lecture publique encore ouverte sur temoignages : 1 politique(s)`) au lieu de passer en silence, et la transaction est annulée.
+
+**Deux décisions de conception.**
+
+1. **Le critère du garde-fou porte sur `qual`, pas sur `roles`.** La politique conservée est déclarée `to public` mais exige `auth.role() = 'service_role'`. Juger sur `roles` l'aurait déclarée ouverte à tort et fait échouer la migration — constaté en test, corrigé.
+2. **`ai_context` n'est PAS touchée**, alors qu'elle est elle aussi lisible anonymement (35 clés). Vérification faite : ce n'est **pas** le même cas que `temoignages`. La table a une migration (`20260903191920`) qui écrit « RLS : lecture publique (les agents lisent) » — la lecture publique est **voulue**, c'est le fil conducteur que Claude, Gemini, Jules et le Brain II lisent en début de session. Aucun code du dépôt ne la lit, mais les agents externes si. Le seul défaut réel (un secret) a été mesuré : la valeur de `glossary_maintenance_bypass` est **tronquée par conception** (elle documente qu'un préfixe suffit, et contient `...`), et **ne contient pas** le vrai jeton — comparaison programmatique, résultat `False`. Décision : ne pas la fermer, sous peine de casser les agents.
+
+**Angle mort signalé, non corrigé ici.** `check:cms-drift` ne scanne que les tables **référencées par le code**. `temoignages` ne l'étant pas, aucun garde-fou ne pouvait la voir — ni le sien, ni `check:cms-migrations`. Les autres tables exposées sans lecteur sont détaillées plus bas (`ai_context`, `booking_slots`, `travel_guides`, `cms_home_content_zones`, `destination_pois`, `cmsblogposts`, `guides_pdf`, `cms_settings`). À traiter une par une, après vérification de leurs lecteurs — jamais en bloc.
+
+**Trois fausses pistes écartées, pour ne pas rouvrir de tâches inutiles.**
+
+- Le « constat G » (« six articles publiés portent la date 2026-05-18 ») est **périmé** : ces 6 slugs sont `published=false`, et sur 56 articles de `cms_blog_posts`, **55 sont en brouillon**.
+- `/temoignages` affiche un **message d'attente honnête** : les 5 lignes de `cms_testimonials` sont `is_active=false`. Le code ne fabrique pas de faux témoignage — conforme à l'incident du 19/08.
+- `/blog/page-a61408d15a1f3932` ressemblait à un lien mort : c'est un **chunk JavaScript interne** de Next.js (`/_next/static/chunks/app/blog/page-<hash>.js`).
+
+**`ai_context` : le geste symétrique a été écarté, sur preuve.** L'analyse initiale la présentait comme « même cas que `temoignages` — table manuelle, sans lecteur, lisible anonymement ». C'est **faux sur les trois points** :
+
+| | `temoignages` | `ai_context` |
+|---|---|---|
+| Migration de création | **aucune** (manuelle) | **oui** — `20260903191920_ai_context_table.sql` |
+| Politique de lecture | jamais voulue | **voulue** : la migration écrit « RLS : lecture publique (les agents lisent) » |
+| Lecteurs | aucun, nulle part | **les agents IA externes** (Claude, Gemini, Jules, Brain II), clé anon |
+
+Le `COMMENT` de la table le dit : « fil conducteur IA — lu au début de chaque session ». La fermer **casserait l'usage pour lequel elle existe**. Le seul défaut réel — un risque de secret — a été mesuré : la valeur de `glossary_maintenance_bypass` est **tronquée par conception** (« 10 caractères de préfixe », contient `...`), et **ne contient pas** le vrai jeton (comparaison programmatique : `False`). Aucune des 35 clés ne contient de secret exploitable. **Décision : ne pas toucher `ai_context`.**
+
+**Nouveau résidu trouvé, signalé et non traité : `booking_slots`.** 8 créneaux de réservation, types `coaching` (3), `discovery` (4), `enterprise` (1), du 22 au 29 juin 2026 — **encore le projet de coaching**, pas du slow travel. Comme `temoignages` : aucune migration de création, aucun lecteur, et une politique `Public read available slots` qui les expose anonymement (`USING status = 'available' AND slot_date >= ...`). Non touché faute d'accord explicite : c'est un geste de même nature que #799, à approuver séparément.
+
+**Cinq autres tables exposées sans lecteur ni migration**, contenu vérifié cohérent cette fois : `cms_home_content_zones` (6 zones d'accueil, on-brand), `destination_pois` (6 POI de Madère, on-brand), `cmsblogposts` (3 brouillons de Petrovac, on-brand), `guides_pdf` (vide), `cms_settings` (43 lignes, résiduel mais inoffensif). À traiter une par une, pas en bloc.
+
 ## [2026-10-30 vicies] — Le blocage de migration n'était pas un retard, c'était un angle mort
 
 **Constat.** La consigne était de traiter « le blocage de migration ». J'ai d'abord mesuré, plutôt que de supposer. Résultat contre-intuitif : **0 migration en retard**. Les 221 fichiers du dépôt sont tous appliqués en base. Le blocage n'est pas un retard accumulé — c'est un **défaut de processus**.
