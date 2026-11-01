@@ -38,7 +38,7 @@ const metadata: Metadata = {
 
 import { getPageZones } from '@/lib/cms-zones'
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata('organisateur', metadata)

@@ -5,7 +5,7 @@ import { buildPillarMetadata } from '@/lib/pillar-metadata'
 import { fetchPillarData, fetchSubDestinations, fetchSeasons } from '@/lib/pillar-data'
 import { getPageZones } from '@/lib/cms-zones'
 
-export const revalidate = 300
+export const revalidate = 3600
 
 export async function generateMetadata() {
   const data = await fetchPillarData('roumanie')

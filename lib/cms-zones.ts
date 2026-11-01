@@ -42,7 +42,7 @@ const getCachedRawZones = unstable_cache(
     return data ?? []
   },
   ['cms-page-zones-raw'],
-  { revalidate: 300, tags: ['cms-zones'] }
+  { revalidate: 3600, tags: ['cms-zones'] }
 )
 
 /**

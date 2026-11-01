@@ -9,7 +9,7 @@ import EditableZone from '@/components/inline-edit/EditableZone'
 import { buildPageMetadata } from '@/lib/page-metadata'
 import CmsIcon from '@/components/ui/CmsIcon'
 
-export const revalidate = 300;
+export const revalidate = 86400;
 
 const metadata: Metadata = {
   title: 'Programme Partenaires & Affiliation | Heldonica',

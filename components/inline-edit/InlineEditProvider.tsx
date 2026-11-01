@@ -105,7 +105,7 @@ export default function InlineEditProvider({
     }
   }, [])
 
-  const hasServerZones = !!initialZones && Object.keys(initialZones).length > 0
+  const hasServerZones = initialZones !== undefined
 
   useEffect(() => {
     checkAuth()

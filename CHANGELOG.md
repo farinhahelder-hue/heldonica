@@ -4,6 +4,16 @@
 
   ## [2026-11-01] — Refonte Éditoriale Stitch : Page d'Accueil Terracotta & Azure & Atlas Cartographique Interactif
 
+- **Optimisation Consommation Vercel (Fluid Active CPU & ISR Writes)** :
+  - **Allongement des fenêtres ISR (`export const revalidate`)** sur 26 routes pour stopper les régénérations serveur inutiles tout en préservant l'invalidation instantanée à l'enregistrement CMS (`revalidateCmsTarget` / `revalidateTag`) :
+    - Pages éditoriales (`app/page.tsx`, `app/atlas/page.tsx`, `app/slow-travel/page.tsx`, `app/temoignages/page.tsx`, `app/destinations/**`, `app/guides/**`, `app/travel-planning/**`, `app/expert-hotelier/page.tsx`, `app/contact/page.tsx`, `app/quiz/page.tsx`, `app/start/page.tsx`, `app/organisateur/page.tsx`, `app/merci/page.tsx`, `app/api/cms/maps/[slug]/route.ts`) : passage de `60s`/`300s` à **`3600s` (1 heure)**.
+    - Pages légales statiques (`app/mentions-legales/page.tsx`, `app/politique-confidentialite/page.tsx`, `app/politique-affiliation/page.tsx`) : passage de `300s` à **`86400s` (24 heures)**.
+  - **Cache serveur & client CMS (`lib/cms-zones.ts`, `components/inline-edit/InlineEditProvider.tsx`, `lib/supabase-edge.ts`)** :
+    - `lib/cms-zones.ts` : fenêtre `unstable_cache` portée de `300s` à `3600s` (invalidée par tag `cms-zones` à chaque écriture).
+    - `InlineEditProvider.tsx` : suppression du `fetch('/api/cms/zones')` client redondant lorsqu'une page préchargée côté serveur (`initialZones !== undefined`) possède un dictionnaire initial vide `{}`.
+    - `lib/supabase-edge.ts` : ajout d'un cache mémoire court (TTL 60s hors environnement de test) sur `getMaintenanceMode()` dans l'isolat Edge afin d'éviter un appel réseau Supabase à chaque requête publique.
+
+
 - **Enrichissement Destination Suisse & Carnet Alpin Stoos (`app/destinations/suisse/page.tsx`, `app/destinations/suisse/stoos/page.tsx`)** :
   - **Refonte Éditoriale du Hub Suisse (`app/destinations/suisse/page.tsx`)** :
     - Remplacement de l'ancien fallback par un portail complet slow travel adossé aux relevés réels de l'archive `Suisse - Stoos & Randonnées alpines (Schwyz)-1-001.zip` (50 photos géolocalisées, 2 vidéos, prises le 12 juillet 2025).

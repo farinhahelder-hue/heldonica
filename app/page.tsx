@@ -7,7 +7,7 @@ import { getHomeDestinations, getHomeContentZones } from '@/lib/home-data'
 import { getPageZones } from '@/lib/cms-zones'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const revalidate = 60
+export const revalidate = 3600
 
 const metadata: Metadata = {
   title: 'Heldonica — Slow travel vécu en duo, conçu pour toi',

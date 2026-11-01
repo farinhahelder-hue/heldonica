@@ -8,7 +8,7 @@ import { getPageZones } from '@/lib/cms-zones'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const revalidate = 300;
+export const revalidate = 3600;
 
 const metadata: Metadata = {
   title: 'Tous nos liens | Heldonica',
