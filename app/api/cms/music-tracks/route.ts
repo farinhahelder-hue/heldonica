@@ -14,7 +14,13 @@ export interface MusicTrack {
   promptGoogleFlow: string;
 }
 
-export const CATALOGUE_MUSIQUES: MusicTrack[] = [
+// Volontairement NON exporte : un fichier route.ts d'App Router ne peut exporter
+// que ses gestionnaires et les options reconnues par Next.js. Exporter une
+// valeur fait echouer `next build` sur le validateur genere
+// (.next/types/.../route.ts), alors que `tsc --noEmit` ne le voit pas : ce
+// fichier n'existe pas encore quand tsc tourne. Personne n'importe cette
+// constante.
+const CATALOGUE_MUSIQUES: MusicTrack[] = [
   {
     id: 'atrium_lin_brut',
     titre: 'Atrium Lin Brut',
