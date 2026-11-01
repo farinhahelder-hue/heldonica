@@ -14,6 +14,13 @@ on:
   push:
     branches: [main]
 
+# Sans ce bloc, le jeton heritait du reglage par defaut du depot — qui peut etre
+# « lecture et ecriture ». Or le job `cms` execute des scripts lus DANS LA
+# BRANCHE DE LA PR : un jeton en ecriture y serait a la portee de n'importe
+# quelle branche poussee dans le depot. Aucun de ces jobs n'ecrit.
+permissions:
+  contents: read
+
 jobs:
   typecheck:
     name: Types
@@ -47,16 +54,40 @@ jobs:
           cache: npm
       - run: npm ci
 
-      # Les deux contrôles interrogent Supabase. Sans identifiants ils sortent
-      # en 2 — on préfère un avertissement explicite dans l'onglet Actions à un
-      # échec cryptique, mais surtout pas un succès silencieux.
+      # Les contrôles qui interrogent Supabase ne reçoivent plus la clé de
+      # service sur une pull request, et c'est volontaire.
+      #
+      # Pour un évènement `pull_request`, GitHub exécute le workflow tel qu'il
+      # est DANS LA BRANCHE DE LA PR, et les secrets du dépôt sont bien fournis
+      # dès lors que la branche vient du dépôt lui-même — seules les PR issues
+      # d'un fork en sont privées. Une dizaine d'agents poussent des branches
+      # ici : chacun pouvait donc modifier `scripts/check-cms-zones.mjs`, ou ce
+      # fichier, et lire SUPABASE_SERVICE_ROLE_KEY. Cette clé contourne la RLS :
+      # c'est la base entière, en lecture et en écriture.
+      #
+      # Ces contrôles tournent désormais sur `push` vers main — du code déjà
+      # relu — et chaque matin dans `controles-base-quotidien.yml`. On perd
+      # l'immédiateté sur la PR, pas la couverture.
+      #
+      # Ce verrou ne suffit PAS à lui seul : la branche de la PR contrôle aussi
+      # ce fichier, donc elle peut le réécrire. La protection complète demande
+      # de déplacer ces deux secrets dans un « Environment » GitHub dont la
+      # règle de branche n'autorise que `main` — un réglage du dépôt, pas du
+      # code. Voir `docs/SECURITE_CI.md`.
+      #
+      # Sans identifiants les contrôles sortent en 2 : on préfère un
+      # avertissement explicite dans l'onglet Actions à un échec cryptique,
+      # mais surtout pas un succès silencieux.
       - name: Vérifier la présence des identifiants
         id: secrets
         env:
-          URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          URL: ${{ github.event_name == 'pull_request' && '' || secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          KEY: ${{ github.event_name == 'pull_request' && '' || secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
-          if [ -z "$URL" ] || [ -z "$KEY" ]; then
+          if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+            echo "presents=false" >> "$GITHUB_OUTPUT"
+            echo "::notice title=Controles base differes::Sur une pull request, les controles qui lisent Supabase ne recoivent pas la cle de service : le code execute vient de la branche de la PR. Ils tournent sur push vers main et chaque matin via controles-base-quotidien.yml."
+          elif [ -z "$URL" ] || [ -z "$KEY" ]; then
             echo "presents=false" >> "$GITHUB_OUTPUT"
             echo "::warning title=Garde-fous CMS inactifs::Ajouter les secrets NEXT_PUBLIC_SUPABASE_URL et SUPABASE_SERVICE_ROLE_KEY dans Settings > Secrets and variables > Actions. Sans eux, les zones orphelines et les dérives de tables ne sont pas détectées."
           else
@@ -66,10 +97,10 @@ jobs:
       # Zones actives qu'aucun composant n'affiche, et clés lues mais absentes
       # du filtre serveur CONSUMED_ZONE_KEYS.
       - name: Zones orphelines
-        if: steps.secrets.outputs.presents == 'true'
+        if: github.event_name != 'pull_request' && steps.secrets.outputs.presents == 'true'
         env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ github.event_name == 'pull_request' && '' || secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ github.event_name == 'pull_request' && '' || secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: npm run check:cms-zones
 
       # Gestionnaires d'API maniant la clé service — qui contourne les règles de
@@ -101,10 +132,10 @@ jobs:
 
       # Tables référencées par le code mais absentes du schéma, et inversement.
       - name: Dérive des tables
-        if: steps.secrets.outputs.presents == 'true'
+        if: github.event_name != 'pull_request' && steps.secrets.outputs.presents == 'true'
         env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ github.event_name == 'pull_request' && '' || secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ github.event_name == 'pull_request' && '' || secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: npm run check:cms-drift
 
       # Tables référencées par le code sans migration versionnée. Ce contrôle
@@ -138,10 +169,10 @@ jobs:
 
       # Cohérence éditoriale et respect des 7 garde-fous (pronoms, mots bannis, E-E-A-T)
       - name: Cohérence éditoriale et lexique
-        if: steps.secrets.outputs.presents == 'true'
+        if: github.event_name != 'pull_request' && steps.secrets.outputs.presents == 'true'
         env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ github.event_name == 'pull_request' && '' || secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ github.event_name == 'pull_request' && '' || secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: npm run check:content-coherence
 
       # Le contrôle ci-dessus mesure la *ressemblance* avec du vécu : son critère
@@ -194,10 +225,10 @@ jobs:
       # trou, refusé par la CI sur les fichiers, jamais vu en base. La plage
       # vient du détecteur (source unique) pour que les deux ne divergent plus.
       - name: Emojis décoratifs en base
-        if: steps.secrets.outputs.presents == 'true'
+        if: github.event_name != 'pull_request' && steps.secrets.outputs.presents == 'true'
         env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ github.event_name == 'pull_request' && '' || secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ github.event_name == 'pull_request' && '' || secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: npm run check:cms-emojis
 
       # Le contrôle C2PA lit les FICHIERS de public/ et le code. Celui-ci lit la
@@ -208,10 +239,10 @@ jobs:
       # (colonne TABLEAU, invisible à un balayage texte/json). Le script balaie
       # toute colonne texte, json et tableau du schéma exposé.
       - name: Images générées en base (C2PA)
-        if: steps.secrets.outputs.presents == 'true'
+        if: github.event_name != 'pull_request' && steps.secrets.outputs.presents == 'true'
         env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ github.event_name == 'pull_request' && '' || secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ github.event_name == 'pull_request' && '' || secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: npm run check:cms-ai-images-db
 
       # Le dépôt et la base sont-ils d'accord sur les migrations APPLIQUÉES ?
@@ -227,10 +258,10 @@ jobs:
       # répertoire de travail — donc sur la migration de la PR elle-même — et
       # échouerait à tort sur toute PR qui ajoute une migration.
       - name: Migrations appliquées (dépôt ↔ base)
-        if: steps.secrets.outputs.presents == 'true'
+        if: github.event_name != 'pull_request' && steps.secrets.outputs.presents == 'true'
         env:
-          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          NEXT_PUBLIC_SUPABASE_URL: ${{ github.event_name == 'pull_request' && '' || secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ github.event_name == 'pull_request' && '' || secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           git fetch --no-tags --depth=1 origin +refs/heads/main:refs/remotes/origin/main || true
           npm run check:cms-migrations-appliquees
