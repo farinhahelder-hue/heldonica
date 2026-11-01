@@ -153,7 +153,7 @@ export default function CategoriesAdminPage() {
           disabled={normalizing}
           className="px-4 py-2 bg-eucalyptus text-white font-semibold rounded-lg hover:brightness-110 transition disabled:opacity-50 text-sm shadow"
         >
-          {normalizing ? 'Normalisation…' : 'Normaliser en masse 🔄'}
+          {normalizing ? 'Normalisation…' : 'Normaliser en masse'}
         </button>
       </div>
 

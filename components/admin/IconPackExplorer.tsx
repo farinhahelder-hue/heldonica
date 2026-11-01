@@ -146,7 +146,7 @@ export default function IconPackExplorer() {
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold text-[#241D1A] font-serif flex items-center gap-2">
-            <span>🧭</span> Pack d&apos;Icônes Voyage Slow Travel
+            <Compass size={20} className="shrink-0" aria-hidden="true" /> Pack d&apos;Icônes Voyage Slow Travel
           </h2>
           <p className="text-xs text-stone-500 mt-1">
             Collection de pictogrammes nobles intégrés au CMS. Cliquez sur une icône pour copier son identifiant.

@@ -8,9 +8,9 @@ import {
 } from '@/lib/cms-templates';
 
 describe('CMS Templates Library (lib/cms-templates.ts)', () => {
-  it('fournit la liste exhaustive des 4 gabarits éditoriaux', () => {
+  it('fournit la liste exhaustive des 9 gabarits éditoriaux', () => {
     const templates = getCmsTemplates();
-    expect(templates).toHaveLength(7);
+    expect(templates).toHaveLength(9);
     const ids = templates.map((t) => t.id);
     expect(ids).toContain('slow_travel_diary');
     expect(ids).toContain('step_by_step_guide');
@@ -19,6 +19,8 @@ describe('CMS Templates Library (lib/cms-templates.ts)', () => {
     expect(ids).toContain('verdict_counter_tourism');
     expect(ids).toContain('dispatch_field_notes');
     expect(ids).toContain('sensory_micro_escape');
+    expect(ids).toContain('terroir_artisan_table');
+    expect(ids).toContain('train_escape_zero_carbon');
   });
 
   it('instancie un gabarit slow_travel_diary avec des IDs uniques et personnalisation de destination', () => {

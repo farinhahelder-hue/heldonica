@@ -11,7 +11,7 @@ import EditableZone from '@/components/inline-edit/EditableZone'
 import { createServiceClient } from '@/lib/supabase'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const revalidate = 3600
+export const revalidate = 86400
 
 const PAGE = 'top-10-pepites-madere'
 

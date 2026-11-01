@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
+import { Camera, Brain, Smartphone, Loader2, Upload, Link2, Image, Search, Sparkles } from 'lucide-react'
 
 /**
  * Choix et upload d'une photo de fond pour une diapositive de carrousel.
@@ -146,7 +147,7 @@ export default function PhotoPickerPanel({ valeur, onChoisir, onAttribuerToutes 
           onClick={() => setOuvert(o => !o)}
           className="rounded-full border border-stone-300 px-4 py-2 text-sm font-medium text-stone-700 hover:border-eucalyptus hover:text-eucalyptus transition flex items-center gap-2"
         >
-          📷 {valeur ? 'Changer la photo' : 'Ajouter / Photo de fond'}
+          <Camera className="w-4 h-4" aria-hidden /> {valeur ? 'Changer la photo' : 'Ajouter / Photo de fond'}
         </button>
 
         {valeur && (
@@ -157,7 +158,7 @@ export default function PhotoPickerPanel({ valeur, onChoisir, onAttribuerToutes 
               rel="noopener noreferrer"
               className="rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1.5 text-xs font-semibold text-emerald-800 hover:bg-emerald-100 transition flex items-center gap-1.5"
             >
-              🧠 Analyser avec le Brain
+              <Brain className="w-3.5 h-3.5" aria-hidden /> Analyser avec le Brain
             </a>
             <button
               type="button"
@@ -174,11 +175,15 @@ export default function PhotoPickerPanel({ valeur, onChoisir, onAttribuerToutes 
         <div className="mt-3 rounded-2xl border border-stone-200 bg-white p-4 space-y-4">
           {/* Section 1 : Upload direct depuis l'appareil (Mobile Android / Camera / Galerie) */}
           <div className="p-3 bg-stone-50 rounded-xl border border-stone-200">
-            <p className="text-xs font-semibold text-stone-700 mb-2">📱 Depuis votre appareil (Android / Galerie)</p>
+            <p className="text-xs font-semibold text-stone-700 mb-2 inline-flex items-center gap-1.5"><Smartphone className="w-3.5 h-3.5" aria-hidden /> Depuis votre appareil (Android / Galerie)</p>
             <label className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white transition cursor-pointer ${
               uploadEnCours ? 'bg-stone-400 cursor-wait' : 'bg-[#6b2a1a] hover:bg-[#522014]'
             }`}>
-              {uploadEnCours ? '⏳ Transfert en cours…' : '⬆️ Uploader des photos de votre téléphone'}
+              {uploadEnCours ? (
+                <><Loader2 className="w-3.5 h-3.5 animate-spin" aria-hidden /> Transfert en cours…</>
+              ) : (
+                <><Upload className="w-3.5 h-3.5" aria-hidden /> Uploader des photos de votre téléphone</>
+              )}
               <input
                 type="file"
                 accept="image/*"
@@ -192,7 +197,7 @@ export default function PhotoPickerPanel({ valeur, onChoisir, onAttribuerToutes 
 
           {/* Section 2 : Coller une URL */}
           <div className="p-3 bg-stone-50 rounded-xl border border-stone-200">
-            <p className="text-xs font-semibold text-stone-700 mb-2">🔗 Ou par URL d&apos;image</p>
+            <p className="text-xs font-semibold text-stone-700 mb-2 inline-flex items-center gap-1.5"><Link2 className="w-3.5 h-3.5" aria-hidden /> Ou par URL d&apos;image</p>
             <div className="flex gap-2">
               <input
                 type="url"
@@ -215,7 +220,7 @@ export default function PhotoPickerPanel({ valeur, onChoisir, onAttribuerToutes 
           {/* Section 3 : Médiathèque Supabase */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-semibold text-stone-700">🖼️ Médiathèque du site</p>
+              <p className="text-xs font-semibold text-stone-700 inline-flex items-center gap-1.5"><Image className="w-3.5 h-3.5" aria-hidden /> Médiathèque du site</p>
               <div className="flex gap-1 text-xs">
                 <button
                   type="button"
@@ -267,7 +272,7 @@ export default function PhotoPickerPanel({ valeur, onChoisir, onAttribuerToutes 
                     type="text"
                     value={recherche}
                     onChange={e => setRecherche(e.target.value)}
-                    placeholder="🔍 Rechercher (nom, date)..."
+                    placeholder="Rechercher (nom, date)..."
                     className="flex-1 px-3 py-1.5 text-xs border border-stone-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-eucalyptus/50"
                   />
                   <button
@@ -304,7 +309,7 @@ export default function PhotoPickerPanel({ valeur, onChoisir, onAttribuerToutes 
                     }}
                     className="mb-2 w-full text-center text-xs font-semibold text-[#6b2a1a] bg-stone-100 hover:bg-stone-200 px-3 py-1.5 rounded-lg transition"
                   >
-                    ✨ Distribuer 1 photo par diapositive ({mediasAffiches.length} disponible{mediasAffiches.length > 1 ? 's' : ''})
+                    <Sparkles className="w-3.5 h-3.5 inline-block mr-1" aria-hidden /> Distribuer 1 photo par diapositive ({mediasAffiches.length} disponible{mediasAffiches.length > 1 ? 's' : ''})
                   </button>
                 )}
                 <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-56 overflow-y-auto">

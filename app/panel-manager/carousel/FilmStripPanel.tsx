@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { Film, Image, Copy, Package } from 'lucide-react'
 import { SlideData, HELDONICA_TOKENS } from './tokens'
 import { exportAllSlides } from '@/lib/carousel/export'
 
@@ -82,7 +83,7 @@ export default function FilmStripPanel({
       {/* Header */}
       <div className="px-4 py-3 border-b border-stone-200 flex items-center justify-between">
         <div>
-          <h3 className="font-semibold text-stone-800 text-sm">🎞️ Filmstrip</h3>
+          <h3 className="font-semibold text-stone-800 text-sm inline-flex items-center gap-2"><Film className="w-4 h-4" aria-hidden /> Filmstrip</h3>
           <p className="text-xs text-stone-500">{slides.length} slides</p>
         </div>
         <button
@@ -136,7 +137,7 @@ export default function FilmStripPanel({
               }}
             >
               {!slide.image && (
-                <span className="text-2xl opacity-30">📷</span>
+                <Image className="w-6 h-6 opacity-30" aria-hidden />
               )}
               <div 
                 className="absolute inset-0 flex items-center justify-center p-2"
@@ -182,14 +183,15 @@ export default function FilmStripPanel({
       <div className="px-4 py-3 border-t border-stone-200 bg-stone-50">
         <div className="flex gap-2">
           <button className="flex-1 px-3 py-2 text-xs bg-white border border-stone-200 rounded-lg hover:bg-stone-100 transition-colors">
-            📋 Dupliquer
+            <Copy className="w-3.5 h-3.5 inline-block mr-1" aria-hidden /> Dupliquer
           </button>
           <button 
             onClick={handleExportAll}
             disabled={isExportingAll || slides.length === 0}
             className="flex-1 px-3 py-2 text-xs bg-[#6b2a1a] text-white rounded-lg hover:bg-[#6b2a1a]/90 transition-colors disabled:opacity-50"
           >
-            {isExportingAll ? '...' : '📦'} ZIP ({slides.length})
+            <Package className="w-3.5 h-3.5 inline-block mr-1" aria-hidden />
+            {isExportingAll ? 'Export...' : 'ZIP'} ({slides.length})
           </button>
         </div>
       </div>

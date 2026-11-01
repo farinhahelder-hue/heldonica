@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import { Smartphone, Pencil, Palette, Image, Send } from 'lucide-react'
 import { SlideData, HELDONICA_TOKENS, AspectRatio } from './tokens'
 import { exportSlide } from '@/lib/carousel/export'
 
@@ -38,7 +39,7 @@ export default function SlidePreviewPanel({ slide, aspectRatio, brandOverlay, pr
     return (
       <div className="flex items-center justify-center h-full bg-stone-100 rounded-2xl border-2 border-dashed border-stone-300">
         <div className="text-center text-stone-400">
-          <div className="text-4xl mb-2">📱</div>
+          <Smartphone className="w-10 h-10 mx-auto mb-2" aria-hidden />
           <p className="text-sm">Sélectionnez une slide dans le filmstrip</p>
         </div>
       </div>
@@ -145,20 +146,21 @@ export default function SlidePreviewPanel({ slide, aspectRatio, brandOverlay, pr
       {/* Edit controls */}
       <div className="mt-4 grid grid-cols-3 sm:grid-cols-4 gap-2">
         <button className="px-3 py-2 text-xs bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors">
-          ✏️ Titre
+          <Pencil className="w-3.5 h-3.5 inline-block mr-1" aria-hidden /> Titre
         </button>
         <button className="px-3 py-2 text-xs bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors">
-          🎨 Style
+          <Palette className="w-3.5 h-3.5 inline-block mr-1" aria-hidden /> Style
         </button>
         <button className="px-3 py-2 text-xs bg-stone-100 hover:bg-stone-200 rounded-lg transition-colors">
-          🖼️ Image
+          <Image className="w-3.5 h-3.5 inline-block mr-1" aria-hidden /> Image
         </button>
         <button 
           onClick={handleExportSlide}
           disabled={isExporting || !slide}
           className="px-3 py-2 text-xs bg-[#83C5BE] hover:bg-[#4a7c59] text-white rounded-lg transition-colors disabled:opacity-50 flex items-center justify-center gap-1"
         >
-          {isExporting ? '...' : '📤'} Export
+          <Send className="w-3.5 h-3.5" aria-hidden />
+          {isExporting ? 'Export...' : 'Export'}
         </button>
       </div>
     </div>

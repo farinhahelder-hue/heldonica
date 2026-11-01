@@ -15,7 +15,7 @@ import { isUnpublishedCmsPage } from '@/lib/unpublished-pages';
 const SITE_URL = 'https://www.heldonica.fr';
 const PAGE = 'destinations-madere-achadas-da-cruz';
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 const metadata: Metadata = {
   title: 'Achadas da Cruz & la Fajã da Quebrada Nova : notre carnet slow travel | Heldonica',

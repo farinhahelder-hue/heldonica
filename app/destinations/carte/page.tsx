@@ -39,7 +39,7 @@ const metadata: Metadata = {
 
 import { getPageZones } from '@/lib/cms-zones';
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata('destinations-carte', metadata)

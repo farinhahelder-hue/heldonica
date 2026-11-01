@@ -10,6 +10,31 @@ val cmsProps = Properties().apply {
     if (f.exists()) f.inputStream().use { load(it) }
 }
 
+// Taches demandees sur la ligne de commande. Capture ici, au niveau du script
+// (receveur = Project), car `gradle` ne se resout pas de facon fiable depuis un
+// lambda imbrique comme `create("release") { }`. Sert a n'exiger le keystore de
+// release que lorsqu'on construit reellement une release : `testDebugUnitTest`
+// configure ce bloc sans avoir besoin du keystore.
+val tachesDemandees: List<String> = gradle.startParameter.taskNames
+
+// Validation de CI (PR, push) : on construit la variante release SANS signature,
+// pour verifier R8, proguard et lint sans engager de cle de publication. Sans ce
+// drapeau, une release exige un keystore dedie et echoue si elle n'en a pas.
+val autoriserNonSigne: Boolean = providers.gradleProperty("allowUnsignedRelease").isPresent
+
+val cleRelease = rootProject.file("keystore/heldonica-release.keystore")
+val mdpStoreRelease = cmsProps.getProperty("release.storePassword")
+    ?: System.getenv("RELEASE_STORE_PASSWORD")
+val releaseSignable = cleRelease.exists() && !mdpStoreRelease.isNullOrBlank()
+
+if (tachesDemandees.any { it.lowercase().contains("release") } && !releaseSignable && !autoriserNonSigne) {
+    throw GradleException(
+        "Aucun keystore de release. Poser keystore/heldonica-release.keystore " +
+            "et RELEASE_STORE_PASSWORD (voir .github/workflows/build-apk.yml). " +
+            "Refus de signer une release avec le keystore de debug public."
+    )
+}
+
 android {
     namespace = "fr.heldonica.mobile"
     compileSdk = 34
@@ -31,35 +56,26 @@ android {
             }
         }
 
-        // Signature de release. Un vrai keystore si fourni — en CI par les
-        // variables RELEASE_STORE_PASSWORD / RELEASE_KEY_ALIAS / RELEASE_KEY_PASSWORD,
-        // en local par local.properties (release.*). Sinon repli sur le keystore de
-        // debug versionne : la CI continue alors de produire un APK installable
-        // par-dessus les precedents, sans secret supplementaire a configurer.
-        // Le fichier attendu est keystore/heldonica-release.keystore (non versionne).
+        // Signature de release. Le keystore vient de la CI (secrets RELEASE_*) ou de
+        // local.properties (release.*). Fichier attendu : keystore/heldonica-release.keystore,
+        // non versionne.
+        //
+        // Il n'y a PLUS de repli sur le keystore de debug versionne. Ce fichier est
+        // public (depot ouvert) : un APK de release signe avec lui peut etre imite par
+        // n'importe qui, et Android accepterait la mise a jour forgee comme legitime.
+        // Constat du 2026-10-20 : les 7 APK publies l'etaient (empreinte SHA-256 du
+        // certificat 15:71:BD:5C:...). Sans keystore de release, on echoue (ferme)
+        // plutot que de produire un APK falsifiable.
         create("release") {
-            val cleRelease = rootProject.file("keystore/heldonica-release.keystore")
-            val mdpStore = cmsProps.getProperty("release.storePassword")
-                ?: System.getenv("RELEASE_STORE_PASSWORD")
-            val alias = cmsProps.getProperty("release.keyAlias")
-                ?: System.getenv("RELEASE_KEY_ALIAS")
-                ?: "heldonica"
-            val mdpCle = cmsProps.getProperty("release.keyPassword")
-                ?: System.getenv("RELEASE_KEY_PASSWORD")
-                ?: mdpStore
-            if (cleRelease.exists() && !mdpStore.isNullOrBlank()) {
+            if (releaseSignable) {
                 storeFile = cleRelease
-                storePassword = mdpStore
-                keyAlias = alias
-                keyPassword = mdpCle
-            } else {
-                val cle = rootProject.file("keystore/heldonica-debug.keystore")
-                if (cle.exists()) {
-                    storeFile = cle
-                    storePassword = "heldonica"
-                    keyAlias = "heldonica"
-                    keyPassword = "heldonica"
-                }
+                storePassword = mdpStoreRelease
+                keyAlias = cmsProps.getProperty("release.keyAlias")
+                    ?: System.getenv("RELEASE_KEY_ALIAS")
+                    ?: "heldonica"
+                keyPassword = cmsProps.getProperty("release.keyPassword")
+                    ?: System.getenv("RELEASE_KEY_PASSWORD")
+                    ?: mdpStoreRelease
             }
         }
     }
@@ -113,6 +129,15 @@ android {
             "BRAIN_WEB_URL",
             "\"${cmsProps.getProperty("brain.webUrl") ?: ""}\""
         )
+        // Client OAuth *web* du projet, pas le client Android : c'est lui que
+        // Google place dans l'audience du jeton, donc celui que le serveur
+        // verifie. Vide = la connexion Google reste eteinte et le mot de passe
+        // demeure la seule voie, exactement comme avant.
+        buildConfigField(
+            "String",
+            "GOOGLE_SIGNIN_CLIENT_ID",
+            "\"${cmsProps.getProperty("google.signinClientId") ?: ""}\""
+        )
     }
 
     buildTypes {
@@ -129,9 +154,12 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            // Un vrai keystore de release si fourni, sinon le keystore de debug
-            // versionne (mises a jour installables par-dessus les precedentes).
-            signingConfig = signingConfigs.getByName("release")
+            // Un vrai keystore de release si fourni. Sinon `null` : la variante
+            // release n'est pas signee (validation de CI), et jamais signee avec le
+            // keystore de debug versionne, qui est public. Assigner la
+            // signingConfig "release" vide ferait echouer :app:packageRelease
+            // (« SigningConfig "release" is missing required property "storeFile" »).
+            signingConfig = if (releaseSignable) signingConfigs.getByName("release") else null
         }
     }
 
@@ -170,6 +198,14 @@ dependencies {
     implementation("androidx.fragment:fragment:1.6.2")
     implementation("androidx.exifinterface:exifinterface:1.3.7")
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
+
+    // Connexion Google native (ConnexionGoogle.kt). Credential Manager et non
+    // l'ancien GoogleSignInClient : c'est l'API courante, et elle rend le jeton
+    // d'identite que la route /api/cms/auth/google verifie deja. La version suit
+    // la derniere compatible compileSdk 34 / AGP 8.4, comme le reste du projet.
+    implementation("androidx.credentials:credentials:1.3.0")
+    implementation("androidx.credentials:credentials-play-services-auth:1.3.0")
+    implementation("com.google.android.libraries.identity.googleid:googleid:1.1.0")
 
     // Montage video, sur le telephone.
     //

@@ -18,7 +18,7 @@ export default async function AdminSettingsPage() {
   const sections = [
     {
       id: 'identity',
-      label: '🎨 Identité visuelle',
+      label: 'Identité visuelle',
       fields: [
         { key: 'logo_url', label: 'Logo URL', type: 'image', description: 'URL publique ou chemin local' },
         {
@@ -69,7 +69,7 @@ export default async function AdminSettingsPage() {
     },
     {
       id: 'hero',
-      label: '🏠 Hero section',
+      label: 'Hero section',
       fields: [
         { key: 'hero_title', label: 'Titre hero', type: 'text' },
         { key: 'hero_subtitle', label: 'Sous-titre hero', type: 'textarea' },
@@ -79,7 +79,7 @@ export default async function AdminSettingsPage() {
     },
     {
       id: 'seo',
-      label: '🔍 SEO global',
+      label: 'SEO global',
       fields: [
         { key: 'seo_meta_description', label: 'Meta description', type: 'textarea', description: '120-160 caractères recommandés' },
         { key: 'seo_og_image', label: 'Image Open Graph', type: 'image' },
@@ -89,7 +89,7 @@ export default async function AdminSettingsPage() {
     },
     {
       id: 'contact',
-      label: '📞 Contact & Réseaux',
+      label: 'Contact & Réseaux',
       fields: [
         { key: 'contact_email', label: 'Email contact principal', type: 'email', placeholder: 'contact@heldonica.fr' },
         { key: 'footer_contact_email', label: 'Email affiché dans le footer', type: 'email' },
@@ -102,7 +102,7 @@ export default async function AdminSettingsPage() {
     },
     {
       id: 'footer',
-      label: '📄 Footer',
+      label: 'Footer',
       fields: [
         { key: 'footer_text', label: 'Texte descriptif footer', type: 'textarea' },
         { key: 'footer_copyright', label: 'Texte copyright', type: 'text', placeholder: '© 2025 Heldonica. Tous droits réservés.' },
@@ -110,10 +110,10 @@ export default async function AdminSettingsPage() {
     },
     {
       id: 'system',
-      label: '⚙️ Système',
+      label: 'Système',
       fields: [
         { key: 'maintenance_mode', label: 'Mode maintenance', type: 'toggle', description: 'Affiche la page de maintenance' },
-        { key: 'covered_countries', label: 'Nombre de pays couverts', type: 'number', description: 'Pour affichage statistiques' },
+        { key: 'covered_countries', label: 'Nombre de pays habités', type: 'number', description: 'Pays habités par le duo (stat « Pays habités ») — pas les pays visités' },
       ] as SettingField[],
     },
   ]

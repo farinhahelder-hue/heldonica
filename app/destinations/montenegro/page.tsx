@@ -7,7 +7,7 @@ import { getPageZones } from '@/lib/cms-zones'
 
 // ISR : Next sert le dernier rendu valide si Supabase est momentanement
 // injoignable, ce qui absorbe les incidents transitoires sans contenu hardcode.
-export const revalidate = 3600
+export const revalidate = 86400
 
 export async function generateMetadata() {
   const data = await fetchPillarData('montenegro')

@@ -54,6 +54,7 @@ describe('Capture email au quiz (/api/newsletter)', () => {
       method: 'POST',
       body: JSON.stringify({
         email: 'voyageur@heldonica.fr',
+        consent: true,
         source: 'quiz-aventure',
         profil: "L'Aventurier",
       }),
@@ -89,6 +90,7 @@ describe('Capture email au quiz (/api/newsletter)', () => {
       method: 'POST',
       body: JSON.stringify({
         email: 'slow@heldonica.fr',
+        consent: true,
         profil: 'nature',
       }),
     })
@@ -141,11 +143,29 @@ describe('Capture email au quiz (/api/newsletter)', () => {
     expect(mockSubscribersUpsert).not.toHaveBeenCalled()
   })
 
+  it('refuse une inscription sans consentement explicite', async () => {
+    const req = new NextRequest('http://localhost:3000/api/newsletter', {
+      method: 'POST',
+      body: JSON.stringify({
+        email: 'sans-consentement@heldonica.fr',
+      }),
+    })
+
+    const res = await POST(req)
+    expect(res.status).toBe(400)
+
+    const data = await res.json()
+    expect(data.error).toBe('Consentement requis')
+    expect(mockSubscribersUpsert).not.toHaveBeenCalled()
+    expect(mockEmailsSend).not.toHaveBeenCalled()
+  })
+
   it('utilise popup par défaut pour les inscriptions classiques', async () => {
     const req = new NextRequest('http://localhost:3000/api/newsletter', {
       method: 'POST',
       body: JSON.stringify({
         email: 'lecteur@heldonica.fr',
+        consent: true,
       }),
     })
 

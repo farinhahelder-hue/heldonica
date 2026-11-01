@@ -53,7 +53,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata('slow-travel', metadata)
 }
 
-export const revalidate = 3600
+export const revalidate = 86400
 
 export default async function SlowTravelPage() {
   const zones = await getPageZones('slow-travel')

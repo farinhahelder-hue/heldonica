@@ -1,7 +1,19 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase';
+import { checkRateLimit, getClientIp } from '@/lib/rate-limit';
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
+  // Depot public : l'insertion passe par la cle de service, donc rien ne
+  // bornait le nombre de temoignages qu'une seule adresse pouvait deposer.
+  // Meme bride que /api/brevo/subscribe : 10 par heure glissante.
+  const debit = checkRateLimit(getClientIp(req), { limit: 10, prefix: 'testimonials-submit' });
+  if (!debit.success) {
+    return NextResponse.json(
+      { error: 'Trop de requêtes. Veuillez patienter.' },
+      { status: 429 }
+    );
+  }
+
   try {
     const body = await req.json();
     const { name, location, destination, quote, rating } = body;

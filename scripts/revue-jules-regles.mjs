@@ -1,14 +1,21 @@
 // ============================================================
-// Regles de tri des PR de Jules — sans reseau, testees par vitest.
+// Regles de tri des PR — sans reseau, testees par vitest.
 //
 // Le tri propose, il ne decide pas : chaque recommandation devient une tache
 // `agent_tasks` adressee au fondateur, qui la valide d'un geste depuis le Poco
 // (« valide #id »). Voir scripts/revue-jules.mjs.
 // ============================================================
 
-/** Une PR de Jules porte toujours le lien de sa tache Jules ; celles des autres agents, jamais. */
-export function estPrDeJules(pr) {
-  return /jules\.google\.com\/task/.test(pr.body || '')
+/**
+ * Toutes les PR ouvertes sont proposees, quel que soit l'agent qui les a ouvertes.
+ *
+ * Le filtrage par agent (une PR de Jules seulement) etait le goulot : le 28/10, 45 PR
+ * etaient ouvertes, dont 33 de plus de 7 jours, parce que le seul moteur qui fusionne
+ * ne voyait pas les autres. Ce qui merite une relecture humaine n'est pas l'auteur,
+ * c'est le contenu — voir `recommander` (brouillon, CI, conflit, fichiers sensibles).
+ */
+export function proposable(pr) {
+  return pr.state !== 'closed' && pr.state !== 'merged'
 }
 
 /**
@@ -145,7 +152,7 @@ export function recommander(pr, gardeDe) {
   if (pr.ci === 'rouge') return { action: 'aucune', statut: 'blocked', raison: 'CI rouge' }
   if (pr.ci === 'en_cours' || pr.mergeable === null || pr.mergeable === undefined) return null
   if (pr.mergeable === false) {
-    return { action: 'aucune', statut: 'blocked', raison: 'conflit avec main : Jules doit rebaser' }
+    return { action: 'aucune', statut: 'blocked', raison: 'conflit avec main : la branche doit etre rebasee' }
   }
   const sensibles = fichiersSensibles(pr.files)
   if (sensibles.length > 0) {
@@ -157,8 +164,11 @@ export function recommander(pr, gardeDe) {
   return { action: 'fusionner', statut: 'waiting_validation', raison: `CI verte, ${taille}` }
 }
 
-/** Libelle court de la tache, lisible dans le resume du Cerveau (90 caracteres). */
+/**
+ * Libelle court de la tache, lisible dans le resume du Cerveau (90 caracteres).
+ * L'auteur n'y figure pas : une PR se relit pour son contenu, pas pour qui l'a ouverte.
+ */
 export function libelle(pr, reco) {
   const verbe = { fusionner: 'Fusionner', fermer: 'Fermer', aucune: 'À revoir' }[reco.action]
-  return `${verbe} PR #${pr.number} (Jules) — ${reco.raison} — ${pr.title}`
+  return `${verbe} PR #${pr.number} — ${reco.raison} — ${pr.title}`
 }

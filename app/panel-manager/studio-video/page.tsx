@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { Suspense } from 'react';
+import { Film } from 'lucide-react';
 
 const VideoStudioNav = dynamic(() => import('@/components/admin/VideoStudioNav'), {
   ssr: false,
@@ -22,7 +23,7 @@ const VideoStudioNav = dynamic(() => import('@/components/admin/VideoStudioNav')
         maxWidth: 380, 
         textAlign: 'center' 
       }}>
-        <div style={{ fontSize: '2.5rem', marginBottom: '.5rem' }}>🎬</div>
+        <div style={{ marginBottom: '.5rem' }}><Film size={40} aria-hidden="true" /></div>
         <h1 style={{ fontSize: '1.4rem', fontWeight: 700, color: '#6b2a1a' }}>Studio Vidéo</h1>
         <p style={{ color: '#888', fontSize: '.9rem' }}>Chargement...</p>
       </div>

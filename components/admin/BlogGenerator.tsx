@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { FORBIDDEN_WORDS } from '@/lib/brand-voice';
+import { Sparkles, Loader2, CheckCircle2, AlertTriangle, Download } from 'lucide-react';
 
 
 interface BlogGeneratorProps {
@@ -61,7 +62,9 @@ export default function BlogGenerator({ onGenerated }: BlogGeneratorProps) {
   return (
     <div style={{ background: '#faf8f5', borderRadius: '1rem', padding: '1.5rem', border: '1.5px solid #e8e3dc' }}>
       <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#1a1a1a', marginBottom: '1rem', margin: '0 0 1rem' }}>
-        ✨ Générateur d’articles Blog
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: '.4rem' }}>
+          <Sparkles size={16} aria-hidden /> Générateur d’articles Blog
+        </span>
       </h3>
       
       <div style={{ marginBottom: '1.25rem' }}>
@@ -100,10 +103,10 @@ export default function BlogGenerator({ onGenerated }: BlogGeneratorProps) {
             onChange={e => setTone(e.target.value as any)}
             style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.88rem', background: '#fff' }}
           >
-            <option value="informatif">📚 Informatif</option>
-            <option value="intimiste">💜 Intimiste</option>
-            <option value="humoristique">😄 Humoristique</option>
-            <option value="expert">🎯 Expert</option>
+            <option value="informatif">Informatif</option>
+            <option value="intimiste">Intimiste</option>
+            <option value="humoristique">Humoristique</option>
+            <option value="expert">Expert</option>
           </select>
         </div>
         <div>
@@ -113,8 +116,8 @@ export default function BlogGenerator({ onGenerated }: BlogGeneratorProps) {
             onChange={e => setLanguage(e.target.value as any)}
             style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.88rem', background: '#fff' }}
           >
-            <option value="FR">🇫🇷 Français</option>
-            <option value="EN">🇬🇧 English</option>
+            <option value="FR">Français</option>
+            <option value="EN">English</option>
           </select>
         </div>
       </div>
@@ -127,10 +130,10 @@ export default function BlogGenerator({ onGenerated }: BlogGeneratorProps) {
             onChange={e => setStyle(e.target.value as any)}
             style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.88rem', background: '#fff' }}
           >
-            <option value="story">📖 Histoire / Récit</option>
-            <option value="guide">📋 Guide pratique</option>
-            <option value="list">📝 Liste de tips</option>
-            <option value="review">⭐ Avis / Retour</option>
+            <option value="story">Histoire / Récit</option>
+            <option value="guide">Guide pratique</option>
+            <option value="list">Liste de tips</option>
+            <option value="review">Avis / Retour</option>
           </select>
         </div>
         <div>
@@ -140,9 +143,9 @@ export default function BlogGenerator({ onGenerated }: BlogGeneratorProps) {
             onChange={e => setLength(e.target.value as any)}
             style={{ width: '100%', padding: '.65rem .9rem', border: '1.5px solid #e0dbd5', borderRadius: '.5rem', fontSize: '.88rem', background: '#fff' }}
           >
-            <option value="short"> court (200-300 mots)</option>
-            <option value="medium">✓ Moyen (400-600 mots)</option>
-            <option value="long"> long (800-1000 mots)</option>
+            <option value="short">Court (200-300 mots)</option>
+            <option value="medium">Moyen (400-600 mots)</option>
+            <option value="long">Long (800-1000 mots)</option>
           </select>
         </div>
       </div>
@@ -171,7 +174,11 @@ export default function BlogGenerator({ onGenerated }: BlogGeneratorProps) {
           marginBottom: '1rem',
         }}
       >
-        {isGenerating ? '⏳ Génération en cours...' : '✨ Générer mon article'}
+        {isGenerating ? (
+          <><Loader2 size={15} className="animate-spin" aria-hidden /> Génération en cours...</>
+        ) : (
+          <><Sparkles size={15} aria-hidden /> Générer mon article</>
+        )}
       </button>
 
       {error && (
@@ -198,7 +205,11 @@ export default function BlogGenerator({ onGenerated }: BlogGeneratorProps) {
             <div style={{ marginTop: '.75rem', padding: '.6rem .9rem', borderRadius: '.5rem', background: voiceCheck.forbidden.length === 0 ? '#d1fae5' : '#fef3c7', border: `1px solid ${voiceCheck.forbidden.length === 0 ? '#6ee7b7' : '#fbbf24'}` }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: voiceCheck.forbidden.length > 0 ? '.4rem' : 0 }}>
                 <span style={{ fontSize: '.78rem', fontWeight: 700, color: voiceCheck.forbidden.length === 0 ? '#065f46' : '#92400e' }}>
-                  {voiceCheck.forbidden.length === 0 ? '✨ Voix Heldonica ✓' : `⚠️ ${voiceCheck.forbidden.length} mot(s) à corriger`}
+                  {voiceCheck.forbidden.length === 0 ? (
+                    <><CheckCircle2 size={13} aria-hidden /> Voix Heldonica conforme</>
+                  ) : (
+                    <><AlertTriangle size={13} aria-hidden /> {voiceCheck.forbidden.length} mot(s) à corriger</>
+                  )}
                 </span>
                 <span style={{ fontSize: '.72rem', fontWeight: 600, color: voiceCheck.score >= 80 ? '#065f46' : voiceCheck.score >= 60 ? '#92400e' : '#991b1b' }}>
                   Score : {voiceCheck.score}/100
@@ -208,7 +219,7 @@ export default function BlogGenerator({ onGenerated }: BlogGeneratorProps) {
                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '.3rem' }}>
                   {voiceCheck.forbidden.map(w => (
                     <span key={w} style={{ fontSize: '.72rem', padding: '.15rem .45rem', borderRadius: '9999px', background: '#fee2e2', color: '#991b1b', fontWeight: 600 }}>
-                      ❌ {w}
+                      {w}
                     </span>
                   ))}
                 </div>
@@ -224,7 +235,7 @@ export default function BlogGenerator({ onGenerated }: BlogGeneratorProps) {
               cursor: 'pointer', fontSize: '.85rem', fontWeight: 600,
             }}
           >
-            📥 Utiliser cet article
+            <Download size={15} aria-hidden /> Utiliser cet article
           </button>
         </div>
       )}

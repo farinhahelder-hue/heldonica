@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { Star } from 'lucide-react'
 
 interface Testimonial {
   id: string
@@ -253,17 +254,15 @@ export default function TestimonialsAdminPage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-stone-600 mb-1">Note (Étoiles)</label>
+              <label className="block text-xs font-semibold text-stone-600 mb-1">Note (sur 5)</label>
               <select
                 value={formRating}
                 onChange={(e) => setFormRating(parseInt(e.target.value) || 5)}
                 className="w-full px-3 py-2 border border-stone-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-eucalyptus text-stone-900 bg-white"
               >
-                <option value={5}>⭐⭐⭐⭐⭐ (5/5)</option>
-                <option value={4}>⭐⭐⭐⭐ (4/5)</option>
-                <option value={3}>⭐⭐⭐ (3/5)</option>
-                <option value={2}>⭐⭐ (2/5)</option>
-                <option value={1}>⭐ (1/5)</option>
+                {[5, 4, 3, 2, 1].map((n) => (
+                  <option key={n} value={n}>{n} sur 5</option>
+                ))}
               </select>
             </div>
             <div>
@@ -349,8 +348,13 @@ export default function TestimonialsAdminPage() {
                 <tbody className="divide-y divide-stone-100">
                   {testimonials.map((t) => (
                     <tr key={t.id} className="hover:bg-stone-50/50 transition">
-                      <td className="p-4 text-center font-mono text-xs text-amber-500 font-bold">
-                        {'⭐'.repeat(t.rating)}
+                      <td className="p-4 text-center text-amber-500 font-bold"
+                          aria-label={`Note : ${t.rating} sur 5`}>
+                        <span className="inline-flex gap-0.5 justify-center" aria-hidden>
+                          {Array.from({ length: 5 }, (_, i) => (
+                            <Star key={i} size={12} fill={i < t.rating ? 'currentColor' : 'none'} />
+                          ))}
+                        </span>
                       </td>
                       <td className="p-4 font-bold text-stone-900">{t.name}</td>
                       <td className="p-4 text-stone-600 text-xs">{t.location || '—'}</td>

@@ -433,8 +433,8 @@ async function fetchZonesBatch(url, key, from, pageSize, essai = 1) {
       { headers }
     );
     if (!res.ok) {
-      if (res.status >= 500 && essai < 3) {
-        await new Promise((r) => setTimeout(r, 400 * essai));
+      if (res.status >= 500 && essai < 5) {
+        await new Promise((r) => setTimeout(r, 1500 * essai));
         return fetchZonesBatch(url, key, from, pageSize, essai + 1);
       }
       return { ok: false, status: res.status };
@@ -442,8 +442,8 @@ async function fetchZonesBatch(url, key, from, pageSize, essai = 1) {
     const batch = await res.json();
     return { ok: true, batch };
   } catch (e) {
-    if (essai < 3) {
-      await new Promise((r) => setTimeout(r, 400 * essai));
+    if (essai < 5) {
+      await new Promise((r) => setTimeout(r, 1500 * essai));
       return fetchZonesBatch(url, key, from, pageSize, essai + 1);
     }
     return { ok: false, error: e };

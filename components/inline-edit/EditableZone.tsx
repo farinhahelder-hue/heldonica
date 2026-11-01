@@ -10,6 +10,7 @@ import { normalizeZoneText } from '@/lib/zone-text'
 import { sanitizeHtml } from '@/lib/sanitize-html'
 import { buildImageAdjustment } from '@/lib/image-adjustment'
 import CmsIcon from '@/components/CmsIcon'
+import { Image as ImageIcon, Sparkles, X } from 'lucide-react'
 
 const MediaLibrary = dynamic(() => import('@/components/MediaLibrary'), { ssr: false })
 
@@ -200,7 +201,7 @@ export default function EditableZone({
               onClick={() => setMediaLibOpen(true)}
               className="px-3 py-2 bg-blue-600 text-white rounded text-sm font-semibold hover:bg-blue-700"
             >
-              📷 Media
+              <ImageIcon className="w-4 h-4 inline-block mr-1" aria-hidden /> Media
             </button>
             <button
               onClick={cancel}
@@ -240,7 +241,7 @@ export default function EditableZone({
               onClick={() => setAiModalOpen(true)}
               className="px-2 py-1 bg-purple-700 hover:bg-purple-800 text-white rounded text-xs font-semibold flex items-center gap-1 shadow-sm transition"
             >
-              ✨ IA
+              <Sparkles className="w-3.5 h-3.5" aria-hidden /> IA
             </button>
           </div>
         </div>
@@ -276,7 +277,8 @@ export default function EditableZone({
             onClick={() => setAiModalOpen(true)}
             className="px-2 py-1 bg-purple-700 hover:bg-purple-800 text-white rounded text-xs font-semibold flex items-center gap-1 shadow-sm transition"
           >
-            ✨
+            <Sparkles className="w-3.5 h-3.5" aria-hidden />
+            <span className="sr-only">Ameliorer avec l'IA</span>
           </button>
         </div>
       </div>
@@ -305,7 +307,8 @@ export default function EditableZone({
               onClick={() => setMediaLibOpen(false)}
               className="absolute top-4 right-4 z-10 w-8 h-8 flex items-center justify-center rounded-full bg-stone-100 text-stone-500 hover:bg-stone-200"
             >
-              ✕
+              <X className="w-4 h-4" aria-hidden />
+              <span className="sr-only">Fermer la mediatheque</span>
             </button>
             <div className="p-6">
               <h2 className="text-xl font-bold mb-4">Bibliothèque de médias</h2>

@@ -1,6 +1,10 @@
 'use client';
 
 import { useState } from 'react';
+import {
+  Sparkles, Leaf, Briefcase, X, Compass, PenLine, Mail, MapPin, Share2,
+  RefreshCw, Target, Check, AlertTriangle, CheckCircle2, Star,
+} from 'lucide-react';
 
 interface AiCopilotModalProps {
   isOpen: boolean;
@@ -132,7 +136,7 @@ export default function AiCopilotModal({
         {/* Header */}
         <div className="p-5 border-b border-stone-100 bg-stone-50 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-2xl">✨</span>
+            <Sparkles className="w-6 h-6 text-eucalyptus" aria-hidden />
             <div>
               <h3 className="font-serif font-bold text-stone-900 text-lg">
                 Copilote Éditorial Heldonica
@@ -153,7 +157,7 @@ export default function AiCopilotModal({
                   audience === 'b2c' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'
                 }`}
               >
-                🌿 B2C (« on/tu »)
+                <Leaf className="w-3.5 h-3.5 inline-block mr-1" aria-hidden /> B2C (« on/tu »)
               </button>
               <button
                 type="button"
@@ -162,7 +166,7 @@ export default function AiCopilotModal({
                   audience === 'b2b' ? 'bg-white text-stone-900 shadow-sm' : 'text-stone-600 hover:text-stone-900'
                 }`}
               >
-                💼 B2B (« on/vous »)
+                <Briefcase className="w-3.5 h-3.5 inline-block mr-1" aria-hidden /> B2B (« on/vous »)
               </button>
             </div>
             <button
@@ -170,7 +174,7 @@ export default function AiCopilotModal({
               className="p-2 text-stone-400 hover:text-stone-700 rounded-full hover:bg-stone-200 transition"
               aria-label="Fermer"
             >
-              ✕
+              <X className="w-4 h-4" aria-hidden />
             </button>
           </div>
         </div>
@@ -178,16 +182,16 @@ export default function AiCopilotModal({
         {/* Mode Tabs */}
         <div className="flex border-b border-stone-200 px-6 bg-stone-50/50 gap-2 pt-3 overflow-x-auto">
           {[
-            { key: 'guided_from_facts', label: '🧭 Partir de 3 infos' },
-            { key: 'voice_polish', label: '🌿 Sublimer la Voix' },
-            { key: 'expand_notes', label: '📝 Mettre en forme mes notes' },
-            { key: 'email_sequence', label: '✉️ Séquence Email' },
-            { key: 'destination_hub', label: '📍 Zones de page depuis mes notes' },
-            { key: 'b2c_instagram', label: '📸 Caption Instagram' },
-            { key: 'b2b_linkedin', label: '💼 LinkedIn (P-A-S)' },
-            { key: 'audit_refresh', label: '🔄 Audit 3R Ancien Contenu' },
-            { key: 'structure_itinerary', label: '🗺️ Trame de repérage (à remplir)' },
-            { key: 'generate_excerpt', label: '🎯 Accroche' },
+            { key: 'guided_from_facts', label: 'Partir de 3 infos', Icone: Compass },
+            { key: 'voice_polish', label: 'Sublimer la Voix', Icone: Leaf },
+            { key: 'expand_notes', label: 'Mettre en forme mes notes', Icone: PenLine },
+            { key: 'email_sequence', label: 'Séquence Email', Icone: Mail },
+            { key: 'destination_hub', label: 'Zones de page depuis mes notes', Icone: MapPin },
+            { key: 'b2c_instagram', label: 'Caption Instagram', Icone: Share2 },
+            { key: 'b2b_linkedin', label: 'LinkedIn (P-A-S)', Icone: Briefcase },
+            { key: 'audit_refresh', label: 'Audit 3R Ancien Contenu', Icone: RefreshCw },
+            { key: 'structure_itinerary', label: 'Trame de repérage (à remplir)', Icone: MapPin },
+            { key: 'generate_excerpt', label: 'Accroche', Icone: Target },
           ].map((tab) => (
             <button
               key={tab.key}
@@ -205,6 +209,7 @@ export default function AiCopilotModal({
                   : 'border-transparent text-stone-500 hover:text-stone-800'
               }`}
             >
+              <tab.Icone className="w-3.5 h-3.5 inline-block mr-1" aria-hidden />
               {tab.label}
             </button>
           ))}
@@ -269,7 +274,9 @@ export default function AiCopilotModal({
                       Génération en cours…
                     </>
                   ) : (
-                    <>✨ Écrire à partir de ça</>
+                    <>
+                      <Sparkles className="w-3.5 h-3.5" aria-hidden /> Écrire à partir de ça
+                    </>
                   )}
                 </button>
               </div>
@@ -334,7 +341,9 @@ export default function AiCopilotModal({
                     Génération en cours…
                   </>
                 ) : (
-                  <>✨ Générer selon les 7 garde-fous</>
+                  <>
+                    <Sparkles className="w-3.5 h-3.5" aria-hidden /> Générer selon les 7 garde-fous
+                  </>
                 )}
               </button>
             </div>
@@ -364,7 +373,7 @@ export default function AiCopilotModal({
                       : 'bg-amber-100 text-amber-800'
                   }`}
                 >
-                  Score : {validation.score}% ({validation.isExcellent ? 'Excellence 🌟 (95%+)' : validation.passed ? 'Validé ✅ (≥85%)' : 'À ajuster ⚠️ (<85%)'})
+                  Score : {validation.score}% ({validation.isExcellent ? 'Excellence (95%+)' : validation.passed ? 'Validé (≥85%)' : 'À ajuster (<85%)'})
                 </span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 text-[11px]">
@@ -375,7 +384,7 @@ export default function AiCopilotModal({
                       c.ok ? 'border-emerald-200 bg-emerald-50/50 text-emerald-900' : 'border-amber-200 bg-amber-50/50 text-amber-900'
                     }`}
                   >
-                    <span>{c.ok ? '✓' : '✗'}</span>
+                    {c.ok ? <Check className="w-3.5 h-3.5" aria-hidden /> : <X className="w-3.5 h-3.5" aria-hidden />}
                     <span className="truncate">{c.message}</span>
                   </div>
                 ))}
@@ -443,7 +452,7 @@ export default function AiCopilotModal({
                   onClick={() => handleSelectResult(result)}
                   className="px-4 py-1.5 bg-eucalyptus hover:bg-eucalyptus/90 text-white text-xs font-semibold rounded-lg transition shadow-sm"
                 >
-                  ✓ Insérer dans l’éditeur
+                  <Check className="w-3.5 h-3.5" aria-hidden /> Insérer dans l’éditeur
                 </button>
               </div>
               <div className="p-5 rounded-2xl border border-stone-200 bg-stone-50/60 max-h-72 overflow-y-auto">

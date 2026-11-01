@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Briefcase, Target, CheckCircle2, BarChart3, Lightbulb, Save, X } from 'lucide-react';
 
 export default function ExperienceEditor({ data, onSave }: any) {
   const [selectedExp, setSelectedExp] = useState(data?.experiences?.[0]);
@@ -52,7 +53,9 @@ export default function ExperienceEditor({ data, onSave }: any) {
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
-      <h2 className="text-2xl font-serif font-bold text-mahogany mb-6">💼 Gestion des Expériences (MARA)</h2>
+      <h2 className="text-2xl font-serif font-bold text-mahogany mb-6 inline-flex items-center gap-2">
+        <Briefcase className="w-6 h-6" aria-hidden /> Gestion des Expériences (MARA)
+      </h2>
 
       <div className="grid grid-cols-3 gap-6">
         {/* Sidebar - Liste des expériences */}
@@ -127,7 +130,7 @@ export default function ExperienceEditor({ data, onSave }: any) {
               <div className="space-y-6">
                 {/* Mission */}
                 <div>
-                  <h4 className="font-bold text-mahogany mb-2">🎯 Mission</h4>
+                  <h4 className="font-bold text-mahogany mb-2 inline-flex items-center gap-2"><Target className="w-4 h-4" aria-hidden /> Mission</h4>
                   <Textarea
                     value={editingExp.mission}
                     onChange={(e) => handleExpChange('mission', e.target.value)}
@@ -138,7 +141,7 @@ export default function ExperienceEditor({ data, onSave }: any) {
 
                 {/* Actions */}
                 <div>
-                  <h4 className="font-bold text-mahogany mb-2">✅ Actions</h4>
+                  <h4 className="font-bold text-mahogany mb-2 inline-flex items-center gap-2"><CheckCircle2 className="w-4 h-4" aria-hidden /> Actions</h4>
                   <div className="space-y-2">
                     {editingExp.actions?.map((action: string, index: number) => (
                       <div key={index} className="flex gap-2">
@@ -154,7 +157,8 @@ export default function ExperienceEditor({ data, onSave }: any) {
                           variant="destructive"
                           size="sm"
                         >
-                          ✕
+                          <X className="w-4 h-4" aria-hidden />
+                          <span className="sr-only">Supprimer</span>
                         </Button>
                       </div>
                     ))}
@@ -170,7 +174,7 @@ export default function ExperienceEditor({ data, onSave }: any) {
 
                 {/* Résultats */}
                 <div>
-                  <h4 className="font-bold text-mahogany mb-2">📊 Résultats</h4>
+                  <h4 className="font-bold text-mahogany mb-2 inline-flex items-center gap-2"><BarChart3 className="w-4 h-4" aria-hidden /> Résultats</h4>
                   <div className="space-y-2">
                     {editingExp.results?.map((result: string, index: number) => (
                       <div key={index} className="flex gap-2">
@@ -186,7 +190,8 @@ export default function ExperienceEditor({ data, onSave }: any) {
                           variant="destructive"
                           size="sm"
                         >
-                          ✕
+                          <X className="w-4 h-4" aria-hidden />
+                          <span className="sr-only">Supprimer</span>
                         </Button>
                       </div>
                     ))}
@@ -202,7 +207,7 @@ export default function ExperienceEditor({ data, onSave }: any) {
 
                 {/* Apports */}
                 <div>
-                  <h4 className="font-bold text-mahogany mb-2">💡 Apports</h4>
+                  <h4 className="font-bold text-mahogany mb-2 inline-flex items-center gap-2"><Lightbulb className="w-4 h-4" aria-hidden /> Apports</h4>
                   <div className="space-y-2">
                     {editingExp.contributions?.map((contrib: string, index: number) => (
                       <div key={index} className="flex gap-2">
@@ -218,7 +223,8 @@ export default function ExperienceEditor({ data, onSave }: any) {
                           variant="destructive"
                           size="sm"
                         >
-                          ✕
+                          <X className="w-4 h-4" aria-hidden />
+                          <span className="sr-only">Supprimer</span>
                         </Button>
                       </div>
                     ))}
@@ -236,7 +242,7 @@ export default function ExperienceEditor({ data, onSave }: any) {
               {/* Boutons d’action */}
               <div className="flex gap-4">
                 <Button onClick={handleSave} className="bg-mahogany hover:bg-red-900">
-                  💾 Sauvegarder
+                  <Save className="w-4 h-4" aria-hidden /> Sauvegarder
                 </Button>
               </div>
             </div>

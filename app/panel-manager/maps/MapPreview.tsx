@@ -10,11 +10,7 @@ type POI = {
   lat: number; lng: number; description?: string;
 };
 
-const CATEGORY_EMOJI: Record<string, string> = {
-  depart: '🟢', arrivee: '🔴', danger: '⚠️', info: 'ℹ️',
-  parking: '🅿️', restaurant: '🍽️', baignade: '🏊', portage: '🎒',
-  point_vue: '👁️', transport: '🚌', logement: '🏠', activite: '🎯',
-};
+import { poiCategoryIconSvg } from '@/lib/poi-categories';
 
 export default function MapPreview({ routes, pois, centerSlug }: {
   routes: Route[];
@@ -60,9 +56,8 @@ export default function MapPreview({ routes, pois, centerSlug }: {
 
       // Draw POIs
       for (const poi of pois) {
-        const emoji = CATEGORY_EMOJI[poi.category] ?? 'ℹ️';
         const icon = L.divIcon({
-          html: `<div style="font-size:20px;line-height:1">${emoji}</div>`,
+          html: `<div style="line-height:1;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.3))">${poiCategoryIconSvg(poi.category, 22)}</div>`,
           className: '',
           iconSize: [24, 24],
           iconAnchor: [12, 12],

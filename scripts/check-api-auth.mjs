@@ -30,9 +30,29 @@ import path from 'node:path'
 const RACINE = 'app/api'
 
 // Un appel a l'une de ces formes vaut vérification.
-const AUTH = /requireCmsAuth|requireBridgeAuth|requireBearerOnly|getCmsAuthStatus|isAuthorized|CRON_SECRET|x-cms-auth|signatureValide|verifyWebhook|WEBHOOK_SECRET|APP_SECRET|AI_AGENT_API_KEY|verifyAiAuth|checkAuth|isAdmin/
+const AUTH = /requireCmsAuth|requireBridgeAuth|requireBearerOnly|getCmsAuthStatus|isAuthorized|CRON_SECRET|x-cms-auth|signatureValide|verifyWebhook|WEBHOOK_SECRET|APP_SECRET|AI_AGENT_API_KEY|verifyAiAuth|requireN8nSecret|checkAuth|isAdmin/
 
-const SERVICE = /SUPABASE_SERVICE_ROLE_KEY|SUPABASE_SERVICE_KEY/
+/**
+ * Comment une route obtient la clé service.
+ *
+ * Ce motif ne connaissait que les deux noms de variable d'environnement. Or
+ * `createServiceClient()` (lib/supabase.ts) les lit à la place de l'appelant :
+ * une route qui passe par cet intermédiaire ne contient aucune des deux
+ * chaînes, et le fichier entier était donc écarté plus bas sans être examiné.
+ *
+ * C'est précisément ce qui a laissé ce script au vert pendant que deux routes
+ * restaient ouvertes à tout Internet, trouvées le 27/10/2026 :
+ *
+ *   - /api/n8n/articles — le GET vérifiait son secret, le PATCH ne vérifiait
+ *     rien : un appel anonyme dépubliait n'importe quel article, ou publiait
+ *     n'importe quel brouillon.
+ *   - /api/webhook/trigger — POST ouvert : lecture de n'importe quel article
+ *     par son id, brouillons compris, et déclenchement des webhooks sortants.
+ *
+ * L'audit du 27/07/2026 avait déjà nommé la seconde. Trois mois plus tard elle
+ * était encore là, parce qu'aucun garde-fou ne la voyait.
+ */
+const SERVICE = /SUPABASE_SERVICE_ROLE_KEY|SUPABASE_SERVICE_KEY|createServiceClient/
 
 /**
  * Clés de tiers facturées à l'usage.
@@ -67,7 +87,28 @@ const EXCEPTIONS = new Map([
   ['app/api/travel-planning/route.ts POST', 'Formulaire public.'],
   ['app/api/webhooks/instagram/route.ts GET', "Poignee de main de verification exigee par Meta, sans corps a signer."],
   ['app/api/guides/download/route.ts POST', "Aimant a prospects : un visiteur echange son courriel contre un guide. Ecriture publique assumee, bornee par checkRateLimit."],
+  // Les quatre entrees suivantes datent de l'elargissement de SERVICE a
+  // createServiceClient (27/10/2026). Leurs fichiers etaient ecartes sans etre
+  // examines : ce ne sont donc pas des exceptions nouvellement accordees, mais
+  // un jugement qui n'avait jamais ete porte. Chacune a ete relue a cette date.
+  ['app/api/ai/media/route.ts GET', "Lecture publique du media des articles : la requete filtre published = true."],
+  ['app/api/ai/media/route.ts POST', "Analyse d'une URL par expressions regulieres seules : ni acces a la base, ni appel sortant."],
+  ['app/api/brevo/subscribe/route.ts POST', 'Inscription publique a la newsletter, bornee par checkRateLimit.'],
+  ['app/api/testimonials/submit/route.ts POST', "Depot public d'un temoignage, insere avec is_active = false (moderation manuelle) et borne par checkRateLimit."],
 ])
+
+/**
+ * Retire les commentaires avant toute recherche de garde.
+ *
+ * AUTH est un test textuel : sans ce filtre, une simple mention en commentaire
+ * valait garde. Dans app/api/n8n/articles/route.ts, le commentaire
+ * « Requires header: x-n8n-secret: <N8N_WEBHOOK_SECRET> » suffisait a faire
+ * passer le fichier pour garde — alors que le PATCH, juste en dessous, ne
+ * verifiait rien. Une promesse en commentaire n'est pas un controle.
+ */
+function sansCommentaires(code) {
+  return code.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/\/\/[^\n]*/g, ' ')
+}
 
 /** Les lectures sous /api/cms alimentent le site public : le middleware les ouvre. */
 function lectureCmsPublique(fichier, verbe) {
@@ -108,13 +149,33 @@ function gestionnaires(source) {
  */
 function fonctionsQuiVerifient(source) {
   const noms = new Set()
+  // Debut du premier gestionnaire exporte : la fenetre d'une fonction locale
+  // ne doit jamais le franchir.
+  //
+  // Sans cette borne, la fenetre de 2500 caracteres d'un helper declare en
+  // tete de fichier avalait le premier gestionnaire. Dans
+  // app/api/n8n/articles/route.ts, `getSupabase` etait ainsi pris pour une
+  // fonction qui verifie — parce que le controle du GET tombait dans sa
+  // fenetre — et le PATCH, qui appelle `getSupabase()`, heritait d'une garde
+  // qu'il n'avait pas. Le PATCH est reste ouvert a tout Internet.
+  //
+  // C'est exactement la forme de l'incident du 3 septembre 2026 rappele en
+  // tete de ce fichier (/api/jules : POST ouvert alors que GET etait garde),
+  // que ce script etait cense rendre impossible.
+  const premierGestionnaire = gestionnaires(source)[0]
+  const plafond = premierGestionnaire
+    ? source.indexOf(premierGestionnaire.corps)
+    : source.length
+
   let m
   FONCTION_LOCALE.lastIndex = 0
   while ((m = FONCTION_LOCALE.exec(source)) !== null) {
     const nom = m[1] || m[2]
     if (!nom || /^(GET|POST|PATCH|PUT|DELETE|HEAD|OPTIONS)$/.test(nom)) continue
-    // Fenetre genereuse : on cherche la verification dans le corps qui suit.
-    if (AUTH.test(source.slice(m.index, m.index + 2500))) noms.add(nom)
+    // Fenetre genereuse, mais arretee net au premier gestionnaire exporte,
+    // et debarrassee des commentaires.
+    const fin = Math.min(m.index + 2500, Math.max(m.index, plafond))
+    if (AUTH.test(sansCommentaires(source.slice(m.index, fin)))) noms.add(nom)
   }
   return noms
 }
@@ -130,8 +191,12 @@ for (const chemin of fichiersRoute(RACINE)) {
 
   const delegues = fonctionsQuiVerifient(source)
 
-  for (const { verbe, corps } of gestionnaires(source)) {
+  for (const { verbe, corps: corpsBrut } of gestionnaires(source)) {
     const cle = `${fichier} ${verbe}`
+    // Les commentaires ne gardent rien : on cherche la verification dans le
+    // code seul. Le bloc de documentation d'un gestionnaire precede souvent le
+    // suivant, et sa mention d'un secret passait pour la garde de celui-ci.
+    const corps = sansCommentaires(corpsBrut)
 
     if (EXCEPTIONS.has(cle)) { exceptionsVues.add(cle); continue }
     if (lectureCmsPublique(fichier, verbe)) continue

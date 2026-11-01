@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/Button';
+import { Settings, Globe, Share2, FileText, Save, Check, AlertTriangle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -33,7 +34,9 @@ export default function SiteSettings({ data, onSave }: { data?: SettingsData; on
 
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
-      <h2 className="text-2xl font-serif font-bold text-mahogany mb-6">⚙️ Paramètres du Site</h2>
+      <h2 className="text-2xl font-serif font-bold text-mahogany mb-6 inline-flex items-center gap-2">
+        <Settings className="w-6 h-6" aria-hidden /> Paramètres du Site
+      </h2>
 
       <div className="max-w-2xl space-y-6">
         {/* Titre */}
@@ -210,7 +213,7 @@ export default function SiteSettings({ data, onSave }: { data?: SettingsData; on
 {/* SEO & Geo Localization */}
         <div className="border-t pt-6">
           <h3 className="font-bold text-mahogany mb-4 flex items-center gap-2">
-            🌍 SEO & Géolocalisation
+            <Globe className="w-4 h-4" aria-hidden /> SEO & Géolocalisation
           </h3>
           <div className="space-y-4">
             {/* Default language */}
@@ -221,12 +224,12 @@ export default function SiteSettings({ data, onSave }: { data?: SettingsData; on
                 onChange={(e) => handleChange('defaultLocale', e.target.value)}
                 className="w-full px-3 py-2 border rounded-lg"
               >
-                <option value="fr-FR">🇫🇷 Français (France)</option>
-                <option value="fr-CH">🇨🇭 Français (Suisse)</option>
-                <option value="fr-BE">🇧🇪 Français (Belgique)</option>
-                <option value="fr-CA">🇨🇦 Français (Canada)</option>
-                <option value="de-DE">🇩🇪 Allemand</option>
-                <option value="en-GB">🇬🇧 Anglais</option>
+                <option value="fr-FR">Français (France)</option>
+                <option value="fr-CH">Français (Suisse)</option>
+                <option value="fr-BE">Français (Belgique)</option>
+                <option value="fr-CA">Français (Canada)</option>
+                <option value="de-DE">Allemand</option>
+                <option value="en-GB">Anglais</option>
               </select>
             </div>
 
@@ -296,12 +299,12 @@ https://heldonica.com/path|en-US"
               </label>
               <div className="flex flex-wrap gap-2">
                 {[
-                  { code: 'FR', name: '🇫🇷 France' },
-                  { code: 'CH', name: '🇨🇭 Suisse' },
-                  { code: 'BE', name: '🇧🇪 Belgique' },
-                  { code: 'CA', name: '🇨🇦 Canada' },
-                  { code: 'LU', name: '🇱🇺 Luxembourg' },
-                  { code: 'GB', name: '🇬🇧 UK' },
+                  { code: 'FR', name: 'France' },
+                  { code: 'CH', name: 'Suisse' },
+                  { code: 'BE', name: 'Belgique' },
+                  { code: 'CA', name: 'Canada' },
+                  { code: 'LU', name: 'Luxembourg' },
+                  { code: 'GB', name: 'UK' },
                 ].map(({ code, name }) => (
                   <label key={code} className="flex items-center gap-1 px-2 py-1 border rounded-lg cursor-pointer hover:bg-gray-50">
                     <input
@@ -316,6 +319,7 @@ https://heldonica.com/path|en-US"
                       }}
                     />
                     <span className="text-sm">{name}</span>
+                    <span className="text-[10px] font-mono text-gray-400">{code}</span>
                   </label>
                 ))}
               </div>
@@ -338,7 +342,7 @@ https://heldonica.com/path|en-US"
         {/* Instagram */}
         <div className="border-t pt-6">
           <h3 className="font-bold text-mahogany mb-4 flex items-center gap-2">
-            📸 Paramètres Instagram
+            <Share2 className="w-4 h-4" aria-hidden /> Paramètres Instagram
           </h3>
           <div className="space-y-4">
             <div>
@@ -382,13 +386,13 @@ https://heldonica.com/path|en-US"
                       const validated = await Promise.all(
                         lines.map(async (line: string) => {
                           const [, url] = line.split('|')
-                          if (!url?.includes('instagram.com')) return line + '|⚠️URL invalide'
+                          if (!url?.includes('instagram.com')) return line + '|URL invalide'
                           try {
                             const res = await fetch(`https://api.instagram.com/oembed/?url=${url.trim()}`)
-                            if (res.ok) return line + '|✅OK'
-                            return line + '|⚠️Post introuvable'
+                            if (res.ok) return line + '|OK'
+                            return line + '|Post introuvable'
                           } catch {
-                            return line + '|⚠️Erreur'
+                            return line + '|Erreur'
                           }
                         })
                       )
@@ -396,7 +400,7 @@ https://heldonica.com/path|en-US"
                     }}
                     className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
                   >
-                    ✅ Valider URLs
+                    <Check className="w-3.5 h-3.5 inline-block mr-1" aria-hidden /> Valider URLs
                   </button>
                 )}
               </div>
@@ -406,7 +410,9 @@ https://heldonica.com/path|en-US"
 
         {/* Informations supplémentaires */}
         <div className="bg-blue-50 p-4 rounded-lg">
-          <h3 className="font-bold text-mahogany mb-3">📝 Informations</h3>
+          <h3 className="font-bold text-mahogany mb-3 inline-flex items-center gap-2">
+            <FileText className="w-4 h-4" aria-hidden /> Informations
+          </h3>
           <div className="space-y-3 text-sm">
             <p>
               <strong>Titre du site :</strong> Utilisé dans les onglets du navigateur et les
@@ -427,7 +433,7 @@ https://heldonica.com/path|en-US"
         {/* Boutons d’action */}
         <div className="flex gap-4 pt-4">
           <Button onClick={handleSave} className="bg-mahogany hover:bg-red-900">
-            💾 Sauvegarder
+            <Save className="w-4 h-4" aria-hidden /> Sauvegarder
           </Button>
         </div>
       </div>

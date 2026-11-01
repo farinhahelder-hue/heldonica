@@ -108,7 +108,7 @@ export default function ExportData({ data, onSave }: any) {
   return (
     <div className="bg-white rounded-lg shadow-lg p-6">
       <h2 className="text-2xl font-serif font-bold text-mahogany mb-6">
-        📤 Export & Import
+        Export & Import
       </h2>
 
       {/* Stats */}
@@ -129,7 +129,7 @@ export default function ExportData({ data, onSave }: any) {
             disabled={exporting}
             className="flex-1"
           >
-            📥 Export JSON
+            Export JSON
           </Button>
           <Button 
             onClick={exportCsv}
@@ -137,7 +137,7 @@ export default function ExportData({ data, onSave }: any) {
             variant="outline"
             className="flex-1"
           >
-            📊 Export CSV
+            Export CSV
           </Button>
         </div>
 
@@ -179,7 +179,7 @@ export default function ExportData({ data, onSave }: any) {
               htmlFor="import-json"
               className="block text-center px-4 py-3 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer hover:border-eucalyptus"
             >
-              📤 Importer un fichier JSON de sauvegarde
+              Importer un fichier JSON de sauvegarde
             </label>
           </label>
           <p className="text-xs text-gray-500 mt-2">
@@ -191,7 +191,7 @@ export default function ExportData({ data, onSave }: any) {
       {/* Info */}
       <div className="mt-6 p-4 bg-blue-50 rounded-lg">
         <p className="text-sm text-blue-800">
-          💡 <strong>Tip:</strong> Exportez régulièrement pour sauvegarder votre contenu. 
+          <strong>Astuce :</strong> Exportez régulièrement pour sauvegarder votre contenu. 
           Utile pour migrer ou en cas de problème.
         </p>
       </div>

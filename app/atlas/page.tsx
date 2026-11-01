@@ -3,7 +3,7 @@ import Header from '@/components/Header'
 import Footer from '@/components/Footer'
 import DynamicAtlas from '@/components/DynamicAtlas'
 
-export const revalidate = 3600
+export const revalidate = 86400
 
 export const metadata: Metadata = {
   title: 'Atlas Cartographique — Heldonica Slow Travel',

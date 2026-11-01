@@ -119,16 +119,16 @@ async function fetchBatch(url, key, config, from, pageSize, essai = 1) {
     const select = [...config.colonnes, config.etat, config.cle].join(',');
     const res = await fetch(`${url}/rest/v1/${config.table}?select=${select}`, { headers });
     if (!res.ok) {
-      if (res.status >= 500 && essai < 3) {
-        await new Promise((r) => setTimeout(r, 400 * essai));
+      if (res.status >= 500 && essai < 5) {
+        await new Promise((r) => setTimeout(r, 1500 * essai));
         return fetchBatch(url, key, config, from, pageSize, essai + 1);
       }
       return { ok: false, status: res.status };
     }
     return { ok: true, batch: await res.json() };
   } catch (e) {
-    if (essai < 3) {
-      await new Promise((r) => setTimeout(r, 400 * essai));
+    if (essai < 5) {
+      await new Promise((r) => setTimeout(r, 1500 * essai));
       return fetchBatch(url, key, config, from, pageSize, essai + 1);
     }
     return { ok: false, error: e };

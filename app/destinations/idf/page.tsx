@@ -7,7 +7,7 @@ import InlineEditProvider from '@/components/inline-edit/InlineEditProvider'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const revalidate = 3600
+export const revalidate = 86400
 
 const PAGE = 'destinations-idf'
 

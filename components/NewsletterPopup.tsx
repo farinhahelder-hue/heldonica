@@ -19,6 +19,7 @@ export default function NewsletterPopup() {
     EXCLUDED_PATH_PREFIXES.some((prefix) => pathname?.startsWith(prefix))
   const [isVisible, setIsVisible] = useState(false)
   const [email, setEmail] = useState('')
+  const [consent, setConsent] = useState(false)
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle')
   const [errorMessage, setErrorMessage] = useState('')
   const [hasConsentChoice, setHasConsentChoice] = useState(false)
@@ -117,6 +118,10 @@ export default function NewsletterPopup() {
       setErrorMessage(t('popup_error_invalid', 'Adresse email invalide'))
       return
     }
+    if (!consent) {
+      setErrorMessage(t('popup_error_consent', 'Merci de cocher la case de consentement.'))
+      return
+    }
 
     setStatus('loading')
     setErrorMessage('')
@@ -125,7 +130,7 @@ export default function NewsletterPopup() {
       const res = await fetch('/api/newsletter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, consent }),
       })
 
       if (res.ok) {
@@ -223,6 +228,8 @@ export default function NewsletterPopup() {
                 id="popup-newsletter-rgpd"
                 type="checkbox"
                 required
+                checked={consent}
+                onChange={(e) => setConsent(e.target.checked)}
                 className="mt-1 h-4 w-4 rounded border-stone-700 bg-stone-800 text-eucalyptus focus:ring-eucalyptus cursor-pointer"
               />
               <label htmlFor="popup-newsletter-rgpd" className="text-[11px] text-stone-400 leading-normal">

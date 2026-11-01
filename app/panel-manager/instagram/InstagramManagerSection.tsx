@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect, useCallback } from 'react';
-import Image from 'next/image';
+import { Smartphone, RefreshCw, Clock, CheckCircle2, ListChecks, Sparkles, Rocket } from 'lucide-react';
 
 interface InstagramComment {
   id: number;
@@ -15,31 +15,6 @@ interface InstagramComment {
   created_at: string;
 }
 
-interface InstagramRecentMedia {
-  id: string;
-  caption?: string;
-  media_url?: string;
-  permalink?: string;
-  timestamp?: string;
-  like_count?: number;
-  comments_count?: number;
-}
-
-interface InstagramStatsPayload {
-  configured: boolean;
-  profile?: {
-    id: string;
-    username: string;
-    account_type?: string;
-    media_count?: number;
-  };
-  stats?: {
-    data?: Array<{ name: string; values: Array<{ value: number }> }>;
-  };
-  media?: InstagramRecentMedia[];
-  error?: string;
-}
-
 export default function InstagramManagerSection() {
   const [comments, setComments] = useState<InstagramComment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,25 +24,6 @@ export default function InstagramManagerSection() {
   const [refreshingToken, setRefreshingToken] = useState(false);
   const [tokenStatus, setTokenStatus] = useState<string | null>(null);
 
-  // Nouvelles métriques en direct
-  const [statsData, setStatsData] = useState<InstagramStatsPayload | null>(null);
-  const [loadingStats, setLoadingStats] = useState(true);
-
-  const fetchStats = useCallback(async () => {
-    setLoadingStats(true);
-    try {
-      const res = await fetch('/api/instagram/stats');
-      if (res.ok) {
-        const data = await res.json();
-        setStatsData(data);
-      }
-    } catch (err) {
-      console.warn('Erreur chargement métriques Instagram:', err);
-    } finally {
-      setLoadingStats(false);
-    }
-  }, []);
-
   const fetchComments = useCallback(async () => {
     setLoading(true);
     try {
@@ -75,6 +31,7 @@ export default function InstagramManagerSection() {
       const data = await res.json();
       if (data.comments) {
         setComments(data.comments);
+        // Initialiser les brouillons éditables
         const drafts: { [key: string]: string } = {};
         data.comments.forEach((c: InstagramComment) => {
           if (c.ai_draft) drafts[c.ig_comment_id] = c.ai_draft;
@@ -90,8 +47,7 @@ export default function InstagramManagerSection() {
 
   useEffect(() => {
     fetchComments();
-    fetchStats();
-  }, [fetchComments, fetchStats]);
+  }, [fetchComments]);
 
   const handleApproveReply = async (comment: InstagramComment) => {
     const replyText = editingReply[comment.ig_comment_id] || comment.ai_draft;
@@ -145,13 +101,12 @@ export default function InstagramManagerSection() {
       const res = await fetch('/api/instagram/refresh', { method: 'POST' });
       const data = await res.json();
       if (res.ok) {
-        setTokenStatus(`✅ Token renouvelé pour ${data.expires_in_days} jours !`);
-        fetchStats();
+        setTokenStatus(`Token renouvelé pour ${data.expires_in_days} jours`);
       } else {
-        setTokenStatus(`❌ Erreur : ${data.error}`);
+        setTokenStatus(`Erreur : ${data.error}`);
       }
     } catch (err: any) {
-      setTokenStatus(`❌ Erreur : ${err.message}`);
+      setTokenStatus(`Erreur : ${err.message}`);
     } finally {
       setRefreshingToken(false);
     }
@@ -160,178 +115,86 @@ export default function InstagramManagerSection() {
   return (
     <div className="space-y-6">
       {/* En-tête & Statut Token */}
-      <div className="bg-white p-6 rounded-2xl border border-stone-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-xl font-bold text-[#241D1A] font-serif flex items-center gap-2">
-            <span>📱</span> Tableau de Bord & Modération Instagram
+          <h2 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+            <Smartphone className="w-5 h-5" aria-hidden /> Modération & Réponses Instagram Auto-Assistées
           </h2>
-          <p className="text-xs text-stone-500 mt-1">
-            Métriques d&apos;audience, synchronisation des publications et modération des réponses avec voix de marque Heldonica.
+          <p className="text-sm text-gray-500 mt-1">
+            Gère et réponds aux commentaires de tes publications avec des brouillons générés dans le respect de la voix Heldonica (100% "on/tu", 0 hallucination).
           </p>
         </div>
         <div className="flex flex-col items-end gap-2">
           <button
-            type="button"
             onClick={handleRefreshToken}
             disabled={refreshingToken}
-            className="px-4 py-2 bg-stone-100 hover:bg-stone-200 text-stone-700 text-xs font-semibold rounded-xl transition-colors flex items-center gap-2"
+            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-sm font-medium rounded-lg transition-colors flex items-center gap-2"
           >
-            🔄 {refreshingToken ? 'Rafraîchissement...' : 'Rafraîchir le token Meta (60j)'}
+            <RefreshCw className={`w-4 h-4 ${refreshingToken ? 'animate-spin' : ''}`} aria-hidden />
+            {refreshingToken ? 'Rafraîchissement...' : 'Rafraîchir le token Meta (60j)'}
           </button>
-          {tokenStatus && <span className="text-xs font-semibold text-emerald-800">{tokenStatus}</span>}
+          {tokenStatus && <span className="text-xs font-semibold">{tokenStatus}</span>}
         </div>
       </div>
-
-      {/* Cartes KPI Instagram en direct */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-2xs">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 block mb-1">
-            Compte Officiel
-          </span>
-          <div className="text-lg font-bold text-[#241D1A] font-serif truncate">
-            {statsData?.profile?.username ? `@${statsData.profile.username}` : '@heldonica'}
-          </div>
-          <span className="text-[11px] text-emerald-700 font-medium">
-            {statsData?.configured ? '✓ API Graph Connectée' : 'Mode local / veille'}
-          </span>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-2xs">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 block mb-1">
-            Publications Actives
-          </span>
-          <div className="text-2xl font-bold text-[#241D1A] font-serif">
-            {statsData?.profile?.media_count ?? statsData?.media?.length ?? 12}
-          </div>
-          <span className="text-[11px] text-stone-500">
-            Posts &amp; Carnets en ligne
-          </span>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-2xs">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 block mb-1">
-            Commentaires Traités
-          </span>
-          <div className="text-2xl font-bold text-amber-900 font-serif">
-            {comments.length}
-          </div>
-          <span className="text-[11px] text-stone-500">
-            {comments.filter((c) => c.status === 'pending_review').length} en attente de validation
-          </span>
-        </div>
-
-        <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-2xs">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-stone-400 block mb-1">
-            Qualité Éditoriale
-          </span>
-          <div className="text-2xl font-bold text-emerald-700 font-serif">
-            100%
-          </div>
-          <span className="text-[11px] text-stone-500">
-            Voix slow travel (« on / tu »)
-          </span>
-        </div>
-      </div>
-
-      {/* Galerie des dernières publications avec likes et stats */}
-      {statsData?.media && statsData.media.length > 0 && (
-        <div className="bg-white p-5 rounded-2xl border border-stone-200 shadow-2xs">
-          <h3 className="text-sm font-bold text-[#241D1A] font-serif mb-3">
-            Dernières publications synchronisées
-          </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
-            {statsData.media.slice(0, 6).map((item) => (
-              <a
-                key={item.id}
-                href={item.permalink || '#'}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="group block relative aspect-square rounded-xl overflow-hidden border border-stone-200 bg-stone-100"
-              >
-                {item.media_url ? (
-                  <Image
-                    src={item.media_url}
-                    alt={item.caption?.slice(0, 50) || 'Publication Instagram'}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                    unoptimized
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-xs text-stone-400 font-mono">
-                    Photo
-                  </div>
-                )}
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 text-white text-xs font-semibold">
-                  <span>❤️ {item.like_count ?? 0}</span>
-                  <span>💬 {item.comments_count ?? 0}</span>
-                </div>
-              </a>
-            ))}
-          </div>
-        </div>
-      )}
 
       {/* Onglets Filtres */}
-      <div className="flex items-center gap-2 border-b border-stone-200 pb-2">
+      <div className="flex items-center gap-2 border-b border-gray-200 pb-2">
         <button
-          type="button"
           onClick={() => setActiveTab('pending')}
-          className={`px-4 py-2 rounded-xl text-xs font-semibold transition-colors ${
+          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
             activeTab === 'pending'
-              ? 'bg-amber-800 text-white shadow-2xs'
-              : 'text-stone-600 hover:bg-stone-100'
+              ? 'bg-emerald-800 text-white'
+              : 'text-gray-600 hover:bg-gray-100'
           }`}
         >
-          ⏳ En attente de validation ({comments.filter((c) => c.status === 'pending_review').length})
+          <Clock className="w-4 h-4 inline-block mr-1.5" aria-hidden /> En attente de validation ({comments.filter(c => c.status === 'pending_review').length})
         </button>
         <button
-          type="button"
           onClick={() => setActiveTab('approved')}
-          className={`px-4 py-2 rounded-xl text-xs font-semibold transition-colors ${
+          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
             activeTab === 'approved'
-              ? 'bg-amber-800 text-white shadow-2xs'
-              : 'text-stone-600 hover:bg-stone-100'
+              ? 'bg-emerald-800 text-white'
+              : 'text-gray-600 hover:bg-gray-100'
           }`}
         >
-          ✅ Réponses publiées
+          <CheckCircle2 className="w-4 h-4 inline-block mr-1.5" aria-hidden /> Réponses publiées
         </button>
         <button
-          type="button"
           onClick={() => setActiveTab('all')}
-          className={`px-4 py-2 rounded-xl text-xs font-semibold transition-colors ${
+          className={`px-4 py-2 rounded-lg text-sm font-semibold transition-colors ${
             activeTab === 'all'
-              ? 'bg-amber-800 text-white shadow-2xs'
-              : 'text-stone-600 hover:bg-stone-100'
+              ? 'bg-emerald-800 text-white'
+              : 'text-gray-600 hover:bg-gray-100'
           }`}
         >
-          📋 Tous les commentaires
+          <ListChecks className="w-4 h-4 inline-block mr-1.5" aria-hidden /> Tous les commentaires
         </button>
       </div>
 
       {/* Liste des commentaires */}
       {loading ? (
-        <div className="py-12 text-center text-stone-500 bg-white rounded-2xl border border-stone-200">
+        <div className="py-12 text-center text-gray-500 bg-white rounded-xl border border-gray-200">
           Chargement des commentaires...
         </div>
       ) : comments.length === 0 ? (
-        <div className="py-12 text-center text-stone-500 bg-white rounded-2xl border border-stone-200">
-          ✨ Aucun commentaire en attente pour le moment !
+        <div className="py-12 text-center text-gray-500 bg-white rounded-xl border border-gray-200">
+          <Sparkles className="w-4 h-4 inline-block mr-1.5 text-emerald-700" aria-hidden /> Aucun commentaire en attente pour le moment.
         </div>
       ) : (
         <div className="space-y-4">
           {comments.map((comment) => (
             <div
               key={comment.ig_comment_id}
-              className="bg-white p-5 rounded-2xl border border-stone-200 shadow-sm space-y-4 hover:border-stone-300 transition-colors"
+              className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-4 hover:border-gray-300 transition-colors"
             >
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 rounded-full bg-stone-900 flex items-center justify-center text-white font-bold text-xs">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-500 via-rose-500 to-purple-600 flex items-center justify-center text-white font-bold text-xs">
                     {comment.username.substring(0, 2).toUpperCase()}
                   </div>
                   <div>
-                    <span className="font-semibold text-stone-900 text-sm">@{comment.username}</span>
-                    <span className="text-xs text-stone-400 ml-2">
+                    <span className="font-semibold text-gray-900 text-sm">@{comment.username}</span>
+                    <span className="text-xs text-gray-400 ml-2">
                       {new Date(comment.created_at).toLocaleDateString('fr-FR', {
                         hour: '2-digit',
                         minute: '2-digit',
@@ -345,7 +208,7 @@ export default function InstagramManagerSection() {
                       ? 'bg-amber-100 text-amber-800'
                       : comment.status === 'approved'
                       ? 'bg-emerald-100 text-emerald-800'
-                      : 'bg-stone-100 text-stone-600'
+                      : 'bg-gray-100 text-gray-600'
                   }`}
                 >
                   {comment.status === 'pending_review'
@@ -357,15 +220,15 @@ export default function InstagramManagerSection() {
               </div>
 
               {/* Texte du commentaire */}
-              <div className="bg-stone-50 p-3.5 rounded-xl text-sm text-stone-800 italic border-l-4 border-amber-700">
-                &ldquo;{comment.text}&rdquo;
+              <div className="bg-gray-50 p-3.5 rounded-lg text-sm text-gray-800 italic border-l-4 border-emerald-700">
+                "{comment.text}"
               </div>
 
               {/* Brouillon IA & Modification */}
               {comment.status === 'pending_review' && (
                 <div className="space-y-2">
-                  <label className="text-xs font-bold text-stone-700 uppercase tracking-wider flex items-center gap-1.5">
-                    <span>✨</span> Proposition de réponse IA (Voix Heldonica) :
+                  <label className="text-xs font-bold text-gray-700 uppercase tracking-wider flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5" aria-hidden /> Proposition de réponse IA (Voix Heldonica) :
                   </label>
                   <textarea
                     rows={2}
@@ -376,26 +239,28 @@ export default function InstagramManagerSection() {
                         [comment.ig_comment_id]: e.target.value,
                       })
                     }
-                    className="w-full p-3 text-sm border border-stone-200 rounded-xl focus:ring-2 focus:ring-amber-700 focus:border-amber-700"
+                    className="w-full p-3 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-700 focus:border-emerald-700"
                   />
                   <div className="flex items-center justify-between pt-1">
                     <button
-                      type="button"
                       onClick={() => handleReject(comment.ig_comment_id)}
                       disabled={processingId === comment.ig_comment_id}
-                      className="px-3 py-1.5 text-xs text-stone-500 hover:text-red-600 font-medium transition-colors"
+                      className="px-3 py-1.5 text-xs text-gray-500 hover:text-red-600 font-medium transition-colors"
                     >
                       Ignorer
                     </button>
                     <button
-                      type="button"
                       onClick={() => handleApproveReply(comment)}
                       disabled={processingId === comment.ig_comment_id}
-                      className="px-4 py-2 bg-amber-800 hover:bg-amber-900 text-white text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5 shadow-sm"
+                      className="px-4 py-2 bg-emerald-800 hover:bg-emerald-900 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1.5 shadow-sm"
                     >
                       {processingId === comment.ig_comment_id
                         ? 'Publication...'
-                        : '🚀 Approuver & Répondre sur Instagram'}
+                        : (
+                          <>
+                            <Rocket className="w-3.5 h-3.5" aria-hidden /> Approuver & Répondre sur Instagram
+                          </>
+                        )}
                     </button>
                   </div>
                 </div>
@@ -403,7 +268,7 @@ export default function InstagramManagerSection() {
 
               {/* Réponse déjà publiée */}
               {comment.status === 'approved' && comment.reply_published && (
-                <div className="bg-emerald-50 p-3 rounded-xl text-xs text-emerald-900">
+                <div className="bg-emerald-50 p-3 rounded-lg text-xs text-emerald-900">
                   <span className="font-bold">Réponse envoyée :</span> {comment.reply_published}
                 </div>
               )}

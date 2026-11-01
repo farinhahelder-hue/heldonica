@@ -8,7 +8,7 @@ interface Props {
   params: Promise<{ slug: string }>
 }
 
-export const revalidate = 3600
+export const revalidate = 86400
 
 // Toutes les destinations « piliers » sont désormais des pages statiques
 // pilotées par le CMS (DestinationPillar / DestinationPage). Cette route

@@ -115,25 +115,16 @@ class EditeurActivity : ComponentActivity() {
 
     private fun ouvrir(chemin: String) {
         val base = BuildConfig.CMS_BASE_URL.trimEnd('/')
-        val motDePasse = BrainClient.obtenirMotDePasse(this)
-
-        if (motDePasse.isBlank()) {
-            afficherMessage(
-                "Mot de passe CMS non configuré.\n\n" +
-                "Renseigne ton mot de passe dans l'onglet Cerveau (icône 🔑) pour te connecter au CMS."
-            )
-            return
-        }
 
         lifecycleScope.launch {
-            val cookie = withContext(Dispatchers.IO) { obtenirSession(base, motDePasse) }
+            val cookie = obtenirCookie(base)
 
             if (cookie == null) {
-                afficherMessage(
-                    "Connexion au CMS refusee.\n\n" +
-                    "Le mot de passe compile dans l'application ne correspond pas " +
-                    "a celui du serveur."
-                )
+                // Sans cookie, on charge quand meme la page : l'ecran de connexion
+                // du panel s'affiche et le mot de passe reste saisissable. C'est le
+                // repli quand la fenetre Google a ete fermee, plutot qu'un message
+                // d'erreur sans issue.
+                web.loadUrl(base + chemin)
                 return@launch
             }
 
@@ -153,6 +144,39 @@ class EditeurActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    /**
+     * Session a poser dans la vue web : le compte Google d'abord (aucun secret
+     * stocke sur le telephone), le mot de passe ensuite.
+     */
+    private suspend fun obtenirCookie(base: String): String? {
+        if (ConnexionGoogle.estConfiguree()) {
+            when (val resultat = ConnexionGoogle.connecter(this)) {
+                is ConnexionGoogle.Resultat.Succes -> return resultat.cookie
+                // Aucun compte propose, ou Google indisponible : le mot de passe
+                // prend le relais, comme avant.
+                ConnexionGoogle.Resultat.Indisponible -> Unit
+                // L'utilisateur a ferme la fenetre : on ne lui impose pas le mot
+                // de passe, l'ecran du panel le proposera.
+                ConnexionGoogle.Resultat.Annule -> return null
+                is ConnexionGoogle.Resultat.Echec -> {
+                    afficherMessage(resultat.message)
+                    return null
+                }
+            }
+        }
+
+        val motDePasse = BrainClient.obtenirMotDePasse(this)
+        if (motDePasse.isBlank()) {
+            afficherMessage(
+                "Mot de passe CMS non configuré.\n\n" +
+                "Renseigne ton mot de passe dans l'onglet Cerveau (icône 🔑) pour te connecter au CMS."
+            )
+            return null
+        }
+
+        return withContext(Dispatchers.IO) { obtenirSession(base, motDePasse) }
     }
 
     /** Echange le mot de passe contre un cookie de session signe. */

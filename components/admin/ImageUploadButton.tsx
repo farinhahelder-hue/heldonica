@@ -80,7 +80,7 @@ export default function ImageUploadButton({
             Upload…
           </span>
         ) : (
-          '📎 Uploader'
+          'Uploader'
         )}
       </button>
       {error && (

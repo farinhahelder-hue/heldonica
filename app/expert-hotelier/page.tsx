@@ -10,7 +10,7 @@ import EditableZone from '@/components/inline-edit/EditableZone';
 import { buildPageMetadata } from '@/lib/page-metadata';
 import CmsIcon from '@/components/CmsIcon';
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 const SITE_URL = 'https://www.heldonica.fr';
 

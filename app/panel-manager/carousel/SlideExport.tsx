@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
+import { ImageDown, Send, Package, Globe } from 'lucide-react'
 import { toPng } from 'html-to-image'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
@@ -361,14 +362,14 @@ export default function SlideExport({
 
   return (
     <div className="bg-white rounded-2xl border border-stone-200 p-4">
-      <h3 className="font-semibold text-stone-800 text-sm mb-3">📥 Export PNG</h3>
+      <h3 className="font-semibold text-stone-800 text-sm mb-3 inline-flex items-center gap-2"><ImageDown className="w-4 h-4" aria-hidden /> Export PNG</h3>
 
       <button
         onClick={envoyerVersInstagram}
         disabled={isExporting || slides.length < 2}
         className="w-full mb-3 px-4 py-2.5 text-sm font-medium bg-[#6b2a1a] text-white rounded-xl hover:bg-[#6b2a1a]/90 disabled:opacity-50 transition-colors"
       >
-        📤 Envoyer vers Instagram (brouillon)
+        <Send className="w-4 h-4 inline-block mr-1" aria-hidden /> Envoyer vers Instagram (brouillon)
       </button>
 
       {envoi && (
@@ -385,7 +386,7 @@ export default function SlideExport({
           disabled={isExporting || slides.length === 0}
           className="w-full px-4 py-2 text-sm bg-stone-100 hover:bg-stone-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-colors"
         >
-          📷 Exporter slide active
+          <ImageDown className="w-4 h-4 inline-block mr-1" aria-hidden /> Exporter slide active
         </button>
         
         <button
@@ -393,7 +394,7 @@ export default function SlideExport({
           disabled={isExporting || slides.length === 0}
           className="w-full px-4 py-2 text-sm bg-[#6b2a1a] text-white hover:bg-[#6b2a1a]/90 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-colors"
         >
-          📦 Exporter tout ({slides.length} PNGs)
+          <Package className="w-4 h-4 inline-block mr-1" aria-hidden /> Exporter tout ({slides.length} PNGs)
         </button>
         
         <button
@@ -401,7 +402,7 @@ export default function SlideExport({
           disabled={isExporting || slides.length === 0}
           className="w-full px-4 py-2 text-sm border border-[#83C5BE] text-[#83C5BE] hover:bg-[#83C5BE]/10 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl transition-colors"
         >
-          🌍 Exporter 3 dimensions (ZIP)
+          <Globe className="w-4 h-4 inline-block mr-1" aria-hidden /> Exporter 3 dimensions (ZIP)
         </button>
         
         {isExporting && (

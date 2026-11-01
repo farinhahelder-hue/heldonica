@@ -9,7 +9,7 @@ import { getCmsOrSetting } from '@/lib/content-loader'
 import EditableZone from '@/components/inline-edit/EditableZone'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const revalidate = 3600
+export const revalidate = 86400
 
 const metadata: Metadata = {
   title: 'Tous nos liens | Heldonica',

@@ -203,7 +203,7 @@ export default function AutoShortsGenerator() {
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <h1 style={{ fontSize: '1.25rem', fontWeight: 700, color: '#6b2a1a', margin: 0 }}>
-            ⚡ Auto-Shorts IA
+            <Zap size={18} aria-hidden="true" /> Auto-Shorts IA
           </h1>
           <span style={{
             fontSize: '0.8rem',
@@ -277,7 +277,7 @@ export default function AutoShortsGenerator() {
         }}>
           <div>
             <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#302925', marginBottom: '1rem' }}>
-              📹 Vidéo source
+              <FileVideo size={16} aria-hidden="true" /> Vidéo source
             </h3>
             {!state.videoUrl ? (
               <label style={{
@@ -335,7 +335,7 @@ export default function AutoShortsGenerator() {
 
           <div>
             <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#302925', marginBottom: '0.75rem' }}>
-              ⏱️ Durée des shorts
+              <Clock size={16} aria-hidden="true" /> Durée des shorts
             </h3>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               {CLIP_DURATIONS.map(duration => (
@@ -362,7 +362,7 @@ export default function AutoShortsGenerator() {
 
           <div>
             <h3 style={{ fontSize: '0.9rem', fontWeight: 600, color: '#302925', marginBottom: '0.75rem' }}>
-              🔢 Nombre de clips
+              <Hash size={16} aria-hidden="true" /> Nombre de clips
             </h3>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               <input

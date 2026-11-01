@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/supabase'
 
-export const revalidate = 3600
+export const revalidate = 86400
 
 const SITE_URL = 'https://www.heldonica.fr'
 

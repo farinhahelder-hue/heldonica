@@ -81,7 +81,7 @@ export function AgentPresenceBadge({
         <Bot size={13} className={hasActiveWorker ? 'text-amber-700' : 'text-stone-600'} />
         <span>
           {hasActiveWorker
-            ? `⚡ Agent ${activeTask.claimed_by || activeTask.agent} actif`
+            ? `Agent ${activeTask.claimed_by || activeTask.agent} actif`
             : totalOpenTasks > 0
             ? `${totalOpenTasks} tâche(s) registre`
             : 'Flotte disponible'}

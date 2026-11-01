@@ -10,7 +10,7 @@ import EditableIcon from '@/components/inline-edit/EditableIcon'
 import { getPageZones } from '@/lib/cms-zones'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const revalidate = 3600
+export const revalidate = 86400
 
 const PAGE = 'destinations-roumanie-bucarest'
 

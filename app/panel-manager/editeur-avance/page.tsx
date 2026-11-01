@@ -246,7 +246,7 @@ export default function EditeurAvancePage() {
       interval = setInterval(() => setFocusTimer((t) => t + 1), 1000)
     } else if (focusTimer >= 25 * 60) {
       setFocusTimerRunning(false)
-      showToast('⏰ Session focus terminée (25 min) ! Pause recommandée.', 'success')
+      showToast('Session focus terminée (25 min) ! Pause recommandée.', 'success')
       setFocusTimer(0)
     }
     return () => clearInterval(interval)

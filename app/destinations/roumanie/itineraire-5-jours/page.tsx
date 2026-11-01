@@ -11,7 +11,7 @@ import ComingSoonDestination from '@/components/ComingSoonDestination'
 import { isUnpublishedCmsPage } from '@/lib/unpublished-pages'
 import DayAccommodationBox from '@/components/itinerary/DayAccommodationBox'
 
-export const revalidate = 3600
+export const revalidate = 86400
 
 const PAGE = 'destinations-roumanie-itineraire-5-jours'
 

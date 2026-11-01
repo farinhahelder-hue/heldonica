@@ -15,7 +15,7 @@ import { isUnpublishedCmsPage } from '@/lib/unpublished-pages';
 const SITE_URL = 'https://www.heldonica.fr';
 const PAGE = 'destinations-madere-ponta-do-sol';
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 const metadata: Metadata = {
   title: 'Ponta do Sol & l arche de basalte au couchant : notre carnet slow travel | Heldonica',

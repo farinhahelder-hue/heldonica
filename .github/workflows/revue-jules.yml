@@ -1,8 +1,10 @@
-name: Revue des PR de Jules
+name: Revue des PR
 
-# Le Cerveau trie les PR de Jules et propose au fondateur (registre agent_tasks,
-# scope revue-jules) ; le fondateur valide d'un geste depuis le Poco ; le passage
-# suivant execute. Rien n'est fusionne ni ferme sans sa validation.
+# Le Cerveau trie toutes les PR ouvertes et propose au fondateur (registre
+# agent_tasks, scope revue-jules) ; le fondateur valide d'un geste depuis le Poco ;
+# le passage suivant execute. Rien n'est fusionne ni ferme sans sa validation.
+# Le filtrage par auteur (PR de Jules uniquement) a ete retire le 28/10 : il etait
+# le goulot (45 PR ouvertes, 33 de plus de 7 jours, invisibles pour ce moteur).
 # Voir scripts/revue-jules.mjs.
 
 on:

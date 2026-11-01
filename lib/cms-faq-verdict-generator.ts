@@ -16,7 +16,7 @@ export interface GeneratedFaqItem {
 
 export interface GeneratedVerdict {
   destination: string;
-  verdictScore: number; // Ex: 8.5 / 10
+  verdictScore: number | null; // null = note non posee par l'editeur (jamais inventee)
   highlight: string;    // Le moment fort vérifié
   pitfall: string;      // Le piège à éviter
   idealSeason: string;  // Saison contemplative
@@ -87,7 +87,9 @@ export function generateVerdict(context: {
 
   const idealSeason = context.idealSeason?.trim() || `Automne doré ou fin de printemps`;
 
-  const verdictScore = Math.max(7, Math.min(10, context.score || 8.5));
+  // Aucune note par defaut : un chiffre invente se lit comme un jugement de terrain.
+  const verdictScore =
+    typeof context.score === 'number' ? Math.max(0, Math.min(10, context.score)) : null;
 
   const recommendation =
     `On te conseille de prendre le temps de rester immobile quand les autres repartent. C'est dans ces heures creuses que ${dest} livre sa vraie nature.`;
@@ -120,6 +122,7 @@ export function generateFaqVerdictBundle(context: {
   mobility?: string;
   highlight?: string;
   pitfall?: string;
+  score?: number;
 }): FaqVerdictBundle {
   const faqs = generateFaqItems({
     destination: context.destination,

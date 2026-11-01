@@ -46,15 +46,15 @@
     },
     {
       "path": "/api/cron/enrich-places",
-      "schedule": "0 6 * * *"
+      "schedule": "0 6 * * 0"
     },
     {
       "path": "/api/cron/enrich-photos",
-      "schedule": "30 6 * * *"
+      "schedule": "30 6 * * 0"
     },
     {
       "path": "/api/cron/embeddings",
-      "schedule": "0 7 * * *"
+      "schedule": "0 7 * * 0"
     }
   ]
 }

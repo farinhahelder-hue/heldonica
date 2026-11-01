@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json()
-    const { email, source = 'guide-madere' } = body
+    const { email, consent, source = 'guide-madere' } = body
 
     if (!email) {
       return NextResponse.json({ error: 'Email manquant' }, { status: 400 })
@@ -23,6 +23,10 @@ export async function POST(request: NextRequest) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!emailRegex.test(email)) {
       return NextResponse.json({ error: 'Email invalide' }, { status: 400 })
+    }
+
+    if (consent !== true) {
+      return NextResponse.json({ error: 'Consentement requis' }, { status: 400 })
     }
 
     const supabase = createServiceClient()

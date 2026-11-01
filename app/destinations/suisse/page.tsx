@@ -47,7 +47,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata(PAGE, metadata);
 }
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 export default async function SuissePage() {
   const zones = await getPageZones(PAGE);

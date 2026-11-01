@@ -16,9 +16,14 @@
  *
  * Ce qu'il fait
  * -------------
- * Collecte les chemins d'image **locaux** (`/images/…`, avec ou sans l'origine
- * `https://www.heldonica.fr`) référencés dans le code, et refuse ceux qui n'ont pas
- * de fichier correspondant dans `public/`.
+ * Collecte les chemins de média **locaux** (`/images/…` et `/videos/…`, avec ou sans
+ * l'origine `https://www.heldonica.fr`) référencés dans le code, et refuse ceux qui
+ * n'ont pas de fichier correspondant dans `public/`.
+ *
+ * Les capsules vidéo de sous-destination (`videoUrl`, `videoPoster`) vivent sous
+ * `public/videos/` : ne couvrir que `/images/` laissait 6 chemins hors contrôle
+ * (constat du 30/10/2026, PR #791). Un poster manquant y produit exactement la même
+ * panne qu'un hero manquant — et un `<video>` sans source reste noir en silence.
  *
  * Ce qu'il ignore volontairement
  * ------------------------------
@@ -45,13 +50,14 @@ const EXCLUS = ['__tests__', 'node_modules', '.next', '.git'];
 
 // Deux formes de chemin local, traitées séparément :
 //   1. une URL absolue de notre domaine : `https://www.heldonica.fr/images/…` ;
-//   2. un chemin relatif nu : `/images/…`.
+//   2. un chemin relatif nu : `/images/…` ou `/videos/…`.
 // Un chemin relatif n'est retenu que s'il n'est pas précédé d'un caractère de mot,
 // d'un point, d'un `:` ou d'un `/` : cela écarte les imports npm et les URL d'un autre
 // domaine qui *contiennent* `/images/…` (`cdnjs.cloudflare.com/…/images/marker-icon.png`,
 // `leaflet/dist/images/marker-icon.png`) sans être servis depuis `public/`.
-const EXT = 'jpg|jpeg|png|webp|avif|svg|gif';
-const SUFFIXE = String.raw`/images/[A-Za-z0-9_./-]+\.(?:${EXT})`;
+const EXT_IMAGE = 'jpg|jpeg|png|webp|avif|svg|gif';
+const EXT_VIDEO = 'mp4|webm|mov';
+const SUFFIXE = String.raw`/(?:images|videos)/[A-Za-z0-9_./-]+\.(?:${EXT_IMAGE}|${EXT_VIDEO})`;
 const CHEMIN_ABSOLU_RE = new RegExp(
   String.raw`https?://(?:www\.)?heldonica\.fr(${SUFFIXE})`,
   'gi'
@@ -119,9 +125,10 @@ const MANQUANTS_CONNUS = new Map([
   [
     '/images/destinations/suisse/IMG_20250712_154207.jpg',
     'album suisse-stoos-2025 : fichier jamais livré. Les 4 photos réelles de Suisse ' +
-      '(stoos-01..04.jpg) sont dans le bucket blog-images, mais leur correspondance avec ' +
-      'les 4 légendes (Fronalpstock, Muotathal, coucher, nuit) est invérifiée — à ' +
-      'réattribuer par le propriétaire.',
+      'sont dans le bucket blog-images (stoos-01..03.jpg — 3 distinctes, stoos-04.jpg ' +
+      'est byte-identique à stoos-03.jpg). Leur correspondance avec les 4 légendes ' +
+      '(Fronalpstock, Muotathal, coucher, nuit) est invérifiée — à réattribuer par le ' +
+      'propriétaire.',
   ],
   [
     '/images/destinations/suisse/IMG_20250712_154303.jpg',
@@ -157,7 +164,7 @@ if (manquantsConnus.length > 0) {
 
 if (morts.length > 0) {
   console.error(
-    `\n✗ check-image-paths : ${morts.length} chemin(s) d'image local(aux) sans fichier dans public/.\n`
+    `\n✗ check-image-paths : ${morts.length} chemin(s) de média local(aux) sans fichier dans public/.\n`
   );
   for (const { chemin, emplacements } of morts) {
     console.error(`  - ${chemin}`);
@@ -172,6 +179,6 @@ if (morts.length > 0) {
 }
 
 console.log(
-  `✓ check-image-paths : ${chemins.size} chemin(s) d'image local(aux) référencé(s), tous présents dans public/.`
+  `✓ check-image-paths : ${chemins.size} chemin(s) de média local(aux) référencé(s), tous présents dans public/.`
 );
 process.exit(0);

@@ -3,8 +3,8 @@
  * Serveur MCP : le registre `agent_tasks`, pour tous les agents.
  *
  * Claude Code, Gemini CLI et OpenCode parlent MCP. Ce serveur leur donne les
- * memes cinq gestes sur la meme table — lire, prendre, rendre compte,
- * deposer — au lieu de trois colles differentes et d'un acces SQL brut.
+ * memes six gestes sur la meme table — lire, lire le journal, prendre, rendre
+ * compte, deposer — au lieu de trois colles differentes et d'un acces SQL brut.
  * Le protocole qu'il applique est dans AGENTS.md, section Coordination.
  *
  * Il tourne en enfant du client (transport stdio), sur le poste. La cle
@@ -76,28 +76,45 @@ const AGENTS_CONNUS = [
 // --- PostgREST ---------------------------------------------------------------
 
 async function pg(chemin, { method = 'GET', body, prefer } = {}) {
-  const entetes = {
-    apikey: CLE,
-    'Content-Type': 'application/json',
-  }
-  if (CLE.startsWith('eyJ')) {
-    entetes.Authorization = `Bearer ${CLE}`
-  }
-  if (prefer) entetes.Prefer = prefer
-  const r = await fetch(`${URL_BASE}/rest/v1/${chemin}`, {
-    method,
-    headers: entetes,
-    body: body === undefined ? undefined : JSON.stringify(body),
-  })
-  const texte = await r.text()
-  let donnees = null
-  try {
-    donnees = texte ? JSON.parse(texte) : null
-  } catch {
-    donnees = texte
-  }
-  if (!r.ok) {
+  // Certaines colonnes (`created_by`, `pr_url`, `commit_sha`) viennent d'une
+  // migration qui peut ne pas etre encore appliquee. Si PostgREST refuse une
+  // colonne inconnue, on la retire et on reessaie : le geste passe, simplement
+  // sans cette metadonnee. Sans ce filet, deposer une tache echouerait pour TOUS
+  // les agents tant que la migration n'est pas appliquee.
+  let corps = body
+  for (let essai = 0; ; essai++) {
+    const entetes = {
+      apikey: CLE,
+      'Content-Type': 'application/json',
+    }
+    if (CLE.startsWith('eyJ')) {
+      entetes.Authorization = `Bearer ${CLE}`
+    }
+    if (prefer) entetes.Prefer = prefer
+    const r = await fetch(`${URL_BASE}/rest/v1/${chemin}`, {
+      method,
+      headers: entetes,
+      body: corps === undefined ? undefined : JSON.stringify(corps),
+    })
+    const texte = await r.text()
+    let donnees = null
+    try {
+      donnees = texte ? JSON.parse(texte) : null
+    } catch {
+      donnees = texte
+    }
+    if (r.ok) return donnees
+
     const message = donnees?.message || (typeof donnees === 'string' ? donnees : r.statusText)
+    const absente = /Could not find the '([^']+)' column/i.exec(message || '')
+    if (absente && corps && typeof corps === 'object' && absente[1] in corps && essai < 5) {
+      process.stderr.write(
+        `agent-tasks : colonne '${absente[1]}' absente — migration non appliquee, ignoree pour cet appel\n`
+      )
+      corps = { ...corps }
+      delete corps[absente[1]]
+      continue
+    }
     // Une colonne absente veut presque toujours dire : migration non appliquee.
     if (/column .* does not exist/i.test(message)) {
       throw new Error(
@@ -107,7 +124,6 @@ async function pg(chemin, { method = 'GET', body, prefer } = {}) {
     }
     throw new Error(`PostgREST ${r.status} : ${message}`)
   }
-  return donnees
 }
 
 // Un identifiant peut etre donne entier ou par ses premiers caracteres, comme
@@ -205,6 +221,59 @@ serveur.registerTool(
 )
 
 serveur.registerTool(
+  'lire_journal',
+  {
+    title: 'Lire le journal',
+    description:
+      "L'historique append-only des tâches : qui a pris, changé de statut, rendu compte, validé — et quand. " +
+      "Sans `id`, montre les derniers événements toutes tâches confondues (le pouls du registre). " +
+      "Avec `id`, montre la trajectoire complète d'une tâche, du plus ancien au plus récent. " +
+      "C'est ce que la fiche seule ne peut pas dire : elle n'a qu'un état présent.",
+    inputSchema: {
+      id: z.string().optional().describe("UUID ou préfixe d'une tâche. Vide = les derniers événements."),
+      limit: z.number().int().min(1).max(200).optional().describe('Nombre d\'événements (défaut 30).'),
+    },
+    annotations: { readOnlyHint: true, openWorldHint: false },
+  },
+  async ({ id, limit }) => {
+    try {
+      const n = limit || 30
+      let q =
+        `agent_task_events?select=created_at,event_type,agent,from_status,to_status,task_id,payload&order=created_at.desc&limit=${n}`
+      if (id) {
+        const uuid = await resoudreId(id)
+        // Pour une tâche, l'ordre naturel est chronologique : on veut lire la
+        // trajectoire, pas la remonter.
+        q = q.replace('&order=created_at.desc', '&order=created_at.asc') + `&task_id=eq.${uuid}`
+      }
+      const rows = await pg(q)
+      return texte({
+        nombre: rows.length,
+        journal: rows.map((e) => ({
+          quand: e.created_at?.slice(0, 19).replace('T', ' '),
+          evenement: e.event_type,
+          agent: e.agent ?? null,
+          de: e.from_status ?? null,
+          vers: e.to_status ?? null,
+          tache: e.task_id ? e.task_id.slice(0, 8) : (e.payload?.task ?? '(supprimée)'),
+        })),
+      })
+    } catch (e) {
+      // PostgREST dit « Could not find the table … in the schema cache » (pas
+      // « does not exist ») : on couvre les deux formulations.
+      if (/agent_task_events/.test(e.message) && /(does not exist|Could not find the table)/i.test(e.message)) {
+        return erreur(
+          new Error(
+            "le journal n'existe pas encore — applique supabase/migrations/20261029150000_journal_agent_task_events.sql"
+          )
+        )
+      }
+      return erreur(e)
+    }
+  }
+)
+
+serveur.registerTool(
   'prendre_tache',
   {
     title: 'Prendre une tâche',
@@ -272,11 +341,13 @@ serveur.registerTool(
         .describe('Ce qui a été fait, mesuré, pas mesuré, et ce qui reste — avec les commits.'),
       description: z.string().optional().describe('Remplace la description ; commencer par ce qui manque si waiting_validation.'),
       files_modified: z.array(z.string()).optional(),
+      pr_url: z.string().optional().describe("URL de la PR / MR qui réalise la tâche — la rattache à ce qu'elle a produit."),
+      commit_sha: z.string().optional().describe('Commit de tête au moment du compte-rendu.'),
       notes: z.string().optional(),
     },
     annotations: { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: false },
   },
-  async ({ id, status, actions_done, description, files_modified, notes }) => {
+  async ({ id, status, actions_done, description, files_modified, pr_url, commit_sha, notes }) => {
     try {
       const moi = exigerAgent()
       const uuid = await resoudreId(id)
@@ -286,6 +357,8 @@ serveur.registerTool(
       const corps = { status, actions_done, updated_at: new Date().toISOString() }
       if (description !== undefined) corps.description = description
       if (files_modified !== undefined) corps.files_modified = files_modified
+      if (pr_url !== undefined) corps.pr_url = pr_url
+      if (commit_sha !== undefined) corps.commit_sha = commit_sha
       if (notes !== undefined) corps.notes = notes
       // Seul celui qui a pris la tache la clot : le filtre claimed_by le garantit.
       const rows = await pg(`agent_tasks?id=eq.${uuid}&claimed_by=eq.${moi}`, {
@@ -334,6 +407,7 @@ serveur.registerTool(
         status: 'sent',
         scope: scope || 'a-qualifier',
         description: description || null,
+        created_by: moi,
         notes: `déposée par ${moi} via MCP le ${new Date().toISOString().slice(0, 16)}`,
       }
       if (risk_level) corps.risk_level = risk_level

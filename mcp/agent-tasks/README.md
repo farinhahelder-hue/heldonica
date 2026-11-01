@@ -2,22 +2,28 @@
 
 Un serveur MCP qui expose la table Supabase `agent_tasks` aux agents qui
 travaillent sur ce dépôt. Claude Code, Gemini CLI et OpenCode parlent tous MCP :
-avec ce serveur, ils ont **les mêmes cinq gestes** sur **la même table**, au lieu
+avec ce serveur, ils ont **les mêmes six gestes** sur **la même table**, au lieu
 de trois colles différentes et d'un accès SQL brut. Le protocole qu'il applique
 est dans `AGENTS.md`, section *Coordination*.
 
-## Les cinq outils
+## Les six outils
 
 | Outil | Ce qu'il fait | Refuse si… |
 |---|---|---|
 | `taches_en_attente` | Liste les `sent` et `in_progress`, filtre par agent, inclut `tous`. | — (lecture seule) |
 | `lire_tache` | La tâche entière ; l'id peut être un préfixe (`aec21f21`). | — (lecture seule) |
+| `lire_journal` | L'historique append-only : qui a pris, changé de statut, rendu compte, validé — et quand. Sans `id` : le pouls du registre ; avec `id` : la trajectoire complète d'une tâche. | — (lecture seule) |
 | `prendre_tache` | `sent` → `in_progress`, pose `claimed_by`, `claimed_at`, la branche. | déjà prise par un autre ; plus `sent` ; adressée à un autre agent ; pas d'`AGENT_NAME`. |
-| `rendre_compte` | Clôt en `done` / `waiting_validation` / `blocked` avec `actions_done`. | la tâche n'est pas prise par **toi** ; `done` sans rien dans `verifie`. |
-| `deposer_tache` | Crée une `sent` pour un autre agent, avec `depends_on` si suite. | agent inconnu ; pas d'`AGENT_NAME`. |
+| `rendre_compte` | Clôt en `done` / `waiting_validation` / `blocked` avec `actions_done`, et rattache `pr_url` / `commit_sha`. | la tâche n'est pas prise par **toi** ; `done` sans rien dans `verifie`. |
+| `deposer_tache` | Crée une `sent` pour un autre agent, avec `depends_on` si suite ; pose `created_by`. | agent inconnu ; pas d'`AGENT_NAME`. |
 
 Il n'y a **pas d'outil de suppression**. Une tâche déposée reste : c'est de
 l'historique.
+
+Chaque écriture sur `agent_tasks` laisse une ligne dans `agent_task_events` — un
+trigger s'en charge, pas le serveur. Le journal garde l'état **avant** et **après**
+de chaque changement, là où la fiche ne montre que l'état présent. Il faut avoir
+appliqué `supabase/migrations/20261029150000_journal_agent_task_events.sql`.
 
 La prise est atomique côté base : le `PATCH` filtre sur `status = 'sent'`. Si
 un autre agent a été plus rapide, zéro ligne bouge et l'outil le dit.
@@ -52,9 +58,10 @@ avec la doc du client avant de soupçonner le serveur.
 node mcp/agent-tasks/test-client.mjs
 ```
 
-Lance le serveur en enfant, exerce les cinq outils, dépose une tâche d'essai
+Lance le serveur en enfant, exerce les six outils, dépose une tâche d'essai
 puis la supprime par PostgREST (le serveur, lui, ne sait pas supprimer). Neuf
-contrôles ; tous doivent être ✓.
+contrôles ; tous doivent être ✓. Le sixième outil (`lire_journal`) n'est exercé
+que si la migration `20261029150000_journal_agent_task_events.sql` est appliquée.
 
 ## Ce que le serveur ne fait pas, et pourquoi
 

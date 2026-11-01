@@ -157,7 +157,7 @@ export default function MediaAdminPage() {
                     : 'bg-stone-50 text-stone-600 hover:bg-stone-100'
                 }`}
               >
-                📁 {f}
+                {f}
               </button>
             ))}
           </div>
@@ -247,7 +247,7 @@ export default function MediaAdminPage() {
                       className="px-2 py-1.5 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 rounded-lg text-xs font-bold transition"
                       title="Supprimer"
                     >
-                      🗑
+                      Supprimer
                     </button>
                   </div>
                 </div>

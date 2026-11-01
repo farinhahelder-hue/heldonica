@@ -20,7 +20,7 @@ export default function ImportsPage() {
 
       <div className="grid gap-6">
         <section className="bg-white rounded-xl border p-5">
-          <h2 className="font-semibold mb-3">📝 Drafts auto (à relire)</h2>
+          <h2 className="font-semibold mb-3">Drafts auto (à relire)</h2>
           {data?.drafts?.length ? (
             <table className="w-full text-sm">
               <thead className="text-xs text-gray-500"><tr><th className="text-left py-2">Titre</th><th className="text-left">Slug</th><th className="text-left">Date</th><th></th></tr></thead>
@@ -34,7 +34,7 @@ export default function ImportsPage() {
         </section>
 
         <section className="bg-white rounded-xl border p-5">
-          <h2 className="font-semibold mb-3">📍 POIs importés (GMaps)</h2>
+          <h2 className="font-semibold mb-3">POIs importés (GMaps)</h2>
           {data?.pois?.length ? (
             <div className="space-y-2 max-h-80 overflow-auto">
               {data.pois.map((p:any)=>(
@@ -49,7 +49,7 @@ export default function ImportsPage() {
         </section>
 
         <section className="bg-white rounded-xl border p-5">
-          <h2 className="font-semibold mb-3">📜 Logs</h2>
+          <h2 className="font-semibold mb-3">Logs</h2>
           {data?.logs?.length ? (
             <div className="space-y-2">
               {data.logs.map(l=>(

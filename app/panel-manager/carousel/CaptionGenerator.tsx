@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { BookOpen, ListChecks, Sparkles, MapPin, Copy, Check, AlertTriangle, ClipboardCopy } from 'lucide-react'
 import { SlideData } from './tokens'
 
 interface CaptionGeneratorProps {
@@ -14,10 +15,10 @@ interface CaptionGeneratorProps {
 type Style = 'narratif' | 'informatif' | 'inspirant'
 
 const TONE_LABELS = {
-  narratif: { icon: '📖', label: 'Narratif' },
-  informatif: { icon: '📝', label: 'Informatif' },
-  inspirant: { icon: '✨', label: 'Inspirant' },
-}
+  narratif: { icon: BookOpen, label: 'Narratif' },
+  informatif: { icon: ListChecks, label: 'Informatif' },
+  inspirant: { icon: Sparkles, label: 'Inspirant' },
+} as const
 
 export default function CaptionGenerator({ topic, destination, slides = [], defaultHashtags, onCaptionGenerated }: CaptionGeneratorProps) {
   const [isGenerating, setIsGenerating] = useState(false)
@@ -96,7 +97,9 @@ export default function CaptionGenerator({ topic, destination, slides = [], defa
     <div className="bg-white rounded-2xl border border-stone-200 overflow-hidden">
       {/* Header */}
       <div className="px-4 py-3 border-b border-stone-200 bg-gradient-to-r from-[#83C5BE] to-[#4a7c59]">
-        <h3 className="font-semibold text-white text-sm">✍️ Générateur Caption Instagram</h3>
+        <h3 className="font-semibold text-white text-sm flex items-center gap-2">
+          <ClipboardCopy size={15} aria-hidden /> Générateur Caption Instagram
+        </h3>
         <p className="text-xs text-white/80">Ton Heldonica + hashtags optimisés</p>
       </div>
 
@@ -105,7 +108,9 @@ export default function CaptionGenerator({ topic, destination, slides = [], defa
         <div>
           <label className="text-xs font-medium text-stone-600 mb-2 block">Ton de la légende</label>
           <div className="flex gap-1 bg-stone-100 rounded-lg p-1">
-            {(Object.keys(TONE_LABELS) as Style[]).map((s) => (
+            {(Object.keys(TONE_LABELS) as Style[]).map((s) => {
+              const Icone = TONE_LABELS[s].icon
+              return (
               <button
                 key={s}
                 onClick={() => setStyle(s)}
@@ -115,9 +120,11 @@ export default function CaptionGenerator({ topic, destination, slides = [], defa
                     : 'text-stone-500 hover:text-stone-700'
                 }`}
               >
-                {TONE_LABELS[s].icon}
+                <Icone size={13} aria-hidden />
+                {TONE_LABELS[s].label}
               </button>
-            ))}
+              )
+            })}
           </div>
         </div>
 
@@ -125,7 +132,7 @@ export default function CaptionGenerator({ topic, destination, slides = [], defa
         <div className="flex items-center gap-2 text-xs text-stone-500 bg-stone-50 rounded-lg p-2">
           <span className="font-medium">Sujet:</span>
           <span className="truncate flex-1">{topic || 'Non défini'}</span>
-          {destination && <><span className="mx-1">•</span><span>📍 {destination}</span></>}
+          {destination && <><span className="mx-1">•</span><span className="inline-flex items-center gap-1"><MapPin size={12} aria-hidden />{destination}</span></>}
           {slides.length > 0 && <><span className="mx-1">•</span><span>{slides.length} slides</span></>}
         </div>
 
@@ -141,7 +148,7 @@ export default function CaptionGenerator({ topic, destination, slides = [], defa
               Génération...
             </span>
           ) : (
-            '✨ Générer caption + hashtags'
+            <span className="flex items-center justify-center gap-2"><Sparkles size={15} aria-hidden /> Générer caption + hashtags</span>
           )}
         </button>
 
@@ -163,7 +170,7 @@ export default function CaptionGenerator({ topic, destination, slides = [], defa
                 onClick={copyCaption}
                 className="absolute top-2 right-2 px-2 py-1 text-xs bg-white border border-stone-200 rounded-lg hover:bg-stone-100 transition-colors"
               >
-                {copied === 'caption' ? '✓ Copié!' : 'Copier'}
+                {copied === 'caption' ? <span className="inline-flex items-center gap-1"><Check size={12} aria-hidden />Copié</span> : <span className="inline-flex items-center gap-1"><Copy size={12} aria-hidden />Copier</span>}
               </button>
             </div>
 
@@ -172,7 +179,7 @@ export default function CaptionGenerator({ topic, destination, slides = [], defa
               <span className={charCount > 2200 ? 'text-red-500' : charCount > 2000 ? 'text-orange-500' : 'text-stone-400'}>
                 {charCount} / 2200 caractères
               </span>
-              {charCount > 2200 && <span className="text-red-500">⚠️ Trop long</span>}
+              {charCount > 2200 && <span className="text-red-500 inline-flex items-center gap-1"><AlertTriangle size={12} aria-hidden />Trop long</span>}
             </div>
 
             {/* Hashtags */}
@@ -185,7 +192,7 @@ export default function CaptionGenerator({ topic, destination, slides = [], defa
                   onClick={copyHashtags}
                   className="text-xs text-[#83C5BE] hover:text-[#4a7c59] transition-colors"
                 >
-                  {copied === 'hashtags' ? '✓ Copié!' : 'Copier tous'}
+                  {copied === 'hashtags' ? <span className="inline-flex items-center gap-1"><Check size={12} aria-hidden />Copié</span> : <span className="inline-flex items-center gap-1"><Copy size={12} aria-hidden />Copier tous</span>}
                 </button>
               </div>
               <div className="flex flex-wrap gap-1">
@@ -202,8 +209,8 @@ export default function CaptionGenerator({ topic, destination, slides = [], defa
               onClick={copyAll}
               className="w-full px-4 py-2 text-sm border border-[#83C5BE] text-[#83C5BE] rounded-xl hover:bg-[#83C5BE]/10 transition-colors flex items-center justify-center gap-2"
             >
-              📋 Copier caption + hashtags
-              {copied === 'all' && <span className="text-[#4a7c59]">✓</span>}
+              <ClipboardCopy size={15} aria-hidden /> Copier caption + hashtags
+              {copied === 'all' && <Check size={14} className="text-[#4a7c59]" aria-hidden />}
             </button>
           </div>
         )}

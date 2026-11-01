@@ -13,6 +13,7 @@ interface NewsletterFormProps {
 
 export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps) {
   const [email, setEmail] = useState("");
+  const [consent, setConsent] = useState(false);
   const [honeypot, setHoneypot] = useState("");
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [message, setMessage] = useState("");
@@ -33,8 +34,10 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
       return;
     }
 
-    if (typeof window !== 'undefined' && (window as any).gtag) {
-      (window as any).gtag('event', 'newsletter_signup', { variant });
+    if (!consent) {
+      setStatus("error");
+      setMessage(cz("newsletter_error_generic", "Une erreur est survenue. Réessaie."));
+      return;
     }
 
     setStatus("loading");
@@ -42,13 +45,17 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
       const res = await fetch("/api/newsletter", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email, consent, source: `newsletter-${variant}` }),
       });
       const data = await res.json();
       if (res.ok && data.success) {
         setStatus("success");
         setMessage(cz("newsletter_success_title", "Bienvenue dans l'aventure !"));
         setEmail("");
+        setConsent(false);
+        if (typeof window !== 'undefined' && (window as any).gtag) {
+          (window as any).gtag('event', 'newsletter_signup', { variant });
+        }
       } else {
         setStatus("error");
         setMessage(data.error || cz("newsletter_error_generic", "Une erreur est survenue. Réessaie."));
@@ -103,7 +110,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md" style={{ position: 'relative' }}>
+            <form id="newsletter-form-article" onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md" style={{ position: 'relative' }}>
               <HoneypotField />
               <label htmlFor="newsletter-email-article" className="sr-only">{cz("newsletter_email_label", "Ton adresse email")}</label>
               <input
@@ -127,8 +134,12 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
             <div className="flex items-start gap-2.5 max-w-md">
               <input
                 id="newsletter-rgpd-article"
+                form="newsletter-form-article"
                 type="checkbox"
+                name="consent"
                 required
+                checked={consent}
+                onChange={(e) => setConsent(e.target.checked)}
                 className="mt-1 h-4 w-4 rounded border-white/20 bg-[#FAF7F2]/10 text-eucalyptus focus:ring-teal cursor-pointer"
               />
               <label htmlFor="newsletter-rgpd-article" className="text-xs text-white/60 leading-normal">
@@ -156,7 +167,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center" style={{ position: 'relative' }}>
+            <form id="newsletter-form-inline" onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center" style={{ position: 'relative' }}>
               <HoneypotField />
               <label htmlFor="newsletter-email-inline" className="sr-only">{cz("newsletter_email_label", "Ton adresse email")}</label>
               <input
@@ -180,8 +191,12 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
             <div className="flex items-start gap-2.5">
               <input
                 id="newsletter-rgpd-inline"
+                form="newsletter-form-inline"
                 type="checkbox"
+                name="consent"
                 required
+                checked={consent}
+                onChange={(e) => setConsent(e.target.checked)}
                 className="mt-1 h-4 w-4 rounded border-white/20 bg-[#FAF7F2]/10 text-eucalyptus focus:ring-teal cursor-pointer"
               />
               <label htmlFor="newsletter-rgpd-inline" className="text-xs text-white/60 leading-normal">
@@ -219,7 +234,7 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto" style={{ position: 'relative' }}>
+            <form id="newsletter-form-blog" onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 justify-center max-w-md mx-auto" style={{ position: 'relative' }}>
               <HoneypotField />
               <label htmlFor="newsletter-email-blog" className="sr-only">{cz("newsletter_email_label", "Ton adresse email")}</label>
               <input
@@ -243,8 +258,12 @@ export default function NewsletterForm({ variant = "blog" }: NewsletterFormProps
             <div className="flex items-start gap-2.5 max-w-md mx-auto text-left">
               <input
                 id="newsletter-rgpd-blog"
+                form="newsletter-form-blog"
                 type="checkbox"
+                name="consent"
                 required
+                checked={consent}
+                onChange={(e) => setConsent(e.target.checked)}
                 className="mt-1 h-4 w-4 rounded border-white/20 bg-[#FAF7F2]/10 text-eucalyptus focus:ring-teal cursor-pointer"
               />
               <label htmlFor="newsletter-rgpd-blog" className="text-xs text-white/60 leading-normal">

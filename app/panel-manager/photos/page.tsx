@@ -114,29 +114,35 @@ export default function ImportPhotosPage() {
 
   const lancerReconstitutionIA = useCallback(async () => {
     setGenerationEnCours(true);
-    setMessage('Analyse des photos et génération du carnet par l\'IA…');
+    setMessage('Préparation du carnet…');
     try {
       const res = await fetch('/api/cms/import-trip', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           destination,
-          photosCount: bilan?.importes || 50,
-          notes: 'Photos importées depuis Google Photos',
+          // Aucune note vécue ici : cet écran n'en saisit pas. La route en
+          // déduit donc un squelette à remplir, non un carnet rédigé. Lui
+          // passer un texte de remplissage ferait prendre ce texte pour du
+          // vécu, et l'IA rédigerait un carnet à partir de rien.
         }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || 'Génération échouée');
       setCarnetGenerer(data.article);
       setEtat('fini');
-      setMessage('✓ Carnet de route généré avec succès dans les brouillons !');
+      setMessage(
+        data.squelette
+          ? 'Squelette créé. Il attend tes notes de terrain dans les brouillons — rien n’est en ligne.'
+          : 'Carnet créé dans les brouillons — rien n’est en ligne.'
+      );
     } catch (e: any) {
       setEtat('erreur');
       setMessage(e?.message || 'Erreur lors de la génération');
     } finally {
       setGenerationEnCours(false);
     }
-  }, [destination, bilan]);
+  }, [destination]);
 
   return (
     <div className="max-w-2xl mx-auto py-10 px-6">
@@ -188,7 +194,7 @@ export default function ImportPhotosPage() {
           disabled={occupe || generationEnCours || !destination}
           className="rounded-full bg-mahogany px-6 py-3 text-sm font-semibold text-white hover:bg-mahogany/90 disabled:opacity-50 transition-all flex items-center gap-2"
         >
-          {generationEnCours ? '✨ Génération IA…' : '✨ Reconstituer Carnet & Carte avec l\'IA'}
+          {generationEnCours ? 'Génération IA…' : 'Reconstituer Carnet & Carte avec l\'IA'}
         </button>
       </div>
 
@@ -211,7 +217,7 @@ export default function ImportPhotosPage() {
       {carnetGenerer && (
         <div className="mt-6 rounded-xl border border-emerald-200 bg-emerald-50/60 p-4 text-sm">
           <p className="font-semibold text-emerald-900">
-            📖 Carnet généré : {carnetGenerer.title}
+            Carnet généré : {carnetGenerer.title}
           </p>
           <p className="mt-1 text-xs text-emerald-800">
             Slug : <code>{carnetGenerer.slug}</code>

@@ -352,6 +352,953 @@
   - **Scripts d'installation & de reverse proxy** : mise à jour de `INSTALLER_SUR_TELEPHONE.bat` sur le Bureau (APK 40.5 Mo) avec reverse tunnel automatique (ports 8440, 8470, 3000) et script dédié `CONNECTER_PIXEL8PRO_AU_BRAIN.bat`. Déploiement dans `ci-artifacts/app-debug.apk` pour téléchargement direct sans fil depuis la console locale (port 8480).
   - **Vérifications** : tests unitaires JVM Kotlin (`StudioTabsTest`) verts ; compilation Gradle `assembleDebug` réussie (APK 40.5 Mo) ; `npm run preflight` 13/13 vert ; `tsc` 0 erreur.
 
+## [2026-11-01 unvicies] — Le contenu « incohérent » était un résidu de coaching exposé par l'API
+
+**Constat.** La demande portait sur « trop de contenu incohérent ». J'ai cherché du contenu mal écrit. J'ai trouvé autre chose : une **fuite de données**.
+
+La table `temoignages` — sans le préfixe `cms_` — contient 5 témoignages de **coaching professionnel** attribués à une dénommée « Monica » : Directrice Marketing, DRH, *Philosophical Counselling*. Le site est un média de **slow travel**. Ce contenu appartient à un ancien projet.
+
+Ces 5 lignes sont **lisibles anonymement** : `GET /rest/v1/temoignages` avec la clé publiable renvoie HTTP 200 et 5 lignes.
+
+**Pourquoi c'était invisible.** Aucun composant ne lit cette table — ni `app/`, ni `components/`, ni `lib/`, ni le mobile. Les seules occurrences de ce nom sont dans `docs/` et ce CHANGELOG. La page `/temoignages` lit `cms_testimonials`, l'unique source (`lib/testimonials.ts`). La table n'a **aucune migration de création** : elle a été créée à la main. Et la migration `20261018160000` a désactivé les 5 faux témoignages de `cms_testimonials` — en **oubliant cette table homonyme**. Le nom presque identique est précisément ce qui a permis l'oubli.
+
+**Corrigé — sans rien supprimer.**
+
+- `supabase/migrations/20261101110000_fermer_lecture_publique_temoignages_orpheline.sql` : retire la seule politique `Public read temoignages` (SELECT, `USING visible = true`). La politique `Service role full access temoignages` est **conservée** — elle est déjà bornée à `auth.role() = 'service_role'`, elle ne fuit rien. Aucune ligne n'est supprimée, la table n'est ni renommée ni supprimée.
+
+**Vérifié par exécution, pas par relecture.** Postgres 15 en conteneur, état de production reconstitué (table, 5 lignes, 2 politiques, GRANT `anon`) :
+
+| Contrôle | Avant | Après |
+|---|---|---|
+| `anon` lit la table | **5 lignes** | **0** (bloqué) |
+| `service_role` lit la table | 5 | **5** (intact) |
+| Lignes en base | 5 | **5** (rien supprimé) |
+
+La migration est idempotente (3 applications, aucune erreur). Son garde-fou **mord** : privée de son `DROP`, elle échoue (`Lecture publique encore ouverte sur temoignages : 1 politique(s)`) au lieu de passer en silence, et la transaction est annulée.
+
+**Deux décisions de conception.**
+
+1. **Le critère du garde-fou porte sur `qual`, pas sur `roles`.** La politique conservée est déclarée `to public` mais exige `auth.role() = 'service_role'`. Juger sur `roles` l'aurait déclarée ouverte à tort et fait échouer la migration — constaté en test, corrigé.
+2. **`ai_context` n'est PAS touchée**, alors qu'elle est elle aussi lisible anonymement (35 clés). Vérification faite : ce n'est **pas** le même cas que `temoignages`. La table a une migration (`20260903191920`) qui écrit « RLS : lecture publique (les agents lisent) » — la lecture publique est **voulue**, c'est le fil conducteur que Claude, Gemini, Jules et le Brain II lisent en début de session. Aucun code du dépôt ne la lit, mais les agents externes si. Le seul défaut réel (un secret) a été mesuré : la valeur de `glossary_maintenance_bypass` est **tronquée par conception** (elle documente qu'un préfixe suffit, et contient `...`), et **ne contient pas** le vrai jeton — comparaison programmatique, résultat `False`. Décision : ne pas la fermer, sous peine de casser les agents.
+
+**Angle mort signalé, non corrigé ici.** `check:cms-drift` ne scanne que les tables **référencées par le code**. `temoignages` ne l'étant pas, aucun garde-fou ne pouvait la voir — ni le sien, ni `check:cms-migrations`. Les autres tables exposées sans lecteur sont détaillées plus bas (`ai_context`, `booking_slots`, `travel_guides`, `cms_home_content_zones`, `destination_pois`, `cmsblogposts`, `guides_pdf`, `cms_settings`). À traiter une par une, après vérification de leurs lecteurs — jamais en bloc.
+
+**Trois fausses pistes écartées, pour ne pas rouvrir de tâches inutiles.**
+
+- Le « constat G » (« six articles publiés portent la date 2026-05-18 ») est **périmé** : ces 6 slugs sont `published=false`, et sur 56 articles de `cms_blog_posts`, **55 sont en brouillon**.
+- `/temoignages` affiche un **message d'attente honnête** : les 5 lignes de `cms_testimonials` sont `is_active=false`. Le code ne fabrique pas de faux témoignage — conforme à l'incident du 19/08.
+- `/blog/page-a61408d15a1f3932` ressemblait à un lien mort : c'est un **chunk JavaScript interne** de Next.js (`/_next/static/chunks/app/blog/page-<hash>.js`).
+
+**`ai_context` : le geste symétrique a été écarté, sur preuve.** L'analyse initiale la présentait comme « même cas que `temoignages` — table manuelle, sans lecteur, lisible anonymement ». C'est **faux sur les trois points** :
+
+| | `temoignages` | `ai_context` |
+|---|---|---|
+| Migration de création | **aucune** (manuelle) | **oui** — `20260903191920_ai_context_table.sql` |
+| Politique de lecture | jamais voulue | **voulue** : la migration écrit « RLS : lecture publique (les agents lisent) » |
+| Lecteurs | aucun, nulle part | **les agents IA externes** (Claude, Gemini, Jules, Brain II), clé anon |
+
+Le `COMMENT` de la table le dit : « fil conducteur IA — lu au début de chaque session ». La fermer **casserait l'usage pour lequel elle existe**. Le seul défaut réel — un risque de secret — a été mesuré : la valeur de `glossary_maintenance_bypass` est **tronquée par conception** (« 10 caractères de préfixe », contient `...`), et **ne contient pas** le vrai jeton (comparaison programmatique : `False`). Aucune des 35 clés ne contient de secret exploitable. **Décision : ne pas toucher `ai_context`.**
+
+**Nouveau résidu trouvé, signalé et non traité : `booking_slots`.** 8 créneaux de réservation, types `coaching` (3), `discovery` (4), `enterprise` (1), du 22 au 29 juin 2026 — **encore le projet de coaching**, pas du slow travel. Comme `temoignages` : aucune migration de création, aucun lecteur, et une politique `Public read available slots` qui les expose anonymement (`USING status = 'available' AND slot_date >= ...`). Non touché faute d'accord explicite : c'est un geste de même nature que #799, à approuver séparément.
+
+**Cinq autres tables exposées sans lecteur ni migration**, contenu vérifié cohérent cette fois : `cms_home_content_zones` (6 zones d'accueil, on-brand), `destination_pois` (6 POI de Madère, on-brand), `cmsblogposts` (3 brouillons de Petrovac, on-brand), `guides_pdf` (vide), `cms_settings` (43 lignes, résiduel mais inoffensif). À traiter une par une, pas en bloc.
+
+## [2026-10-30 vicies] — Le blocage de migration n'était pas un retard, c'était un angle mort
+
+**Constat.** La consigne était de traiter « le blocage de migration ». J'ai d'abord mesuré, plutôt que de supposer. Résultat contre-intuitif : **0 migration en retard**. Les 221 fichiers du dépôt sont tous appliqués en base. Le blocage n'est pas un retard accumulé — c'est un **défaut de processus**.
+
+Aucun workflow n'exécute `supabase db push` (vérifié : les seules occurrences de « migration » dans `.github/workflows/` sont des commentaires). Fusionner une PR qui porte une migration ne l'applique donc **pas**. Il faut un geste humain, et **rien ne signalait qu'il manquait**.
+
+C'est la cause commune de dizaines de tâches du registre en `waiting_validation`, toutes avec la même mention « MANQUE : appliquer la migration … ». Une même cause, répétée, invisible pour la CI.
+
+`check:cms-migrations` ne pouvait pas la voir : il lit les `from('<table>')` du code et les fichiers du dépôt, jamais la base.
+
+**Corrigé.**
+
+- `supabase/migrations/20261031120000_exposer_migrations_appliquees.sql` : vue `public.migrations_appliquees` exposant le registre réel (`version`, `name`). `supabase_migrations.schema_migrations` n'est pas exposée par PostgREST (PGRST106 : seuls `public` et `graphql_public` le sont), donc la CI ne pouvait pas la lire — pourtant elle possède déjà `SUPABASE_SERVICE_ROLE_KEY`.
+- `scripts/check-cms-migrations-appliquees.mjs` : compare `origin/main` au registre réel. Toute migration de la référence absente de la base → exit 1. Câblé dans `garde-fous.yml` et dans le passage quotidien `controles-base-quotidien.yml`.
+- 9 tests (version de fichier, comparaison, cas limites).
+
+**Trois décisions de conception, chacune contre un faux positif.**
+
+1. **La référence est `origin/main`, pas le répertoire de travail.** Sur une PR, le répertoire *est* la branche de la PR : sa migration, absente de `main`, serait comptée comme non appliquée et la PR échouerait à tort pour son propre travail. Un contrôle qui crie sur les PR légitimes finit par être ignoré.
+2. **Référence introuvable → exit 2 (« ignoré »), jamais un repli silencieux** sur le disque, qui produirait le faux rouge ci-dessus.
+3. **`created_by` écarté de la vue.** Cette colonne contient des adresses e-mail (relevé en base : celle du propriétaire, plus `openhands`). La publier aurait exposé l'adresse du propriétaire via PostgREST — le défaut même corrigé sur la route Google le 30/10.
+
+**Fait durable, mesuré.** Une requête DDL passée par l'API Management **n'écrit rien** dans `supabase_migrations.schema_migrations` (testé : 0 ligne après un `create table`). Appliquer une migration par l'API exige donc d'**inscrire la version soi-même** — sinon le contrôle la croira absente et le restera. C'est voulu : mieux vaut une alerte qu'un faux « tout est appliqué ». Ce geste est écrit dans le message d'échec du contrôle.
+
+**Preuve de morsure.** Une migration présente dans la référence et absente de la base fait échouer le contrôle (exit 1, avec le nom du fichier), puis retour au vert après nettoyage. Le cas legacy `02_enable_rls.sql` (version à 2 chiffres) est couvert par un test : exiger 14 chiffres le faisait disparaître des **deux** côtés, ce qui faussait le compte sans rien signaler.
+
+**Mesuré.** 24/24 garde-fous. 221 migrations de `origin/main`, toutes appliquées. 1 186 tests au total.
+
+## [2026-10-30 octodecies] — Le garde-fou C2PA ne lisait pas la base : une colonne TABLEAU était passée au travers
+
+**Constat.** En vérifiant si `check:cms-ai-images` couvrait le cas des colonnes de contenu, j'ai
+trouvé la cause racine des purges incomplètes : **le contrôle ne lit que les fichiers de
+`public/` et le code**. Il ne voit jamais la base. Les purges des 30/10 (migrations
+`20261030180000` et `20261030200000`) visaient les colonnes d'**image** ; j'avais moi-même
+complété sur `content` / `hero` / `article_revisions.content`. Mon balayage manuel excluait les
+colonnes de type **tableau** (`text[]`) — et c'est exactement là que se cachait la dernière
+référence.
+
+| Surface | Type | Avant | Après |
+|---|---|---|---|
+| `destinations.gallery_images` (Madère) | `text[]` | 4 visuels générés | 0 (entrées retirées) |
+| `cms_blog_posts.content` | `text` | 3 URL générées | `/og-default.jpg` |
+| `cms_pillar_pages.hero` (Madère) | `text` | 1 URL générée | `/og-default.jpg` |
+| `article_revisions.content` (rev 22) | `text` | URL générées | `/og-default.jpg` |
+
+**Corrigé.**
+
+- `supabase/migrations/20261030210000_purge_images_ia_contenus.sql` — purge complémentaire,
+  appliquée en transaction. La vérification interne balaie désormais texte, json **et tableaux**.
+- `scripts/check-cms-ai-images-db.mjs` — **nouveau garde-fou** : lit la base, pas les fichiers.
+  Il énumère le schéma exposé par PostgREST (racine OpenAPI, 84 objets, 564 colonnes) et balaie
+  toute colonne texte, json et tableau. Aucune liste de colonnes à maintenir : une colonne
+  ajoutée demain est couverte sans toucher au script. Exige une clé **secrète** (la racine
+  OpenAPI la refuse aux clés publiables, et la RLS masque les brouillons — or c'est là que se
+  cachent les références non publiées) ; sans elle, exit 2 (« ignoré », jamais « réussi »).
+- Câblé dans `package.json`, `scripts/garde-fous.mjs` (`needsDb: true`) et
+  `.github/workflows/garde-fous.yml` (derrière `if: steps.secrets.outputs.presents`).
+- `__tests__/scripts/check-cms-ai-images-db.test.ts` — 9 tests sur les fonctions pures :
+  exhaustivité des colonnes, couverture des tableaux, détection.
+
+**Preuve de morsure.** Le nouveau contrôle a trouvé `destinations.gallery_images` — une
+référence que mon balayage manuel avait manquée. Ce n'est pas un garde-fou décoratif : il a
+détecté un défaut réel dès sa première exécution.
+
+**Mesuré.** Garde-fous **23/23** verts. Le garde-fou balaie **564 colonnes, 36 638 valeurs** :
+0 référence IA. Texte intact (article `foret-fanal` : 6 456 caractères, « Paul da Serra » et les
+levadas présents ; révision 22 : 5 840 caractères).
+
+## [2026-10-30 septendecies] — Clore la dette des visuels IA : 6 références dans le code, 10 lignes en base
+
+**Constat.** L'entrée précédente signalait la dette sans la traiter : « les 5 images Madère IA
+sont encore servies publiquement et citées par `lib/cms-vault-spots.ts` ». En reprenant le
+dossier, j'ai mesuré son ampleur réelle — plus large qu'annoncée :
+
+| Surface | Avant | Après |
+|---|---|---|
+| `app/destinations/madere/{ponta-do-sol,porto-moniz,achadas-da-cruz}/page.tsx` | `heroImage` + `og:image` → URL IA | `/og-default.jpg` (convention des 10 pages sœurs) |
+| `lib/cms-templates.ts` (l. 390, 505) | `imageUrl`/`url` → `madere/achadas_da_cruz.jpg` | photo de terrain Roumanie (déjà utilisée par #790) |
+| `lib/cms-vault-spots.ts` (l. 575) | image Markdown → `madere/fanal_foret.jpg` | illustration retirée, texte intact |
+| `heldonica-mobile/…/knowledge_vault.json` | même image Markdown | illustration retirée, JSON valide (5 entrées) |
+| **Base** : `cms_blog_posts` (7), `destinations` (3), `cms_editable_zones` (1) | URL `madere/` en `featured_image`/`og_image`/`hero_unsplash_url` | migration `20261030200000` → `/og-default.jpg` |
+
+Les lignes en base étaient **toutes en brouillon** (`published=false`, `status='draft'` ou
+`'coming_soon'`) : rien n'était affiché, mais republier une fiche aurait ressorti une image
+fabriquée. `20261018120000_reconciliation_images.sql` les avait posées ; la purge du 18/10
+(`…180000`) ne visait que le Monténégro et ne les voyait pas.
+
+**Le trou qui les avait laissées passer.** `check:cms-ai-images` ne lisait que les octets de
+`public/`. Une image générée rangée dans le bucket Supabase — dont les octets ne sont pas
+dans le dépôt — échappait donc à tout contrôle, alors que son URL, elle, est dans le code.
+Le script refuse désormais aussi les références de code aux cinq objets générés connus
+(`app`, `components`, `lib`, `heldonica-mobile`).
+
+**Prouvé mordant par mutation** : réinjecter une URL IA dans `ponta-do-sol/page.tsx` fait
+échouer le contrôle (exit 1, fichier et objet nommés) ; la restauration repasse à exit 0.
+**5 tests** ajoutés dans `__tests__/scripts/check-cms-ai-images.test.ts`, dont « le dépôt
+lui-même est propre ».
+
+**Migration validée par exécution, pas par relecture.** Postgres 15 jetable : schéma
+reproduit, 7+3+1 lignes fautives injectées, migration exécutée (exit 0, aucun
+avertissement), état après = **0 / 0 / 0** et la photo de terrain intacte ; rejouée, elle
+reste idempotente. Aucun `DELETE` : seule la colonne d'image change.
+
+**Vérifié :** `npm run garde-fous` → 18/22 (4 ignorés faute de clés) ; `tsc` exit 0 ;
+`vitest` vert ; `check:image-paths` 20/20 ; plus aucune référence de code aux cinq objets.
+
+**Reste à faire (hors de ma portée, aucun accès écriture Storage) :** les octets des 5
+fichiers IA sont **toujours servis** sous `media/destinations/madere/` — les supprimer du
+bucket demande un accès que ce poste n'a pas. La migration ne les rend plus référencés, mais
+une URL devinée répondrait encore 200.
+
+## [2026-10-30 sexdecies] — Réparer la CI rouge : le garde-fou C2PA n'était câblé nulle part
+
+**Constat.** `main` était **en échec** depuis la fusion de #790 (`25165f4`), et l'entrée
+précédente ne l'a pas vu : elle annonçait « CI verte » alors que le workflow « Garde-fous »
+échouait. La preuve, sur les deux commits concernés :
+
+```
+Garde-fous  25165f44  completed  failure
+Garde-fous  f10d8c9f  completed  failure
+```
+
+Quatre tests cassés, tous des conséquences directes de #790 :
+
+- **`check:cms-ai-images` n'était câblé dans aucun workflow.** Le contrôle existait dans
+  `CHECKS` et dans `package.json`, mais aucune étape CI ne l'appelait — il était vert en
+  local et **absent en production de contrôle**. C'est exactement le trou que le test
+  « câble dans la CI tout contrôle de CHECKS qui ne dépend pas de la base » avait été écrit
+  pour attraper. Il a fait son travail ; personne ne l'a écouté.
+- **`CHECKS` est passé de 21 à 22** entrées, sans mise à jour de l'assertion de longueur.
+- **L'album Madère a été retiré** de `lib/cms-photo-albums.ts` — à raison, mais deux tests
+  l'ignoraient encore.
+
+**Ce qui a été vérifié avant de toucher aux tests** (ne pas corriger un test pour faire
+taire une régression réelle) : les 5 visuels Madère du bucket `media` portent **tous** un
+manifeste C2PA de générateur (`c2pa`, `trainedalgorithmicmedia`, `digitalsourcetype`,
+`google c2pa`) — mesuré en les téléchargeant. Aucune photo de terrain madérienne n'existe
+dans le dépôt. **Le code avait raison ; le test était périmé.** Les assertions sont donc
+corrigées en documentant le pourquoi, pas en restaurant l'album.
+
+**Corrections :**
+
+| Fichier | Changement |
+|---|---|
+| `.github/workflows/garde-fous.yml` | Étape « Images générées dans public/ (C2PA) » — le contrôle tourne enfin en CI |
+| `__tests__/scripts/garde-fous-outillage.test.ts` | 21 → 22 contrôles |
+| `__tests__/lib/cms-photo-albums.test.ts` | Album Madère : attendu **absent** (raison C2PA) ; recherche « Fanal » → 0 résultat assumé ; « Cijevna » remplace « Fanal » comme cas positif |
+
+**Vérifié :** `npm run garde-fous` → **22/22** (18 exécutés, 4 ignorés faute de clés) ;
+`vitest` 1153 tests verts ; `tsc` exit 0.
+
+**Dette signalée, non traitée ici :** les 5 images Madère IA sont **encore servies
+publiquement** (`storage.objects` non purgé) et citées par `lib/cms-vault-spots.ts` — même
+traitement que les 4 du Monténégro, à faire dans une PR dédiée.
+
+**Complément — deux garde-fous ne voyaient pas `public/videos/`.** En vérifiant les
+capsules vidéo de terrain (`0d27b57`), j'ai constaté que les deux contrôles de médias
+s'arrêtaient à `public/images` :
+
+| Contrôle | Avant | Après |
+|---|---|---|
+| `check:cms-ai-images` | racine `public/images` | racine `public/` |
+| `check:image-paths` | regex `/images/…` | `/images/…` **et** `/videos/…` |
+
+Les 3 posters de capsule et les 6 chemins `/videos/` du code étaient donc **hors
+contrôle** : un poster fabriqué ou un `.mp4` absent seraient passés en CI. C'est la même
+famille de panne que le hero mort du 25/10 — un `<video>` sans source reste noir, en
+silence.
+
+Prouvé mordant par **preuve négative** (un fichier témoin avec marqueur C2PA injecté sous
+`public/videos/` est bien refusé ; un poster renommé inexistant fait bien échouer
+`check-image-paths`, exit 1) et par **4 tests** ajoutés dans
+`__tests__/scripts/garde-fous-outillage.test.ts`. La collecte passe de 14 à 20 chemins
+surveillés.
+
+**Vérifié :** `npm run garde-fous` → 18/22 (4 ignorés faute de clés) ; `vitest` vert ;
+les 3 posters réels sont confirmés sans marqueur C2PA ; les 3 `.mp4` portent un encodeur
+FFmpeg/`libx264` (vraies vidéos de terrain — un faux positif `veo` a été écarté : il
+provenait de données compressées, pas d'un manifeste).
+
+## [2026-10-30 quindecies] — Intégration front-end des capsules vidéo de terrain dans les sous-destinations du Monténégro
+
+Valorisation des extraits vidéo web optimisés (720p H.264 vertical 9:16) directement dans les récits de sous-destination :
+- **Évolution de `SubDestinationTemplate` (`components/SubDestinationTemplate.tsx`)** :
+  - Support de props optionnelles (`videoUrl`, `videoPoster`, `videoTitle`, `videoCaption`).
+  - Section dédiée « Instantané de terrain » entre l'esprit du lieu et les pépites, au format smartphone (max-w-sm, aspect 9/16, coins `rounded-sm`, filet `#DED5C6`).
+  - Balise `<video>` avec `autoPlay muted loop playsInline controls preload="metadata"` : zéro régression LCP (le poster porte l'image d'abord).
+- **Génération de 3 posters de couverture réels (0 IA, 0 C2PA)** :
+  - `montenegro_hotel_as_perazica_poster.jpg` (157 Ko)
+  - `montenegro_cijevna_waterfall_poster.jpg` (208 Ko)
+  - `montenegro_kayak_sveta_nedjelja_poster.jpg` (107 Ko)
+- **Affectation dans les 3 pages de sous-destination** :
+  - `petrovac-perazica` : sur le toit de l'hôtel brutaliste AS face à la mer turquoise.
+  - `podgorica-cijevna` : bouillonnement des cascades de la Cijevna dans les failles de calcaire blanc.
+  - `buljarica-lucice` : glisse en kayak matinale vers la chapelle de Sveta Nedjelja.
+
+## [2026-10-30 quaterdecies] — Réconciliation de la dérive de migration (accroche Monténégro) et purge de la bibliothèque média
+
+Résolution de la dérive détectée entre la base de production et le dépôt Git :
+- **Versionnement de la migration `20261030184500_corriger_accroche_montenegro.sql`** :
+  - Intégration du fichier dans `supabase/migrations/` et enregistrement officiel dans `supabase_migrations.schema_migrations`.
+  - Supprime toute mention résiduelle de Kotor dans `destinations.excerpt` (Monténégro et Podgorica) au profit du vécu documenté.
+- **Purge de la bibliothèque média Supabase et du stockage objet** :
+  - Suppression des 4 fiches d'images IA dans `public.cms_media` (ids 264 à 267).
+  - Suppression des 4 objets dans le bucket de stockage `storage.objects` (`stara_varos.jpg`, `moraca_millennium.jpg`, `sahat_kula.jpg`, `sipcanik_winery.jpg`).
+  - Zéro objet IA résiduel dans le bucket `media/destinations/montenegro/`.
+
+## [2026-10-30 terdecies] — Purge intégrale des images IA (fichiers, fallbacks, albums et templates) et nouveau garde-fou C2PA
+
+Application stricte de la Règle n°1 d'Heldonica (« On n'invente rien ») sur l'ensemble du dépôt et des surfaces de repli.
+Suite à l'audit conjoint Antigravity & OpenHands, élimination définitive de tous les visuels portant le manifeste C2PA et assainissement des références résiduelles dans le code.
+
+- **Suppression physique de 4 fichiers IA du dépôt** :
+  - `public/images/destinations/montenegro/moraca_millennium.jpg` (1 023 Ko)
+  - `public/images/destinations/montenegro/sahat_kula.jpg` (1 137 Ko)
+  - `public/images/destinations/montenegro/sipcanik_winery.jpg` (1 020 Ko)
+  - `public/images/destinations/montenegro/stara_varos.jpg` (1 127 Ko)
+  Aucune image générée ne subsiste dans `public/images/` (validé par `check:cms-ai-images`).
+- **Correction des fallbacks d'accueil (`lib/home-data.ts`, `components/HomeClient.tsx`)** :
+  - Remplacement de l'image de repli `sahat_kula.jpg` par la vraie photo de terrain `petrovac_mer.jpg`.
+  - Remplacement de l'accroche fictive (« Fjord de Kotor, ruelles anciennes et Adriatique hors des radars ») par le vécu réel (« Petrovac, les criques de Perazića Do et la vieille ville de Podgorica »).
+- **Assainissement des albums de preuves (`lib/cms-photo-albums.ts`)** :
+  - Retrait de la fausse attribution Nikon D7200 sur `moraca_millennium.jpg` et remplacement par les vraies photos de Stara Varoš et des chutes de la Cijevna (`podgorica_stara_varos.jpg`, `podgorica_cijevna_chutes.jpg`).
+  - Retrait de l'album `madere-automne-2024` qui référençait les 5 images générées de Madère (conforme à la mise en « Bientôt » de Madère).
+- **Nettoyage des gabarits et articles (`lib/cms-templates.ts`, `podgorica-pepites-slow-travel-couple.mdx`)** :
+  - Remplacement des placeholders de templates par les photos réelles de Roumanie et du Monténégro.
+  - Mise à jour des 5 chemins d'images dans l'article MDX de Podgorica vers les photos de terrain authentiques.
+  - Mise à jour des fallbacks dans `DestinationPage.tsx` et `kotor/page.tsx`.
+- **Migration SQL idempotente (`supabase/migrations/20261030180000_purge_refs_images_generees.sql`)** :
+  - Colmate toute réintroduction possible par d'anciennes migrations sur les colonnes `featured_image` et `hero_unsplash_url` de la table `destinations`.
+- **Nouveau garde-fou CI (`scripts/check-cms-ai-images.mjs`)** :
+  - Scanne automatiquement `public/images/` à la recherche des marqueurs C2PA (`c2pa`, `trainedalgorithmicmedia`, `digitalsourcetype`, `google c2pa`).
+  - Intégré dans `scripts/garde-fous.mjs` (preflight) et dans `package.json` (`npm run check:cms-ai-images`).
+
+## [2026-10-30 duodecies] — Cohérence éditoriale : le garde-fou regardait à côté du pilier
+
+`check-content-coherence` scannait `cms_editable_zones`, `cms_home_destinations`,
+`cms_sub_destinations` et `cms_guide_items` — **mais ni `cms_pillar_pages`, ni
+`cms_seasons`**. Or les deux alimentent des pages publiques actives. Résultat mesuré :
+le pilier Monténégro servait « circuit » et « coup de cœur » depuis #787, et
+`cms_seasons` en portait deux autres depuis des semaines (Monténégro, Roumanie).
+
+- **4 corrections en base**, réunies dans
+  `supabase/migrations/20261030170000_corrections_voix_montenegro_roumanie.sql`
+  (idempotentes : `replace()` + garde `LIKE`) :
+  « les circuits touristiques rapides » → « les itinéraires éclair » ;
+  « Notre coup de cœur au Monténégro » → « L'étape qui nous a le plus marqués » ;
+  « Notre coup de cœur » (saison) → « Notre saison préférée » ;
+  « sont incontournables » → « battent leur plein ».
+- **Le garde-fou étendu** : `cms_pillar_pages` (tagline, hero_subtitle, intro,
+  itinerary, budget_breakdown, faq, verdict, tested_by_heldonica, seo) et
+  `cms_seasons` (note, weather) sont désormais scannés, avec la même distinction
+  fuite active / dette inactive.
+- **Prouvé mordant** : testé contre un faux PostgREST servant deux mots bannis
+  volontaires — les deux sont signalés en `🔴` et le script sort en 1. Un garde-fou
+  qu'on n'a pas vu échouer n'est pas un garde-fou.
+
+Garde-fous 21/21 (17 exécutés).
+
+## [2026-10-30 undecies] — Monténégro : les 3 sous-destinations ont une page, plus de lien mort
+
+La migration de #787 a inséré 3 lignes dans `cms_sub_destinations` (`podgorica-cijevna`,
+`petrovac-perazica`, `buljarica-lucice`), que le pilier rend en cartes vers
+`/destinations/montenegro/<slug>`. Mais **aucune page ne servait ces slugs** : le gabarit
+`SubDestinationTemplate` vit dans un fichier `page.tsx` par sous-destination (comme
+`roumanie/brasov`), il n'existe pas de route dynamique pour eux. Les 3 cartes étaient donc
+**3 liens morts (404)** en production, mesurés.
+
+- **3 pages créées** à partir du vécu réel du pilier (itinéraire, FAQ, dossier de terrain) :
+  `app/destinations/montenegro/{podgorica-cijevna,petrovac-perazica,buljarica-lucice}/page.tsx`.
+  Contenu court — intro, 3 piliers, astuce locale — pour ne pas recopier l'itinéraire du pilier.
+- **2 mots bannis retirés du pilier en base** : « circuit » (FAQ) et « coup de cœur » (verdict),
+  remplacés par « itinéraires éclair » et « l'étape qui nous a le plus marqués ». Ils étaient
+  passés en ligne parce que `check-content-coherence` scanne `cms_editable_zones`,
+  `cms_home_destinations`, `cms_sub_destinations` et `cms_guide_items`, **mais pas
+  `cms_pillar_pages`** — angle mort à combler.
+- `scripts/cms-hardcode-baseline.json` : entrée pour les 3 pages (6 textes en dur chacune,
+  même compte que `roumanie/brasov` et `normandie/*` — le repli du gabarit).
+
+Garde-fous 21/21, `tsc` 0 erreur.
+
+## [2026-10-30 decies] — Monténégro : refonte pilier, preuves GPS de terrain (Petrovac, Perazića Do, Buljarica), assainissement IA et vidéos web
+
+Extraction et analyse certifiée de 1 636 clichés et 284 vidéos du voyage réel de fin mai 2026 (Nikon D7200 24 Mpx + Pixel 8 Pro 12 Mpx).
+1 413 photos géolocalisées avec GPS de précision, 32 spots d'arrêt documentés dans un registre opposable.
+
+- **Règle n°1 d'Heldonica respectée** : abandon de la check-list touristique sur Kotor (non visitée) et le Durmitor (non visité). Tout le contenu est recentré sur le vécu réel sans fiction.
+- **Camp de base prolongé à Petrovac** : séjour prolongé à Petrovac na Moru, exploration urbex intégrale de l'hôtel brutaliste abandonné AS à Perazića Do (street art jusqu'au dernier étage face à la mer), sentier taillé dans la roche rouge de Crvena Stijena, crique de Lučice et vaste baie sauvage de Buljarica.
+- **Étape Podgorica & Cijevna valorisée** : quartier ottoman de Stara Varoš, pont du Millénium sur la Morača, chutes et canyon calcaire de la Cijevna (Kuća Rakića), halte au belvédère panoramique de Sveti Stefan.
+- **Gastronomie locale certifiée** : table traditionnelle au Restoran Kristal à Podgorica (grand plateau de grillades balkaniques mešano meso, salade Šopska sous sa montagne de fromage blanc râpé, pintes bien fraîches de Nikšićko Pivo).
+- **Logistique et routes réelles** : Citroën C-Elysée blanche immatriculée PG KJ079 louée à Podgorica ; compte-rendu honnête sur la fluidité des axes de l'intérieur face à la saturation étouffante du trafic côtier et la difficulté extrême de stationnement à Budva.
+- **Migration versionnée (20261030150000_update_montenegro_pillar_real_terrain.sql)** :
+  - Met à jour cms_pillar_pages (tagline, intro, itinéraire 6 jours avec arrêts précis, FAQ, verdict, budget) en voix Heldonica B2C stricte (on/	u, 0 ous/
+ous, 0 mot banni).
+  - Initialise les 3 sous-destinations réelles dans cms_sub_destinations (podgorica-cijevna, petrovac-perazica, uljarica-lucice).
+  - Assainit intégralement public.destinations sur montenegro ET sur la ligne non publiée montenegro-podgorica : purge définitive des 3 anciens visuels IA (sahat_kula, sipcanik_winery, stara_varos), remplacés par les vraies photos de terrain.
+- **Preuves et médias réels** :
+  - content/evidence/montenegro.json : registre des 32 spots GPS résolus avec horodatages, coordonnées exactes et boîtiers certifiés.
+  - 9 photos haute définition optimisées dans public/images/destinations/montenegro/ (0 octet IA, 0 C2PA).
+  - 3 boucles vidéo web H.264 720p optimisées (+faststart) dans public/videos/destinations/montenegro/ : kayak en mer vers la chapelle Sveta Nedjelja (3,5 Mo), rooftop brut de l'hôtel abandonné AS (4,3 Mo), et bouillonnement des chutes de la Cijevna (6,6 Mo).
+
+## [2026-10-30 nonies] — Audit C2PA de toutes les images publiées, et revue de la PR #787
+
+L'audit d'images de Madère a été généralisé : **toutes** les images référencées par
+du contenu publié ou actif (destinations publiées, articles publiés, items de guide,
+zones CMS, héros de pilier, témoignages) ont été téléchargées et inspectées à la
+recherche du manifeste C2PA que les générateurs inscrivent dans le JPEG.
+
+- **Nouveau garde-fou réutilisable** : `scripts/audit/check-c2pa.mjs` — accepte des
+  URLs ou des chemins locaux, cherche `c2pa`, `trainedAlgorithmicMedia`, `SynthID`,
+  « Google Generative AI », `digitalSourceType`. Un EXIF absent ne prouve rien ; le
+  manifeste, lui, est une preuve.
+- **Résultat** : 8 images sur 16 portent le manifeste — les 5 de Madère, et **3 du
+  bucket `montenegro/`** (`sahat_kula`, `sipcanik_winery`, `stara_varos`). Ces 3 sont
+  dans `destinations.gallery_images`, **colonne rendue par aucun composant** : elles
+  ne fuient pas. Les vraies photos du Monténégro (`1793358027881-…-hero.jpg`,
+  `podgorica/1793355515554-…-nuit.jpg`) et les 3 photos roumaines sont saines.
+- **Aucune image IA ne subsiste dans le rendu public** après la migration Madère.
+
+Revue de la **PR #787** (agent Gemini/antigravity, Monténégro) : travail de fond solide.
+- **6 photos réelles** ajoutées, **aucun manifeste C2PA** (l'inverse exact des images
+  IA). Leur EXIF a été retiré par le script de traitement — la preuve d'appareil
+  n'est donc plus dans le fichier, mais l'absence de marqueur IA est vérifiable.
+- **Migration saine** : les 19 colonnes qu'elle met à jour existent toutes, les 7
+  blocs `::jsonb` sont **valides** (revérifiés), `cms_sub_destinations` accepte les
+  colonnes de l'INSERT, et les 3 sous-destinations visées n'existent pas encore.
+- **3 réserves, à corriger par l'auteur** :
+  1. La PR est **en conflit** (`mergeable_state = dirty`, diverged, 3 commits de
+     retard sur `main`) — sur `CHANGELOG.md`. Le rebase sur `main` est nécessaire.
+  2. **Le workflow « Garde-fous » ne s'est jamais exécuté** sur la branche (0 run ;
+     seul CodeRabbit, « skipped »). Le conflit en est la cause probable. « Aucun
+     contrôle en échec » ne signifie pas « contrôles passés ».
+  3. Le CHANGELOG annonce `content/evidence/montenegro.json` (32 spots GPS) comme
+     livré : **ce fichier n'existe ni dans la branche ni dans `main`**. Soit il a été
+     oublié, soit il n'a jamais été produit.
+- **Note** : 5 des 6 photos ne sont référencées nulle part dans la migration — seule
+  `petrovac_mer.jpg` sert de héros. `budva_`, `buljarica_`, `perazica_`,
+  `podgorica_cijevna_chutes` et `podgorica_stara_varos` sont déposées mais non
+  affichées (elles seront utiles pour les sous-destinations).
+
+## [2026-10-30 octies] — Madère passe « Bientôt » : un fonds d'images intégralement généré
+
+Le propriétaire a demandé de mettre **Madère en brouillon** aussi, comme les deux
+articles incohérents de l'entrée précédente. La raison est plus lourde que prévu :
+ce n'est pas le texte qui pose problème, c'est la preuve.
+
+- **Constat (C2PA lu octet par octet sur le bucket public).** Les **cinq** images du
+  fonds `media/destinations/madere/` (`pico_do_arieiro`, `ponta_do_sol`, `porto_moniz`,
+  `achadas_da_cruz`, `fanal_foret`) portent un manifeste signé **« Created by Google
+  Generative AI »**, `digitalSourceType = trainedAlgorithmicMedia`, plus **SynthID**.
+  **Aucune photo réelle de Madère n'existe** dans le bucket. Or ces images servent à
+  prouver un vécu revendiqué en toutes lettres par le pilier (« Septembre 2025, en
+  couple, 8 jours », « on a marché dans la forêt de Fanal », « on s'est baignés à Porto
+  Moniz »). Règle #1 : on n'invente rien. Sur le héros, le panneau porte même deux
+  orthographes du même sommet (« PICO DO ARIEIRO » puis « VEREDA DO AREEIRO »).
+- **Pourquoi les drapeaux seuls ne suffisaient pas.** Madère est une **page pilier**
+  (`cms_pillar_pages`), pas un article. `DestinationPillar` ne connaît pas le mécanisme
+  « Bientôt » (contrairement à `SubDestinationTemplate`), et `buildPillarMetadata`
+  n'appliquait ni `noindex` ni image de partage par défaut : passer `is_active = false`
+  seul aurait rendu une page **HTTP 200 mais vide**, toujours indexable et toujours au
+  sitemap. Il fallait du code.
+- **Ce qui a été fait.**
+  - `lib/unpublished-pages.ts` : `'/destinations/madere'` + `'destinations-madere'`
+    ajoutés (53 → 54 entrées par liste, test mis à jour).
+  - `app/destinations/madere/page.tsx` : garde `isUnpublishedPath` → rend
+    `ComingSoonDestination` au lieu du pilier.
+  - `lib/pillar-metadata.ts` : une page pilier non publiable sort de l'index et sert
+    `DEFAULT_OG_IMAGE`, **jamais** sa `hero` (l'image IA ne part plus en `og:image`).
+  - `lib/home-data.ts` + `components/HomeClient.tsx` : la carte d'accueil Madère et
+    son image IA retirées, y compris des replis codés en dur (l'image ne peut plus
+    être servie même si Supabase est injoignable). La liste `/destinations` et le
+    pied de page étaient déjà couverts par `isUnpublishedPath`.
+  - `components/SlowTravelQuiz.tsx` : le profil « Explorateur Sensoriel » recommandait
+    `/destinations/madere` (page vide) ; il renvoie désormais vers le sur-mesure,
+    même motif que la Sicile.
+  - **Migration `20261030160000_madere_bientot.sql`** : bascule trois drapeaux —
+    `destinations.published=false/status='coming_soon'`,
+    `cms_home_destinations.is_active=false`, `cms_pillar_pages.is_active=false`.
+    **Aucun `DELETE`.** Idempotente, réversible par migration versionnée.
+- **Un quatrième point de fuite, en ligne celui-là.** Le guide « 10 pépites de Madère »
+  reste publié (aimant à contacts, lié depuis `/start`, `/guides` et le sitemap), mais sa
+  zone de partage `seo_og_image` (`cms_editable_zones`) pointait sur la même image IA.
+  Le HTML réellement servi le confirmait :
+  `<meta property="og:image" content="…/madere/pico_do_arieiro.jpg">`. Aucun composant
+  n'affiche cette zone sur la page (le héros lit `hero_bg_image`, absent → repli
+  `/og-default.jpg`). La migration la remet sur `og-default.jpg`, sans toucher au guide.
+  Le `og:image` Madère ne subsiste donc nulle part dans le rendu public.
+- **Non fait ici** : la migration n'est pas appliquée en production (aucun accès DDL
+  depuis ce poste). Le propriétaire l'applique. En attendant, le garde `ComingSoon`
+  côté page est déjà effectif au prochain déploiement, car il lit
+  `lib/unpublished-pages.ts` — la carte d'accueil, elle, attend la migration.
+
+## [2026-10-30 septies] — Deux articles incohérents repassés en brouillon
+
+Le propriétaire a demandé de retirer du site les articles incohérents, **sans rien
+supprimer** : mise en brouillon, et conservation du carnet de terrain Podgorica.
+
+- **Constat (mesure sur le HTML réellement servi, 2026-10-30).** Sur les trois seuls
+  articles publiés, deux portaient des fautes visibles : `bacalhau-gomes-sa-recette`
+  (« déssalé », « éffóchées », « crème fraiche », « Island ») et
+  `poncha-recette-authentique` (« madeiréen », « sucrde », plus un pronom « nous »
+  sujet, banni par le guide de voix). `podgorica-capitale-oubliee-montenegro` est un
+  carnet adossé à un vécu réel : **conservé publié**.
+- **Migration `20261030120000_depublier_articles_incoherents.sql`** : bascule
+  `published = false, status = 'draft'` sur les deux slugs, `published_at` laissé
+  intact (historique de première mise en ligne). **Aucun `DELETE`** — le contenu reste
+  éditable au CMS. Idempotente ; retour arrière par republication.
+- **Vérifié après application** : `cms_blog_posts` = **56 lignes avant comme après**
+  (aucune perte), **1 seul article publié** (Podgorica), 55 brouillons. En ligne :
+  `/blog/bacalhau-gomes-sa-recette` et `/blog/poncha-recette-authentique` → **HTTP 404**,
+  `/blog/podgorica-capitale-oubliee-montenegro` → **HTTP 200**, `/blog` ne liste plus
+  que Podgorica. Le sitemap reste périmé jusqu'au prochain déploiement (généré au
+  build, `revalidate` non explicite sur `app/sitemap.ts`).
+- **À suivre (non traité ici)** : `/a-propos` affiche « 0 Carnets publiés » alors qu'un
+  article reste publié. Les zones CMS `stat_*_value` (7 / 8 / 4) sont `is_active = false`
+  et le bloc rendu vient du code (`app/a-propos/page.tsx`, `STATS`). L'écart entre la
+  valeur en base et le rendu mérite une vérification dédiée.
+- **Audit d'images en ligne — vérification indépendante.** Un rapport d'audit a été
+  annoncé (C2PA sur le fonds Madère, lots `batch-*` sans EXIF, og:image générique).
+  **Confirmé** ici : le manifeste C2PA est présent sur les 5 images Madère du bucket
+  (`Created by Google Generative AI`, `trainedAlgorithmicMedia`, SynthID), et les lots
+  `batch-1778535464596-3.jpg` (Suisse) / `batch-1778535469099-7.jpg` (Bucarest) n'ont
+  **aucun EXIF**. En revanche, les fichiers `rapport-coherence-en-ligne.md`,
+  `scripts/audit-ligne.mjs` et `scripts/audit-c2pa.mjs` **n'existent pas** dans ce
+  dépôt : les constats ne sont pas reproductibles en l'état.
+
+## [2026-10-30 quinquies] — Connexion Google : un refus redevient diagnosticable
+
+`verifierJetonGoogle` avalait la raison du refus de Google. Son commentaire annonçait
+« Détail utile en journal » — mais le `catch` ne journalisait **rien** : « Wrong recipient »
+(audience erronée, cause la plus probable d'un bouton qui refuse), « Token used too late »
+et « Invalid signature » étaient indistinguables, y compris dans les journaux Vercel. C'est
+le point laissé ouvert par la session précédente, non mesurable depuis l'extérieur.
+
+- **`lib/cms-google-signin.ts`** : le refus est désormais classé (`audience`, `expiration`,
+  `jeton illisible`, `inconnu`) et journalisé en `console.error`. La classification n'est pas
+  un confort : `google-auth-library` glisse le jeton brut dans certains messages d'erreur
+  (`Invalid token signature: <jeton>`, `Wrong number of segments in token: <jeton>`).
+  Journaliser le message tel quel aurait déposé un jeton d'identité vivant hors du dépôt
+  (règle #6). On ne reprend donc jamais le message, seulement sa catégorie.
+- **Tests** : 4 cas de classification + 1 test qui vérifie que le jeton n'apparaît pas dans
+  la trace journalisée. 18/18 sur les deux fichiers Google.
+
+**Vérifié** : garde-fous 17/21 (4 ignorés faute d'identifiants Supabase sur ce poste), tsc 0
+erreur, vitest vert. La raison d'un échec du bouton sera lisible dans les journaux Vercel
+sans jamais y laisser le jeton.
+
+## [2026-10-30 quater] — Keystore de release : documentation vérifiée
+
+Le `README` mobile annonçait encore un « repli automatique sur le keystore de debug versionné »
+pour signer une release. **C'est faux depuis le 2026-10-20** : `app/build.gradle.kts` échoue
+désormais si aucun keystore de release n'est fourni, précisément parce que le keystore de debug
+est **public** (dépôt ouvert). Le commentaire du build le disait, pas le README. Corrigé.
+
+- **`heldonica-mobile/README.md`** : la signature de release décrit la réalité (échec sans
+  keystore, `-PallowUnsignedRelease` pour un build de validation sans clé).
+- **`heldonica-mobile/keystore/README.md`** (nouveau) : la marche à suivre pour créer le keystore
+  de release, relever le SHA-1 exigé par le client OAuth Android, et poser les secrets de CI
+  (`RELEASE_KEYSTORE_BASE64` et consorts).
+
+**Empreinte du keystore de debug** (lue dans le fichier versionné) : SHA-256
+`15:71:BD:5C:CE:90:FF:94:32:79:C7:D2:D6:80:88:5B:0C:00:84:4E:CE:B2:97:CC:45:39:06:EB:DD:C1:02:4F`.
+C'est bien celle citée par le commentaire du build comme ayant signé les 7 APK publiés : le risque
+est réel, pas théorique.
+
+**Vérifié** : les commandes du guide ont été exécutées sur un keystore de test jetable — création,
+extraction du SHA-1 et du SHA-256, encodage base64, aller-retour octet pour octet. Garde-fous
+21/21, dont « Signature APK (pas de clé de debug publique) ».
+
+## [2026-10-30 bis] — Connexion Google au CMS : le client web
+
+La route `POST /api/cms/auth/google` existait, testée, mais **aucun client ne l'appelait** :
+en production elle répondait `{"configure":false}` puis 503. Cette entrée branche le client web
+et lève le blocage CSP qui l'aurait rendu muet.
+
+- **CSP ouverte** (`next.config.js`) : `accounts.google.com` ajouté à `script-src`, `frame-src`
+  (le bouton GIS est rendu dans une iframe) et `connect-src` (rafraîchissement du jeton). Sans
+  ces trois entrées, le script était bloqué **en silence** — la panne exacte que GA4 a connue
+  et qui est déjà commentée dans ce même fichier.
+- **`GET /api/cms/auth/google`** expose désormais `clientId` (public par nature, il figure dans
+  toute page qui charge le script). Tant que les variables manquent, `configure` reste `false`
+  et aucun client ID n'est envoyé.
+- **`app/panel-manager/CmsAdminClient.tsx`** : bouton « Se connecter avec Google » au-dessus du
+  champ mot de passe, séparé par un « ou ». Le script GIS n'est chargé que si le serveur annonce
+  `configure: true` — sans les variables, l'écran reste strictement celui d'avant. Le jeton est
+  vérifié côté serveur (signature, audience, expiration, adresse autorisée) : le navigateur n'est
+  jamais cru sur parole. `CMS_PASSWORD` reste la voie de secours.
+- **Tests** : `__tests__/api/cms-auth-google.test.ts` appelle la vraie route `GET` (3 cas :
+  non configuré, configuré, repli sur le client Photos). Mutation vérifiée — neutraliser
+  `clientId` fait échouer 2 des 3 cas.
+
+**Reste à faire (action humaine, hors dépôt)** : créer le client OAuth « Web » dans Google Cloud
+Console (origine autorisée `https://www.heldonica.fr`), puis poser sur Vercel
+`GOOGLE_SIGNIN_CLIENT_ID` et `CMS_ALLOWED_EMAIL=farinhahelder@gmail.com`. Sans ces deux
+variables, rien ne change en production.
+
+**Android non traité ici** : l'app affiche le CMS dans une WebView, or Google **refuse** OAuth
+dans une WebView (`disallowed_useragent`). Il faut le flux natif (Credential Manager → `{idToken}`
+→ route), et un keystore de release privé **avant** d'enregistrer l'empreinte du client OAuth
+Android — le keystore de debug est versionné dans un dépôt public.
+
+## [2026-10-30 ter] — Connexion Google au CMS : le client Android
+
+Suite de l'entrée précédente. Le web fonctionne, mais le téléphone ne peut pas utiliser le bouton
+web : `EditeurActivity` affiche le CMS dans une **WebView**, et Google refuse l'OAuth dans une
+WebView (`disallowed_useragent`). La connexion se fait donc **en natif**, et la vue web ne reçoit
+qu'un cookie de session déjà posé — rien d'autre ne change côté page.
+
+- **`ConnexionGoogle.kt`** (nouveau) : Credential Manager obtient un jeton d'identité Google, puis
+  l'échange contre le cookie via `POST /api/cms/auth/google`. Deux temps, dans cet ordre : comptes
+  déjà autorisés (sélection automatique, rien à toucher) ; si l'appareil n'en a aucun, réouverture
+  en proposant tous les comptes — sans quoi la première connexion serait impossible.
+- **`EditeurActivity.ouvrir()`** : Google d'abord, mot de passe ensuite. `Indisponible` (aucun
+  compte, Google absent) retombe sur le mot de passe ; `Annule` (fenêtre fermée) charge le panel
+  sans cookie, dont l'écran de connexion propose le mot de passe. Aucun chemin ne bloque l'accès.
+- **`build.gradle.kts`** : dépendances `credentials` + `googleid`, et `BuildConfig.GOOGLE_SIGNIN_CLIENT_ID`
+  lu depuis `google.signinClientId` (vide = Google éteint, écran identique à avant).
+- **Tests** : `ConnexionGoogleTest.kt` sur `extraireCookie` (4 cas : valeur sans attributs, bon
+  cookie parmi d'autres, absence, cookie vide). Tourne en CI via `testDebugUnitTest`.
+
+**Reste à faire (action humaine)** : créer le client OAuth **Android** dans Google Cloud Console
+(paquet `fr.heldonica.mobile` + empreinte SHA-1), ce qui exige **d'abord** un keystore de release
+privé — le keystore de debug est public. Puis renseigner `google.signinClientId` dans
+`local.properties` (non versionné).
+
+## [2026-10-30] — Levée du mode maintenance : le site public est rouvert
+
+Décision explicite du propriétaire. `site_settings.maintenance_mode` passe à `'false'` par une
+migration versionnée (`20261030100000_levee_mode_maintenance.sql`, commit `ca779789`, branche
+`agent/openhands/levee-maintenance`), reprise de l'archive du 26/10 ré-horodatée après la
+dernière migration appliquée. Registre porté à 213 versions.
+
+Prérequis re-vérifiés le 30/10 avant application : constats D (années d'expérience) et E (nombre
+de pays) tranchés par la migration `20261028140000`, constat F (« 8+ » carnets) corrigé dans le
+code, conflit `robots.txt` résolu, images de `public/` débloquées pendant la maintenance.
+21/21 garde-fous verts.
+
+Vérifié en production, sans bypass : `/`, `/guides`, `/travel-planning`, `/expert-hotelier`,
+`/a-propos`, `/contact`, `/blog`, `/destinations/madere` → HTTP 200 (étaient 307 → `/maintenance`).
+Navigateur réel : `h1` présent, 0 erreur JS. `/maintenance` reste en `noindex` et hors sitemap.
+Détail : `.audit/audit-editorial-2026-10-20/LEVEE-MAINTENANCE-2026-10-30.md`.
+
+Restent ouverts, non bloquants : constat G (six articles datés `2026-05-18`, import en bloc —
+aucune date réelle attestée, fiche `agent_tasks` `a94ccaf7`) ; la page `/maintenance` en
+production affiche encore l'ancienne version (correctif local `4cce6d8b`, non déployé) ;
+l'accueil n'expose pas d'élément `<main>`.
+
+## [2026-10-29] — Console de pilotage des agents : fil d'activité, file à valider, gouvernance
+
+Le suivi des agents avait un socle (le journal `agent_task_events`, PR #769) mais aucun
+poste pour le lire. Cette console est ce poste : elle rend observable ce que le journal
+enregistre déjà, sur données réelles.
+
+- **API `/api/admin/agents/journal`** (lecture seule) : rend le journal paginé (filtrable
+  par `agent` et `event_type`), la vue agrégée `v_agent_governance` (présente en base depuis
+  le 2026-09-03 sans aucun lecteur), et la file `waiting_validation`. Auth par session CMS.
+  Aucune écriture : le geste du fondateur (valider/renvoyer) reste dans `/api/agent-tasks`,
+  qui porte déjà la règle « une clé d'agent ne valide pas son propre travail ».
+- **Console montée dans le CMS vivant** (`/panel-manager?section=console-agents`) +
+  composant `ConsoleAgents` : trois vues (à valider, fil d'activité, gouvernance) et une
+  fiche tâche avec PR, commit et timeline issue du journal. **Pas** sous `/admin/agents` :
+  la redirection permanente `/admin/:path*` → `/panel-manager` (next.config.js, posée en
+  avril) rend tout l'arbre `app/admin/*` inatteignable en production — vérifié sur
+  `www.heldonica.fr` (308). `/panel-manager` est l'interface que le fondateur utilise.
+- **`limit` borné à 1000** : l'API REST Supabase plafonne silencieusement à 1000 lignes ;
+  au-delà, on croirait lire un journal complet qui ne l'est pas.
+- **L'erreur est nommée** : un journal vide et un journal en panne ne se ressemblent pas.
+  C'est le motif exact du bug « Aucun post programmé » — un écran qui affiche une absence là
+  où la requête échoue.
+- **Hors périmètre (v2, volontairement)** : détection d'anomalies et `audit_anomalies`. Les
+  seuils (« 24 h », « 48 h ») doivent être calibrés sur des données réelles, pas inventés
+  avant la première semaine d'usage.
+- **Tests** : `__tests__/api/admin-agents-journal.test.ts` (7 cas — sources interrogées,
+  erreurs nommées, borne de `limit`, filtre inconnu écarté, refus non authentifié sans
+  lecture de base). Garde-fous : 21/21 verts.
+
+## [2026-10-29] — Cohérence documentaire : journal d'agents appliqué, garde-fous, deux journaux
+
+Corrections de documentation et de contenu uniquement (aucune migration, aucun changement du
+serveur MCP). Elles rétablissent l'accord entre ce que le dépôt raconte et ce qui est vrai.
+
+- **Journal d'agents `20261029150000` : appliqué en production** (le CHANGELOG disait encore
+  « NON appliquée »). Amorçage 277 = 277 tâches, trigger prouvé, RLS vérifiée, version enregistrée.
+- **Archivage committé** : le CHANGELOG « Dérive de schéma » affirmait que le déplacement de
+  `levee_mode_maintenance` n'était « pas committé » — il l'est depuis `c169e1b3`.
+- **« 12 pays »** : l'entrée du 28/10 disait « la base disait déjà 12 ». En réalité la base valait
+  `7` ; le « 12 » n'était qu'un repli de code mesurant les pays *visités*. Formulation corrigée.
+- **Attribution** : les replis `7`→`0` viennent du commit `0a92d446`, pas de la PR #768 (qui ajoute
+  « Pays visités » et retire le suffixe `+`).
+- **`AGENTS.md`** : annonçait 16 garde-fous ; il y en a **21** (22 avec la PR #770). Tableau complété
+  (`content-known-errors`, `image-paths`, `cms-emojis`, `content-html-escapes`, `apk-signature`) et
+  section « Deux journaux, deux rôles » ajoutée.
+- **Deux journaux, deux rôles** (documenté ; **décision prise**, pas ouverte) : `agent_task_events` =
+  vérité système (trigger, non contournable) ; `agent_actions` (#770, non fusionnée) = contexte
+  d'intention, lié par `task_id`. `commit_sha` : celui d'`agent_tasks` = livrable validé ; celui
+  d'`agent_actions` = action brute. `agent_actions` ne remplace jamais `agent_task_events`.
+- **Contenu** : `lib/cms-page-defaults.ts` (`a-propos__bio_text`) ne dit plus « depuis plus de 10 ans »
+  (année non attestée) ; le réglage `covered_countries` s'appelle « Nombre de pays habités ».
+
+## [2026-10-29] — Suivi des agents : journal append-only des tâches + lien PR/commit
+
+Le registre `agent_tasks` ne gardait que l'**état présent**. `rendre_compte` fait un `PATCH`, donc chaque
+compte-rendu **écrasait** le précédent : impossible de reconstituer la trajectoire d'une tâche (qui l'a
+prise, combien de fois elle est repassée en `waiting_validation`, ce qui a été proposé puis retiré), et
+rien ne reliait une fiche aux commits ou à la PR qui l'ont réalisée — la PR #767 n'était rattachée à
+**aucune** fiche.
+
+- **Migration `20261029150000_journal_agent_task_events.sql`** (**appliquée en production** le
+  2026-10-29) :
+  table `agent_task_events`, alimentée par un trigger `AFTER INSERT OR UPDATE OR DELETE` sur
+  `agent_tasks`. Chaque ligne garde l'état **avant et après** dans `payload`. Le trigger est **en base**,
+  pas dans le MCP : tout ce qui écrit est capturé, même un script SQL ou un agent qui oublie de rendre
+  compte. `task_id` en `ON DELETE SET NULL` : le journal survit à la disparition d'une fiche. Amorçage :
+  un point de départ daté par tâche existante.
+- **Volet rattachement** : colonnes `pr_url`, `commit_sha`, `created_by` sur `agent_tasks`.
+- **MCP** : sixième outil `lire_journal` (trajectoire d'une tâche, ou pouls du registre) ;
+  `rendre_compte` accepte `pr_url`/`commit_sha` ; `deposer_tache` pose `created_by`.
+- **Vérifié** : migration testée dans un Postgres 15 jetable (schéma `agent_tasks` reproduit depuis
+  `information_schema`) — deux bugs trouvés et corrigés par ce test (ordre du `CASE` qui rendait le label
+  `compte_rendu` mort ; violation de clé étrangère au `DELETE`). Idempotence confirmée. `test-client.mjs`
+  10/10. Garde-fous 21/21.
+- **Vérifié en production** (2026-10-29) : amorçage **277 événements** = 277 tâches (unicité par
+  tâche) ; trigger `agent_tasks_journal` prouvé (INSERT→`depose`, UPDATE→`edition`,
+  DELETE→`suppression`, en transaction annulée) ; RLS active (anon : 0 ligne, service_role : 277) ;
+  version enregistrée dans `supabase_migrations.schema_migrations` (`20261029150000`).
+
+## [2026-10-28] — Audit éditorial lot 2 : cohérence des chiffres de l'accueil (constats D et E)
+
+Deux chiffres de l'accueil se contredisaient, sur la **même page** : « dix ans » (`home/hero_tagline`)
+contre « 4+ » (`global/stat_1_nb`), et un « 7+ pays » sous une liste de neuf terrains. Le « 12 pays »
+affiché n'était qu'un **repli de code** (mesurant en réalité les pays *visités*) : en base,
+`site_settings.covered_countries` valait bien `7`. Trois ancrages concurrents des années coexistaient
+dans l'historique, aucun adossé à une preuve de terrain. Le propriétaire a tranché.
+
+- **Migration `20261028140000_coherence_chiffres_accueil.sql`** (appliquée en production) : les années
+  sont **retirées** (on ne choisit pas un chiffre non attesté) ; `site_settings.covered_countries` passe
+  de `7` à **`12` pays habités ensemble** ; l'accueil affiche désormais deux mesures distinctes —
+  **40 pays visités** et **12 pays habités** ; les trois zones figées `a-propos/stat_*_value` sont
+  désactivées (`is_active=false`, jamais supprimées).
+- **Code (PR #768, rebasée sur #746)** : ajout de la mesure distincte « Pays visités » (~40) sur
+  l'accueil et **retrait du suffixe `+`** des compteurs « Pays habités » et « Carnets publiés »
+  (constat F : « 8+ » pour 8 publiés). Les **replis `7`→`0`** dans `app/page.tsx` et
+  `components/HomeClient.tsx` viennent en revanche du commit `0a92d446` (26/10, convention du dépôt :
+  une lecture vide doit se voir, pas être masquée par une valeur inventée), déjà sur `main` — #768 ne
+  touche pas `app/page.tsx`.
+- **#746 fusionnée** après application de sa migration `20261026190000` (9 zones `article_*` alentejo
+  désactivées) : sa CI rouge venait d'un ordre d'opérations manquant, pas d'un défaut de code.
+- **Écart dépôt ↔ base : 0** (`supabase migration list`, 211 versions des deux côtés). Mode maintenance
+  intact. Garde-fous 21/21.
+
+## [2026-10-28] — Dérive de schéma : 5 tables legacy rattachées à une migration
+
+Cinq tables étaient lues par le code (`.from('…')`) mais n'avaient **aucun** `CREATE TABLE`
+dans `supabase/migrations/` : `cms_home_destinations`, `cms_seasons`, `site_content`,
+`newsletter_subscribers`, `travel_requests`. Créées à la main — le motif « script jetable »
+que `AGENTS.md` interdit. Une base reconstruite depuis le dépôt les aurait perdues, dont
+**deux qui portent des données personnelles** (inscriptions, demandes de Travel Planning).
+
+- **Migration `20261028120000_rattachement_tables_legacy.sql`** : le schéma n'est pas déduit
+  du code, il est **relevé à l'identique en production** (`information_schema.columns`,
+  `pg_constraint`, `pg_indexes`, `pg_policies`). Colonnes, types, valeurs par défaut,
+  contraintes, index et **politiques RLS** reproduits — y compris le refus de lecture `anon`
+  sur `travel_requests` et `newsletter_subscribers`.
+- **Sans effet sur la base vivante** : `IF NOT EXISTS` partout. Vérifié en **transaction
+  annulée** (`BEGIN … ROLLBACK`) : empreinte md5 des colonnes et des politiques **identique
+  avant/après** pour les 5 tables. Et le DDL, rejoué dans un schéma jetable (base vide, où
+  `IF NOT EXISTS` ne masque plus rien), reproduit exactement les **9 / 14 / 5 / 7 / 16**
+  colonnes, **11 index**, **10 contraintes** et **8 politiques** de la production.
+- **`LEGACY_UNMIGRATED` est vide.** La 6ᵉ entrée, `destinations_public`, était un **faux
+  positif** : ce n'est pas une table mais une **vue**, déjà migrée (4 fichiers, le dernier
+  `20261022200000`). La cause est corrigée : `collectMigratedTables` reconnaît désormais
+  `CREATE VIEW`, avec un test unitaire dédié.
+
+### Piège désamorcé : `db push --include-all` aurait levé le mode maintenance
+
+`supabase db push` **échouait** avant ce lot, et pour une raison qui n'a rien à voir avec le
+code : `supabase/migrations/20261026140000_levee_mode_maintenance.sql` — un fichier **rédigé
+mais volontairement non appliqué** (règle n°4) — est horodaté *avant* des migrations déjà
+appliquées. Le CLI refuse alors tout `db push` (« Found local migration files to be inserted
+before the last migration on remote database ») et **suggère `--include-all`**.
+
+Or `--include-all` **pousse ce fichier aussi** : vérifié en dry-run, il aurait appliqué
+`20261026140000_levee_mode_maintenance.sql`, c'est-à-dire `maintenance_mode = 'false'`.
+**La suggestion du CLI était le piège.** Suivre l'indication aurait levé la maintenance sans
+décision du propriétaire.
+
+Le fichier a d'abord été **parqué dans `supabase/archive/`** — la convention de
+`EMERGENCY_FIX_20260602.sql`, dont le rôle est précisément de ne jamais être rejoué. Le CLI
+**ignore** `supabase/archive/` : `db push` ne voit plus que la migration de rattachement.
+**Contenu inchangé** (md5 `5d05d6677c2e54c2791cf0784129b936`, identique avant et après le
+déplacement).
+
+Le déplacement a ensuite été **committé** (`c169e1b3`, 2026-10-28), avec la consigne explicite de
+rester hors de `main`. Il ne touche pas la règle n°4 : le mode maintenance est lu dans
+`site_settings.maintenance_mode` (source de vérité, `middleware.ts`), pas dans ce fichier. Le jour
+de la levée, il suffira de le remettre dans `supabase/migrations/` avec un horodatage postérieur —
+la consigne de son propre en-tête.
+
+**État : APPLIQUÉE le 2026-10-28.** `supabase db push --linked` a exécuté
+`20261028120000_rattachement_tables_legacy.sql` et l'a journalisée. Écart dépôt ↔ base :
+**0** (`migration list` : 209 appliquées des deux côtés, aucune orpheline).
+
+Contrôle après application, comparé à un relevé pris **avant** le push :
+
+| | avant | après |
+|---|---|---|
+| Colonnes (5 tables) | 9 / 14 / 5 / 7 / 16 | **9 / 14 / 5 / 7 / 16** |
+| Politiques RLS | 8 | **8** |
+| Lignes (`site_content`, `cms_seasons`, `cms_home_destinations`, `newsletter_subscribers`, `travel_requests`) | 55 / 14 / 4 / 2 / 2 | **55 / 14 / 4 / 2 / 2** |
+| `maintenance_mode` | `true` | **`true`** |
+
+Rien n'a bougé : la migration était bien un no-op sur la base vivante, elle n'a fait que
+**journaliser** la version. `check:cms-drift` : aucune dérive. Règle n°4 intacte —
+`/destinations/paris` → 307 → `/maintenance` → HTTP 200.
+
+## [2026-10-28] — Contrôle CMS : la lecture des zones survit à une panne passerelle
+
+Le 2026-10-15, « Zones et tables CMS » a échoué sur les PR **#596, #597 et #599**
+avec `Lecture de cms_editable_zones impossible (HTTP 504)`. Ce n'était pas un défaut
+de code : une panne passerelle Supabase passagère. La même lecture passe localement
+en 2,5 s.
+
+- **La fenêtre de reprise était trop courte** : 3 essais espacés de 400 puis 800 ms,
+  soit **1,2 s** au total. Un 504 de quelques secondes suffisait à faire échouer le
+  contrôle — et trois PR sont restées bloquées dessus.
+- **Corrigé** : 5 essais espacés de 1,5 s à 6 s (~15 s cumulées) dans les trois
+  scripts qui interrogent `cms_editable_zones` en pagination (`check-cms-zones`,
+  `check-cms-emojis`, `check-cms-drift`). La sémantique ne change pas : au-delà, la
+  panne est réelle et l'échec reste un échec.
+- **Vérifié** : `node --check` sur les trois fichiers ; garde-fous 21/21 ; relance du
+  job sur les trois PR (HTTP 201).
+- **Complément** : `check-cms-drift.mjs` ne reprenait que sur une **exception réseau**, pas sur un
+  statut 5xx — or un 504 passerelle arrive comme **réponse**. Ce cas précis tombait donc dans le
+  `?(HTTP 504)` final sans aucune reprise. Corrigé en alignant `tableExists` sur les deux autres
+  scripts (test du 5xx, 5 essais).
+
+À noter : après relance, ces trois PR échouent de nouveau, mais **pour une autre
+raison** — leur code date du 15/10 et ne consomme pas les zones CMS ajoutées depuis
+(`contact_form_*`, `newsletter_*`, `destinations-*`). Le remède est un rebasage sur
+`main`, pas une modification du contrôle.
+
+## [2026-10-28] — Revue des PR : le filtrage par auteur est retiré (fin du goulot)
+
+Le seul moteur qui fusionne, `scripts/revue-jules.mjs`, ne voyait que les PR de Jules
+(`estPrDeJules` testait `/jules\.google\.com\/task/` dans le corps). Les PR des autres
+agents lui étaient **invisibles** : elles s'accumulaient sans jamais être proposées.
+
+- **Constat mesuré** : 45 PR ouvertes le 28/10, dont **33 de plus de 7 jours**.
+- **Corrigé** : `estPrDeJules` est remplacé par `proposable`, qui ne regarde plus
+  l'auteur mais l'état (`open`). Ce qui mérite une relecture humaine, c'est le
+  **contenu** — brouillon, CI rouge, conflit, fichiers sensibles — et ces règles
+  restent inchangées dans `recommander`. Les libellés ne mentionnent plus « Jules ».
+- **Sûreté préservée** : le script ne fusionne rien seul. Il propose (tâche
+  `agent_tasks`, `waiting_validation`), le fondateur valide dans le Poco, et
+  l'exécution **re-vérifie** au passage suivant que la PR n'a pas bougé (même commit,
+  toujours fusionnable, CI toujours verte). `--essai` n'écrit rien.
+- **Vérifié** : `--essai` sur les données réelles voit les 38 PR ouvertes (contre 1
+  seule PR de Jules auparavant) ; `vitest` 18/18 sur les règles ; `garde-fous` 21/21.
+
+## [2026-10-28] — Signature APK : plus de release signée avec le keystore de debug public
+
+Constat mesuré, pas supposé. `keystore/heldonica-debug.keystore` est versionné dans un
+dépôt **public**, et son mot de passe (`heldonica`) était écrit en clair dans
+`app/build.gradle.kts`. Le repli de signature de release y retombait quand les secrets
+`RELEASE_*` manquaient. Résultat : **les 7 APK publiés** (le plus récent
+`apk-2026.10.20-poco-ia`) sont signés avec cette clé publique.
+
+- **Preuve** : l'APK publié extrait, son certificat de signature porte l'empreinte
+  SHA-256 `15:71:BD:5C:CE:90:FF:94:32:79:C7:D2:D6:80:88:5B…`, `CN=Heldonica Mobile
+  Debug` — identique à celle du keystore du dépôt. Le journal du build de release le
+  dit lui-même : « aucun keystore de release fourni : repli sur le keystore de debug. »
+- **Conséquence** : n'importe qui peut signer un APK de la même identité, qu'Android
+  acceptera comme mise à jour légitime. La vérification du certificat Google Sign-In
+  s'appuie sur le SHA-1 de cette même clé publique : elle ne prouve donc rien.
+- **Corrigé** : le repli est **retiré** (`app/build.gradle.kts`). Sans keystore de
+  release, la construction d'une release **échoue** (`GradleException`) au lieu de
+  produire un APK falsifiable — sauf en validation de CI, qui construit une variante
+  release **non signée** (`-PallowUnsignedRelease=true`) pour vérifier R8 et proguard
+  sans engager de clé. Le verrou de publication vit dans `build-apk.yml` : l'appel de
+  `release-apk.yml` pose `publier: true`, et sans `RELEASE_KEYSTORE_BASE64` le build
+  de publication est refusé. Un build de validation (PR, push) n'est pas concerné —
+  sans quoi tout PR touchant `heldonica-mobile/` serait rouge en permanence.
+- **Garde-fou** : `scripts/check-apk-signature.mjs`, câblé dans `garde-fous` et la CI
+  (21e contrôle). Il refuse toute référence au keystore de debug dans
+  `signingConfigs.release`, tout mot de passe en dur, et tout repli silencieux.
+- **Reste à faire (action humaine)** : poser les secrets `RELEASE_KEYSTORE_BASE64`,
+  `RELEASE_STORE_PASSWORD`, `RELEASE_KEY_ALIAS`, `RELEASE_KEY_PASSWORD` (une vraie
+  identité de release) ; puis **régénérer l'identité Google Sign-In** — le SHA-1
+  actuellement déclaré est celui du keystore de debug public, donc reproductible par
+  un tiers. Un changement de clé impose une réinstallation manuelle des versions déjà
+  installées. Le keystore de debug peut rester versionné : il ne signe plus aucune
+  release (garde-fou), et un keystore de debug n'est pas un secret par nature.
+
+## [2026-10-27 ter] — Briques « photo → contenu » : trois inventions retirées
+
+Constat de départ : le propriétaire a des années de photos (Google Photos) et veut
+en faire du contenu. En vérifiant le chemin existant avant de le brancher, trois
+endroits se sont révélés **inventer** — contraires à la règle n°1.
+
+- **`lib/cms-photo-interview.ts` — les « indices visuels » n'étaient pas vus.**
+  `generatePhotoInterviewQuestions` est une fonction **pure, sans appel vision** :
+  elle poussait pourtant `'Lumière naturelle & cadrage de terrain'` en dur, donc
+  affirmait une observation sur une image jamais regardée. Sans analyse, la liste
+  est désormais **vide** ; les observations réelles arrivent par le paramètre
+  `visualClues`. La synthèse fabriquait aussi des phrases d'ambiance
+  (« À `<lieu>`, on s'est posés un moment pour absorber le lieu. ») : le duo se
+  voyait attribuer une action absente de ses réponses. Retirées — le paragraphe ne
+  contient plus que ses réponses, dans leur ordre. Idem pour l'anecdote de repli
+  (« Halte vécue à … ») et le lieu « Lieu vérifié ». La **date** des blocs suggérés
+  venait de `new Date()` : elle datait du jour de rédaction une photo prise deux ans
+  plus tôt — un faux qui a la forme d'une preuve. Elle n'est posée que si elle est
+  connue (EXIF ou saisie).
+- **`app/api/cms/import-trip/route.ts` — le bouton « Reconstituer Carnet » rédigeait
+  sans matière.** La route demandait « un carnet de 1000 à 1200 mots » sans lui
+  fournir **aucune photo ni aucun fait vérifié** : seulement la destination, des
+  noms d'étapes et le **nombre** de photos. Elle inventait donc le récit, et
+  produisait un brouillon d'apparence finie impossible à trier ensuite. Sans notes
+  vécues, elle prépare maintenant un **squelette** (titre de travail, structure,
+  balises `[À TOI : …]` qui disent quoi raconter) ; avec des notes, elle ne rédige
+  qu'à partir d'elles et laisse des balises pour ce qui manque. La réponse porte
+  `squelette: true` pour que l'écran le dise. `photosCount` est retiré : il n'a
+  jamais servi qu'à habiller le prompt.
+- **`app/panel-manager/photos/page.tsx`** passait
+  `notes: 'Photos importées depuis Google Photos'` — un texte de remplissage
+  présenté comme du vécu. Retiré ; le message de fin distingue « squelette à
+  remplir » de « carnet ».
+- **`app/api/cms/photos/interview/route.ts`** accepte et transmet `visualClues`,
+  pour que l'analyse réelle (ex. `/api/cms/ai-vision`, qui envoie vraiment l'image
+  à Gemini) puisse nourrir l'interview.
+
+**Vérifié** : 1118 tests verts (136 fichiers), `tsc --noEmit` propre, ESLint propre,
+garde-fous `check:erreurs-avalees`, `check:content-coherence`, `check:brand-sync`,
+`check:api-auth` OK. 8 tests ajoutés
+(`__tests__/lib/cms-photo-interview-sans-invention.test.ts`) ; l'ancien test
+exigeait la phrase d'ambiance fabriquée (« Crête de Stoos »), il est mis à jour.
+
+**Reste à faire (non fait ici)** : brancher `/api/cms/ai-vision` sur l'interview
+pour que les questions parlent de la photo réelle ; configurer les 3 variables
+Google Photos Picker ; porte web `/ajouter` ; porte Android.
+
+## [2026-10-27 bis] — Lot emoji, périmètre administration : 70 emojis retirés de 32 fichiers
+
+La décision #682 (« supprimer TOUS les emojis ») tranche ce que l'audit du 21/10
+avait laissé ouvert : les composants **admin/CMS** gardaient leurs emojis
+d'interface, « hors périmètre éditorial public, à trancher ». C'est tranché.
+
+- **Périmètre** : `app/admin`, `app/panel-manager`, `components/admin`,
+  `components/cms`, `components/inline-edit` — soit les 34 fichiers candidats que
+  `check-design-tics` exclut volontairement ; **32** ont effectivement changé.
+- **Retiré (70)** : emojis pictographiques d'interface (épingle, billet, clap,
+  dossier, sablier, étincelle, fusée, boussole, éclair…) dans les libellés, boutons
+  et titres.
+- **Conservé, par la politique déjà arrêtée** : marques légales (`© ® ™`),
+  flèches (`→ ← ↑ ↓ ➔`), et la convention de liste `✓` / `✗` / `⚠`.
+  Les **drapeaux** (indicateurs régionaux, ex. le drapeau portugais) restent exclus : sémantiques,
+  jamais décoratifs — même règle que `check-cms-emojis` et la migration de purge.
+- **Laissé volontairement, et c'est le point à ne pas rater** : le glyphe `✦` de la
+  signature carrousel **n'est pas un tic** mais le **wordmark de marque**, enregistré
+  comme icône CMS et utilisé dans le contenu publié. Le retirer changerait la marque —
+  même raison que le `flag_emoji` des destinations, qui est une donnée de contenu.
+  Ces deux points avaient déjà été tranchés par l'audit ; le premier jet de ce lot les
+  avait repris par erreur, puis restaurés.
+- **Convention de remplacement** : icône `lucide-react` (`<Zap size={18} aria-hidden="true" />`),
+  celle qu'avait posée le commit `0403353f` pour `Toast` et `OmnisearchPalette` —
+  pas de suppression sèche qui laisserait un libellé orphelin.
+- **Deux justesses corrigées au passage** : le placeholder de
+  `destinations_tabs_json` proposait un globe en emoji comme valeur d'`icon`
+  alors que `tabs[].icon` est rendu **tel quel** (`DestinationsClient.tsx:145`)
+  et que la valeur par défaut est vide — il suggérait donc d'afficher le mot
+  « globe ». Le champ `emoji` de `SeasonsManager` gardait un soleil en placeholder
+  pour un champ vidé en base le 21/10.
+- **Vérifié** : `garde-fous` **20/20** (dont `tsc` et `vitest`), `eslint` **0 erreur**
+  (2 avertissements préexistants, lignes non touchées), **0** emoji restant au
+  détecteur `DECORATIVE_EMOJI_RE` sur le périmètre admin.
+
+  ## [2026-10-27] — Heldonica CMS 3.0 (in-house) : le back-office passe au niveau d'un vrai éditeur de blocs
+
+  Périmètre volontairement limité au **back-office CMS**. Cette entrée documente ce que la branche `agent/freebuff/cms-inhouse` (PR #752) contenait réellement, désormais fusionné via la PR #753 (branche `agent/antigravity/cms-inhouse-editor`) ; le reste de la branche Gemini d'origine (APK Kotlin, studio musique et vidéo, dispatcher Jules, Instagram, hub SEO, pages publiques) est écarté et reste à traiter séparément.
+
+  - **`BlockCanvas.tsx`** : simulateur de viewport (bureau, tablette 768, mobile 390 dans une coque), pile undo-redo de 30 états avec `Ctrl+Z` / `Ctrl+Y`, compteur de mots et temps de lecture, tiroir de réglages avancés.
+  - **Studio des gabarits (`lib/cms-templates.ts`)** : 7 gabarits Slow Travel, filtres thématiques, prévisualisation en direct via `BlockRenderer`, insertion « remplacer tout » ou « ajouter à la suite », export et import JSON, gabarits personnels en `localStorage` (`heldonica_user_templates_v1`).
+  - **Les cinq verrous de l'éditeur** : `OmnisearchPalette` (`Ctrl+K`), `BubbleToolbar` contextuelle, `AstJsonInspectorModal` (inspecteur du JSON du bloc), `EeatScorecardHud` (score E-E-A-T recalculé en direct) et `AgentPresenceBadge` (coordination multi-agents sur `agent_tasks`).
+  - **`HotspotPicker`** : point focal de l'image choisi à la souris, repris par `ImageBlock` et `BlockRenderer`.
+  - **Thèmes de bloc (`types/cms-blocks.ts`)** : `sand`, `parchment`, `terracotta`, `forest_fog`, `chalk`, `gold_accent`, `dark`, `default` — rendus papier, sans carte SaaS ni ombre.
+  - **Cartouche de terrain** : champ `cameraInfo` porté par `PhotoEvidenceBlock` et par le convertisseur `lib/cms-blocks-converter.ts`.
+  - **Onglets d'administration** : `hub`, `seo-geo`, `task-giver` et `branding` dans `CmsAdminClient`, plus le dock `CreatorQuickDock` monté dans `app/admin/layout.tsx` ; nouvelle route `app/api/admin/agent-task-giver/route.ts`.
+  - **Hors périmètre assumé** : `.github/workflows/dispatch-jules.yml` n'est **pas** dans cette PR. Ce workflow n'existe que sur la branche Gemini, il lit `JULES_API_KEY` et `SUPABASE_SERVICE_ROLE_KEY`, et le correctif d'autorisation de `agent/claude/securite-dispatch-jules` ne lui est pas encore appliqué. Le laisser dehors évite de publier la faille ; il fera l'objet d'une PR dédiée.
+
+  ## [2026-10-27] — Reprise des apports de la PR #752 et retrait d'un code mort
+
+  Deux agents (`freebuff` et `antigravity`) avaient produit la même fonctionnalité « CMS 3.0 » dans deux PR concurrentes. Mesure faite : la PR #753 est un **sur-ensemble strict** de la PR #752 (49 de ses 50 fichiers). #753 a été fusionnée ; cette entrée reprend les seuls apports de #752 qu'elle ne portait pas, et solde un reliquat.
+
+  - **`lib/ai-provider.ts`** : commentaires de `JULES_MODEL` et `BRAIN_MODEL` (cibles non facturées du donneur de tâches ; Jules = endpoint `v1alpha/sessions`, Brain = service local port 8451). Aucun changement de code.
+  - **`__tests__/lib/cms-templates.test.ts`** : deux gabarits de plus vérifiés (`terroir_artisan_table`, `train_escape_zero_carbon`).
+  - **`lib/brand-customization.ts`** : **supprimé**. 93 lignes jamais importées (presets typographiques et packs d'icônes) — aucun composant, test ou script ne les référençait.
+
   ## [2026-10-26] — Lot 2 (A/B/C/I/F) : entrées sous maintenance, og:image:alt, JSON-LD, compte de carnets
 
   - **A — matcher du middleware** : il n'excluait pas les fichiers de `public/`. Pendant la maintenance, `og:image` et les favicons renvoyaient **307 -> /maintenance**. Le matcher exclut désormais tout chemin à extension ; `llms.txt` (seule route dont un segment contient un point) reste exclu aussi. Mesuré : `/og-default.jpg` **200**, `/favicon.ico` **200**, `/site.webmanifest` **200**, page `/` toujours **307** (protection intacte).
@@ -361,6 +1308,47 @@
   - **F — compte de carnets réel** : `publishedArticles = totalPosts` (accueil) et `carnetCount = posts.length` (`/a-propos`) ; repli silencieux `|| 25` et suffixe `+` trompeur retirés. Les deux pages affichent **8**.
   - **Découpage** (revue du propriétaire, « une PR = un sujet ») : les constats A/B/C/I/F restent ici ; la recherche D/E/G, la migration des compteurs morts et le correctif des zones `header_logo_*` partent en PR séparées.
   - **Vérifié** : `tsc` 0 ; `vitest` **1054/1054**.
+
+  ## [2026-10-26 bis] — Hors-CMS : consentement RGPD, chiffres réels, routes jetables
+
+- **Contexte** : site laissé en maintenance (décision du fondateur) ; le CMS Carnet 2.0 est confié à OpenHands. Cette session ne touche ni `app/panel-manager/**`, ni `app/api/cms/**`, ni `lib/cms-*`. Branche `agent/opencode/hors-cms`, rebasée sur `origin/main` `301e7553` (lot maintenance + garde-fou emojis).
+- **Consentement explicite** :
+  - `/api/newsletter` et `/api/brevo/subscribe` refusent toute inscription sans `consent === true` (HTTP 400), en plus du honeypot et du rate limit.
+  - GA4/GTM ne sont plus posés dans le `<head>` pour tout le monde : `components/ConsentAwareAnalytics.tsx` ne monte les scripts qu'après `heldonica_cookie_consent_v1 = accepted`, et réagit à l'événement du bandeau sans rechargement. Le `<noscript>` GTM est retiré.
+  - Footer, `NewsletterForm`, `NewsletterPopup`, `GuideDownloadForm` et le quiz portent une case de consentement reliée à l'envoi.
+  - **4 tests neufs** sur `ConsentAwareAnalytics` (aucun script sans choix, refus `rejected`, chargement après acceptation, mise à jour en direct) + un test API sur le refus sans consentement dans `quiz-capture`.
+- **Cohérence éditoriale (fin des chiffres inventés)** :
+  - `/a-propos` et l'accueil n'affichent plus les replis « 25 carnets » ni « 7 pays » : les compteurs viennent des articles publiés, ou affichent 0 quand la donnée manque.
+  - `/expert-hotelier` : retrait des pourcentages et résultats de cas clients non mesurés (25 %, 45 %, 12→45 %, +34 %, 78 %).
+  - `/destinations/alentejo` : les trois faux liens « Nos carnets liés » sont remplacés par les vrais articles dont le titre ou la destination contient « alentejo » ; `getAllPosts` expose désormais `destination`.
+- **Nettoyage** : suppression des routes jetables `POST /api/publish-podgorica` et `POST /api/fix-destinations` (plus aucune référence dans le code). `POST /api/cms/import-trip` reste en place : sa suppression appartient au lot CMS.
+- **CMS Carnet 2.0 parqué, pas perdu** : la branche locale `agent/opencode/cms-2.0` (commit `82d588e0`, 32 fichiers) conserve le WIP CMS + consentement initial, dont `lib/cms-carnet-2.ts`, `lib/gemini-vision-interview.ts`, `app/api/cms/carnet/*` et `app/panel-manager/carnet/`. À confronter aux moteurs existants `lib/cms-photo-interview.ts` et `lib/cms-draft-from-evidence.ts` avant reprise.
+- **Vérifié** : `tsc` 0 erreur ; tests ciblés consentement / newsletter XSS / analytics verts ; `check:cms-hardcode` 1 334 textes en dur, 2 fichiers en baisse (cliquet mis à jour) ; `preflight` **13/13**. Suite vitest complète : **1 015/1 019** ; les **4 échecs** sont la locale `fr-FR` absente de l'ICU Alpine (`HeldonicaVerdict`, 3 `formatDate`), **reproduits sur `origin/main` intact** ; aucun échec introduit. `npm run garde-fous` complet reste rouge localement pour ces 4 tests et pour des dépassements des 5 s par défaut sous PRoot (les mêmes fichiers passent avec `--testTimeout=30000`).
+- **Build de production** : `npm run build` (Next 15.5.28) — compilation, lint/types, **160/160 pages statiques**, traces et table de routes générées, **0 erreur**. Les variables Supabase étant absentes de cette session, le build a utilisé le stub sécurisé de pré-rendu : il prouve la compilation, pas le rendu des données réelles.
+- **Non vérifié** : rendu visuel, comportement en production, valeur réelle de `site_settings.maintenance_mode` (aucun identifiant Supabase dans cette session). Aucune écriture en base, aucune migration. Mode maintenance **non touché**.
+- **Branche** : `agent/opencode/hors-cms`, basée sur `origin/main` `301e7553`.
+
+  ## [2026-10-26 ter] — Audit hors-CMS : pages fantômes et promesses non prouvées
+
+- **`lib/constants.ts` supprimé** : ce fichier n'était importé nulle part et portait des chiffres périmés/inventés (« 4 ans de slow travel depuis 2021 », « 25+ carnets », « 7 pays habités », « 100 adresses testées »). Les compteurs réellement affichés viennent désormais des articles publiés (`/a-propos`) ou de la base (`stat_*` de l'accueil) ; garder cette « source de vérité » morte ne pouvait que recontaminer une future page.
+- **`/destinations` ne revendique plus les pages en quarantaine** : la description, l'OG/Twitter et le JSON-LD `CollectionPage` citaient Sicile et Paris comme « testées sur le terrain », alors que leurs pages sont servies en « Bientôt » et en `noindex` (`lib/unpublished-pages.ts`). Remplacés par Portugal (page publiée) ; les entrées Sicile et Paris retirées de `hasPart`.
+- **`/destinations/roumanie/bucarest`** : la description SEO (`« Guide Bucarest: Macro, culture… »`) était un brouillon généré ; réécrite en français lisible, sans la formule boilerplate « testé en couple ». La page reste publiée (photo de terrain du 27/08/2026).
+- **`/expert-hotelier`** : le libellé « Résultats observés » devient « Ce que ça change » (aucun résultat client mesuré n'est affiché), et la FAQ ne promet plus une « hausse mesurable » sans dossier source : elle énonce l'objectif et rappelle que les résultats dépendent du point de départ.
+- **Reste à traiter, hors de cette session** :
+  - `lib/cms-page-defaults.ts:78` (`a-propos__bio_text`) dit encore « depuis plus de 10 ans », en contradiction avec l'histoire publique ; fichier `lib/cms-*`, réservé à OpenHands.
+  - Replis d'accueil `stat_1_nb = « 4+ »` et `stat_2_nb = « 100+ »` (`components/HomeClient.tsx`) : invérifiables sans base, et toujours affichés si `site_settings` ne les surcharge pas.
+  - Les 37 sous-pages en quarantaine gardent leurs métadonnées de brouillon dans le code source ; `buildPageMetadata` les remplace bien par `DESCRIPTION_BIENTOT`, mais le nettoyage de fond appartient au lot CMS/éditorial.
+  - `og-default.jpg` reste l'image de partage ou le hero de plusieurs pages publiées (Sardaigne, Zurich, guides…), faute de photo vérifiée.
+- **Vérifié** : `tsc` 0 erreur ; `preflight` **13/13** ; `check:content-pages` vert (« aucune dérive éditoriale dans les pages publiées ») ; `check:image-paths` vert avec 4 chemins en dette connue (Suisse) ; `unpublished-pages` + `SubDestinationTemplate` **12/12**. Aucune écriture en base, mode maintenance non touché.
+- **Rebasage final** : branche rebasée sur `origin/main` `301e7553` (#742 lot 2, #743 logo, #745 compteurs, #747 CI quotidienne, #748 règle secrets) ; conflits CHANGELOG résolus en conservant les deux lots ; contrôles rejoués après résolution.
+
+  ## [2026-10-26 quater] — CI zones CMS : note de capture rétablie, zones Alentejo désactivées
+
+- **`quiz.capture_email_note` réutilisée** : le remplacement de la note « Gratuit · Sans engagement · Zéro spam » par la case de consentement avait laissé la zone active sans lecteur. La note est rétablie au-dessus de la case ; `check:cms-zones` ne la compte plus comme orpheline.
+- **Zones Alentejo** : la page rend désormais les vrais articles `getAllPosts` (filtre « alentejo ») ; les neuf zones `article_1_*` à `article_3_*` ne sont plus affichées. Migration `20261026190000_desactivation_zones_articles_alentejo.sql` : `is_active = false` pour ces neuf clés. **Non appliquée** — elle attend un `db push` (écriture de production réservée au propriétaire).
+- **Version de migration unique** : le fichier Alentejo est renommé `20261026190000_...` car `20261026170000` est déjà pris par la migration amont #743 (`zones_header_logo_valeur_null`). Sans ce renommage, le CLI aurait considéré la migration comme déjà appliquée et l'aurait sautée en silence.
+- **Zones logo** : le correctif amont #743 (`NULL` au lieu de chaîne vide) est inclus par le rebasage ; il ne reste que la migration Alentejo à appliquer pour que le garde-fou cesse de compter ces neuf zones.
+- **Vérifié** : `tsc` 0 ; `preflight` **13/13** ; `check:content-pages` vert.
 
   ## [2026-10-25 quindecies] — Le filtre CMS n'est pas supprimé, il est déclaré
 
@@ -811,6 +1799,32 @@ ext build compile désormais 163/163 pages statiques avec succès.
 - **Pas de variante `dark:` ajoutée** : `HomeClient` laisse volontairement ses 11
   sections papier sans variante sombre, et `ThemeToggle` n'est rendu nulle part
   côté public. On suit la référence plutôt que d'inventer un traitement isolé.
+
+## [2026-10-20] — Connexion au CMS par compte Google (propriétaire uniquement)
+
+Première brique du remplacement du mot de passe partagé sur le téléphone : au lieu
+d'un secret unique recopié sur chaque appareil, l'identité devient le **compte Google
+du propriétaire**. Le mot de passe reste en place comme voie de secours — refuser une
+connexion Google ne doit jamais enfermer le propriétaire hors de son site.
+
+- **Nouveau** `lib/cms-google-signin.ts` : vérifie un jeton d'identité Google
+  (signature, audience, expiration via `google-auth-library`, déjà présent) **et**
+  l'adresse autorisée. Sans ce second contrôle, n'importe quel compte Google entrerait.
+- **Nouvelle route** `POST /api/cms/auth/google` : reçoit `{ idToken }`, vérifie,
+  puis émet la session CMS habituelle (cookie 8 h). Bornée à 10 tentatives/minute
+  par IP ; le middleware la laisse passer, c'est le jeton qui fait office de preuve.
+- **2FA** : celle du compte Google, appliquée en amont à l'émission du jeton. On ne
+  la refait pas ici.
+- **Configuration** : `GOOGLE_SIGNIN_CLIENT_ID` (repli sur `GOOGLE_PHOTOS_CLIENT_ID`)
+  et `CMS_ALLOWED_EMAIL` (une seule adresse). Sans les deux, la route répond 503.
+- **Refus générique** : un échec ne dit jamais au visiteur quelle adresse est attendue.
+- **Tests** : 10 cas sur le vrai module (seul l'appel réseau à Google est simulé) —
+  mutation vérifiée, désactiver le contrôle d'adresse fait bien échouer la suite.
+- **Reste à faire (action humaine)** : `keystore/heldonica-debug.keystore` est
+  versionné et son mot de passe est en clair dans `build.gradle.kts` (dépôt public) :
+  les APK de release sont donc signés par une clé publique. Un keystore de release
+  privé est requis **avant** d'enregistrer l'empreinte du client OAuth Android.
+
 
 ## [2026-10-20] — Direction artistique « Carnet de route imprimé » (branche `agent/gemini/design-organique-humain`)
 

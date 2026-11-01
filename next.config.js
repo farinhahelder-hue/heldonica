@@ -17,7 +17,13 @@ const securityHeaders = [
       // l'erreur ne se voyait que dans la console.
       //
       // La permission ne vaut qu'en developpement : la production ne l'a pas.
-      `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''} https://www.googletagmanager.com`,
+      //
+      // Google Identity Services (connexion au CMS par compte Google). Le script
+      // vient de accounts.google.com/gsi/client ; s'il manque ici, le bouton ne
+      // se rend jamais et la page reste sur le mot de passe sans rien signaler
+      // de plus qu'une violation de CSP dans la console — la panne exacte que
+      // GA4 a connue plus bas.
+      `script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''} https://www.googletagmanager.com https://accounts.google.com`,
       "style-src 'self' 'unsafe-inline' https://api.fontshare.com https://fonts.googleapis.com https://unpkg.com",
       "img-src 'self' data: blob: https://images.unsplash.com https://*.supabase.co https://heldonica.fr https://www.heldonica.fr https://behold.pictures https://cdn2.behold.pictures https://lh3.googleusercontent.com https://lh4.googleusercontent.com https://lh5.googleusercontent.com https://lh6.googleusercontent.com https://storage.googleapis.com https://*.tile.openstreetmap.org",
       "media-src 'self' https://d2xsxph8kpxj0f.cloudfront.net https://*.cloudfront.net",
@@ -26,12 +32,14 @@ const securityHeaders = [
       // collecte regional — region1 pour l'Europe. La regle ne listait que
       // www : toutes les mesures partaient et etaient refusees par le
       // navigateur, sans que rien ne le signale ailleurs que dans la console.
-      "connect-src 'self' https://*.supabase.co https://api.perplexity.ai https://api.unsplash.com https://api.bufferapp.com https://nominatim.openstreetmap.org https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com",
+      // accounts.google.com sert au rafraichissement du jeton GIS.
+      "connect-src 'self' https://*.supabase.co https://api.perplexity.ai https://api.unsplash.com https://api.bufferapp.com https://nominatim.openstreetmap.org https://www.google-analytics.com https://*.google-analytics.com https://*.analytics.google.com https://*.googletagmanager.com https://accounts.google.com",
       // Sans frame-src, la regle retombe sur default-src 'self' et l'iframe de
       // repli de Tag Manager (ns.html, pour les visiteurs sans JavaScript) est
       // bloquee en silence — une violation de CSP dans la console, rien de
-      // plus visible.
-      "frame-src 'self' https://www.googletagmanager.com",
+      // plus visible. GIS rend de meme son bouton dans une iframe hebergee par
+      // accounts.google.com : sans cette entree, le bouton reste blanc.
+      "frame-src 'self' https://www.googletagmanager.com https://accounts.google.com",
       "frame-ancestors 'none'",
       "base-uri 'self'",
       "form-action 'self'",

@@ -56,7 +56,7 @@ export async function generateMetadata(): Promise<Metadata> {
   return buildPageMetadata('a-propos', metadata)
 }
 
-export const revalidate = 3600
+export const revalidate = 86400
 
 export default async function AProposPage() {
   const zones = await getPageZones('a-propos')

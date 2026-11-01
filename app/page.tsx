@@ -7,7 +7,7 @@ import { getHomeDestinations, getHomeContentZones } from '@/lib/home-data'
 import { getPageZones } from '@/lib/cms-zones'
 import { buildPageMetadata } from '@/lib/page-metadata'
 
-export const revalidate = 3600
+export const revalidate = 86400
 
 const metadata: Metadata = {
   title: 'Heldonica — Slow travel vécu en duo, conçu pour toi',
@@ -117,7 +117,7 @@ export default async function Home() {
   })
   
   // Get covered_countries as number with fallback
-  const coveredCountries = rawCountries ? parseInt(rawCountries, 10) : 7
+  const coveredCountries = rawCountries ? parseInt(rawCountries, 10) : 0
 
   // Hero media
   const heroVideoUrl = heroSettings['hero_video_url'] || null

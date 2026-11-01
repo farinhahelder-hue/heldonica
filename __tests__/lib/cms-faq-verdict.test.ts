@@ -46,6 +46,20 @@ describe('CMS FAQ & Verdict Generator (lib/cms-faq-verdict-generator.ts)', () =>
 
     expect(bundle.faqs.length).toBe(3);
     expect(bundle.verdict.destination).toBe('Madère');
-    expect(bundle.verdict.verdictScore).toBeGreaterThanOrEqual(7);
+  });
+
+  it("n'invente aucune note de terrain quand l'éditeur n'en pose pas", () => {
+    const bundle = generateFaqVerdictBundle({
+      destination: 'Madère',
+      season: 'automne',
+      mobility: 'marche le long des levadas',
+    });
+
+    expect(bundle.verdict.verdictScore).toBeNull();
+  });
+
+  it('respecte la note réellement saisie et la borne à 10', () => {
+    expect(generateVerdict({ destination: 'Stoos', score: 7.5 }).verdictScore).toBe(7.5);
+    expect(generateVerdict({ destination: 'Stoos', score: 12 }).verdictScore).toBe(10);
   });
 });

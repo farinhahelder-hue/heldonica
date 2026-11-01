@@ -3,7 +3,7 @@ import { getPageZones } from '@/lib/cms-zones';
 import { buildPageMetadata } from '@/lib/page-metadata';
 import MerciClient from './MerciClient';
 
-export const revalidate = 3600;
+export const revalidate = 86400;
 
 const metadata: Metadata = {
   title: 'Merci pour votre demande | Heldonica',

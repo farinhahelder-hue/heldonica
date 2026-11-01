@@ -57,42 +57,36 @@ export const ATMOSPHERE_PRESETS: Record<TemplateAtmosphere, {
   subtitleSuffix: string;
   sensorySnippet: string;
   blockTheme: 'forest_fog' | 'terracotta' | 'parchment' | 'dark' | 'sand';
-  cameraLabel: string;
 }> = {
   aube_brume: {
     label: 'Brume d’aube & Silence',
     subtitleSuffix: 'au fil de la brume suspendue au petit matin',
     sensorySnippet: 'L’air vif du matin pique délicatement le visage. La rosée perle sur les pierres et le sentier appartient à ceux qui partent tôt.',
     blockTheme: 'forest_fog',
-    cameraLabel: 'Nikon D7200 • Nikkor 35mm f/1.8 DX (lumière diffuse du matin)',
   },
   soleil_crepuscule: {
     label: 'Crépuscule & Pierre chaude',
     subtitleSuffix: 'quand la roche ocre restitue la tiédeur du jour écoulé',
     sensorySnippet: 'Les senteurs de pinède et d’herbes sèches montent avec la fraîcheur tombante. Le soleil rasant découpe des ombres nettes sur les murs patinés.',
     blockTheme: 'terracotta',
-    cameraLabel: 'Nikon D7200 • Nikkor 35mm f/1.8 DX (lumière dorée rasante)',
   },
   altitude_mineral: {
     label: 'Crête & Silence minéral',
     subtitleSuffix: 'sur la ligne de crête où le calcaire côtoie le ciel',
     sensorySnippet: 'Le silence n’est troublé que par le vent d’altitude et l’écho assourdi d’une clarine. Le pas se fait attentif sur le roc brut.',
     blockTheme: 'parchment',
-    cameraLabel: 'Nikon D7200 • Nikkor 35mm f/1.8 DX (ISO 100, f/4.0 sans filtre artificiel)',
   },
   fajas_ocean: {
     label: 'Falaises & Océan sauvage',
     subtitleSuffix: 'entre parois basaltiques et ressac puissant de l’Atlantique',
     sensorySnippet: 'L’embrun salé se dépose sur la peau. En contrebas des falaises verticales, quelques parcelles cultivées témoignent de l’obstination des anciens.',
     blockTheme: 'dark',
-    cameraLabel: 'Nikon D7200 • Nikkor 18-105mm VR (format brut non saturé)',
   },
   foret_silence: {
     label: 'Forêt ancienne & Sous-bois',
     subtitleSuffix: 'sous la voûte des mousses et des lauriers centenaires',
     sensorySnippet: 'Chaque pas s’enfonce dans un tapis d’aiguilles et d’humus. La lumière filtre timidement, créant des clairières suspendues hors du temps.',
     blockTheme: 'forest_fog',
-    cameraLabel: 'Nikon D7200 • Nikkor 35mm f/1.8 DX (f/1.8, lumière tamisée)',
   },
 };
 
@@ -124,9 +118,9 @@ export const SEASON_PRESETS: Record<TemplateSeason, {
 };
 
 export const CAMERA_PRESETS: Record<TemplateCameraPreset, string> = {
-  nikon_35mm: 'Nikon D7200 • Nikkor 35mm f/1.8 DX (lumière naturelle)',
+  nikon_35mm: 'Nikon D7200 • Nikkor 35mm f/1.8 DX',
   nikon_zoom: 'Nikon D7200 • Nikkor 18-105mm f/3.5-5.6 VR',
-  pixel_raw: 'Pixel 8 Pro RAW (format brut non saturé, zéro filtre IA)',
+  pixel_raw: 'Pixel 8 Pro RAW',
 };
 
 export interface CmsTemplate {
@@ -154,7 +148,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
     generateBlocks: (opts) => {
       const dest = opts?.destination || 'cette étape';
       const atmo = opts?.atmosphere ? ATMOSPHERE_PRESETS[opts.atmosphere] : undefined;
-      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : (atmo?.cameraLabel || 'Nikon D7200 • Nikkor 35mm f/1.8 DX');
+      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : undefined;
       const theme = atmo?.blockTheme || 'sand';
       return [
         {
@@ -174,7 +168,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
         {
           id: generateId('tpl_photo'),
           type: 'photo_evidence',
-          imageUrl: 'https://heldonica.fr/images/destinations/montenegro/moraca_millennium.jpg',
+          imageUrl: 'https://www.heldonica.fr/images/destinations/montenegro/petrovac_mer.jpg',
           location: `${dest} — premier matin`,
           date: '2026-05-18',
           anecdote: atmo ? atmo.sensorySnippet : 'Le silence matinal le long de la berge avant l\'éveil de la ville.',
@@ -316,12 +310,12 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
           displayMode: 'carousel',
           images: [
             {
-              url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/fanal_foret.jpg',
+              url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/roumanie/IMG_20260827_135023.jpg',
               alt: 'Atmosphère feutrée de la cour intérieure',
               caption: 'La cour intérieure ombragée aux premières heures.',
             },
             {
-              url: 'https://heldonica.fr/images/destinations/montenegro/sahat_kula.jpg',
+              url: 'https://www.heldonica.fr/images/destinations/montenegro/petrovac_mer.jpg',
               alt: 'Chambre aux matières brutes et naturelles',
               caption: 'Pierres apparentes et bois patiné.',
             },
@@ -363,7 +357,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
     generateBlocks: (opts) => {
       const dest = opts?.destination || 'ces horizons';
       const atmo = opts?.atmosphere ? ATMOSPHERE_PRESETS[opts.atmosphere] : undefined;
-      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : (atmo?.cameraLabel || 'Nikon D7200 • Nikkor 35mm f/1.8 DX');
+      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : undefined;
       const theme = atmo?.blockTheme || 'parchment';
       return [
         {
@@ -393,7 +387,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
         {
           id: generateId('tpl_photo2'),
           type: 'photo_evidence',
-          imageUrl: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/achadas_da_cruz.jpg',
+          imageUrl: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/roumanie/IMG_20260827_135023.jpg',
           location: `${dest} — sentier escarpé`,
           date: '2024-10-12',
           anecdote: 'Entre ciel et océan, le sentier vertigineux vers les parcelles cultivées.',
@@ -413,7 +407,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
     generateBlocks: (opts) => {
       const dest = opts?.destination || 'cette étape';
       const atmo = opts?.atmosphere ? ATMOSPHERE_PRESETS[opts.atmosphere] : undefined;
-      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : (atmo?.cameraLabel || 'Nikon D7200 • Nikkor 35mm f/1.8 DX');
+      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : undefined;
       const theme = atmo?.blockTheme || 'sand';
       return [
         {
@@ -441,7 +435,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
         {
           id: generateId('tpl_photo'),
           type: 'photo_evidence',
-          imageUrl: 'https://heldonica.fr/images/destinations/montenegro/moraca_millennium.jpg',
+          imageUrl: 'https://www.heldonica.fr/images/destinations/montenegro/petrovac_mer.jpg',
           location: `${dest} — au lever du jour`,
           date: '2026-05-18',
           anecdote: 'Le village avant le premier bus : preuve que la tranquillité appartient à ceux qui se lèvent tôt.',
@@ -488,7 +482,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
     generateBlocks: (opts) => {
       const dest = opts?.destination || 'les crêtes';
       const atmo = opts?.atmosphere ? ATMOSPHERE_PRESETS[opts.atmosphere] : undefined;
-      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : (atmo?.cameraLabel || 'Nikon D7200 • Nikkor 35mm f/1.8 DX');
+      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : undefined;
       const theme = atmo?.blockTheme || 'forest_fog';
       return [
         {
@@ -508,7 +502,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
         {
           id: generateId('tpl_image'),
           type: 'image',
-          url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/madere/achadas_da_cruz.jpg',
+          url: 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/media/destinations/roumanie/IMG_20260827_135023.jpg',
           alt: 'Ligne de crête découpée dans la brume matinale',
           caption: 'La sente à pic plongeant vers l’océan à perte de vue.',
           layout: 'wide',
@@ -551,7 +545,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
     generateBlocks: (opts) => {
       const dest = opts?.destination || 'cette vallée';
       const atmo = opts?.atmosphere ? ATMOSPHERE_PRESETS[opts.atmosphere] : undefined;
-      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : (atmo?.cameraLabel || 'Nikon D7200 • Nikkor 35mm f/1.8 DX');
+      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : undefined;
       const theme = atmo?.blockTheme || 'parchment';
       return [
         {
@@ -616,7 +610,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
     generateBlocks: (opts) => {
       const dest = opts?.destination || 'cette étape';
       const atmo = opts?.atmosphere ? ATMOSPHERE_PRESETS[opts.atmosphere] : undefined;
-      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : (atmo?.cameraLabel || 'Nikon D7200 • Nikkor 35mm f/1.8 DX');
+      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : undefined;
       const theme = atmo?.blockTheme || 'terracotta';
       return [
         {
@@ -644,7 +638,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
         {
           id: generateId('tpl_photo'),
           type: 'photo_evidence',
-          imageUrl: 'https://heldonica.fr/images/destinations/montenegro/moraca_millennium.jpg',
+          imageUrl: 'https://www.heldonica.fr/images/destinations/montenegro/petrovac_mer.jpg',
           location: `${dest} — au marché du matin`,
           date: '2026-05-18',
           anecdote: 'Le patron choisit lui-même ses légumes à l’aube : le secret d’une cuisine authentique.',
@@ -691,7 +685,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
     generateBlocks: (opts) => {
       const dest = opts?.destination || 'cette vallée';
       const atmo = opts?.atmosphere ? ATMOSPHERE_PRESETS[opts.atmosphere] : undefined;
-      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : (atmo?.cameraLabel || 'Nikon D7200 • Nikkor 35mm f/1.8 DX');
+      const camera = opts?.cameraPreset ? CAMERA_PRESETS[opts.cameraPreset] : undefined;
       const theme = atmo?.blockTheme || 'forest_fog';
       return [
         {
@@ -731,7 +725,7 @@ export const CMS_TEMPLATES: Record<CmsTemplateId, CmsTemplate> = {
         {
           id: generateId('tpl_photo'),
           type: 'photo_evidence',
-          imageUrl: 'https://heldonica.fr/images/destinations/montenegro/moraca_millennium.jpg',
+          imageUrl: 'https://www.heldonica.fr/images/destinations/montenegro/petrovac_mer.jpg',
           location: `${dest} — en fin d’après-midi`,
           date: '2026-05-18',
           anecdote: 'Lumière rasante sur les rails au moment où le train s’arrête dans le calme du crépuscule.',
