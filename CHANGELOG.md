@@ -4,6 +4,26 @@
 
   ## [2026-11-01] — Refonte Éditoriale Stitch : Page d'Accueil Terracotta & Azure & Atlas Cartographique Interactif
 
+- **Enrichissement Destination Suisse & Carnet Alpin Stoos (`app/destinations/suisse/page.tsx`, `app/destinations/suisse/stoos/page.tsx`)** :
+  - **Refonte Éditoriale du Hub Suisse (`app/destinations/suisse/page.tsx`)** :
+    - Remplacement de l'ancien fallback par un portail complet slow travel adossé aux relevés réels de l'archive `Suisse - Stoos & Randonnées alpines (Schwyz)-1-001.zip` (50 photos géolocalisées, 2 vidéos, prises le 12 juillet 2025).
+    - Hero immersif avec photo locale authentique (`/images/destinations/suisse/stoos/etape1_stoos_panorama_lac.jpg`), données d'altitude (1 922 m), mobilité douce (CFF/SBB et Stoosbahn 110%) et badge terrain vérifié.
+    - Navigation d'étapes vers Stoos, Zurich et le Grand Atlas Cartographique.
+    - Cartes d'itinéraires détaillées (Stoos Ridge Trail 6,5 km, niveau T2, 2h45-3h15) et Zurich au fil de l'eau.
+    - 3 Règles d'or helvétiques : horaires décalés après 16h30, villages 100% piétons sans moteur, approvisionnement direct dans les alpages (Alpkäse).
+    - Données structurées JSON-LD `TouristDestination` et `FAQPage` conformes schema.org.
+  - **Enrichissement Fiche Technique Stoos (`app/destinations/suisse/stoos/page.tsx`)** :
+    - Fiche technique de crête : altitude sommet (1 922 m), distance (6,5 km), durée (2h45 à 3h15), mesure acoustique crépusculaire (28 dB à 20h contre 65 dB en vallée).
+    - Chronologie précise des 6 étapes horodatées (17h27 sommet, 18h08 cabane éperon, 19h01 arête médiane, 19h22 versant sud, 20h20 alpages du soir, 20h33 belvédère couchant) et coordonnées GPS Pixel.
+    - Section Terroir & Alpages : fabrication de l'Alpkäse d'estive et pain de seigle.
+    - Remplacement de l'image externe de repli par la photo locale vérifiée dans `DestinationPage.tsx`.
+  - **Garde-fous & Tests** :
+    - 100% des textes visibles sous `EditableZone` / `Z(...)` (baseline CMS hardcode maintenue à 0).
+    - 0 mot banni, 0 tic visuel SaaS.
+    - Pré-vol 13/13 vert (`npm run preflight`).
+    - Suite de tests unitaires `__tests__/lib/unpublished-pages.test.ts` verte (10/10 passés).
+
+
 - **Refonte Éditoriale de la Page d'Accueil (`components/HomeClient.tsx`)** :
   - Intégration de la direction artistique et des composants Stitch :
     1. **Hero immersif & Manifeste** : Accroche typographique Playfair Display « On ferme les ordis. On part. On revient avec des pépites qu’on n’avait pas cherchées. », micro-badge curateurs indépendants, barre de métriques vécues (40 pays arpentés, 100+ pépites secrètes, 12 pays habités, 100% vécu en duo), cachet « 0% tourisme de masse » et vignette photo en direct.

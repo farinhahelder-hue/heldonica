@@ -24,8 +24,9 @@ describe('unpublished-pages', () => {
     // 18/10 (décision du fondateur après la planche de contrôle des photos).
     // + 3 pages relevées en ligne le 19/10 : Paris, Maramureș, Grèce.
     // + 3 pays « Bientôt » par décision du 19/10 : Colombie, Lisbonne, Sicile.
-    expect(UNPUBLISHED_PATHS).toHaveLength(14 + 33 + 3 + 3);
-    expect(UNPUBLISHED_CMS_PAGES).toHaveLength(14 + 33 + 3 + 3);
+    // + 8 pages ajoutées pour les nouveaux carnets en brouillon (Stoos, Alcobaça, Sintra, Óbidos, Batalha-Tomar, Coimbra, Savoie, Beausoleil).
+    expect(UNPUBLISHED_PATHS).toHaveLength(14 + 33 + 3 + 3 + 8);
+    expect(UNPUBLISHED_CMS_PAGES).toHaveLength(14 + 33 + 3 + 3 + 8);
   });
 
   it('décision du 19/10 : Colombie, Lisbonne et Sicile « Bientôt »', () => {

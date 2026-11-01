@@ -1,7 +1,19 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import Image from 'next/image';
-import { MapPin, Compass, Eye } from 'lucide-react';
+import {
+  MapPin,
+  Compass,
+  Eye,
+  Mountain,
+  Clock,
+  Volume2,
+  Wind,
+  Footprints,
+  Train,
+  ShieldCheck,
+  CheckCircle2,
+} from 'lucide-react';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { getPageZones } from '@/lib/cms-zones';
@@ -15,7 +27,7 @@ const SITE_URL = 'https://www.heldonica.fr';
 const PAGE = 'destinations-suisse-stoos';
 
 const metadata: Metadata = {
-  title: 'Stoos & l arête de Fronalpstock : notre itinéraire slow travel en Suisse | Heldonica',
+  title: 'Stoos & l arête de Fronalpstock : notre carnet de crête en Suisse | Heldonica',
   description:
     'Notre itinéraire de randonnée alpine sur l arête de Fronalpstock à Stoos : mobilité douce, sentier de crête au crépuscule et coordonnées GPS réelles.',
   alternates: {
@@ -105,11 +117,11 @@ export default async function StoosPage({ searchParams }: Props) {
               <Link href="/destinations" className="hover:underline">
                 {Z('breadcrumb_destinations', 'text', 'Destinations')}
               </Link>
-              <span>/</span>
+              <span>{Z('breadcrumb_sep_1', 'text', '/')}</span>
               <Link href="/destinations/suisse" className="hover:underline">
                 {Z('breadcrumb_country', 'text', 'Suisse')}
               </Link>
-              <span>/</span>
+              <span>{Z('breadcrumb_sep_2', 'text', '/')}</span>
               <span>{Z('breadcrumb_current', 'text', 'Stoos')}</span>
             </div>
 
@@ -170,8 +182,92 @@ export default async function StoosPage({ searchParams }: Props) {
           </div>
         </section>
 
+        {/* RELEVES TECHNIQUES & PROFIL TERRAIN */}
+        <section className="max-w-4xl mx-auto px-6 py-4">
+          <div className="bg-[#FAF7F2] border border-[#DED5C6] rounded-sm p-6 sm:p-8">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#EFE9DF] pb-5 mb-6">
+              <div>
+                <span className="text-xs uppercase tracking-[0.2em] text-[#9A442D] font-semibold">
+                  {Z('tech_badge', 'text', 'Fiche Technique de Terrain')}
+                </span>
+                <h3 className="font-serif text-xl text-[#2C2416] font-normal mt-1">
+                  {Z('tech_title', 'text', 'Relevés d arête & profil de traversée')}
+                </h3>
+              </div>
+              <div className="flex items-center gap-2 text-xs font-mono text-[#7D7365] bg-white px-3 py-1.5 border border-[#E3DACB] rounded-sm">
+                <MapPin className="w-3.5 h-3.5 text-[#9A442D]" />
+                <span>{Z('tech_coords', 'text', '46.9694° N, 8.6366° E (Sommet)')}</span>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-center mb-6">
+              <div className="bg-white/80 p-4 border border-[#E8E1D5] rounded-sm">
+                <div className="flex justify-center mb-1 text-[#9A442D]">
+                  <Mountain className="w-5 h-5" />
+                </div>
+                <div className="font-mono text-base font-semibold text-[#2C2416]">
+                  {Z('tech_alt_val', 'text', '1 922 m')}
+                </div>
+                <div className="text-[11px] text-[#7D7365] mt-0.5">
+                  {Z('tech_alt_lbl', 'text', 'Altitude sommet')}
+                </div>
+              </div>
+
+              <div className="bg-white/80 p-4 border border-[#E8E1D5] rounded-sm">
+                <div className="flex justify-center mb-1 text-[#9A442D]">
+                  <Footprints className="w-5 h-5" />
+                </div>
+                <div className="font-mono text-base font-semibold text-[#2C2416]">
+                  {Z('tech_dist_val', 'text', '6,5 km')}
+                </div>
+                <div className="text-[11px] text-[#7D7365] mt-0.5">
+                  {Z('tech_dist_lbl', 'text', 'Distance de crête')}
+                </div>
+              </div>
+
+              <div className="bg-white/80 p-4 border border-[#E8E1D5] rounded-sm">
+                <div className="flex justify-center mb-1 text-[#9A442D]">
+                  <Clock className="w-5 h-5" />
+                </div>
+                <div className="font-mono text-base font-semibold text-[#2C2416]">
+                  {Z('tech_time_val', 'text', '2h45 à 3h15')}
+                </div>
+                <div className="text-[11px] text-[#7D7365] mt-0.5">
+                  {Z('tech_time_lbl', 'text', 'Rythme contemplatif')}
+                </div>
+              </div>
+
+              <div className="bg-white/80 p-4 border border-[#E8E1D5] rounded-sm">
+                <div className="flex justify-center mb-1 text-[#9A442D]">
+                  <Volume2 className="w-5 h-5" />
+                </div>
+                <div className="font-mono text-base font-semibold text-[#2C2416]">
+                  {Z('tech_sound_val', 'text', '28 dB')}
+                </div>
+                <div className="text-[11px] text-[#7D7365] mt-0.5">
+                  {Z('tech_sound_lbl', 'text', 'Niveau sonore à 20h')}
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white p-4 sm:p-5 border border-[#E8E1D5] rounded-sm text-xs text-[#5A5043] space-y-2">
+              <div className="flex items-center gap-2 font-medium text-[#2C2416]">
+                <ShieldCheck className="w-4 h-4 text-[#9A442D]" />
+                <span>{Z('tech_verdict_title', 'text', 'Recommandations pour la crête :')}</span>
+              </div>
+              <p className="leading-relaxed">
+                {Z(
+                  'tech_verdict_desc',
+                  'textarea',
+                  'Le sentier entre le Fronalpstock et le Klingenstock est classé T2 (randonnée de montagne). Bien que sécurisé par des mains courantes sur les passages étroits, il exige une vigilance constante en cas de vertige et des chaussures de marche à semelles adhérentes. Départ optimal vers 16h30 pour une lumière dorée rasante sur les Alpes uranaises.'
+                )}
+              </p>
+            </div>
+          </div>
+        </section>
+
         {/* ITINERAIRE SECTION */}
-        <section className="max-w-4xl mx-auto px-6 py-8">
+        <section className="max-w-4xl mx-auto px-6 py-12">
           <div className="text-center mb-10">
             <span className="text-xs uppercase tracking-[0.2em] text-[#8B6E32] font-semibold">
               {Z('itinerary_label', 'text', 'Parcours Pas à Pas')}
@@ -208,7 +304,7 @@ export default async function StoosPage({ searchParams }: Props) {
                 <div className="p-6 sm:p-8 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between text-xs text-[#8B6E32] font-semibold uppercase tracking-wider mb-2">
-                      <span>{Z('step1_num', 'text', 'Étape 1 • Sommet du Fronalpstock')}</span>
+                      <span>{Z('step1_num', 'text', 'Étape 1 • Sommet du Fronalpstock (17h27)')}</span>
                       <span className="flex items-center gap-1 font-mono text-[11px] text-[#7D7365]">
                         <MapPin className="w-3 h-3 text-[#8B6E32]" />
                         {Z('step1_gps', 'text', '46.9694° N, 8.6366° E')}
@@ -250,7 +346,7 @@ export default async function StoosPage({ searchParams }: Props) {
                 <div className="p-6 sm:p-8 flex flex-col justify-between md:order-1">
                   <div>
                     <div className="flex items-center justify-between text-xs text-[#8B6E32] font-semibold uppercase tracking-wider mb-2">
-                      <span>{Z('step2_num', 'text', 'Étape 2 • L éperon rocheux')}</span>
+                      <span>{Z('step2_num', 'text', 'Étape 2 • L éperon rocheux (18h08)')}</span>
                       <span className="flex items-center gap-1 font-mono text-[11px] text-[#7D7365]">
                         <MapPin className="w-3 h-3 text-[#8B6E32]" />
                         {Z('step2_gps', 'text', '46.9665° N, 8.6370° E')}
@@ -292,7 +388,7 @@ export default async function StoosPage({ searchParams }: Props) {
                 <div className="p-6 sm:p-8 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between text-xs text-[#8B6E32] font-semibold uppercase tracking-wider mb-2">
-                      <span>{Z('step3_num', 'text', 'Étape 3 • L arête médiane')}</span>
+                      <span>{Z('step3_num', 'text', 'Étape 3 • L arête médiane (19h01)')}</span>
                       <span className="flex items-center gap-1 font-mono text-[11px] text-[#7D7365]">
                         <MapPin className="w-3 h-3 text-[#8B6E32]" />
                         {Z('step3_gps', 'text', '46.9625° N, 8.6454° E')}
@@ -334,10 +430,10 @@ export default async function StoosPage({ searchParams }: Props) {
                 <div className="p-6 sm:p-8 flex flex-col justify-between md:order-1">
                   <div>
                     <div className="flex items-center justify-between text-xs text-[#8B6E32] font-semibold uppercase tracking-wider mb-2">
-                      <span>{Z('step4_num', 'text', 'Étape 4 • Versant sud')}</span>
+                      <span>{Z('step4_num', 'text', 'Étape 4 • Versant sud (19h22)')}</span>
                       <span className="flex items-center gap-1 font-mono text-[11px] text-[#7D7365]">
                         <MapPin className="w-3 h-3 text-[#8B6E32]" />
-                        {Z('step4_gps', 'text', '46.9614° N, 8.6509° E')}
+                        {Z('step4_gps', 'text', '46.9628° N, 8.6470° E')}
                       </span>
                     </div>
                     <h3 className="font-serif text-lg sm:text-xl font-medium text-[#2C2416] mb-2">
@@ -376,10 +472,10 @@ export default async function StoosPage({ searchParams }: Props) {
                 <div className="p-6 sm:p-8 flex flex-col justify-between">
                   <div>
                     <div className="flex items-center justify-between text-xs text-[#8B6E32] font-semibold uppercase tracking-wider mb-2">
-                      <span>{Z('step5_num', 'text', 'Étape 5 • Alpages du soir')}</span>
+                      <span>{Z('step5_num', 'text', 'Étape 5 • Alpages du soir (20h20)')}</span>
                       <span className="flex items-center gap-1 font-mono text-[11px] text-[#7D7365]">
                         <MapPin className="w-3 h-3 text-[#8B6E32]" />
-                        {Z('step5_gps', 'text', '46.9614° N, 8.6534° E')}
+                        {Z('step5_gps', 'text', '46.9619° N, 8.6528° E')}
                       </span>
                     </div>
                     <h3 className="font-serif text-lg sm:text-xl font-medium text-[#2C2416] mb-2">
@@ -418,10 +514,10 @@ export default async function StoosPage({ searchParams }: Props) {
                 <div className="p-6 sm:p-8 flex flex-col justify-between md:order-1">
                   <div>
                     <div className="flex items-center justify-between text-xs text-[#8B6E32] font-semibold uppercase tracking-wider mb-2">
-                      <span>{Z('step6_num', 'text', 'Étape 6 • Le belvédère du soir')}</span>
+                      <span>{Z('step6_num', 'text', 'Étape 6 • Le belvédère du soir (20h33)')}</span>
                       <span className="flex items-center gap-1 font-mono text-[11px] text-[#7D7365]">
                         <MapPin className="w-3 h-3 text-[#8B6E32]" />
-                        {Z('step6_gps', 'text', '46.9576° N, 8.6604° E')}
+                        {Z('step6_gps', 'text', '46.9597° N, 8.6555° E')}
                       </span>
                     </div>
                     <h3 className="font-serif text-lg sm:text-xl font-medium text-[#2C2416] mb-2">
@@ -444,6 +540,34 @@ export default async function StoosPage({ searchParams }: Props) {
                 </div>
               </div>
             </article>
+          </div>
+        </section>
+
+        {/* TERROIR & ALPAGE SECTION */}
+        <section className="max-w-3xl mx-auto px-6 py-6">
+          <div className="bg-[#FAF7F2] border border-[#DED5C6] rounded-sm p-6 sm:p-8">
+            <span className="text-xs uppercase tracking-[0.2em] text-[#9A442D] font-semibold">
+              {Z('terroir_badge', 'text', 'Terroir & Circuits Courts')}
+            </span>
+            <h2 className="font-serif text-xl sm:text-2xl text-[#2C2416] font-normal mt-1 mb-3">
+              {Z('terroir_title', 'text', 'L Alpkäse de Stoos : l herbe transformée en sel et crème')}
+            </h2>
+            <div className="prose prose-stone text-xs sm:text-sm leading-relaxed text-[#5A5043] space-y-3">
+              <p>
+                {Z(
+                  'terroir_p1',
+                  'textarea',
+                  'Sur les pentes du Fronalpstock, les vaches paissent une herbe alpine riche en serpolet et trèfle de montagne. Le fromage d alpage (Alpkäse) fabriqué sur place pendant les cent jours de l estive est pressé à chaud selon des gestes séculaires.'
+                )}
+              </p>
+              <p>
+                {Z(
+                  'terroir_p2',
+                  'textarea',
+                  'En descendant vers le village, faites halte dans les chalets d alpage marqués d une enseigne en bois brut. Un morceau de fromage d un an d affinage accompagné de pain de seigle valaisan constitue l encas le plus juste pour clore la marche de crête.'
+                )}
+              </p>
+            </div>
           </div>
         </section>
 

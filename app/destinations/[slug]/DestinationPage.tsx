@@ -21,7 +21,7 @@ const DESTINATION_IMAGES: Record<string, string> = {
   'sicile': '/og-default.jpg',
   'lisbonne': '/og-default.jpg',
   'montenegro': '/images/destinations/montenegro/moraca_millennium.jpg',
-  'suisse': 'https://smxnruefmrmfyfhuxygq.supabase.co/storage/v1/object/public/blog-images/stoos-02.jpg',
+  'suisse': '/images/destinations/suisse/stoos/etape1_stoos_panorama_lac.jpg',
   'zurich': '/og-default.jpg',
   'paris': '/og-default.jpg',
   'roumanie': '/og-default.jpg',
