@@ -65,3 +65,19 @@ describe('isValidCmsPassword', () => {
     expect(await isValidCmsPassword('supersecretlonger')).toBe(false);
   });
 });
+
+describe('getCmsSessionToken', () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+    vi.unstubAllGlobals();
+  });
+
+  it('throws an error when crypto.getRandomValues is not available', async () => {
+    vi.stubEnv('CMS_SESSION_SECRET', 'supersecret');
+    const originalCrypto = globalThis.crypto;
+    vi.stubGlobal('crypto', { subtle: originalCrypto?.subtle });
+
+    // We expect it to reject since getCmsSessionToken is async and generateRandomHex throws synchronously
+    await expect(import('../../lib/cms-auth').then(m => m.getCmsSessionToken())).rejects.toThrow('Web Crypto API (getRandomValues) not available');
+  });
+});
