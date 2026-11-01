@@ -20,3 +20,7 @@ Optimized blog index page with Incremental Static Regeneration (ISR) with 60 sec
 ## 2024-10-15 - Optimizing Chronological Lookups with Bisect
 **Learning:** When matching time-series data (like photos to GPS positions), nested O(N²) loops become a severe bottleneck. Using the `bisect` module for binary search lookups on pre-sorted arrays handles multi-day overlaps efficiently without regressions.
 **Action:** Always use `bisect` for cross-referencing large chronologically sorted arrays instead of naive nested loops or day-grouping dictionaries.
+
+## 2024-11-21 - Pre-compiling RegExp for French Prepositions Optimization
+**Learning:** In `lib/french-prepositions.ts`, creating `new RegExp()` dynamically inside the `for` loop of `fixDestinationPrepositions` meant recompiling regular expressions for every single known destination each time the function was called. This caused an O(N) regex compilations performance overhead.
+**Action:** Extract the static `new RegExp()` creation to the module level and map `VARIANTS` into `PRECOMPILED_PATTERNS`. Iterate over the pre-compiled regex objects instead, changing runtime compilation from O(N) per call to strictly O(1) during module load.

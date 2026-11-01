@@ -153,6 +153,14 @@ function variantEntries(): [string, FrenchPreposition][] {
 
 const VARIANTS = variantEntries()
 
+const PRECOMPILED_PATTERNS = VARIANTS.map(([variant, preposition]) => ({
+  pattern: new RegExp(
+    `(^|[^\\p{L}])${PREPOSITION_ALTERNATION}\\s+(${escapeRegExp(variant)})(?![\\p{L}])`,
+    'giu'
+  ),
+  preposition
+}))
+
 /** Préposition juste devant un lieu : « en », « au », « aux » ou « à ». */
 export function prepositionForDestination(destination: string): FrenchPreposition {
   const name = destination.trim().replace(LEADING_PREPOSITION, '')
@@ -177,11 +185,7 @@ export function inDestination(destination: string): string {
 export function fixDestinationPrepositions(text: string): string {
   if (!text) return text
   let fixed = text.normalize('NFC')
-  for (const [variant, preposition] of VARIANTS) {
-    const pattern = new RegExp(
-      `(^|[^\\p{L}])${PREPOSITION_ALTERNATION}\\s+(${escapeRegExp(variant)})(?![\\p{L}])`,
-      'giu'
-    )
+  for (const { pattern, preposition } of PRECOMPILED_PATTERNS) {
     fixed = fixed.replace(pattern, (_match, before: string, name: string) => `${before}${preposition} ${name}`)
   }
   return fixed
