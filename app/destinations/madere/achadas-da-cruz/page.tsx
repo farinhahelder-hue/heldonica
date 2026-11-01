@@ -26,7 +26,7 @@ const metadata: Metadata = {
     description:
       'Descente par le téléphérique agricole à 98 % de pente vers la fajã de galets marins d Achadas da Cruz à Madère. Notre itinéraire vécu en duo.',
     type: 'website',
-    images: [`${SITE_URL}/images/destinations/madere/achadas_da_cruz.jpg`],
+    images: [`${SITE_URL}/og-default.jpg`],
     locale: 'fr_FR',
     siteName: 'Heldonica',
   },
@@ -56,7 +56,7 @@ export default async function AchadasdaCruzPage({ searchParams }: Props) {
         slug="madere-achadas-da-cruz"
         title={zones.title || 'Achadas-da-Cruz'}
         country="Madère"
-        hero_unsplash_url="/images/destinations/madere/achadas_da_cruz.jpg"
+        hero_unsplash_url="/og-default.jpg"
         zones={zones}
       />
     );
@@ -106,7 +106,7 @@ export default async function AchadasdaCruzPage({ searchParams }: Props) {
             {Z(
               'hero_image',
               'image',
-              '/images/destinations/madere/achadas_da_cruz.jpg',
+              '/og-default.jpg',
               'w-full h-full object-cover object-center opacity-75'
             )}
           </div>
@@ -299,7 +299,7 @@ export default async function AchadasdaCruzPage({ searchParams }: Props) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
                 <div className="relative h-64 md:h-auto min-h-[260px]">
                   <Image
-                    src="/images/destinations/madere/achadas_da_cruz.jpg"
+                    src="/og-default.jpg"
                     alt=""
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"
@@ -341,7 +341,7 @@ export default async function AchadasdaCruzPage({ searchParams }: Props) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
                 <div className="relative h-64 md:h-auto min-h-[260px] md:order-2">
                   <Image
-                    src="/images/destinations/madere/fanal_foret.jpg"
+                    src="/og-default.jpg"
                     alt=""
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"
@@ -383,7 +383,7 @@ export default async function AchadasdaCruzPage({ searchParams }: Props) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
                 <div className="relative h-64 md:h-auto min-h-[260px]">
                   <Image
-                    src="/images/destinations/madere/porto_moniz.jpg"
+                    src="/og-default.jpg"
                     alt=""
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"

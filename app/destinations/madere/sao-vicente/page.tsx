@@ -25,7 +25,7 @@ const defaultMetadata: Metadata = {
     description:
       'Entre la vallée encaissée de São Vicente et le sable noir volcanique de Seixal : notre itinéraire lent sur la côte nord de Madère.',
     type: 'website',
-    images: ['/images/destinations/madere/porto_moniz.jpg'],
+    images: ['/og-default.jpg'],
     locale: 'fr_FR',
     siteName: 'Heldonica',
   },
@@ -54,7 +54,7 @@ export default async function SaoVicentePage({
         slug="madere-sao-vicente"
         title={zones.title || 'Sao-Vicente'}
         country="Madère"
-        hero_unsplash_url="/images/destinations/madere/porto_moniz.jpg"
+        hero_unsplash_url="/og-default.jpg"
         zones={zones}
       />
     )
@@ -98,7 +98,7 @@ export default async function SaoVicentePage({
             {Z(
               'hero_image',
               'image',
-              '/images/destinations/madere/porto_moniz.jpg',
+              '/og-default.jpg',
               'w-full h-full object-cover object-center'
             )}
             <div className="absolute inset-0 bg-gradient-to-t from-[#1A1610]/90 via-[#1A1610]/40 to-transparent" />
@@ -329,7 +329,7 @@ export default async function SaoVicentePage({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
                 <div className="relative h-64 md:h-auto min-h-[260px]">
                   <Image
-                    src="/images/destinations/madere/porto_moniz.jpg"
+                    src="/og-default.jpg"
                     alt=""
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"
@@ -373,7 +373,7 @@ export default async function SaoVicentePage({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
                 <div className="relative h-64 md:h-auto min-h-[260px] md:order-2">
                   <Image
-                    src="/images/destinations/madere/fanal_foret.jpg"
+                    src="/og-default.jpg"
                     alt=""
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"
@@ -417,7 +417,7 @@ export default async function SaoVicentePage({
               <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
                 <div className="relative h-64 md:h-auto min-h-[260px]">
                   <Image
-                    src="/images/destinations/madere/achadas_da_cruz.jpg"
+                    src="/og-default.jpg"
                     alt=""
                     fill
                     sizes="(max-width: 768px) 100vw, 50vw"
