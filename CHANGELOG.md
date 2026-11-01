@@ -351,6 +351,40 @@
   - **Dynamisme matériel** : adaptation automatique de l'interface au modèle de smartphone détecté (`Pixel 8 Pro` au lieu de mentions en dur « Poco »).
   - **Scripts d'installation & de reverse proxy** : mise à jour de `INSTALLER_SUR_TELEPHONE.bat` sur le Bureau (APK 40.5 Mo) avec reverse tunnel automatique (ports 8440, 8470, 3000) et script dédié `CONNECTER_PIXEL8PRO_AU_BRAIN.bat`. Déploiement dans `ci-artifacts/app-debug.apk` pour téléchargement direct sans fil depuis la console locale (port 8480).
   - **Vérifications** : tests unitaires JVM Kotlin (`StudioTabsTest`) verts ; compilation Gradle `assembleDebug` réussie (APK 40.5 Mo) ; `npm run preflight` 13/13 vert ; `tsc` 0 erreur.
+## [2026-11-01 duovicies] — `temoignages` conservée pour l'avenir, mais marquée : plus aucun faux avis ne peut être publié
+
+**Décision du propriétaire.** La table `temoignages` **n'est pas supprimée** (« à laisser pour l'avenir »), mais elle doit être **marquée clairement** : pas de fausses reviews. La migration précédente (`20261101110000`) avait fermé la lecture anonyme ; celle-ci ferme le **risque de republication**.
+
+**Deux défauts mesurés subsistaient.**
+
+1. `visible` valait `true` sur les 5 lignes, et la colonne portait `DEFAULT true`. Si une politique de lecture revenait un jour — reprise d'un ancien script, ajout par mégarde — les 5 faux témoignages redevenaient publics **immédiatement**, sans qu'aucune alerte ne se déclenche.
+2. Rien, ni dans la table ni dans son commentaire, ne disait que ce contenu est **fictif**. Un relecteur du tableau de bord pouvait les prendre pour de vrais avis clients et les réactiver.
+
+**Le marquage, en quatre gestes non destructifs** (`20261101130000_marquer_temoignages_fictifs_non_publics.sql`) :
+
+| Geste | Effet |
+|---|---|
+| `COMMENT ON TABLE` | la table est étiquetée « ANCIEN PROJET — NE PAS PUBLIER », avec la marche à suivre pour un vrai témoignage |
+| Colonne `origine` (`fictif` \| `reel`) | les 5 lignes deviennent `fictif` ; la provenance est lisible au tableau de bord |
+| `visible = false` + `DEFAULT false` | un faux ne peut plus ressortir, et toute **nouvelle** ligne est invisible tant qu'on ne la publie pas exprès |
+| `CHECK (NOT visible OR origine = 'reel')` | **la garantie** : publier une ligne non marquée réelle est impossible, par construction |
+
+**Rien n'a été supprimé** : les 5 lignes sont intactes, texte compris. Elles sont simplement invisibles et marquées.
+
+**Vérifié par exécution** (Postgres 15, état de production reconstitué) :
+
+| Contrôle | Attendu | Mesuré |
+|---|---|---|
+| Publier un fictif | bloqué | `violates check constraint "temoignages_publication_reelle_check"` |
+| Origine invalide (`'peut-etre'`) | bloqué | `violates check constraint "temoignages_origine_check"` |
+| Parcours légitime (`reel` puis `visible`) | passe | `origine=reel visible=true` |
+| Nouvelle ligne | invisible d'office | `origine=fictif visible=false` |
+| Rejeu de la migration | aucun changement | `COMMIT`, état identique |
+| Lignes et textes | préservés | 5 lignes, `fictifs=5`, `visibles=0` |
+
+**Test par mutation.** Contrainte supprimée à la main et un fictif forcé visible : le rejeu de la migration le **re-masque** et remet la contrainte. La migration n'est pas seulement défensive, elle est **réparatrice**.
+
+**Défaut attrapé avant livraison.** Le premier jet plaçait `COMMENT ON COLUMN ... origine` **avant** la création de la colonne : `ERROR: column "origine" does not exist`, transaction annulée. L'ordre a été corrigé — et c'est le test qui l'a montré, pas la relecture.
 
 ## [2026-11-01 unvicies] — Le contenu « incohérent » était un résidu de coaching exposé par l'API
 
