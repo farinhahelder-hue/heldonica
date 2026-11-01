@@ -616,6 +616,7 @@ export default function SubtitlesEditor() {
                         <div style={{ display: 'flex', gap: '0.5rem', marginTop: '0.75rem', justifyContent: 'flex-end' }}>
                           <button
                             onClick={() => setEditingSubtitle(null)}
+                            aria-label="Annuler la modification"
                             style={{
                               padding: '0.35rem 0.75rem',
                               background: '#e5e5e5',
@@ -709,6 +710,7 @@ export default function SubtitlesEditor() {
                           </button>
                           <button
                             onClick={() => deleteSubtitle(sub.id)}
+                            aria-label="Supprimer le sous-titre"
                             style={{
                               padding: '0.35rem 0.5rem',
                               background: '#fee2e2',
